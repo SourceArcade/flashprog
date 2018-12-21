@@ -186,6 +186,19 @@ int process_include_args(struct flashprog_layout *l, const struct layout_include
 	return 0;
 }
 
+unsigned int layout_num_regions_included(const struct flashprog_layout *const l)
+{
+	const struct romentry *entry = NULL;
+	unsigned int count = 0;
+
+	while ((entry = layout_next(l, entry))) {
+		if (entry->included)
+			++count;
+	}
+
+	return count;
+}
+
 void cleanup_include_args(struct layout_include_args **args)
 {
 	struct layout_include_args *tmp;

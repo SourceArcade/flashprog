@@ -567,6 +567,9 @@ int flashprog_classic_main(int argc, char *argv[])
 	if (ret)
 		goto out_shutdown;
 
+	if (layout && layout_num_regions_included(layout) == 0)
+		msg_gwarn("Warning: Layout specified but no region included!\n");
+
 	flashprog_layout_set(fill_flash, layout);
 	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_FORCE, force);
 #if CONFIG_INTERNAL == 1

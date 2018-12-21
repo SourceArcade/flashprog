@@ -56,6 +56,7 @@ int layout_from_file(struct flashprog_layout **, const char *name);
 
 int register_include_arg(struct layout_include_args **, char *arg);
 int process_include_args(struct flashprog_layout *, const struct layout_include_args *);
+unsigned int layout_num_regions_included(const struct flashprog_layout *);
 void cleanup_include_args(struct layout_include_args **);
 
 const struct romentry *layout_next_included_region(const struct flashprog_layout *, chipoff_t);
