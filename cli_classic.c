@@ -66,6 +66,7 @@ static void cli_classic_usage(const char *name)
 	       "      --fmap                        read ROM layout from fmap embedded in ROM\n"
 	       "      --fmap-file <fmapfile>        read ROM layout from fmap in <fmapfile>\n"
 	       "      --ifd                         read layout from an Intel Firmware Descriptor\n"
+	       "      --ifwi                        read layout from an Integrated Firmware Image\n"
 	       " -i | --include <region>            only read/write image <region> from layout\n"
 	       "      --image <region>              deprecated, please use --include\n"
 	       " -o | --output <logfile>            log output to <logfile>\n"
@@ -257,6 +258,7 @@ int flashprog_classic_main(int argc, char *argv[])
 		{"force",		0, NULL, 'f'},
 		{"layout",		1, NULL, 'l'},
 		{"ifd",			0, NULL, OPTION_IFD},
+		{"ifwi",		0, NULL, OPTION_IFWI},
 		{"fmap",		0, NULL, OPTION_FMAP},
 		{"fmap-file",		1, NULL, OPTION_FMAP_FILE},
 		{"image",		1, NULL, 'i'}, // (deprecated): back compatibility.
@@ -346,6 +348,7 @@ int flashprog_classic_main(int argc, char *argv[])
 			break;
 		case OPTION_LAYOUT:
 		case OPTION_IFD:
+		case OPTION_IFWI:
 		case OPTION_FMAP:
 		case OPTION_FMAP_FILE:
 			ret = cli_parse_layout_args(&layout_args, opt, optarg);

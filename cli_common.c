@@ -133,7 +133,7 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 
 int cli_parse_layout_args(struct layout_args *const args, const int opt, const char *const opt_arg)
 {
-	if (args->layoutfile || args->ifd || args->fmap || args->fmapfile) {
+	if (args->layoutfile || args->ifd || args->ifwi || args->fmap || args->fmapfile) {
 		fprintf(stderr, "Error: Only one layout source may be specified.\n");
 		return 1;
 	}
@@ -151,6 +151,9 @@ int cli_parse_layout_args(struct layout_args *const args, const int opt, const c
 		break;
 	case OPTION_IFD:
 		args->ifd = true;
+		break;
+	case OPTION_IFWI:
+		args->ifwi = true;
 		break;
 	case OPTION_FMAP:
 		args->fmap = true;
@@ -181,6 +184,9 @@ int cli_process_layout_args(struct flashprog_layout **const layout,
 			return 1;
 	} else if (args->ifd) {
 		if (flashprog_layout_read_from_ifd(layout, flash, NULL, 0))
+			return 1;
+	} else if (args->ifwi) {
+		if (flashprog_layout_read_from_ifwi(layout, flash))
 			return 1;
 	} else if (args->fmap) {
 		if (flashprog_layout_read_fmap_from_rom(layout, flash, 0, flashprog_flash_getsize(flash)))

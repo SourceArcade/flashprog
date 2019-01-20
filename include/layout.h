@@ -64,4 +64,6 @@ const struct romentry *layout_next_included(const struct flashprog_layout *, con
 const struct romentry *layout_next(const struct flashprog_layout *, const struct romentry *);
 int layout_sanity_checks(const struct flashprog_flashctx *, bool write_it);
 
+int flashprog_layout_read_from_ifwi(struct flashprog_layout **, struct flashprog_flashctx *);
+
 #endif /* !__LAYOUT_H__ */

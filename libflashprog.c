@@ -36,6 +36,8 @@
 #include "layout.h"
 #include "hwaccess_physmap.h"
 #include "ich_descriptors.h"
+#include "ifwi.h"
+#include "libflashprog.h"
 #include "writeprotect.h"
 
 /**
@@ -635,6 +637,63 @@ _free_ret:
 	free(desc);
 	return ret;
 #endif
+}
+
+/**
+ * @brief Read a layout from the Intel IFWI in the flash.
+ *
+ * @param[out] layout Points to a struct flashprog_layout pointer that
+ *                    gets set if the descriptor is read and parsed
+ *                    successfully.
+ * @param[in] flashctx Flash context to read the descriptor from flash.
+ *
+ * @return 0 on success,
+ *         6 if descriptor parsing isn't implemented for the host,
+ *         3 if the data on flash couldn't be parsed,
+ *         2 if the data on flash couldn't be read,
+ *         1 on any other error.
+ */
+int flashprog_layout_read_from_ifwi(struct flashprog_layout **const layout,
+				   struct flashprog_flashctx *const flashctx)
+{
+	struct flashprog_layout *ifd_layout;
+	int ret;
+
+	ret = flashprog_layout_read_from_ifd(&ifd_layout, flashctx, NULL, 0);
+	if (ret)
+		return ret;
+
+	size_t bios_start, bios_size;
+	if (flashprog_layout_get_region_range(ifd_layout, "bios", &bios_start, &bios_size)) {
+		msg_gerr("Cannot find BIOS region in Intel Firmware Descriptor (IFD).\n");
+		ret = 3;
+		goto _free_ifd_ret;
+	}
+
+	msg_ginfo("Reading IFWI layout... ");
+	ret = layout_from_ifwi_rom(layout, flashctx, bios_start, bios_size);
+	switch (ret) {
+	case -4: /* Fall through. */
+	case -3:
+		ret = 3;
+		break;
+	case -2:
+		ret = 2;
+		break;
+	case 0:
+		break;
+	default:
+		ret = 1;
+		break;
+	}
+	if (ret)
+		msg_ginfo("FAILED.\n");
+	else
+		msg_ginfo("done.\n");
+
+_free_ifd_ret:
+	flashprog_layout_release(ifd_layout);
+	return ret;
 }
 
 #ifdef __FLASHPROG_LITTLE_ENDIAN__

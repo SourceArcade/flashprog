@@ -57,6 +57,7 @@ srcs = files(
   'helpers.c',
   'helpers_fileio.c',
   'ich_descriptors.c',
+  'ifwi.c',
   'jedec.c',
   'layout.c',
   'libflashprog.c',

@@ -30,6 +30,7 @@ enum {
 
 	/* Options below have only long option names, i.e. no single char: */
 	OPTION_IFD = 0x0100,
+	OPTION_IFWI,
 	OPTION_FMAP,
 	OPTION_FMAP_FILE,
 	OPTION_FLASH_CONTENTS,
@@ -61,6 +62,7 @@ struct flash_args {
 
 struct layout_args {
 	bool ifd;
+	bool ifwi;
 	bool fmap;
 	char *fmapfile;
 	char *layoutfile;
