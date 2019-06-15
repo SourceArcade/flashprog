@@ -1368,6 +1368,7 @@ int layout_from_ich_descriptors(struct ich_layout *const layout, const void *con
 		++j;
 	}
 	layout->base.entries = layout->entries;
+	layout->base.capacity = ARRAY_SIZE(layout->entries);
 	layout->base.num_entries = j;
 	return 0;
 }
