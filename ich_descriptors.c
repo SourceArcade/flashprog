@@ -1352,7 +1352,7 @@ int layout_from_ich_descriptors(
 	if (read_ich_descriptors_from_dump(dump, len, &cs, &desc))
 		return 1;
 
-	if (flashrom_layout_new(layout, ARRAY_SIZE(regions)))
+	if (flashrom_layout_new(layout))
 		return 2;
 
 	ssize_t i;
