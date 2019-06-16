@@ -51,11 +51,6 @@ struct flashrom_layout {
 	size_t num_entries;
 };
 
-struct single_layout {
-	struct flashrom_layout base;
-	struct romentry entry;
-};
-
 struct layout_include_args {
 	char *name;
 	struct layout_include_args *next;

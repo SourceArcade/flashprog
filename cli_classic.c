@@ -682,8 +682,10 @@ int main(int argc, char *argv[])
 out_shutdown:
 	programmer_shutdown();
 out:
-	for (i = 0; i < chipcount; i++)
+	for (i = 0; i < chipcount; i++) {
+		flashrom_layout_release(flashes[i].default_layout);
 		free(flashes[i].chip);
+	}
 
 	layout_cleanup(&include_args);
 	free(filename);
