@@ -456,8 +456,8 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 	static unsigned char *buf = NULL;
 	/* failed is special. We use bitwise ops, but it is essentially bool. */
 	int i = 0, ret = 0, failed = 0;
-	int bufsize;
-	static int oldbufsize = 0;
+	size_t bufsize;
+	static size_t oldbufsize = 0;
 
 	if (writecnt > 65536 || readcnt > 65536)
 		return SPI_INVALID_LENGTH;
@@ -465,7 +465,7 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 	/* buf is not used for the response from the chip. */
 	bufsize = max(writecnt + 9, 260 + 9);
 	/* Never shrink. realloc() calls are expensive. */
-	if (bufsize > oldbufsize) {
+	if (!buf || bufsize > oldbufsize) {
 		buf = realloc(buf, bufsize);
 		if (!buf) {
 			msg_perr("Out of memory!\n");
