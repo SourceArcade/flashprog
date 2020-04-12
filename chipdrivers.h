@@ -62,8 +62,8 @@ int spi_set_extended_address(struct flashctx *, uint8_t addr_high);
 
 
 /* spi25_statusreg.c */
-uint8_t spi_read_status_register(struct flashctx *flash);
-int spi_write_status_register(struct flashctx *flash, int status);
+uint8_t spi_read_status_register(const struct flashctx *flash);
+int spi_write_status_register(const struct flashctx *flash, int status);
 void spi_prettyprint_status_register_bit(uint8_t status, int bit);
 int spi_prettyprint_status_register_plain(struct flashctx *flash);
 int spi_prettyprint_status_register_default_welwip(struct flashctx *flash);
