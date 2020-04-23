@@ -496,6 +496,7 @@ int stlinkv3_spi_init(void)
 				 speed_str);
 			msg_perr("Please pass the parameter "
 				 "with a simple non-zero number in kHz\n");
+			free(speed_str);
 			return -1;
 		}
 		free(speed_str);
