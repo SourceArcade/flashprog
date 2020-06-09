@@ -426,7 +426,6 @@ executable(
   ],
   c_args : [
     cargs,
-    '-DSTANDALONE',
   ],
   install : true,
   install_dir : sbindir,
