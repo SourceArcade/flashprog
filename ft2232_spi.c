@@ -311,8 +311,8 @@ static int ft2232_spi_init(void)
 	enum ftdi_interface ft2232_interface = INTERFACE_A;
 	/*
 	 * The 'H' chips can run with an internal clock of either 12 MHz or 60 MHz,
-	 * but the non-H chips can only run at 12 MHz. We enable the divide-by-5
-	 * prescaler on the former to run on the same speed.
+	 * but the non-H chips can only run at 12 MHz. We disable the divide-by-5
+	 * prescaler on 'H' chips so they run at 60MHz.
 	 */
 	bool clock_5x = true;
 	/* In addition to the prescaler mentioned above there is also another
@@ -321,7 +321,8 @@ static int ft2232_spi_init(void)
 	 * div = (1 + x) * 2 <-> x = div / 2 - 1
 	 * Hence the expressible divisors are all even numbers between 2 and
 	 * 2^17 (=131072) resulting in SCK frequencies of 6 MHz down to about
-	 * 92 Hz for 12 MHz inputs.
+	 * 92 Hz for 12 MHz inputs and 30 MHz down to about 458 Hz for 60 MHz
+	 * inputs.
 	 */
 	uint32_t divisor = DEFAULT_DIVISOR;
 	int f;
@@ -641,7 +642,7 @@ format_error:
 
 	if (clock_5x) {
 		msg_pdbg("Disable divide-by-5 front stage\n");
-		buf[0] = 0x8a; /* Disable divide-by-5. DIS_DIV_5 in newer libftdi */
+		buf[0] = DIS_DIV_5;
 		if (send_buf(ftdic, buf, 1)) {
 			ret = -5;
 			goto ftdi_err;
