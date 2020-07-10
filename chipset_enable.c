@@ -600,6 +600,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	case CHIPSET_C620_SERIES_LEWISBURG:
 	case CHIPSET_300_SERIES_CANNON_POINT:
 	case CHIPSET_APOLLO_LAKE:
+	case CHIPSET_GEMINI_LAKE:
 		reg_name = "BIOS_SPI_BC";
 		gcs = pci_read_long(dev, 0xdc);
 		bild = (gcs >> 7) & 1;
@@ -697,6 +698,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 		boot_straps = boot_straps_pch8_lp;
 		break;
 	case CHIPSET_APOLLO_LAKE:
+	case CHIPSET_GEMINI_LAKE:
 		boot_straps = boot_straps_apl;
 		break;
 	case CHIPSET_8_SERIES_WELLSBURG: // FIXME: check datasheet
@@ -723,6 +725,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	case CHIPSET_C620_SERIES_LEWISBURG:
 	case CHIPSET_300_SERIES_CANNON_POINT:
 	case CHIPSET_APOLLO_LAKE:
+	case CHIPSET_GEMINI_LAKE:
 		bbs = (gcs >> 6) & 0x1;
 		break;
 	default:
@@ -966,6 +969,11 @@ static int enable_flash_pch300(struct pci_dev *const dev, const char *const name
 static int enable_flash_apl(struct pci_dev *const dev, const char *const name)
 {
 	return enable_flash_pch100_or_c620(dev, name, 0x0d, 2, CHIPSET_APOLLO_LAKE);
+}
+
+static int enable_flash_glk(struct pci_dev *const dev, const char *const name)
+{
+	return enable_flash_pch100_or_c620(dev, name, 0x0d, 2, CHIPSET_GEMINI_LAKE);
 }
 
 /* Silvermont architecture: Bay Trail(-T/-I), Avoton/Rangeley.
@@ -2068,6 +2076,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0xa2d2, B_S,    NT,  "Intel", "X299",				enable_flash_pch100},
 	{0x8086, 0x5ae8, B_S,    DEP, "Intel", "Apollo Lake",			enable_flash_apl},
 	{0x8086, 0x5af0, B_S,    DEP, "Intel", "Apollo Lake",			enable_flash_apl},
+	{0x8086, 0x31e8, B_S,    DEP, "Intel", "Gemini Lake",			enable_flash_glk},
 	{0x8086, 0xa303, B_S,    NT,  "Intel", "H310",				enable_flash_pch300},
 	{0x8086, 0xa304, B_S,    NT,  "Intel", "H370",				enable_flash_pch300},
 	{0x8086, 0xa305, B_S,    NT,  "Intel", "Z390",				enable_flash_pch300},
