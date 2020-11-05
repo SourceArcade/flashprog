@@ -104,6 +104,8 @@ enum write_granularity {
  */
 #define NUM_ERASEFUNCTIONS 8
 
+#define MAX_CHIP_RESTORE_FUNCTIONS 4
+
 /* Feature bits used for non-SPI only */
 #define FEATURE_REGISTERMAP	(1 << 0)
 #define FEATURE_LONG_RESET	(0 << 4)
@@ -245,6 +247,8 @@ struct flashchip {
 	uint8_t wrea_override; /**< override opcode for write extended address register */
 };
 
+typedef int (*chip_restore_fn_cb_t)(struct flashctx *flash, uint8_t status);
+
 struct flashrom_flashctx {
 	struct flashchip *chip;
 	/* FIXME: The memory mappings should be saved in a more structured way. */
@@ -271,6 +275,12 @@ struct flashrom_flashctx {
            of the extended address register. */
 	int address_high_byte;
 	bool in_4ba_mode;
+
+	int chip_restore_fn_count;
+	struct chip_restore_func_data {
+		chip_restore_fn_cb_t func;
+		uint8_t status;
+	} chip_restore_fn[MAX_CHIP_RESTORE_FUNCTIONS];
 };
 
 /* Timing used in probe routines. ZERO is -2 to differentiate between an unset
@@ -346,6 +356,7 @@ int do_read(struct flashctx *, const char *filename);
 int do_erase(struct flashctx *);
 int do_write(struct flashctx *, const char *const filename, const char *const referencefile);
 int do_verify(struct flashctx *, const char *const filename);
+int register_chip_restore(chip_restore_fn_cb_t func, struct flashctx *flash, uint8_t status);
 
 /* Something happened that shouldn't happen, but we can go on. */
 #define ERROR_NONFATAL 0x100

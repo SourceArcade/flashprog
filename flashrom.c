@@ -526,6 +526,34 @@ int register_shutdown(int (*function) (void *data), void *data)
 	return 0;
 }
 
+int register_chip_restore(chip_restore_fn_cb_t func,
+			  struct flashctx *flash, uint8_t status)
+{
+	if (flash->chip_restore_fn_count >= MAX_CHIP_RESTORE_FUNCTIONS) {
+		msg_perr("Tried to register more than %i chip restore"
+		         " functions.\n", MAX_CHIP_RESTORE_FUNCTIONS);
+		return 1;
+	}
+	flash->chip_restore_fn[flash->chip_restore_fn_count].func = func;
+	flash->chip_restore_fn[flash->chip_restore_fn_count].status = status;
+	flash->chip_restore_fn_count++;
+
+	return 0;
+}
+
+static int deregister_chip_restore(struct flashctx *flash)
+{
+	int rc = 0;
+
+	while (flash->chip_restore_fn_count > 0) {
+		int i = --flash->chip_restore_fn_count;
+		rc |= flash->chip_restore_fn[i].func(
+			flash, flash->chip_restore_fn[i].status);
+	}
+
+	return rc;
+}
+
 int programmer_init(enum programmer prog, const char *param)
 {
 	int ret;
@@ -2195,6 +2223,9 @@ int prepare_flash_access(struct flashctx *const flash,
 	if (map_flash(flash) != 0)
 		return 1;
 
+	/* Initialize chip_restore_fn_count before chip unlock calls. */
+	flash->chip_restore_fn_count = 0;
+
 	/* Given the existence of read locks, we want to unlock for read,
 	   erase and write. */
 	if (flash->chip->unlock)
@@ -2231,6 +2262,7 @@ int prepare_flash_access(struct flashctx *const flash,
 
 void finalize_flash_access(struct flashctx *const flash)
 {
+	deregister_chip_restore(flash);
 	unmap_flash(flash);
 }
 
