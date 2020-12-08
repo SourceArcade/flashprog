@@ -45,6 +45,7 @@ config_ft2232_spi = get_option('config_ft2232_spi')
 config_gfxnvidia = get_option('config_gfxnvidia')
 config_internal = get_option('config_internal')
 config_it8212 = get_option('config_it8212')
+config_jlink_spi = get_option('config_jlink_spi')
 config_linux_mtd = get_option('config_linux_mtd')
 config_linux_spi = get_option('config_linux_spi')
 config_mstarddc_spi = get_option('config_mstarddc_spi')
@@ -203,6 +204,11 @@ endif
 if config_it8212
   srcs += 'it8212.c'
   cargs += '-DCONFIG_IT8212=1'
+endif
+if config_jlink_spi
+  srcs += 'jlink_spi.c'
+  cargs += '-DCONFIG_JLINK_SPI=1'
+  deps += dependency('libjaylink')
 endif
 if config_linux_mtd
   srcs += 'linux_mtd.c'
