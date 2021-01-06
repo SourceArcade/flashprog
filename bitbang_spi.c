@@ -101,7 +101,8 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master)
 		return ERROR_FLASHROM_BUG;
 	}
 
-	mst.data = master;
+	/* Cast away `const`, but local code must ensure it's still treated as such. */
+	mst.data = (struct bitbang_spi_master *)master;
 	register_spi_master(&mst);
 
 	/* Only mess with the bus if we're sure nobody else uses it. */
