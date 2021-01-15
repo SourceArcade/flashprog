@@ -92,6 +92,7 @@ int write_28sf040(struct flashctx *flash, const uint8_t *src, unsigned int start
 
 		/* wait for Toggle bit ready */
 		toggle_ready_jedec(flash, bios);
+		flashprog_progress_add(flash, 1);
 	}
 
 	return 0;

@@ -215,6 +215,7 @@ static int linux_mtd_read(struct flashctx *flash, uint8_t *buf,
 		}
 
 		i += step;
+		flashprog_progress_add(flash, step);
 	}
 
 	return 0;
@@ -257,6 +258,7 @@ static int linux_mtd_write(struct flashctx *flash, const uint8_t *buf,
 		}
 
 		i += step;
+		flashprog_progress_add(flash, step);
 	}
 
 	return 0;

@@ -64,6 +64,32 @@ void start_logging(void)
 	verbose_screen = oldverbose_screen;
 }
 
+static const char *flashprog_progress_stage_to_string(enum flashprog_progress_stage stage)
+{
+	if (stage == FLASHPROG_PROGRESS_READ)
+		return "READ";
+	if (stage == FLASHPROG_PROGRESS_WRITE)
+		return "WRITE";
+	if (stage == FLASHPROG_PROGRESS_ERASE)
+		return "ERASE";
+	return "UNKNOWN";
+}
+
+void flashprog_progress_cb(enum flashprog_progress_stage stage, size_t current, size_t total, void *user_data)
+{
+	static enum flashprog_progress_stage last_stage = (enum flashprog_progress_stage)-1;
+	static unsigned int last_pc = (unsigned int)-1;
+
+	const unsigned int pc = total ? (current * 100ull) / total : 100;
+
+	if (last_stage == stage && last_pc == pc)
+		return;
+
+	msg_ginfo("[%s] %u%% complete... ", flashprog_progress_stage_to_string(stage), pc);
+	last_stage = stage;
+	last_pc = pc;
+}
+
 /* Please note that level is the verbosity, not the importance of the message. */
 int flashprog_print_cb(enum flashprog_log_level level, const char *fmt, va_list ap)
 {

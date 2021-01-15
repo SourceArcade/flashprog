@@ -268,6 +268,63 @@ char *extract_programmer_param(const char *param_name)
 	return extract_param(&programmer_param, param_name, ",");
 }
 
+static void flashprog_progress_report(struct flashprog_progress *const p)
+{
+	if (p->current > p->total) {
+		msg_gdbg2("Sanitizing progress report: %zu bytes off.", p->current - p->total);
+		p->current = p->total;
+	}
+
+	if (!p->callback)
+		return;
+
+	p->callback(p->stage, p->current, p->total, p->user_data);
+}
+
+static void flashprog_progress_start(struct flashprog_flashctx *const flashctx,
+				    const enum flashprog_progress_stage stage, const size_t total)
+{
+	flashctx->progress.stage	= stage;
+	flashctx->progress.current	= 0;
+	flashctx->progress.total	= total;
+	flashprog_progress_report(&flashctx->progress);
+}
+
+static void flashprog_progress_start_by_layout(struct flashprog_flashctx *const flashctx,
+					      const enum flashprog_progress_stage stage,
+					      const struct flashprog_layout *const layout)
+{
+	const struct romentry *entry = NULL;
+	size_t total = 0;
+
+	while ((entry = layout_next_included(layout, entry)))
+		total += entry->end - entry->start + 1;
+
+	flashprog_progress_start(flashctx, stage, total);
+}
+
+static void flashprog_progress_set(struct flashprog_flashctx *const flashctx, const size_t current)
+{
+	flashctx->progress.current = current;
+	flashprog_progress_report(&flashctx->progress);
+}
+
+/** @private */
+void flashprog_progress_add(struct flashprog_flashctx *const flashctx, const size_t progress)
+{
+	flashctx->progress.current += progress;
+	flashprog_progress_report(&flashctx->progress);
+}
+
+static void flashprog_progress_finish(struct flashprog_flashctx *const flashctx)
+{
+	if (flashctx->progress.current == flashctx->progress.total)
+		return;
+
+	flashctx->progress.current = flashctx->progress.total;
+	flashprog_progress_report(&flashctx->progress);
+}
+
 /* Returns the number of well-defined erasers for a chip. */
 static unsigned int count_usable_erasers(const struct flashctx *flash)
 {
@@ -315,6 +372,14 @@ static int check_erased_range(struct flashctx *flash, unsigned int start, unsign
 	ret = verify_range(flash, cmpbuf, start, len);
 
 	free(cmpbuf);
+	return ret;
+}
+
+int flashprog_read_range(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
+{
+	flashprog_progress_start(flash, FLASHPROG_PROGRESS_READ, len);
+	const int ret = flash->chip->read(flash, buf, start, len);
+	flashprog_progress_finish(flash);
 	return ret;
 }
 
@@ -796,6 +861,8 @@ static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer
 	const struct flashprog_layout *const layout = get_layout(flashctx);
 	const struct romentry *entry = NULL;
 
+	flashprog_progress_start_by_layout(flashctx, FLASHPROG_PROGRESS_READ, layout);
+
 	while ((entry = layout_next_included(layout, entry))) {
 		const chipoff_t region_start	= entry->start;
 		const chipsize_t region_len	= entry->end - entry->start + 1;
@@ -803,6 +870,9 @@ static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer
 		if (flashctx->chip->read(flashctx, buffer + region_start, region_start, region_len))
 			return 1;
 	}
+
+	flashprog_progress_finish(flashctx);
+
 	return 0;
 }
 
@@ -1047,8 +1117,10 @@ static int write_range(struct flashctx *const flashctx, const chipoff_t flash_of
 					  flash_offset + starthere, lenhere))
 			return 1;
 		starthere += lenhere;
-		if (skipped)
+		if (skipped) {
+			flashprog_progress_set(flashctx, starthere);
 			*skipped = false;
+		}
 	}
 	return 0;
 }
@@ -1125,17 +1197,27 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 		info->region_end   = entry->end;
 
 		if (do_erase) {
-			select_erase_functions(flashctx, erase_layouts, layout_count, info);
+			const size_t total = select_erase_functions(flashctx, erase_layouts, layout_count, info);
+
+			/* We verify every erased block manually. Technically that's
+			   reading, but accounting for it as part of the erase helps
+			   to provide a smooth, overall progress. Hence `total * 2`. */
+			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_ERASE, total * 2);
+
 			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, info, per_blockfn);
 			if (ret) {
 				msg_cerr("FAILED!\n");
 				goto free_ret;
 			}
+
+			flashprog_progress_finish(flashctx);
 		}
 
 		if (info->newcontents) {
 			bool skipped = true;
 			msg_cdbg("0x%06x-0x%06x:", info->region_start, info->region_end);
+			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_WRITE,
+						info->region_end - info->region_start + 1);
 			ret = write_range(flashctx, info->region_start,
 					  info->curcontents + info->region_start,
 					  info->newcontents + info->region_start,
@@ -1144,6 +1226,7 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 				msg_cerr("FAILED!\n");
 				goto free_ret;
 			}
+			flashprog_progress_finish(flashctx);
 			if (skipped) {
 				msg_cdbg("S\n");
 			} else {
@@ -1211,6 +1294,7 @@ static int erase_block(struct flashctx *const flashctx,
 	msg_cdbg("E");
 	if (erasefn(flashctx, info->erase_start, erase_len))
 		goto _free_ret;
+	flashprog_progress_add(flashctx, erase_len);
 	if (check_erased_range(flashctx, info->erase_start, erase_len)) {
 		msg_cerr("ERASE FAILED!\n");
 		goto _free_ret;
@@ -1291,6 +1375,8 @@ static int verify_by_layout(
 {
 	const struct romentry *entry = NULL;
 
+	flashprog_progress_start_by_layout(flashctx, FLASHPROG_PROGRESS_READ, layout);
+
 	while ((entry = layout_next_included(layout, entry))) {
 		const chipoff_t region_start	= entry->start;
 		const chipsize_t region_len	= entry->end - entry->start + 1;
@@ -1301,6 +1387,9 @@ static int verify_by_layout(
 				  region_start, region_len))
 			return 3;
 	}
+
+	flashprog_progress_finish(flashctx);
+
 	return 0;
 }
 
@@ -1723,7 +1812,7 @@ int flashprog_image_write(struct flashctx *const flashctx, void *const buffer, c
 		 */
 		msg_cinfo("Reading old flash chip contents... ");
 		if (verify_all) {
-			if (flashctx->chip->read(flashctx, oldcontents, 0, flash_size)) {
+			if (flashprog_read_range(flashctx, oldcontents, 0, flash_size)) {
 				msg_cinfo("FAILED.\n");
 				goto _finalize_ret;
 			}
@@ -1743,7 +1832,7 @@ int flashprog_image_write(struct flashctx *const flashctx, void *const buffer, c
 		if (verify_all) {
 			msg_cerr("Checking if anything has changed.\n");
 			msg_cinfo("Reading current flash chip contents... ");
-			if (!flashctx->chip->read(flashctx, curcontents, 0, flash_size)) {
+			if (!flashprog_read_range(flashctx, curcontents, 0, flash_size)) {
 				msg_cinfo("done.\n");
 				if (!memcmp(oldcontents, curcontents, flash_size)) {
 					nonfatal_help_message();

@@ -668,6 +668,7 @@ int spi_read_chunked(struct flashctx *flash, uint8_t *buf, unsigned int start,
 		ret = spi_nbyte_read(flash, start, buf, to_read);
 		if (ret)
 			return ret;
+		flashprog_progress_add(flash, to_read);
 	}
 	return 0;
 }
@@ -710,6 +711,7 @@ int spi_write_chunked(struct flashctx *flash, const uint8_t *buf, unsigned int s
 			rc = spi_nbyte_program(flash, starthere + j, buf + starthere - start + j, towrite);
 			if (rc)
 				return rc;
+			flashprog_progress_add(flash, towrite);
 		}
 	}
 
@@ -730,6 +732,7 @@ int spi_chip_write_1(struct flashctx *flash, const uint8_t *buf, unsigned int st
 	for (i = start; i < start + len; i++) {
 		if (spi_nbyte_program(flash, i, buf + i - start, 1))
 			return 1;
+		flashprog_progress_add(flash, 1);
 	}
 	return 0;
 }
@@ -772,6 +775,7 @@ int default_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned i
 		goto bailout;
 
 	/* We already wrote 2 bytes in the multicommand step. */
+	flashprog_progress_add(flash, 2);
 	pos += 2;
 
 	/* Are there at least two more bytes to write? */
@@ -785,6 +789,7 @@ int default_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned i
 		}
 		if (spi_poll_wip(flash, 10))
 			goto bailout;
+		flashprog_progress_add(flash, 2);
 	}
 
 	/* Use WRDI to exit AAI mode. This needs to be done before issuing any other non-AAI command. */

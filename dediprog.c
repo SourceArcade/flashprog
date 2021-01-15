@@ -207,6 +207,7 @@ static enum protocol protocol(const struct dediprog_data *dp_data)
 }
 
 struct dediprog_transfer_status {
+	struct flashctx *flash;
 	int error; /* OK if 0, ERROR else */
 	unsigned int queued_idx;
 	unsigned int finished_idx;
@@ -219,6 +220,7 @@ static void LIBUSB_CALL dediprog_bulk_read_cb(struct libusb_transfer *const tran
 		status->error = 1;
 		msg_perr("SPI bulk read failed!\n");
 	}
+	flashprog_progress_add(status->flash, transfer->actual_length);
 	++status->finished_idx;
 }
 
@@ -459,7 +461,7 @@ static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned
 	const unsigned int chunksize = 512;
 	const unsigned int count = len / chunksize;
 
-	struct dediprog_transfer_status status = { 0, 0, 0 };
+	struct dediprog_transfer_status status = { flash, 0, 0, 0 };
 	struct libusb_transfer *transfers[DEDIPROG_ASYNC_TRANSFERS] = { NULL, };
 	struct libusb_transfer *transfer;
 
@@ -671,6 +673,7 @@ static int dediprog_spi_bulk_write(struct flashctx *flash, const uint8_t *buf, u
 			msg_perr("SPI bulk write failed, expected %i, got %s!\n", 512, libusb_error_name(ret));
 			return 1;
 		}
+		flashprog_progress_add(flash, chunksize);
 	}
 
 	return 0;

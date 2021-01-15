@@ -339,6 +339,14 @@ struct flashchip {
 
 typedef int (*chip_restore_fn_cb_t)(struct flashctx *flash, uint8_t status);
 
+struct flashprog_progress {
+	flashprog_progress_callback *callback;
+	enum flashprog_progress_stage stage;
+	size_t current;
+	size_t total;
+	void *user_data;
+};
+
 struct flashprog_flashctx {
 	struct flashchip *chip;
 	/* FIXME: The memory mappings should be saved in a more structured way. */
@@ -375,6 +383,8 @@ struct flashprog_flashctx {
 		chip_restore_fn_cb_t func;
 		uint8_t status;
 	} chip_restore_fn[MAX_CHIP_RESTORE_FUNCTIONS];
+
+	struct flashprog_progress progress;
 };
 
 /* Timing used in probe routines. ZERO is -2 to differentiate between an unset
@@ -438,6 +448,7 @@ int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start, uns
 int erase_flash(struct flashctx *flash);
 struct registered_master;
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
+int flashprog_read_range(struct flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
 void emergency_help_message(void);
 void list_programmers_linebreak(int startcol, int cols, int paren);
@@ -471,6 +482,7 @@ int open_logfile(const char * const filename);
 int close_logfile(void);
 void start_logging(void);
 int flashprog_print_cb(enum flashprog_log_level level, const char *fmt, va_list ap);
+void flashprog_progress_cb(enum flashprog_progress_stage, size_t current, size_t total, void *user_data);
 /* Let gcc and clang check for correct printf-style format strings. */
 int print(enum flashprog_log_level level, const char *fmt, ...)
 #ifdef __MINGW32__
@@ -499,6 +511,7 @@ __attribute__((format(printf, 2, 3)));
 #define msg_gspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* general debug spew  */
 #define msg_pspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* programmer debug spew  */
 #define msg_cspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* chip debug spew  */
+void flashprog_progress_add(struct flashprog_flashctx *, size_t progress);
 
 /* spi.c */
 struct spi_command {

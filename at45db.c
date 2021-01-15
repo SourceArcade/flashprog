@@ -250,6 +250,7 @@ int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, uns
 			msg_cerr("%s: error sending read command!\n", __func__);
 			return ret;
 		}
+		flashprog_progress_add(flash, chunk);
 		addr += chunk;
 		buf += chunk;
 		len -= chunk;
@@ -292,6 +293,7 @@ int spi_read_at45db_e8(struct flashctx *flash, uint8_t *buf, unsigned int addr, 
 		}
 		/* Copy result without dummy bytes into buf and advance address counter respectively. */
 		memcpy(buf, tmp + 4, chunk - 4);
+		flashprog_progress_add(flash, chunk - 4);
 		addr += chunk - 4;
 		buf += chunk - 4;
 		len -= chunk - 4;
@@ -550,6 +552,7 @@ int spi_write_at45db(struct flashctx *flash, const uint8_t *buf, unsigned int st
 			msg_cerr("Writing page %u failed!\n", i);
 			return 1;
 		}
+		flashprog_progress_add(flash, page_size);
 	}
 	return 0;
 }

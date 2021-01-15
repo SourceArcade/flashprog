@@ -51,6 +51,14 @@ size_t flashprog_flash_getsize(const struct flashprog_flashctx *);
 int flashprog_flash_erase(struct flashprog_flashctx *);
 void flashprog_flash_release(struct flashprog_flashctx *);
 
+enum flashprog_progress_stage {
+	FLASHPROG_PROGRESS_READ,
+	FLASHPROG_PROGRESS_WRITE,
+	FLASHPROG_PROGRESS_ERASE,
+};
+typedef void(flashprog_progress_callback)(enum flashprog_progress_stage, size_t current, size_t total, void *user_data);
+void flashprog_set_progress_callback(struct flashprog_flashctx *, flashprog_progress_callback *, void *user_data);
+
 /** @ingroup flashprog-flash */
 enum flashprog_flag {
 	FLASHPROG_FLAG_FORCE,

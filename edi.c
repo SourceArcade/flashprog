@@ -387,6 +387,8 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 			msg_perr("%s: Timed out waiting for SPI not busy!\n", __func__);
 			return -1;
 		}
+
+		flashprog_progress_add(flash, flash->chip->page_size);
 	}
 
 	rc = edi_spi_disable(flash);
@@ -447,6 +449,7 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 
 		buf++;
 		address++;
+		flashprog_progress_add(flash, 1);
 	}
 
 	rc = edi_spi_disable(flash);

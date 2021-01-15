@@ -21,6 +21,7 @@ LIBFLASHPROG_1.0 {
     flashprog_programmer_init;
     flashprog_programmer_shutdown;
     flashprog_set_log_callback;
+    flashprog_set_progress_callback;
     flashprog_shutdown;
     flashprog_wp_cfg_new;
     flashprog_wp_cfg_release;

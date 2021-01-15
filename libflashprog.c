@@ -276,6 +276,25 @@ void flashprog_flash_release(struct flashprog_flashctx *const flashctx)
 }
 
 /**
+ * @brief Set the progress callback function.
+ *
+ * Set a callback function which will be invoked whenever libflashprog wants
+ * to indicate the progress has changed. This allows frontends to do whatever
+ * they see fit with such values, e.g. update a progress bar in a GUI tool.
+ *
+ * @param flashctx Current flash context.
+ * @param progress_callback Pointer to the new progress callback function.
+ * @param user_data Pointer to any data the API user wants to have passed to the callback.
+ */
+void flashprog_set_progress_callback(struct flashprog_flashctx *const flashctx,
+				    flashprog_progress_callback *const progress_callback,
+				    void *const user_data)
+{
+	flashctx->progress.callback = progress_callback;
+	flashctx->progress.user_data = user_data;
+}
+
+/**
  * @brief Set a flag in the given flash context.
  *
  * @param flashctx Flash context to alter.
@@ -355,7 +374,7 @@ int flashprog_layout_read_from_ifd(struct flashprog_layout **const layout, struc
 		goto _free_ret;
 
 	msg_cinfo("Reading ich descriptor... ");
-	if (flashctx->chip->read(flashctx, desc, 0, 0x1000)) {
+	if (flashprog_read_range(flashctx, desc, 0, 0x1000)) {
 		msg_cerr("Read operation failed!\n");
 		msg_cinfo("FAILED.\n");
 		ret = 2;

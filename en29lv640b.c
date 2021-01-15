@@ -48,6 +48,7 @@ int write_en29lv640b(struct flashctx *flash, const uint8_t *src, unsigned int st
 #endif
 		dst += 2;
 		src += 2;
+		flashprog_progress_add(flash, 2);
 	}
 
 	/* FIXME: Ignore errors for now. */

@@ -1465,6 +1465,7 @@ static int ich_hwseq_read(struct flashctx *flash, uint8_t *buf,
 		if (ich_hwseq_wait_for_cycle_complete(block_len))
 			return 1;
 		ich_read_data(buf, block_len, ICH9_REG_FDATA0);
+		flashprog_progress_add(flash, block_len);
 		addr += block_len;
 		buf += block_len;
 		len -= block_len;
@@ -1505,6 +1506,7 @@ static int ich_hwseq_write(struct flashctx *flash, const uint8_t *buf, unsigned 
 
 		if (ich_hwseq_wait_for_cycle_complete(block_len))
 			return -1;
+		flashprog_progress_add(flash, block_len);
 		addr += block_len;
 		buf += block_len;
 		len -= block_len;

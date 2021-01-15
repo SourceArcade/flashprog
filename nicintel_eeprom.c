@@ -181,10 +181,12 @@ static int nicintel_ee_read(struct flashctx *flash, uint8_t *buf, unsigned int a
 	while (len > 0) {
 		if (nicintel_ee_read_word(addr / 2, &data))
 			return -1;
+		flashprog_progress_add(flash, 1);
 		*buf++ = data & 0xff;
 		addr++;
 		len--;
 		if (len > 0) {
+			flashprog_progress_add(flash, 1);
 			*buf++ = (data >> 8) & 0xff;
 			addr++;
 			len--;
@@ -232,8 +234,10 @@ static int nicintel_ee_write_i210(struct flashctx *flash, const uint8_t *buf,
 			return -1;
 		}
 
-		if (buf)
+		if (buf) {
 			buf ++;
+			flashprog_progress_add(flash, 1);
+		}
 		addr ++;
 		len --;
 	}
@@ -261,8 +265,10 @@ static int nicintel_ee_write_i210(struct flashctx *flash, const uint8_t *buf,
 			return -1;
 		}
 
-		if (buf)
+		if (buf) {
 			buf += 2;
+			flashprog_progress_add(flash, min(len, 2));
+		}
 		if (len > 2)
 			len -= 2;
 		else
@@ -376,6 +382,8 @@ static int nicintel_ee_write_82580(struct flashctx *flash, const uint8_t *buf, u
 			nicintel_ee_bitbang((buf) ? *buf++ : 0xff, NULL);
 			len--;
 			addr++;
+			if (buf)
+				flashprog_progress_add(flash, 1);
 			if (!(addr & EE_PAGE_MASK))
 				break;
 		}
