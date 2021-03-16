@@ -66,6 +66,7 @@ config_usbblaster_spi = get_option('config_usbblaster_spi')
 config_stlinkv3_spi = get_option('config_stlinkv3_spi')
 config_default_programmer_name = get_option('default_programmer_name')
 config_default_programmer_args = get_option('default_programmer_args')
+config_print_wiki= get_option('print_wiki')
 
 cargs = []
 deps = []
@@ -416,6 +417,11 @@ else
 endif
 
 cargs += '-DCONFIG_DEFAULT_PROGRAMMER_ARGS="' + config_default_programmer_args + '"'
+
+if config_print_wiki
+  srcs += 'print_wiki.c'
+  cargs += '-DCONFIG_PRINT_WIKI=1'
+endif
 
 # we can't just link_with libflashrom as we require all the internal symbols...
 executable(
