@@ -102,6 +102,7 @@ endif
 if get_option('pciutils')
   srcs += 'pcidev.c'
   deps += dependency('libpci')
+  need_raw_access = true
   cargs += '-DNEED_PCI=1'
 else
   config_atahpt = false
