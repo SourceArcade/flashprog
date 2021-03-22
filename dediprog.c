@@ -1302,11 +1302,11 @@ static int dediprog_init(void)
 	if (register_shutdown(dediprog_shutdown, dp_data))
 		goto init_err_cleanup_exit;
 
-	spi_master_dediprog.data = dp_data;
-	if (register_spi_master(&spi_master_dediprog) || dediprog_set_leds(LED_NONE, dp_data))
-		return 1; /* shutdown function does cleanup */
+	if (dediprog_set_leds(LED_NONE, dp_data))
+		goto init_err_cleanup_exit;
 
-	return 0;
+	spi_master_dediprog.data = dp_data;
+	return register_spi_master(&spi_master_dediprog);
 
 init_err_cleanup_exit:
 	dediprog_shutdown(dp_data);
