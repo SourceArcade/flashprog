@@ -119,7 +119,6 @@ else
   config_nicnatsemi = false
   config_nicrealtek = false
   config_ogp_spi = false
-  config_rayer_spi = false
   config_satamv = false
   config_satasii = false
 endif
