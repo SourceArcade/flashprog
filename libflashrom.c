@@ -135,7 +135,7 @@ int flashrom_programmer_init(struct flashrom_programmer **const flashprog,
 	unsigned prog;
 
 	for (prog = 0; prog < PROGRAMMER_INVALID; prog++) {
-		if (strcmp(prog_name, programmer_table[prog].name) == 0)
+		if (strcmp(prog_name, programmer_table[prog]->name) == 0)
 			break;
 	}
 	if (prog >= PROGRAMMER_INVALID) {
