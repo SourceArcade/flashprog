@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include "flash.h"
@@ -105,6 +106,18 @@ static int check_filename(char *filename, const char *type)
 	return 0;
 }
 
+/* Ensure a file is open by means of fstat */
+static bool check_file(FILE *file)
+{
+#ifndef STANDALONE
+	struct stat statbuf;
+
+	if (fstat(fileno(file), &statbuf) < 0)
+		return false;
+#endif /* !STANDALONE */
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	const struct flashchip *chip = NULL;
@@ -172,7 +185,16 @@ int main(int argc, char *argv[])
 	char *pparam = NULL;
 	struct layout_include_args *include_args = NULL;
 
-	flashrom_set_log_callback((flashrom_log_callback *)&flashrom_print_cb);
+	/*
+	 * Safety-guard against a user who has (mistakenly) closed
+	 * stdout or stderr before exec'ing flashrom.  We disable
+	 * logging in this case to prevent writing log data to a flash
+	 * chip when a flash device gets opened with fd 1 or 2.
+	 */
+	if (check_file(stdout) && check_file(stderr)) {
+		flashrom_set_log_callback(
+			(flashrom_log_callback *)&flashrom_print_cb);
+	}
 
 	print_version();
 	print_banner();
