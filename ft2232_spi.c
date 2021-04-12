@@ -91,13 +91,15 @@ const struct dev_entry devs_ft2232spi[] = {
  * DI  is bit 2.
  * CS  is bit 3.
  *
- * The default values (set below) are used for most devices:
+ * The default values (set below in ft2232_spi_init) are used for most devices:
  *  value: 0x08  CS=high, DI=low, DO=low, SK=low
  *    dir: 0x0b  CS=output, DI=input, DO=output, SK=output
  */
-static uint8_t cs_bits = 0x08;
-static uint8_t pindir = 0x0b;
-static struct ftdi_context ftdic_context;
+struct ft2232_data {
+	uint8_t cs_bits;
+	uint8_t pindir;
+	struct ftdi_context ftdi_context;
+};
 
 static const char *get_ft2232_devicename(int ft2232_vid, int ft2232_type)
 {
@@ -151,7 +153,8 @@ static int get_buf(struct ftdi_context *ftdic, const unsigned char *buf,
 static int ft2232_shutdown(void *data)
 {
 	int f;
-	struct ftdi_context *ftdic = (struct ftdi_context *) data;
+	struct ft2232_data *spi_data = (struct ft2232_data *)data;
+	struct ftdi_context *ftdic = &spi_data->ftdi_context;
 	unsigned char buf[3];
 
 	msg_pdbg("Releasing I/Os\n");
@@ -169,6 +172,7 @@ static int ft2232_shutdown(void *data)
 		return f;
 	}
 
+	free(spi_data);
 	return 0;
 }
 
@@ -177,7 +181,7 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 				   const unsigned char *writearr,
 				   unsigned char *readarr);
 
-static const struct spi_master spi_master_ft2232 = {
+static struct spi_master spi_master_ft2232 = {
 	.features	= SPI_MASTER_4BA,
 	.max_data_read	= 64 * 1024,
 	.max_data_write	= 256,
@@ -191,8 +195,7 @@ static const struct spi_master spi_master_ft2232 = {
 /* Returns 0 upon success, a negative number upon errors. */
 int ft2232_spi_init(void)
 {
-	int ret = 0;
-	struct ftdi_context *ftdic = &ftdic_context;
+	int ret;
 	unsigned char buf[512];
 	int ft2232_vid = FTDI_VID;
 	int ft2232_type = FTDI_FT4232H_PID;
@@ -216,6 +219,14 @@ int ft2232_spi_init(void)
 	int f;
 	char *arg;
 	double mpsse_clk;
+	uint8_t cs_bits = 0x08;
+	uint8_t pindir = 0x0b;
+
+	struct ft2232_data *const spi_data = calloc(1, sizeof(*spi_data));
+	if (!spi_data) {
+		msg_perr("Unable to allocate space for SPI master data\n");
+		return SPI_GENERIC_ERROR;
+	}
 
 	arg = extract_programmer_param("type");
 	if (arg) {
@@ -302,7 +313,8 @@ int ft2232_spi_init(void)
 		} else {
 			msg_perr("Error: Invalid device type specified.\n");
 			free(arg);
-			return -1;
+			ret = -1;
+			goto init_err;
 		}
 	}
 	free(arg);
@@ -335,7 +347,8 @@ int ft2232_spi_init(void)
 		if (channel_count < 0 || strlen(arg) != 1) {
 			msg_perr("Error: Invalid channel/port/interface specified: \"%s\".\n", arg);
 			free(arg);
-			return -2;
+			ret = -2;
+			goto init_err;
 		}
 	}
 	free(arg);
@@ -349,7 +362,8 @@ int ft2232_spi_init(void)
 			msg_perr("Error: Invalid SPI frequency divisor specified: \"%s\".\n"
 				 "Valid are even values between 2 and 131072.\n", arg);
 			free(arg);
-			return -2;
+			ret = -2;
+			goto init_err;
 		}
 		divisor = (uint32_t)temp;
 	}
@@ -363,7 +377,8 @@ int ft2232_spi_init(void)
 			msg_perr("Error: Invalid GPIOL specified: \"%s\".\n"
 				 "Valid values are between 0 and 3.\n", arg);
 			free(arg);
-			return -2;
+			ret = -2;
+			goto init_err;
 		}
 		unsigned int pin = temp + 4;
 		cs_bits |= 1 << pin;
@@ -379,9 +394,11 @@ int ft2232_spi_init(void)
 		 (ft2232_interface == INTERFACE_B) ? "B" :
 		 (ft2232_interface == INTERFACE_C) ? "C" : "D");
 
+	struct ftdi_context *const ftdic = &spi_data->ftdi_context;
 	if (ftdi_init(ftdic) < 0) {
 		msg_perr("ftdi_init failed.\n");
-		return -3;
+		ret = -3;
+		goto init_err;
 	}
 
 	if (ftdi_set_interface(ftdic, ft2232_interface) < 0) {
@@ -394,7 +411,8 @@ int ft2232_spi_init(void)
 
 	if (f < 0 && f != -5) {
 		msg_perr("Unable to open FTDI device: %d (%s).\n", f, ftdi_get_error_string(ftdic));
-		return -4;
+		ret = -4;
+		goto init_err;
 	}
 
 	if (ftdic->type != TYPE_2232H && ftdic->type != TYPE_4232H && ftdic->type != TYPE_232H) {
@@ -459,7 +477,14 @@ int ft2232_spi_init(void)
 		goto ftdi_err;
 	}
 
-	register_shutdown(ft2232_shutdown, ftdic);
+	spi_data->cs_bits = cs_bits;
+	spi_data->pindir = pindir;
+	spi_master_ft2232.data = spi_data;
+
+	if (register_shutdown(ft2232_shutdown, spi_data)) {
+		ret = -9;
+		goto ftdi_err;
+	}
 	register_spi_master(&spi_master_ft2232);
 
 	return 0;
@@ -468,6 +493,8 @@ ftdi_err:
 	if ((f = ftdi_usb_close(ftdic)) < 0) {
 		msg_perr("Unable to close FTDI device: %d (%s)\n", f, ftdi_get_error_string(ftdic));
 	}
+init_err:
+	free(spi_data);
 	return ret;
 }
 
@@ -477,7 +504,8 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 				   const unsigned char *writearr,
 				   unsigned char *readarr)
 {
-	struct ftdi_context *ftdic = &ftdic_context;
+	struct ft2232_data *spi_data = flash->mst->spi.data;
+	struct ftdi_context *ftdic = &spi_data->ftdi_context;
 	static unsigned char *buf = NULL;
 	/* failed is special. We use bitwise ops, but it is essentially bool. */
 	int i = 0, ret = 0, failed = 0;
@@ -508,8 +536,8 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 	 */
 	msg_pspew("Assert CS#\n");
 	buf[i++] = SET_BITS_LOW;
-	buf[i++] = 0 & ~cs_bits; /* assertive */
-	buf[i++] = pindir;
+	buf[i++] = 0 & ~spi_data->cs_bits; /* assertive */
+	buf[i++] = spi_data->pindir;
 
 	if (writecnt) {
 		buf[i++] = MPSSE_DO_WRITE | MPSSE_WRITE_NEG;
@@ -549,8 +577,8 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 
 	msg_pspew("De-assert CS#\n");
 	buf[i++] = SET_BITS_LOW;
-	buf[i++] = cs_bits;
-	buf[i++] = pindir;
+	buf[i++] = spi_data->cs_bits;
+	buf[i++] = spi_data->pindir;
 	ret = send_buf(ftdic, buf, i);
 	failed |= ret;
 	if (ret)
