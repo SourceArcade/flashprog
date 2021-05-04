@@ -31,7 +31,7 @@
 
 static uint32_t io_base_addr = 0;
 
-const struct dev_entry ata_hpt[] = {
+static const struct dev_entry ata_hpt[] = {
 	{0x1103, 0x0004, NT, "Highpoint", "HPT366/368/370/370A/372/372N"},
 	{0x1103, 0x0005, NT, "Highpoint", "HPT372A/372N"},
 	{0x1103, 0x0006, NT, "Highpoint", "HPT302/302N"},
@@ -54,7 +54,7 @@ static const struct par_master par_master_atahpt = {
 		.chip_writen		= fallback_chip_writen,
 };
 
-int atahpt_init(void)
+static int atahpt_init(void)
 {
 	struct pci_dev *dev = NULL;
 	uint32_t reg32;
@@ -93,6 +93,16 @@ static uint8_t atahpt_chip_readb(const struct flashctx *flash,
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	return INB(io_base_addr + BIOS_ROM_DATA);
 }
+
+const struct programmer_entry programmer_atahpt = {
+	.name			= "atahpt",
+	.type			= PCI,
+	.devs.dev		= ata_hpt,
+	.init			= atahpt_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};
 
 #else
 #error PCI port I/O access is not supported on this architecture yet.

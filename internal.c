@@ -148,7 +148,7 @@ static const struct par_master par_master_internal = {
 
 enum chipbustype internal_buses_supported = BUS_NONE;
 
-int internal_init(void)
+static int internal_init(void)
 {
 	int ret = 0;
 	int force_laptop = 0;
@@ -395,3 +395,13 @@ static void internal_chip_readn(const struct flashctx *flash, uint8_t *buf,
 	mmio_readn((void *)addr, buf, len);
 	return;
 }
+
+const struct programmer_entry programmer_internal = {
+	.name			= "internal",
+	.type			= OTHER,
+	.devs.note		= NULL,
+	.init			= internal_init,
+	.map_flash_region	= physmap,
+	.unmap_flash_region	= physunmap,
+	.delay			= internal_delay,
+};

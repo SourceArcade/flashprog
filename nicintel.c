@@ -23,7 +23,7 @@
 static uint8_t *nicintel_bar;
 static uint8_t *nicintel_control_bar;
 
-const struct dev_entry nics_intel[] = {
+static const struct dev_entry nics_intel[] = {
 	{PCI_VENDOR_ID_INTEL, 0x1209, NT, "Intel", "8255xER/82551IT Fast Ethernet Controller"},
 	{PCI_VENDOR_ID_INTEL, 0x1229, OK, "Intel", "82557/8/9/0/1 Ethernet Pro 100"},
 
@@ -55,7 +55,7 @@ static const struct par_master par_master_nicintel = {
 		.chip_writen		= fallback_chip_writen,
 };
 
-int nicintel_init(void)
+static int nicintel_init(void)
 {
 	struct pci_dev *dev = NULL;
 	uintptr_t addr;
@@ -115,3 +115,13 @@ static uint8_t nicintel_chip_readb(const struct flashctx *flash,
 {
 	return pci_mmio_readb(nicintel_bar + (addr & NICINTEL_MEMMAP_MASK));
 }
+
+const struct programmer_entry programmer_nicintel = {
+	.name			= "nicintel",
+	.type			= PCI,
+	.devs.dev		= nics_intel,
+	.init			= nicintel_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};

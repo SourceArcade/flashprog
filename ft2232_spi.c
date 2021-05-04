@@ -59,7 +59,7 @@
 #define GOOGLE_SERVO_V2_PID0	0x5002
 #define GOOGLE_SERVO_V2_PID1	0x5003
 
-const struct dev_entry devs_ft2232spi[] = {
+static const struct dev_entry devs_ft2232spi[] = {
 	{FTDI_VID, FTDI_FT2232H_PID, OK, "FTDI", "FT2232H"},
 	{FTDI_VID, FTDI_FT4232H_PID, OK, "FTDI", "FT4232H"},
 	{FTDI_VID, FTDI_FT232H_PID, OK, "FTDI", "FT232H"},
@@ -193,7 +193,7 @@ static struct spi_master spi_master_ft2232 = {
 };
 
 /* Returns 0 upon success, a negative number upon errors. */
-int ft2232_spi_init(void)
+static int ft2232_spi_init(void)
 {
 	int ret;
 	unsigned char buf[512];
@@ -587,4 +587,13 @@ static int ft2232_spi_send_command(const struct flashctx *flash,
 	return failed ? -1 : 0;
 }
 
+const struct programmer_entry programmer_ft2232_spi = {
+	.name			= "ft2232_spi",
+	.type			= USB,
+	.devs.dev		= devs_ft2232spi,
+	.init			= ft2232_spi_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};
 #endif

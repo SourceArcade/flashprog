@@ -69,7 +69,7 @@ static const struct spi_master spi_master_linux = {
 	.write_aai	= default_spi_write_aai,
 };
 
-int linux_spi_init(void)
+static int linux_spi_init(void)
 {
 	char *p, *endp, *dev;
 	uint32_t speed_hz = 2 * 1000 * 1000;
@@ -233,5 +233,15 @@ static int linux_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsig
 	/* 5 bytes must be reserved for longest possible command + address. */
 	return spi_write_chunked(flash, buf, start, len, max_kernel_buf_size - 5);
 }
+
+const struct programmer_entry programmer_linux_spi = {
+	.name			= "linux_spi",
+	.type			= OTHER,
+	.devs.note		= "Device files /dev/spidev*.*\n",
+	.init			= linux_spi_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};
 
 #endif // CONFIG_LINUX_SPI == 1

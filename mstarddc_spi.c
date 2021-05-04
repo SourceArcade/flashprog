@@ -68,7 +68,7 @@ static int mstarddc_spi_shutdown(void *data)
 }
 
 /* Returns 0 upon success, a negative number upon errors. */
-int mstarddc_spi_init(void)
+static int mstarddc_spi_init(void)
 {
 	int ret = 0;
 
@@ -227,6 +227,16 @@ static const struct spi_master spi_master_mstarddc = {
 	.read = default_spi_read,
 	.write_256 = default_spi_write_256,
 	.write_aai = default_spi_write_aai,
+};
+
+const struct programmer_entry programmer_mstarddc_spi = {
+	.name			= "mstarddc_spi",
+	.type			= OTHER,
+	.devs.note		= "MSTAR DDC devices addressable via /dev/i2c-* on Linux.\n",
+	.init			= mstarddc_spi_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
 };
 
 #endif

@@ -30,7 +30,7 @@
 
 static uint8_t *nvidia_bar;
 
-const struct dev_entry gfx_nvidia[] = {
+static const struct dev_entry gfx_nvidia[] = {
 	{0x10de, 0x0010, NT, "NVIDIA", "Mutara V08 [NV2]" },
 	{0x10de, 0x0018, NT, "NVIDIA", "RIVA 128" },
 	{0x10de, 0x0020, NT, "NVIDIA", "RIVA TNT" },
@@ -73,7 +73,7 @@ static const struct par_master par_master_gfxnvidia = {
 		.chip_writen		= fallback_chip_writen,
 };
 
-int gfxnvidia_init(void)
+static int gfxnvidia_init(void)
 {
 	struct pci_dev *dev = NULL;
 	uint32_t reg32;
@@ -119,3 +119,13 @@ static uint8_t gfxnvidia_chip_readb(const struct flashctx *flash,
 {
 	return pci_mmio_readb(nvidia_bar + (addr & GFXNVIDIA_MEMMAP_MASK));
 }
+
+const struct programmer_entry programmer_gfxnvidia = {
+	.name			= "gfxnvidia",
+	.type			= PCI,
+	.devs.dev		= gfx_nvidia,
+	.init			= gfxnvidia_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};

@@ -46,7 +46,7 @@ static uint32_t rom_base_addr = 0;
 static uint8_t *atapromise_bar = NULL;
 static size_t rom_size = 0;
 
-const struct dev_entry ata_promise[] = {
+static const struct dev_entry ata_promise[] = {
 	{0x105a, 0x4d38, NT, "Promise", "PDC20262 (FastTrak66/Ultra66)"},
 	{0x105a, 0x0d30, NT, "Promise", "PDC20265 (FastTrak100 Lite/Ultra100)"},
 	{0x105a, 0x4d30, OK, "Promise", "PDC20267 (FastTrak100/Ultra100)"},
@@ -67,7 +67,7 @@ static const struct par_master par_master_atapromise = {
 		.chip_writen		= fallback_chip_writen,
 };
 
-void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len)
+static void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len)
 {
 	/* In case fallback_map ever returns something other than NULL. */
 	return NULL;
@@ -106,7 +106,7 @@ static void atapromise_limit_chip(struct flashchip *chip)
 	}
 }
 
-int atapromise_init(void)
+static int atapromise_init(void)
 {
 	struct pci_dev *dev = NULL;
 
@@ -164,6 +164,16 @@ static uint8_t atapromise_chip_readb(const struct flashctx *flash, const chipadd
 	atapromise_limit_chip(flash->chip);
 	return pci_mmio_readb(atapromise_bar + (addr & ADDR_MASK));
 }
+
+const struct programmer_entry programmer_atapromise = {
+	.name			= "atapromise",
+	.type			= PCI,
+	.devs.dev		= ata_promise,
+	.init			= atapromise_init,
+	.map_flash_region	= atapromise_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};
 
 #else
 #error PCI port I/O access is not supported on this architecture yet.

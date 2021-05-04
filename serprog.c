@@ -329,7 +329,7 @@ static const struct par_master par_master_serprog = {
 
 static enum chipbustype serprog_buses_supported = BUS_NONE;
 
-int serprog_init(void)
+static int serprog_init(void)
 {
 	uint16_t iface;
 	unsigned char pgmname[17];
@@ -877,7 +877,7 @@ static void serprog_chip_readn(const struct flashctx *flash, uint8_t * buf,
 		sp_do_read_n(&(buf[addrm-addr]), addrm, lenm); // FIXME: return error
 }
 
-void serprog_delay(unsigned int usecs)
+static void serprog_delay(unsigned int usecs)
 {
 	unsigned char buf[4];
 	msg_pspew("%s usecs=%d\n", __func__, usecs);
@@ -931,7 +931,7 @@ static int serprog_spi_send_command(const struct flashctx *flash,
 	return ret;
 }
 
-void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len)
+static void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len)
 {
 	/* Serprog transmits 24 bits only and assumes the underlying implementation handles any remaining bits
 	 * correctly (usually setting them to one either in software (for FWH/LPC) or relying on the fact that
@@ -945,3 +945,14 @@ void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len)
 		  descr, len, PRIxPTR_WIDTH, phys_addr);
 	return NULL;
 }
+
+const struct programmer_entry programmer_serprog = {
+	.name			= "serprog",
+	.type			= OTHER,
+				/* FIXME */
+	.devs.note		= "All programmer devices speaking the serprog protocol\n",
+	.init			= serprog_init,
+	.map_flash_region	= serprog_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= serprog_delay,
+};

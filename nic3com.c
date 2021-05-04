@@ -33,7 +33,7 @@ static uint32_t io_base_addr = 0;
 static uint32_t internal_conf;
 static uint16_t id;
 
-const struct dev_entry nics_3com[] = {
+static const struct dev_entry nics_3com[] = {
 	/* 3C90xB */
 	{0x10b7, 0x9055, OK, "3COM", "3C90xB: PCI 10/100 Mbps; shared 10BASE-T/100BASE-TX"},
 	{0x10b7, 0x9001, NT, "3COM", "3C90xB: PCI 10/100 Mbps; shared 10BASE-T/100BASE-T4" },
@@ -81,7 +81,7 @@ static int nic3com_shutdown(void *data)
 	return 0;
 }
 
-int nic3com_init(void)
+static int nic3com_init(void)
 {
 	struct pci_dev *dev = NULL;
 
@@ -138,6 +138,16 @@ static uint8_t nic3com_chip_readb(const struct flashctx *flash,
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	return INB(io_base_addr + BIOS_ROM_DATA);
 }
+
+const struct programmer_entry programmer_nic3com = {
+	.name			= "nic3com",
+	.type			= PCI,
+	.devs.dev		= nics_3com,
+	.init			= nic3com_init,
+	.map_flash_region	= fallback_map,
+	.unmap_flash_region	= fallback_unmap,
+	.delay			= internal_delay,
+};
 
 #else
 #error PCI port I/O access is not supported on this architecture yet.
