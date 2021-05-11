@@ -301,7 +301,7 @@ static int dirtyjtag_spi_init(void)
 		goto cleanup_libusb_handle;
 
 	spi_master_dirtyjtag_spi.data = djtag_data;
-	return register_spi_master(&spi_master_dirtyjtag_spi);
+	return register_spi_master(&spi_master_dirtyjtag_spi, NULL);
 
 cleanup_libusb_handle:
 	libusb_attach_kernel_driver(handle, 0);

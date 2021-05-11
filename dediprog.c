@@ -1309,7 +1309,7 @@ static int dediprog_init(void)
 		goto init_err_cleanup_exit;
 
 	spi_master_dediprog.data = dp_data;
-	return register_spi_master(&spi_master_dediprog);
+	return register_spi_master(&spi_master_dediprog, NULL);
 
 init_err_cleanup_exit:
 	dediprog_shutdown(dp_data);

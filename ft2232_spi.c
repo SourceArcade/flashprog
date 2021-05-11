@@ -701,7 +701,7 @@ format_error:
 		ret = -9;
 		goto ftdi_err;
 	}
-	register_spi_master(&spi_master_ft2232);
+	register_spi_master(&spi_master_ft2232, NULL);
 
 	return 0;
 

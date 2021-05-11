@@ -592,7 +592,7 @@ static int buspirate_spi_init(void)
 		ret = 1;
 		goto init_err_cleanup_exit;
 	}
-	register_spi_master(&spi_master_buspirate);
+	register_spi_master(&spi_master_buspirate, NULL);
 
 	return 0;
 

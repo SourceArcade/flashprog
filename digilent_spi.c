@@ -447,7 +447,7 @@ static int digilent_spi_init(void)
 		goto close_handle;
 
 	register_shutdown(digilent_spi_shutdown, NULL);
-	register_spi_master(&spi_master_digilent_spi);
+	register_spi_master(&spi_master_digilent_spi, NULL);
 
 	return 0;
 

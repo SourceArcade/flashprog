@@ -701,9 +701,9 @@ int sb600_probe_spi(struct pci_dev *dev)
 
 	/* Starting with Yangtze the SPI controller got a different interface with a much bigger buffer. */
 	if (amd_gen < CHIPSET_YANGTZE)
-		register_spi_master(&spi_master_sb600);
+		register_spi_master(&spi_master_sb600, NULL);
 	else
-		register_spi_master(&spi_master_yangtze);
+		register_spi_master(&spi_master_yangtze, NULL);
 	return 0;
 }
 

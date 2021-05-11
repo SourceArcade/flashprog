@@ -507,7 +507,7 @@ static int stlinkv3_spi_init(void)
 	if (register_shutdown(stlinkv3_spi_shutdown, NULL))
 		goto init_err_cleanup_exit;
 
-	if (register_spi_master(&spi_programmer_stlinkv3))
+	if (register_spi_master(&spi_programmer_stlinkv3, NULL))
 		return 1; /* shutdown function does cleanup */
 
 	return 0;
