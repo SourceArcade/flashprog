@@ -189,7 +189,7 @@ static int dirtyjtag_spi_spi_send_command(const struct flashctx *flash,
 	return dirtyjtag_djtag1_spi_send_command(djtag_data, writecnt, readcnt, writearr, readarr);
 }
 
-static struct spi_master spi_master_dirtyjtag_spi = {
+static const struct spi_master spi_master_dirtyjtag_spi = {
 	.features	= SPI_MASTER_4BA,
 	.max_data_read	= MAX_DATA_READ_UNLIMITED,
 	.max_data_write	= MAX_DATA_WRITE_UNLIMITED,
@@ -300,8 +300,7 @@ static int dirtyjtag_spi_init(void)
 	if (register_shutdown(dirtyjtag_spi_shutdown, djtag_data))
 		goto cleanup_libusb_handle;
 
-	spi_master_dirtyjtag_spi.data = djtag_data;
-	return register_spi_master(&spi_master_dirtyjtag_spi, NULL);
+	return register_spi_master(&spi_master_dirtyjtag_spi, djtag_data);
 
 cleanup_libusb_handle:
 	libusb_attach_kernel_driver(handle, 0);

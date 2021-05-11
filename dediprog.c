@@ -1308,8 +1308,7 @@ static int dediprog_init(void)
 	if (dediprog_set_leds(LED_NONE, dp_data))
 		goto init_err_cleanup_exit;
 
-	spi_master_dediprog.data = dp_data;
-	return register_spi_master(&spi_master_dediprog, NULL);
+	return register_spi_master(&spi_master_dediprog, dp_data);
 
 init_err_cleanup_exit:
 	dediprog_shutdown(dp_data);

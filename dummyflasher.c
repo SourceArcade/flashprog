@@ -113,7 +113,7 @@ static uint16_t dummy_chip_readw(const struct flashctx *flash, const chipaddr ad
 static uint32_t dummy_chip_readl(const struct flashctx *flash, const chipaddr addr);
 static void dummy_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
 
-static struct spi_master spi_master_dummyflasher = {
+static const struct spi_master spi_master_dummyflasher = {
 	.features	= SPI_MASTER_4BA,
 	.max_data_read	= MAX_DATA_READ_UNLIMITED,
 	.max_data_write	= MAX_DATA_UNSPECIFIED,
@@ -441,7 +441,6 @@ static int dummy_init(void)
 		return 1;
 	}
 	data->emu_chip = EMULATE_NONE;
-	spi_master_dummyflasher.data = data;
 	par_master_dummy.data = data;
 
 	msg_pspew("%s\n", __func__);
@@ -499,7 +498,7 @@ dummy_init_out:
 		register_par_master(&par_master_dummy,
 				    dummy_buses_supported & BUS_NONSPI);
 	if (dummy_buses_supported & BUS_SPI)
-		register_spi_master(&spi_master_dummyflasher, NULL);
+		register_spi_master(&spi_master_dummyflasher, data);
 
 	return 0;
 }
