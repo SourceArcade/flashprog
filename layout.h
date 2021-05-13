@@ -57,5 +57,6 @@ int process_include_args(struct flashrom_layout *l, const struct layout_include_
 const struct romentry *layout_next_included_region(const struct flashrom_layout *, chipoff_t);
 const struct romentry *layout_next_included(const struct flashrom_layout *, const struct romentry *);
 const struct romentry *layout_next(const struct flashrom_layout *, const struct romentry *);
+int layout_sanity_checks(const struct flashrom_flashctx *);
 
 #endif /* !__LAYOUT_H__ */
