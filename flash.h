@@ -486,10 +486,6 @@ __attribute__((format(printf, 2, 3)));
 #define msg_pspew(...)	print(FLASHROM_MSG_SPEW, __VA_ARGS__)	/* programmer debug spew  */
 #define msg_cspew(...)	print(FLASHROM_MSG_SPEW, __VA_ARGS__)	/* chip debug spew  */
 
-/* layout.c */
-int register_include_arg(struct layout_include_args **args, char *name);
-void layout_cleanup(struct layout_include_args **args);
-
 /* spi.c */
 struct spi_command {
 	unsigned int writecnt;

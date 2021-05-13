@@ -186,7 +186,7 @@ int process_include_args(struct flashrom_layout *l, const struct layout_include_
 	return 0;
 }
 
-void layout_cleanup(struct layout_include_args **args)
+void cleanup_include_args(struct layout_include_args **args)
 {
 	struct layout_include_args *tmp;
 
