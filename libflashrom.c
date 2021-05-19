@@ -134,11 +134,11 @@ int flashrom_programmer_init(struct flashrom_programmer **const flashprog,
 {
 	unsigned prog;
 
-	for (prog = 0; prog < PROGRAMMER_INVALID; prog++) {
+	for (prog = 0; prog < programmer_table_size; prog++) {
 		if (strcmp(prog_name, programmer_table[prog]->name) == 0)
 			break;
 	}
-	if (prog >= PROGRAMMER_INVALID) {
+	if (prog >= programmer_table_size) {
 		msg_ginfo("Error: Unknown programmer \"%s\". Valid choices are:\n", prog_name);
 		list_programmers_linebreak(0, 80, 0);
 		return 1;
