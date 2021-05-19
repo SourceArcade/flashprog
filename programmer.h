@@ -161,6 +161,7 @@ struct programmer_entry {
 };
 
 extern const struct programmer_entry programmer_table[];
+extern const size_t programmer_table_size;
 
 int programmer_init(enum programmer prog, const char *param);
 int programmer_shutdown(void);
