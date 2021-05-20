@@ -68,6 +68,7 @@ struct emu_data {
 	uint32_t wp_start;
 	uint32_t wp_end;
 
+	unsigned int spi_write_256_chunksize;
 	uint8_t *flashchip_contents;
 };
 
@@ -98,7 +99,6 @@ static const uint8_t sfdp_table[] = {
 };
 
 
-static unsigned int spi_write_256_chunksize = 256;
 
 static int dummy_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
 				  const unsigned char *writearr, unsigned char *readarr);
@@ -191,8 +191,8 @@ static int init_data(struct emu_data *data, enum chipbustype *dummy_buses_suppor
 
 	tmp = extract_programmer_param("spi_write_256_chunksize");
 	if (tmp) {
-		spi_write_256_chunksize = strtoul(tmp, &endptr, 0);
-		if (*endptr != '\0' || spi_write_256_chunksize < 1) {
+		data->spi_write_256_chunksize = strtoul(tmp, &endptr, 0);
+		if (*endptr != '\0' || data->spi_write_256_chunksize < 1) {
 			msg_perr("invalid spi_write_256_chunksize\n");
 			free(tmp);
 			return 1;
@@ -441,6 +441,7 @@ static int dummy_init(void)
 		return 1;
 	}
 	data->emu_chip = EMULATE_NONE;
+	data->spi_write_256_chunksize = 256;
 
 	msg_pspew("%s\n", __func__);
 
@@ -1181,8 +1182,8 @@ static int dummy_spi_send_command(const struct flashctx *flash, unsigned int wri
 
 static int dummy_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return spi_write_chunked(flash, buf, start, len,
-				 spi_write_256_chunksize);
+	const struct emu_data *const data = flash->mst->spi.data;
+	return spi_write_chunked(flash, buf, start, len, data->spi_write_256_chunksize);
 }
 
 const struct programmer_entry programmer_dummy = {
