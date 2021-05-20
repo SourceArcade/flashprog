@@ -81,7 +81,8 @@ void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf,
 }
 
 int register_par_master(const struct par_master *mst,
-			    const enum chipbustype buses)
+			    const enum chipbustype buses,
+			    void *data)
 {
 	struct registered_master rmst;
 	if (!mst->chip_writeb || !mst->chip_writew || !mst->chip_writel ||
@@ -95,6 +96,8 @@ int register_par_master(const struct par_master *mst,
 
 	rmst.buses_supported = buses;
 	rmst.par = *mst;
+	if (data)
+		rmst.par.data = data;
 	return register_master(&rmst);
 }
 
