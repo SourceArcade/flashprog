@@ -165,6 +165,7 @@ int dummy_init(void)
 #if EMULATE_CHIP
 	struct stat image_stat;
 #endif
+	char *endptr;
 
 	struct emu_data *data = calloc(1, sizeof(struct emu_data));
 	if (!data) {
@@ -207,12 +208,13 @@ int dummy_init(void)
 
 	tmp = extract_programmer_param("spi_write_256_chunksize");
 	if (tmp) {
-		spi_write_256_chunksize = atoi(tmp);
-		free(tmp);
-		if (spi_write_256_chunksize < 1) {
+		spi_write_256_chunksize = strtoul(tmp, &endptr, 0);
+		if (*endptr != '\0' || spi_write_256_chunksize < 1) {
 			msg_perr("invalid spi_write_256_chunksize\n");
+			free(tmp);
 			return 1;
 		}
+		free(tmp);
 	}
 
 	tmp = extract_programmer_param("spi_blacklist");
@@ -375,7 +377,6 @@ int dummy_init(void)
 #ifdef EMULATE_SPI_CHIP
 	status = extract_programmer_param("spi_status");
 	if (status) {
-		char *endptr;
 		errno = 0;
 		data->emu_status = strtoul(status, &endptr, 0);
 		free(status);
