@@ -367,11 +367,6 @@ int dummy_init(void)
 		return 1;
 	}
 	free(tmp);
-	data->flashchip_contents = malloc(data->emu_chip_size);
-	if (!data->flashchip_contents) {
-		msg_perr("Out of memory!\n");
-		return 1;
-	}
 
 #ifdef EMULATE_SPI_CHIP
 	status = extract_programmer_param("spi_status");
@@ -388,6 +383,12 @@ int dummy_init(void)
 			 data->emu_status);
 	}
 #endif
+
+	data->flashchip_contents = malloc(data->emu_chip_size);
+	if (!data->flashchip_contents) {
+		msg_perr("Out of memory!\n");
+		return 1;
+	}
 
 	msg_pdbg("Filling fake flash chip with 0xff, size %i\n", data->emu_chip_size);
 	memset(data->flashchip_contents, 0xff, data->emu_chip_size);
