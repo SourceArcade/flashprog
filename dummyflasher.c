@@ -153,29 +153,15 @@ static int dummy_shutdown(void *data)
 	return 0;
 }
 
-int dummy_init(void)
+static int init_data(struct emu_data *data, enum chipbustype *dummy_buses_supported)
 {
 	char *bustext = NULL;
 	char *tmp = NULL;
 	unsigned int i;
+	char *endptr;
 #if EMULATE_SPI_CHIP
 	char *status = NULL;
 #endif
-#if EMULATE_CHIP
-	struct stat image_stat;
-#endif
-	char *endptr;
-
-	struct emu_data *data = calloc(1, sizeof(struct emu_data));
-	if (!data) {
-		msg_perr("Out of memory!\n");
-		return 1;
-	}
-	data->emu_chip = EMULATE_NONE;
-	spi_master_dummyflasher.data = data;
-	par_master_dummy.data = data;
-
-	msg_pspew("%s\n", __func__);
 
 	bustext = extract_programmer_param("bus");
 	msg_pdbg("Requested buses are: %s\n", bustext ? bustext : "default");
@@ -184,24 +170,24 @@ int dummy_init(void)
 	/* Convert the parameters to lowercase. */
 	tolower_string(bustext);
 
-	enum chipbustype dummy_buses_supported = BUS_NONE;
+	*dummy_buses_supported = BUS_NONE;
 	if (strstr(bustext, "parallel")) {
-		dummy_buses_supported |= BUS_PARALLEL;
+		*dummy_buses_supported |= BUS_PARALLEL;
 		msg_pdbg("Enabling support for %s flash.\n", "parallel");
 	}
 	if (strstr(bustext, "lpc")) {
-		dummy_buses_supported |= BUS_LPC;
+		*dummy_buses_supported |= BUS_LPC;
 		msg_pdbg("Enabling support for %s flash.\n", "LPC");
 	}
 	if (strstr(bustext, "fwh")) {
-		dummy_buses_supported |= BUS_FWH;
+		*dummy_buses_supported |= BUS_FWH;
 		msg_pdbg("Enabling support for %s flash.\n", "FWH");
 	}
 	if (strstr(bustext, "spi")) {
-		dummy_buses_supported |= BUS_SPI;
+		*dummy_buses_supported |= BUS_SPI;
 		msg_pdbg("Enabling support for %s flash.\n", "SPI");
 	}
-	if (dummy_buses_supported == BUS_NONE)
+	if (*dummy_buses_supported == BUS_NONE)
 		msg_pdbg("Support for all flash bus types disabled.\n");
 	free(bustext);
 
@@ -293,8 +279,9 @@ int dummy_init(void)
 	if (!tmp) {
 		msg_pdbg("Not emulating any flash chip.\n");
 		/* Nothing else to do. */
-		goto dummy_init_out;
+		return 0;
 	}
+
 #if EMULATE_SPI_CHIP
 	if (!strcmp(tmp, "M25P10.RES")) {
 		data->emu_chip = EMULATE_ST_M25P10_RES;
@@ -360,7 +347,7 @@ int dummy_init(void)
 		data->emu_jedec_ce_c7_size = data->emu_chip_size;
 		msg_pdbg("Emulating Winbond W25Q128FV SPI flash chip (RDID)\n");
 	}
-#endif
+#endif /* EMULATE_SPI_CHIP */
 	if (data->emu_chip == EMULATE_NONE) {
 		msg_perr("Invalid chip specified for emulation: %s\n", tmp);
 		free(tmp);
@@ -383,12 +370,47 @@ int dummy_init(void)
 		msg_pdbg("Initial status register is set to 0x%02x.\n",
 			 data->emu_status);
 	}
-#endif
+#endif /* EMULATE_SPI_CHIP */
 
 	data->flashchip_contents = malloc(data->emu_chip_size);
 	if (!data->flashchip_contents) {
 		msg_perr("Out of memory!\n");
 		return 1;
+	}
+
+#endif /* EMULATE_CHIP */
+
+	return 0;
+}
+
+int dummy_init(void)
+{
+#if EMULATE_CHIP
+	struct stat image_stat;
+#endif
+
+	struct emu_data *data = calloc(1, sizeof(struct emu_data));
+	if (!data) {
+		msg_perr("Out of memory!\n");
+		return 1;
+	}
+	data->emu_chip = EMULATE_NONE;
+	spi_master_dummyflasher.data = data;
+	par_master_dummy.data = data;
+
+	msg_pspew("%s\n", __func__);
+
+	enum chipbustype dummy_buses_supported;
+	if (init_data(data, &dummy_buses_supported)) {
+		free(data);
+		return 1;
+	}
+
+#if EMULATE_CHIP
+	if (data->emu_chip == EMULATE_NONE) {
+		msg_pdbg("Not emulating any flash chip.\n");
+		/* Nothing else to do. */
+		goto dummy_init_out;
 	}
 
 	msg_pdbg("Filling fake flash chip with 0xff, size %i\n", data->emu_chip_size);
@@ -413,13 +435,14 @@ int dummy_init(void)
 				msg_perr("Unable to read %s\n", data->emu_persistent_image);
 				free(data->emu_persistent_image);
 				free(data->flashchip_contents);
+				free(data);
 				return 1;
 			}
 		} else {
 			msg_pdbg("doesn't match.\n");
 		}
 	}
-#endif
+#endif /* EMULATE_CHIP */
 
 dummy_init_out:
 	if (register_shutdown(dummy_shutdown, data)) {
