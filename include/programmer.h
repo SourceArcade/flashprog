@@ -273,7 +273,7 @@ extern enum chipbustype internal_buses_supported;
 #endif
 
 /* bitbang_spi.c */
-int register_spi_bitbang_master(const struct bitbang_spi_master *master);
+int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *spi_data);
 
 
 /* flashrom.c */

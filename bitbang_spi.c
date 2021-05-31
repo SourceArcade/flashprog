@@ -23,6 +23,7 @@
 
 struct bitbang_spi_master_data {
 	const struct bitbang_spi_master *mst;
+	void *spi_data;
 };
 
 /* Note that CS# is active low, so val=0 means the chip is active. */
@@ -93,7 +94,7 @@ static int bitbang_spi_shutdown(void *data)
 	return 0;
 }
 
-int register_spi_bitbang_master(const struct bitbang_spi_master *master)
+int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *spi_data)
 {
 	struct spi_master mst = spi_master_bitbang;
 	/* If someone forgot to initialize a bitbang function, we catch it here. */
@@ -113,6 +114,7 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master)
 	}
 
 	data->mst = master;
+	data->spi_data = spi_data;
 	register_spi_master(&mst, data);
 
 	/* Only mess with the bus if we're sure nobody else uses it. */

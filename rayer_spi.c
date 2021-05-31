@@ -230,7 +230,7 @@ static int rayer_spi_init(void)
 	if (pinout->preinit)
 		pinout->preinit(pinout);
 
-	if (register_spi_bitbang_master(&bitbang_spi_master_rayer))
+	if (register_spi_bitbang_master(&bitbang_spi_master_rayer, NULL))
 		return 1;
 
 	return 0;
