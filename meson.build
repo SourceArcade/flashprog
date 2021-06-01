@@ -62,6 +62,8 @@ config_satasii = get_option('config_satasii')
 config_serprog = get_option('config_serprog')
 config_usbblaster_spi = get_option('config_usbblaster_spi')
 config_stlinkv3_spi = get_option('config_stlinkv3_spi')
+config_default_programmer_name = get_option('default_programmer_name')
+config_default_programmer_args = get_option('default_programmer_args')
 
 cargs = []
 deps = []
@@ -381,6 +383,14 @@ flashrom_dep = declare_dependency(
   dependencies : deps
 )
 
+if config_default_programmer_name != ''
+  cargs += '-DCONFIG_DEFAULT_PROGRAMMER_NAME=&programmer_' + config_default_programmer_name
+else
+  cargs += '-DCONFIG_DEFAULT_PROGRAMMER_NAME=NULL'
+endif
+
+cargs += '-DCONFIG_DEFAULT_PROGRAMMER_ARGS="' + config_default_programmer_args + '"'
+
 # we can't just link_with libflashrom as we require all the internal symbols...
 executable(
   'flashrom',
@@ -397,8 +407,6 @@ executable(
   c_args : [
     cargs,
     '-DSTANDALONE',
-    '-DCONFIG_DEFAULT_PROGRAMMER=PROGRAMMER_INVALID',
-    '-DCONFIG_DEFAULT_PROGRAMMER_ARGS=""',
   ],
   install : true,
   install_dir : sbindir,
