@@ -122,7 +122,7 @@ int register_include_arg(struct layout_include_args **args, char *name)
 		tmp = tmp->next;
 	}
 
-	tmp = malloc(sizeof(struct layout_include_args));
+	tmp = malloc(sizeof(*tmp));
 	if (tmp == NULL) {
 		msg_gerr("Could not allocate memory");
 		return 1;
