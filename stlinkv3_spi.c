@@ -153,13 +153,11 @@ static int stlinkv3_command(uint8_t *command, size_t command_length,
  */
 static int stlinkv3_get_clk(uint32_t *bridge_input_clk)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	uint8_t answer[12];
 
 	if (bridge_input_clk == NULL)
 		return -1;
-
-	memset(command, 0, sizeof(command));
 
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_GET_CLOCK;
@@ -227,9 +225,7 @@ static int stlinkv3_spi_calc_prescaler(uint16_t reqested_freq_in_kHz,
 static int stlinkv3_check_version(enum fw_version_check_result *result)
 {
 	uint8_t answer[12];
-	uint8_t command[16];
-
-	memset(command, 0, sizeof(command));
+	uint8_t command[16] = { 0 };
 
 	command[0] = ST_GETVERSION_EXT;
 	command[1] = 0x80;
@@ -246,7 +242,7 @@ static int stlinkv3_check_version(enum fw_version_check_result *result)
 
 static int stlinkv3_spi_open(uint16_t reqested_freq_in_kHz)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	uint8_t answer[2];
 	uint16_t SCK_freq_in_kHz;
 	enum spi_prescaler prescaler;
@@ -273,8 +269,6 @@ static int stlinkv3_spi_open(uint16_t reqested_freq_in_kHz)
 	}
 	msg_pinfo("SCK frequency set to %d kHz\n", SCK_freq_in_kHz);
 
-	memset(command, 0, sizeof(command));
-
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_INIT_SPI;
 	command[2] = SPI_DIRECTION_2LINES_FULLDUPLEX;
@@ -291,10 +285,8 @@ static int stlinkv3_spi_open(uint16_t reqested_freq_in_kHz)
 
 static int stlinkv3_get_last_readwrite_status(uint32_t *status)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	uint16_t answer[4];
-
-	memset(command, 0, sizeof(command));
 
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_GET_RWCMD_STATUS;
@@ -310,10 +302,8 @@ static int stlinkv3_get_last_readwrite_status(uint32_t *status)
 
 static int stlinkv3_spi_set_SPI_NSS(enum spi_nss_level nss_level)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	uint8_t answer[2];
-
-	memset(command, 0, sizeof(command));
 
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_CS_SPI;
@@ -330,7 +320,7 @@ static int stlinkv3_spi_transmit(const struct flashctx *flash,
 				 const unsigned char *write_arr,
 				 unsigned char *read_arr)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	int rc = 0;
 	int actual_length = 0;
 	uint32_t rw_status = 0;
@@ -340,8 +330,6 @@ static int stlinkv3_spi_transmit(const struct flashctx *flash,
 		msg_perr("Failed to set the NSS pin to low\n");
 		return -1;
 	}
-
-	memset(command, 0, sizeof(command));
 
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_WRITE_SPI;
@@ -431,10 +419,8 @@ transmit_err:
 
 static int stlinkv3_spi_shutdown(void *data)
 {
-	uint8_t command[16];
+	uint8_t command[16] = { 0 };
 	uint8_t answer[2];
-
-	memset(command, 0, sizeof(command));
 
 	command[0] = STLINK_BRIDGE_COMMAND;
 	command[1] = STLINK_BRIDGE_CLOSE;

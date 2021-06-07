@@ -349,9 +349,8 @@ int jlink_spi_init(void)
 		return 1;
 	}
 
-	uint8_t caps[JAYLINK_DEV_EXT_CAPS_SIZE];
+	uint8_t caps[JAYLINK_DEV_EXT_CAPS_SIZE] = { 0 };
 
-	memset(caps, 0, sizeof(caps));
 	ret = jaylink_get_caps(jaylink_devh, caps);
 
 	if (ret != JAYLINK_OK) {
