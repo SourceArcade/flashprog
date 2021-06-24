@@ -518,10 +518,8 @@ static int buspirate_spi_init(void)
 	/* Enter raw SPI mode */
 	bp_commbuf[0] = 0x01;
 	ret = buspirate_sendrecv(bp_commbuf, 1, 0);
-	if (ret) {
-		ret = 1;
+	if (ret)
 		goto init_err_cleanup_exit;
-	}
 	if ((ret = buspirate_wait_for_string(bp_commbuf, "SPI")))
 		goto init_err_cleanup_exit;
 	if ((ret = buspirate_sendrecv(bp_commbuf, 0, 1)))
@@ -544,10 +542,8 @@ static int buspirate_spi_init(void)
 		msg_pdbg("Enabling PSUs.\n");
 	}
 	ret = buspirate_sendrecv(bp_commbuf, 1, 1);
-	if (ret) {
-		ret = 1;
+	if (ret)
 		goto init_err_cleanup_exit;
-	}
 	if (bp_commbuf[0] != 0x01) {
 		msg_perr("Protocol error while setting power/CS/AUX(/Pull-up resistors)!\n");
 		ret = 1;
@@ -557,10 +553,8 @@ static int buspirate_spi_init(void)
 	/* Set SPI speed */
 	bp_commbuf[0] = 0x60 | spispeed;
 	ret = buspirate_sendrecv(bp_commbuf, 1, 1);
-	if (ret) {
-		ret = 1;
+	if (ret)
 		goto init_err_cleanup_exit;
-	}
 	if (bp_commbuf[0] != 0x01) {
 		msg_perr("Protocol error while setting SPI speed!\n");
 		ret = 1;
@@ -574,10 +568,8 @@ static int buspirate_spi_init(void)
 		msg_pdbg("Pull-ups enabled, so using HiZ pin output! (Open-Drain mode)\n");
 	}
 	ret = buspirate_sendrecv(bp_commbuf, 1, 1);
-	if (ret) {
-		ret = 1;
+	if (ret)
 		goto init_err_cleanup_exit;
-	}
 	if (bp_commbuf[0] != 0x01) {
 		msg_perr("Protocol error while setting SPI config!\n");
 		ret = 1;
@@ -587,10 +579,8 @@ static int buspirate_spi_init(void)
 	/* De-assert CS# */
 	bp_commbuf[0] = 0x03;
 	ret = buspirate_sendrecv(bp_commbuf, 1, 1);
-	if (ret) {
-		ret = 1;
+	if (ret)
 		goto init_err_cleanup_exit;
-	}
 	if (bp_commbuf[0] != 0x01) {
 		msg_perr("Protocol error while raising CS#!\n");
 		ret = 1;
