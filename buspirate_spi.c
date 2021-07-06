@@ -135,6 +135,7 @@ static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned 
 					 const unsigned char *writearr, unsigned char *readarr);
 static int buspirate_spi_send_command_v2(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr);
+static int buspirate_spi_shutdown(void *data);
 
 static struct spi_master spi_master_buspirate = {
 	.features	= SPI_MASTER_4BA,
@@ -145,6 +146,7 @@ static struct spi_master spi_master_buspirate = {
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
 	.write_aai	= default_spi_write_aai,
+	.shutdown	= buspirate_spi_shutdown,
 };
 
 static const struct buspirate_speeds spispeeds[] = {
@@ -605,13 +607,7 @@ static int buspirate_spi_init(void)
 		goto init_err_cleanup_exit;
 	}
 
-	if (register_shutdown(buspirate_spi_shutdown, bp_data) != 0) {
-		ret = 1;
-		goto init_err_cleanup_exit;
-	}
-	register_spi_master(&spi_master_buspirate, bp_data);
-
-	return 0;
+	return register_spi_master(&spi_master_buspirate, bp_data);
 
 init_err_cleanup_exit:
 	buspirate_spi_shutdown(bp_data);

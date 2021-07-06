@@ -1010,6 +1010,8 @@ static int parse_voltage(char *voltage)
 	return millivolt;
 }
 
+static int dediprog_shutdown(void *data);
+
 static struct spi_master spi_master_dediprog = {
 	.features	= SPI_MASTER_NO_4BA_MODES,
 	.max_data_read	= 16, /* 18 seems to work fine as well, but 19 times out sometimes with FW 5.15. */
@@ -1019,6 +1021,7 @@ static struct spi_master spi_master_dediprog = {
 	.read		= dediprog_spi_read,
 	.write_256	= dediprog_spi_write_256,
 	.write_aai	= dediprog_spi_write_aai,
+	.shutdown	= dediprog_shutdown,
 };
 
 /*
@@ -1301,9 +1304,6 @@ static int dediprog_init(void)
 
 	if (protocol(dp_data) >= PROTOCOL_V2)
 		spi_master_dediprog.features |= SPI_MASTER_4BA;
-
-	if (register_shutdown(dediprog_shutdown, dp_data))
-		goto init_err_cleanup_exit;
 
 	if (dediprog_set_leds(LED_NONE, dp_data))
 		goto init_err_cleanup_exit;

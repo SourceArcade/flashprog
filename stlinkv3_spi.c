@@ -445,6 +445,7 @@ static const struct spi_master spi_programmer_stlinkv3 = {
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
 	.write_aai	= default_spi_write_aai,
+	.shutdown	= stlinkv3_spi_shutdown,
 };
 
 static int stlinkv3_spi_init(void)
@@ -504,17 +505,7 @@ static int stlinkv3_spi_init(void)
 	if (stlinkv3_spi_open(sck_freq_kHz))
 		goto init_err_exit;
 
-	if (register_shutdown(stlinkv3_spi_shutdown, NULL))
-		goto init_err_cleanup_exit;
-
-	if (register_spi_master(&spi_programmer_stlinkv3, NULL))
-		return 1; /* shutdown function does cleanup */
-
-	return 0;
-
-init_err_cleanup_exit:
-	stlinkv3_spi_shutdown(NULL);
-	return 1;
+	return register_spi_master(&spi_programmer_stlinkv3, NULL);
 
 init_err_exit:
 	if (stlinkv3_handle)

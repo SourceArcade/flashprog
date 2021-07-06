@@ -142,8 +142,6 @@ static int mstarddc_spi_init(void)
 			goto out;
 		}
 	}
-	// Register shutdown function
-	register_shutdown(mstarddc_spi_shutdown, NULL);
 
 	// Register programmer
 	register_spi_master(&spi_master_mstarddc, NULL);
@@ -227,6 +225,7 @@ static const struct spi_master spi_master_mstarddc = {
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
 	.write_aai	= default_spi_write_aai,
+	.shutdown	= mstarddc_spi_shutdown,
 };
 
 const struct programmer_entry programmer_mstarddc_spi = {

@@ -198,6 +198,7 @@ static const struct spi_master spi_master_dirtyjtag_spi = {
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
 	.write_aai	= default_spi_write_aai,
+	.shutdown	= dirtyjtag_spi_shutdown,
 };
 
 static int dirtyjtag_spi_init(void)
@@ -296,9 +297,6 @@ static int dirtyjtag_spi_init(void)
 		msg_perr("%s: failed to configure DirtyJTAG into initialized state\n", __func__);
 		goto cleanup_libusb_handle;
 	}
-
-	if (register_shutdown(dirtyjtag_spi_shutdown, djtag_data))
-		goto cleanup_libusb_handle;
 
 	return register_spi_master(&spi_master_dirtyjtag_spi, djtag_data);
 
