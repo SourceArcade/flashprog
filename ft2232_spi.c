@@ -314,7 +314,7 @@ static int ft2232_spi_init(void)
 	 */
 	uint32_t divisor = DEFAULT_DIVISOR;
 	int f;
-	char *arg;
+	char *arg, *arg2;
 	double mpsse_clk;
 	uint8_t cs_bits = 0x08;
 	uint8_t pindir = 0x0b;
@@ -503,8 +503,12 @@ static int ft2232_spi_init(void)
 	}
 
 	arg = extract_programmer_param("serial");
-	f = ftdi_usb_open_desc(ftdic, ft2232_vid, ft2232_type, NULL, arg);
+	arg2 = extract_programmer_param("description");
+
+	f = ftdi_usb_open_desc(ftdic, ft2232_vid, ft2232_type, arg2, arg);
+
 	free(arg);
+	free(arg2);
 
 	if (f < 0 && f != -5) {
 		msg_perr("Unable to open FTDI device: %d (%s).\n", f, ftdi_get_error_string(ftdic));
