@@ -37,6 +37,7 @@ static const struct dev_entry nics_realtek[] = {
 
 static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
 static uint8_t nicrealtek_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static int nicrealtek_shutdown(void *data);
 static const struct par_master par_master_nicrealtek = {
 	.chip_readb	= nicrealtek_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -46,6 +47,7 @@ static const struct par_master par_master_nicrealtek = {
 	.chip_writew	= fallback_chip_writew,
 	.chip_writel	= fallback_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.shutdown	= nicrealtek_shutdown,
 };
 
 static int nicrealtek_shutdown(void *data)
@@ -83,12 +85,7 @@ static int nicrealtek_init(void)
 		break;
 	}
 
-	if (register_shutdown(nicrealtek_shutdown, NULL))
-		return 1;
-
-	register_par_master(&par_master_nicrealtek, BUS_PARALLEL, NULL);
-
-	return 0;
+	return register_par_master(&par_master_nicrealtek, BUS_PARALLEL, NULL);
 }
 
 static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)

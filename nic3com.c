@@ -57,6 +57,7 @@ static void nic3com_chip_writeb(const struct flashctx *flash, uint8_t val,
 				chipaddr addr);
 static uint8_t nic3com_chip_readb(const struct flashctx *flash,
 				  const chipaddr addr);
+static int nic3com_shutdown(void *data);
 static const struct par_master par_master_nic3com = {
 	.chip_readb	= nic3com_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -66,6 +67,7 @@ static const struct par_master par_master_nic3com = {
 	.chip_writew	= fallback_chip_writew,
 	.chip_writel	= fallback_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.shutdown	= nic3com_shutdown,
 };
 
 static int nic3com_shutdown(void *data)
@@ -116,13 +118,9 @@ static int nic3com_init(void)
 	 */
 	OUTW(SELECT_REG_WINDOW + 0, io_base_addr + INT_STATUS);
 
-	if (register_shutdown(nic3com_shutdown, NULL))
-		return 1;
-
 	max_rom_decode.parallel = 128 * 1024;
-	register_par_master(&par_master_nic3com, BUS_PARALLEL, NULL);
 
-	return 0;
+	return register_par_master(&par_master_nic3com, BUS_PARALLEL, NULL);
 }
 
 static void nic3com_chip_writeb(const struct flashctx *flash, uint8_t val,
