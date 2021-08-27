@@ -160,9 +160,7 @@ static int atavia_init(void)
 		return 1;
 	}
 
-	register_par_master(&lpc_master_atavia, BUS_LPC, NULL);
-
-	return 0;
+	return register_par_master(&lpc_master_atavia, BUS_LPC, NULL);
 }
 
 static void atavia_chip_writeb(const struct flashctx *flash, uint8_t val, const chipaddr addr)

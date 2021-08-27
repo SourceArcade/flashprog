@@ -77,9 +77,7 @@ static int drkaiser_init(void)
 		return 1;
 
 	max_rom_decode.parallel = 128 * 1024;
-	register_par_master(&par_master_drkaiser, BUS_PARALLEL, NULL);
-
-	return 0;
+	return register_par_master(&par_master_drkaiser, BUS_PARALLEL, NULL);
 }
 
 static void drkaiser_chip_writeb(const struct flashctx *flash, uint8_t val,

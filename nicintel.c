@@ -99,9 +99,7 @@ static int nicintel_init(void)
 	pci_rmmio_writew(0x0001, nicintel_control_bar + CSR_FCR);
 
 	max_rom_decode.parallel = NICINTEL_MEMMAP_SIZE;
-	register_par_master(&par_master_nicintel, BUS_PARALLEL, NULL);
-
-	return 0;
+	return register_par_master(&par_master_nicintel, BUS_PARALLEL, NULL);
 }
 
 static void nicintel_chip_writeb(const struct flashctx *flash, uint8_t val,
