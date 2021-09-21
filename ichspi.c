@@ -19,8 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#if defined(__i386__) || defined(__x86_64__)
-
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -2129,5 +2127,3 @@ int via_init_spi(uint32_t mmio_base)
 
 	return 0;
 }
-
-#endif

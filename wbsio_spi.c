@@ -14,8 +14,6 @@
  * GNU General Public License for more details.
  */
 
-#if defined(__i386__) || defined(__x86_64__)
-
 #include "flash.h"
 #include "chipdrivers.h"
 #include "programmer.h"
@@ -202,5 +200,3 @@ static int wbsio_spi_read(struct flashctx *flash, uint8_t *buf,
 	mmio_readn((void *)(flash->virtual_memory + start), buf, len);
 	return 0;
 }
-
-#endif

@@ -18,8 +18,6 @@
  * GNU General Public License for more details.
  */
 
-#if defined(__i386__) || defined(__x86_64__)
-
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -706,5 +704,3 @@ int sb600_probe_spi(struct pci_dev *dev)
 		register_spi_master(&spi_master_yangtze, NULL);
 	return 0;
 }
-
-#endif
