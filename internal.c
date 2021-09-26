@@ -90,7 +90,7 @@ struct pci_dev *pci_card_find(uint16_t vendor, uint16_t device,
 int force_boardenable = 0;
 int force_boardmismatch = 0;
 
-#if IS_X86
+#if defined(__i386__) || defined(__x86_64__)
 void probe_superio(void)
 {
 	probe_superio_winbond();
@@ -155,7 +155,7 @@ static int internal_init(void)
 	int not_a_laptop = 0;
 	char *board_vendor = NULL;
 	char *board_model = NULL;
-#if IS_X86
+#if defined(__i386__) || defined(__x86_64__)
 	const char *cb_vendor = NULL;
 	const char *cb_model = NULL;
 #endif
@@ -247,7 +247,7 @@ static int internal_init(void)
 		goto internal_init_exit;
 	}
 
-#if IS_X86
+#if defined(__i386__) || defined(__x86_64__)
 	if ((cb_parse_table(&cb_vendor, &cb_model) == 0) && (board_vendor != NULL) && (board_model != NULL)) {
 		if (strcasecmp(board_vendor, cb_vendor) || strcasecmp(board_model, cb_model)) {
 			msg_pwarn("Warning: The mainboard IDs set by -p internal:mainboard (%s:%s) do not\n"
@@ -260,9 +260,7 @@ static int internal_init(void)
 			msg_pinfo("Continuing anyway.\n");
 		}
 	}
-#endif
 
-#if IS_X86
 	is_laptop = 2; /* Assume that we don't know by default. */
 
 	dmi_init();
@@ -302,7 +300,7 @@ static int internal_init(void)
 		goto internal_init_exit;
 	}
 
-#if IS_X86
+#if defined(__i386__) || defined(__x86_64__)
 	/* Probe unconditionally for ITE Super I/O chips. This enables LPC->SPI translation on IT87* and
 	 * parallel writes on IT8705F. Also, this handles the manual chip select for Gigabyte's DualBIOS. */
 	init_superio_ite();
