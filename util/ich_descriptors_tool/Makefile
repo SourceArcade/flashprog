@@ -4,6 +4,8 @@
 # This Makefile works standalone, but it is usually called from the main
 # Makefile in the flashrom directory.
 
+include ../../Makefile.include
+
 PROGRAM=ich_descriptors_tool
 EXTRAINCDIRS = ../../ .
 DEPPATH = .dep
@@ -28,8 +30,7 @@ ifeq ($(findstring MINGW, $(HOST_OS)), MINGW)
 CC = gcc
 endif
 
-override TARGET_OS := $(shell $(CC) $(CPPFLAGS) -E $(SHAREDSRCDIR)/os.h | grep -v '^\#' | grep '"' | \
-			cut -f 2 -d'"')
+override TARGET_OS := $(call c_macro_test, ../../Makefile.d/os_test.h)
 
 ifeq ($(TARGET_OS), DOS)
 EXEC_SUFFIX := .exe
