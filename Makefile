@@ -167,19 +167,14 @@ endif
 override TARGET_OS := $(strip $(call debug_shell,$(CC) $(CPPFLAGS) -E os.h 2>/dev/null \
     | tail -1 | cut -f 2 -d'"'))
 
+ifeq ($(TARGET_OS), $(filter $(TARGET_OS), FreeBSD OpenBSD DragonFlyBSD))
+override CPPFLAGS += -I/usr/local/include
+override LDFLAGS += -L/usr/local/lib
+endif
+
 ifeq ($(TARGET_OS), Darwin)
 override CPPFLAGS += -I/opt/local/include -I/usr/local/include
 override LDFLAGS += -L/opt/local/lib -L/usr/local/lib
-endif
-
-ifeq ($(TARGET_OS), FreeBSD)
-override CPPFLAGS += -I/usr/local/include
-override LDFLAGS += -L/usr/local/lib
-endif
-
-ifeq ($(TARGET_OS), OpenBSD)
-override CPPFLAGS += -I/usr/local/include
-override LDFLAGS += -L/usr/local/lib
 endif
 
 ifeq ($(TARGET_OS), NetBSD)
@@ -187,11 +182,6 @@ ifeq ($(TARGET_OS), NetBSD)
 PCIUTILS_PCI_H := $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPCIUTILS_PCI_H)
 override CPPFLAGS += -I/usr/pkg/include $(PCIUTILS_PCI_H)
 override LDFLAGS += -L/usr/pkg/lib
-endif
-
-ifeq ($(TARGET_OS), DragonFlyBSD)
-override CPPFLAGS += -I/usr/local/include
-override LDFLAGS += -L/usr/local/lib
 endif
 
 ifeq ($(TARGET_OS), DOS)
