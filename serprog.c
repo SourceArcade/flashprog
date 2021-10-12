@@ -15,8 +15,6 @@
  * GNU General Public License for more details.
  */
 
-#include "platform.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 #if ! IS_WINDOWS /* stuff (presumably) needed for sockets only */
