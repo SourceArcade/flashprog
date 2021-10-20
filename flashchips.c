@@ -6316,6 +6316,7 @@ const struct flashchip flashchips[] = {
 			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
 			.cmp    = {STATUS2, 6, RW},
 		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -6722,6 +6723,7 @@ const struct flashchip flashchips[] = {
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
 			.tb     = {STATUS1, 6, RW},
 		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -6770,6 +6772,7 @@ const struct flashchip flashchips[] = {
 			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
 			.cmp    = {STATUS2, 6, RW},
 		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
