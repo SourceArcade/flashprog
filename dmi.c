@@ -32,6 +32,7 @@
 
 #include "platform.h"
 #include "flash.h"
+#include "hwaccess.h"
 #include "programmer.h"
 
 /* Enable SMBIOS decoding. Currently legacy DMI decoding is enough. */
