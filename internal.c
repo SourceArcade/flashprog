@@ -26,17 +26,6 @@
 #include "hwaccess_x86_io.h"
 #endif
 
-struct pci_dev *pci_dev_find(uint16_t vendor, uint16_t device)
-{
-	struct pci_filter filter;
-
-	pci_filter_init(NULL, &filter);
-	filter.vendor = vendor;
-	filter.device = device;
-
-	return pcidev_scandev(&filter, NULL);
-}
-
 int force_boardenable = 0;
 int force_boardmismatch = 0;
 
