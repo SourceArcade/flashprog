@@ -124,6 +124,7 @@ uintptr_t pcidev_readbar(struct pci_dev *dev, int bar);
 struct pci_dev *pcidev_init(const struct dev_entry *devs, int bar);
 struct pci_dev *pcidev_scandev(struct pci_filter *filter, struct pci_dev *start);
 struct pci_dev *pcidev_find_vendorclass(uint16_t vendor, uint16_t devclass);
+struct pci_dev *pcidev_card_find(uint16_t vendor, uint16_t device, uint16_t card_vendor, uint16_t card_device);
 /* rpci_write_* are reversible writes. The original PCI config space register
  * contents will be restored on shutdown.
  * To clone the pci_dev instances internally, the `pacc` global
@@ -258,8 +259,6 @@ extern int superio_count;
 #endif
 #if NEED_PCI == 1
 struct pci_dev *pci_dev_find(uint16_t vendor, uint16_t device);
-struct pci_dev *pci_card_find(uint16_t vendor, uint16_t device,
-			      uint16_t card_vendor, uint16_t card_device);
 #endif
 #if CONFIG_INTERNAL == 1
 extern int is_laptop;
