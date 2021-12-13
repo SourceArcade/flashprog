@@ -415,6 +415,7 @@ int erase_flash(struct flashctx *flash);
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
 int read_flash_to_file(struct flashctx *flash, const char *filename);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
+void emergency_help_message(void);
 void print_version(void);
 void print_buildinfo(void);
 void print_banner(void);
@@ -425,7 +426,6 @@ int write_buf_to_file(const unsigned char *buf, unsigned long size, const char *
 int prepare_flash_access(struct flashctx *, bool read_it, bool write_it, bool erase_it, bool verify_it);
 void finalize_flash_access(struct flashctx *);
 int do_read(struct flashctx *, const char *filename);
-int do_erase(struct flashctx *);
 int do_write(struct flashctx *, const char *const filename, const char *const referencefile);
 int do_verify(struct flashctx *, const char *const filename);
 int register_chip_restore(chip_restore_fn_cb_t func, struct flashctx *flash, uint8_t status);
