@@ -425,9 +425,6 @@ int read_buf_from_file(unsigned char *buf, unsigned long size, const char *filen
 int write_buf_to_file(const unsigned char *buf, unsigned long size, const char *filename);
 int prepare_flash_access(struct flashctx *, bool read_it, bool write_it, bool erase_it, bool verify_it);
 void finalize_flash_access(struct flashctx *);
-int do_read(struct flashctx *, const char *filename);
-int do_write(struct flashctx *, const char *const filename, const char *const referencefile);
-int do_verify(struct flashctx *, const char *const filename);
 int register_chip_restore(chip_restore_fn_cb_t func, struct flashctx *flash, uint8_t status);
 
 /* Something happened that shouldn't happen, but we can go on. */

@@ -118,6 +118,78 @@ static bool check_file(FILE *file)
 	return true;
 }
 
+static int do_read(struct flashctx *const flash, const char *const filename)
+{
+	int ret;
+
+	unsigned long size = flash->chip->total_size * 1024;
+	unsigned char *buf = calloc(size, sizeof(unsigned char));
+	if (!buf) {
+		msg_gerr("Memory allocation failed!\n");
+		return 1;
+	}
+
+	ret = flashrom_image_read(flash, buf, size);
+	if (ret > 0)
+		goto free_out;
+
+	ret = write_buf_to_file(buf, size, filename);
+
+free_out:
+	free(buf);
+	return ret;
+}
+
+static int do_write(struct flashctx *const flash, const char *const filename, const char *const referencefile)
+{
+	const size_t flash_size = flash->chip->total_size * 1024;
+	int ret = 1;
+
+	uint8_t *const newcontents = malloc(flash_size);
+	uint8_t *const refcontents = referencefile ? malloc(flash_size) : NULL;
+
+	if (!newcontents || (referencefile && !refcontents)) {
+		msg_gerr("Out of memory!\n");
+		goto _free_ret;
+	}
+
+	if (read_buf_from_file(newcontents, flash_size, filename))
+		goto _free_ret;
+
+	if (referencefile) {
+		if (read_buf_from_file(refcontents, flash_size, referencefile))
+			goto _free_ret;
+	}
+
+	ret = flashrom_image_write(flash, newcontents, flash_size, refcontents);
+
+_free_ret:
+	free(refcontents);
+	free(newcontents);
+	return ret;
+}
+
+static int do_verify(struct flashctx *const flash, const char *const filename)
+{
+	const size_t flash_size = flash->chip->total_size * 1024;
+	int ret = 1;
+
+	uint8_t *const newcontents = malloc(flash_size);
+	if (!newcontents) {
+		msg_gerr("Out of memory!\n");
+		goto _free_ret;
+	}
+
+	if (read_buf_from_file(newcontents, flash_size, filename))
+		goto _free_ret;
+
+	ret = flashrom_image_verify(flash, newcontents, flash_size);
+
+_free_ret:
+	free(newcontents);
+	return ret;
+}
+
 int main(int argc, char *argv[])
 {
 	const struct flashchip *chip = NULL;
