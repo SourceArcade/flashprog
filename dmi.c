@@ -33,6 +33,7 @@
 
 #include "flash.h"
 #include "hwaccess.h"
+#include "hwaccess_physmap.h"
 #include "programmer.h"
 
 /* Enable SMBIOS decoding. Currently legacy DMI decoding is enough. */
