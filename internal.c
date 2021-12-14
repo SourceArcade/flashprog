@@ -20,6 +20,7 @@
 #include "flash.h"
 #include "programmer.h"
 #include "hwaccess.h"
+#include "hwaccess_x86_io.h"
 #include "platform/pci.h"
 
 struct pci_dev *pci_dev_find_vendorclass(uint16_t vendor, uint16_t devclass)
