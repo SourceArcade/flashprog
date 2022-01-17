@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include "flash.h"
 #include "programmer.h"
-#include "hwaccess.h"
 #include "hwaccess_x86_io.h"
 #include "hwaccess_x86_msr.h"
 #include "platform/pci.h"

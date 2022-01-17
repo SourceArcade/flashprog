@@ -19,7 +19,6 @@
 #include <string.h>
 #include "flash.h"
 #include "programmer.h"
-#include "hwaccess.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
 
