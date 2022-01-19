@@ -19,9 +19,12 @@
 #include <stdlib.h>
 #include "flash.h"
 #include "programmer.h"
-#include "hwaccess_x86_io.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
+
+#if defined(__i386__) || defined(__x86_64__)
+#include "hwaccess_x86_io.h"
+#endif
 
 struct pci_dev *pci_dev_find_vendorclass(uint16_t vendor, uint16_t devclass)
 {
@@ -219,10 +222,6 @@ static int internal_init(void)
 	}
 	free(arg);
 
-	if (rget_io_perms()) {
-		ret = 1;
-		goto internal_init_exit;
-	}
 
 	/* Unconditionally reset global state from previous operation. */
 	laptop_ok = false;
@@ -252,6 +251,11 @@ static int internal_init(void)
 	}
 
 #if defined(__i386__) || defined(__x86_64__)
+	if (rget_io_perms()) {
+		ret = 1;
+		goto internal_init_exit;
+	}
+
 	if ((cb_parse_table(&cb_vendor, &cb_model) == 0) && (board_vendor != NULL) && (board_model != NULL)) {
 		if (strcasecmp(board_vendor, cb_vendor) || strcasecmp(board_model, cb_model)) {
 			msg_pwarn("Warning: The mainboard IDs set by -p internal:mainboard (%s:%s) do not\n"
