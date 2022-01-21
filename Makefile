@@ -100,7 +100,7 @@ DEPENDS_ON_SERIAL := \
 
 DEPENDS_ON_BITBANG_SPI := \
 	CONFIG_DEVELOPERBOX_SPI \
-	CONFIG_INTERNAL \
+	CONFIG_INTERNAL_X86 \
 	CONFIG_NICINTEL_SPI \
 	CONFIG_OGP_SPI \
 	CONFIG_PONY_SPI \
@@ -120,12 +120,12 @@ DEPENDS_ON_RAW_MEM_ACCESS := \
 	CONFIG_SATASII \
 
 DEPENDS_ON_X86_MSR := \
-	CONFIG_INTERNAL \
+	CONFIG_INTERNAL_X86 \
 
 DEPENDS_ON_X86_PORT_IO := \
 	CONFIG_ATAHPT \
 	CONFIG_ATAPROMISE \
-	CONFIG_INTERNAL \
+	CONFIG_INTERNAL_X86 \
 	CONFIG_NIC3COM \
 	CONFIG_NICNATSEMI \
 	CONFIG_NICREALTEK \
@@ -319,8 +319,8 @@ ifeq ($(TARGET_OS), Android)
 $(call mark_unsupported,$(DEPENDS_ON_X86_PORT_IO))
 endif
 
-# Disable the internal programmer on unsupported architectures (everything but x86 and mipsel)
-ifneq ($(ARCH)-little, $(filter $(ARCH), x86 mips)-$(ENDIAN))
+# Disable the internal programmer on unsupported architectures or systems
+ifeq ($(or $(filter $(ARCH), x86), $(filter $(TARGET_OS), Linux)), )
 $(call mark_unsupported,CONFIG_INTERNAL)
 endif
 
@@ -422,6 +422,7 @@ endif
 
 # Always enable internal/onboard support for now.
 CONFIG_INTERNAL ?= yes
+CONFIG_INTERNAL_X86 ?= yes
 
 # Always enable serprog for now.
 CONFIG_SERPROG ?= yes
@@ -581,17 +582,24 @@ endif
 
 FEATURE_FLAGS += -D'CONFIG_DEFAULT_PROGRAMMER_ARGS="$(CONFIG_DEFAULT_PROGRAMMER_ARGS)"'
 
+################################################################################
+
+ifeq ($(ARCH), x86)
+ifeq ($(CONFIG_INTERNAL) $(CONFIG_INTERNAL_X86), yes yes)
+FEATURE_FLAGS += -D'CONFIG_INTERNAL=1'
+PROGRAMMER_OBJS += processor_enable.o chipset_enable.o board_enable.o cbtable.o \
+	internal.o it87spi.o sb600spi.o amd_imc.o wbsio_spi.o mcp6x_spi.o \
+	ichspi.o dmi.o
+endif
+else
 ifeq ($(CONFIG_INTERNAL), yes)
 FEATURE_FLAGS += -D'CONFIG_INTERNAL=1'
 PROGRAMMER_OBJS += processor_enable.o chipset_enable.o board_enable.o cbtable.o internal.o
-ifeq ($(ARCH), x86)
-PROGRAMMER_OBJS += it87spi.o sb600spi.o amd_imc.o wbsio_spi.o mcp6x_spi.o
-PROGRAMMER_OBJS += ichspi.o dmi.o
+endif
+endif
+
 ifeq ($(CONFIG_INTERNAL_DMI), yes)
 FEATURE_FLAGS += -D'CONFIG_INTERNAL_DMI=1'
-endif
-else
-endif
 endif
 
 ifeq ($(CONFIG_SERPROG), yes)
