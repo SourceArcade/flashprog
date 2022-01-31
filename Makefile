@@ -245,21 +245,9 @@ HAS_LINUX_MTD       := $(call c_compile_test, Makefile.d/linux_mtd_test.c)
 HAS_LINUX_SPI       := $(call c_compile_test, Makefile.d/linux_spi_test.c)
 HAS_LINUX_I2C       := $(call c_compile_test, Makefile.d/linux_i2c_test.c)
 
-ifeq ($(TARGET_OS), $(filter $(TARGET_OS), FreeBSD OpenBSD DragonFlyBSD))
-override CPPFLAGS += -I/usr/local/include
-override LDFLAGS += -L/usr/local/lib
-endif
-
-ifeq ($(TARGET_OS), Darwin)
-override CPPFLAGS += -I/opt/local/include -I/usr/local/include
-override LDFLAGS += -L/opt/local/lib -L/usr/local/lib
-endif
-
 ifeq ($(TARGET_OS), NetBSD)
 # Needs special `pciutils/pci.h` for older NetBSD packages
-PCIUTILS_PCI_H := $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPCIUTILS_PCI_H)
-override CPPFLAGS += -I/usr/pkg/include $(PCIUTILS_PCI_H)
-override LDFLAGS += -L/usr/pkg/lib
+override CPPFLAGS += $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPCIUTILS_PCI_H)
 endif
 
 ifeq ($(TARGET_OS), DOS)

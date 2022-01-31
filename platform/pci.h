@@ -15,7 +15,7 @@
 #define index shadow_workaround_index
 
 #if defined (PCIUTILS_PCI_H)
-#include <pciutils/pci.h>
+#include <pci.h>
 #else
 #include <pci/pci.h>
 #endif
