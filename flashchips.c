@@ -2376,7 +2376,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 16384,
 		.page_size	= 256,
 		/* supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -2404,6 +2404,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1700, 2000},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -5129,6 +5139,13 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -6445,7 +6462,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 8192,
 		.page_size	= 256,
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_WRSR_EXT,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -6473,6 +6490,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1695, 1950},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -6562,7 +6589,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* OTP: 1536B total; read 0x48; write 0x42, erase 0x44 */
 		/* QPI: enable 0x38, disable 0xFF */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -6591,6 +6618,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -6857,7 +6894,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 8192,
 		.page_size	= 256,
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -6885,6 +6922,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -16954,7 +17001,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_NEX_W25Q128_V_M,
 		.total_size	= 16384,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -16982,6 +17029,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -16994,7 +17051,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -17022,6 +17079,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -17032,7 +17099,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_NEX_W25Q128_DTR,
 		.total_size	= 16384,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -17060,6 +17127,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -17192,8 +17269,9 @@ const struct flashchip flashchips[] = {
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_ENTER_WREN
-			| FEATURE_4BA_EXT_ADDR | FEATURE_4BA_READ | FEATURE_4BA_FAST_READ,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_ENTER_WREN |
+				  FEATURE_4BA_EXT_ADDR | FEATURE_4BA_READ | FEATURE_4BA_FAST_READ |
+				  FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -17221,6 +17299,15 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -17234,7 +17321,7 @@ const struct flashchip flashchips[] = {
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -17268,6 +17355,15 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -17728,7 +17824,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* OTP: 256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* QPI enable 0x38, disable 0xFF */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -17756,6 +17852,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -19014,7 +19120,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= XMC_XM25QH128C,
 		.total_size	= 16384,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI | FEATURE_WRSR2,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19042,6 +19148,16 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
@@ -19053,7 +19169,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 32768,
 		.page_size	= 256,
 		/* supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_WREN,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_WREN | FEATURE_WRSR2,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19087,6 +19203,14 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+		},
+		.decode_range	= decode_range_spi25,
 	},
 
 	{
