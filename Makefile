@@ -170,6 +170,8 @@ DEPENDS_ON_LIBJAYLINK := \
 DEPENDS_ON_LIB_NI845X := \
 	CONFIG_NI845X_SPI \
 
+DEPENDS_ON_LINUX_I2C := \
+	CONFIG_MSTARDDC_SPI \
 
 ifeq ($(CONFIG_ENABLE_LIBUSB1_PROGRAMMERS), no)
 $(call disable_all,$(DEPENDS_ON_LIBUSB1))
@@ -310,7 +312,7 @@ $(call mark_unsupported,CONFIG_LINUX_SPI)
 endif
 
 ifeq ($(HAS_LINUX_I2C), no)
-$(call mark_unsupported,CONFIG_MSTARDDC_SPI)
+$(call mark_unsupported,$(DEPENDS_ON_LINUX_I2C))
 endif
 
 ifeq ($(TARGET_OS), Android)
