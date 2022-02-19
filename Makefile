@@ -886,6 +886,7 @@ ifeq ($(ARCH), x86)
 endif
 
 config:
+	@echo Building flashrom version $(VERSION)
 	@echo -n "C compiler found: "
 	@if [ $(CC_WORKING) = yes ]; \
 		then $(CC) --version 2>/dev/null | head -1; \
