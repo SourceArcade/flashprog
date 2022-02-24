@@ -237,6 +237,9 @@ size_t flashrom_flash_getsize(const struct flashrom_flashctx *const flashctx)
  */
 void flashrom_flash_release(struct flashrom_flashctx *const flashctx)
 {
+	if (!flashctx)
+		return;
+
 	free(flashctx->chip);
 	free(flashctx);
 }
