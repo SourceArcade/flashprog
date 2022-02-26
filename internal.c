@@ -26,25 +26,6 @@
 #include "hwaccess_x86_io.h"
 #endif
 
-struct pci_dev *pci_dev_find_vendorclass(uint16_t vendor, uint16_t devclass)
-{
-	struct pci_dev *temp = NULL;
-	struct pci_filter filter;
-	uint16_t tmp2;
-
-	pci_filter_init(NULL, &filter);
-	filter.vendor = vendor;
-
-	while ((temp = pcidev_scandev(&filter, temp))) {
-		/* Read PCI class */
-		tmp2 = pci_read_word(temp, 0x0a);
-		if (tmp2 == devclass)
-			return temp;
-	}
-
-	return NULL;
-}
-
 struct pci_dev *pci_dev_find(uint16_t vendor, uint16_t device)
 {
 	struct pci_filter filter;
