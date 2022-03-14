@@ -86,10 +86,12 @@ Read flash ROM contents and save them into the given
 .BR <file> .
 If the file already exists, it will be overwritten.
 .TP
-.B "\-w, \-\-write <file>"
+.B "\-w, \-\-write (<file>|-)"
 Write
 .B <file>
-into flash ROM. This will first automatically
+into flash ROM. If
+.B -
+is provided instead, contents will be read from stdin. This will first automatically
 .B erase
 the chip, then write to it.
 .sp
@@ -128,9 +130,12 @@ region using the
 .BR internal
 programmer. It may be enabled by default in this case in the future.
 .TP
-.B "\-v, \-\-verify <file>"
+.B "\-v, \-\-verify (<file>|-)"
 Verify the flash ROM contents against the given
 .BR <file> .
+If
+.BR -
+is provided instead, contents will be read from stdin.
 .TP
 .B "\-E, \-\-erase"
 Erase the flash ROM chip.
