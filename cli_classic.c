@@ -109,12 +109,10 @@ static int check_filename(char *filename, const char *type)
 /* Ensure a file is open by means of fstat */
 static bool check_file(FILE *file)
 {
-#ifndef STANDALONE
 	struct stat statbuf;
 
 	if (fstat(fileno(file), &statbuf) < 0)
 		return false;
-#endif /* !STANDALONE */
 	return true;
 }
 
@@ -250,9 +248,7 @@ int main(int argc, char *argv[])
 	char *referencefile = NULL;
 	char *layoutfile = NULL;
 	char *fmapfile = NULL;
-#ifndef STANDALONE
 	char *logfile = NULL;
-#endif /* !STANDALONE */
 	char *tempstr = NULL;
 	char *pparam = NULL;
 	struct layout_include_args *include_args = NULL;
@@ -451,9 +447,6 @@ int main(int argc, char *argv[])
 			exit(0);
 			break;
 		case 'o':
-#ifdef STANDALONE
-			cli_classic_abort_usage("Log file not supported in standalone mode. Aborting.\n");
-#else /* STANDALONE */
 			if (logfile) {
 				fprintf(stderr, "Warning: -o/--output specified multiple times.\n");
 				free(logfile);
@@ -463,7 +456,6 @@ int main(int argc, char *argv[])
 			if (logfile[0] == '\0') {
 				cli_classic_abort_usage("No log filename specified.\n");
 			}
-#endif /* STANDALONE */
 			break;
 		default:
 			cli_classic_abort_usage(NULL);
@@ -481,13 +473,10 @@ int main(int argc, char *argv[])
 		cli_classic_abort_usage(NULL);
 	if (referencefile && check_filename(referencefile, "reference"))
 		cli_classic_abort_usage(NULL);
-
-#ifndef STANDALONE
 	if (logfile && check_filename(logfile, "log"))
 		cli_classic_abort_usage(NULL);
 	if (logfile && open_logfile(logfile))
 		cli_classic_abort_usage(NULL);
-#endif /* !STANDALONE */
 
 #if CONFIG_PRINT_WIKI == 1
 	if (list_supported_wiki) {
@@ -502,9 +491,7 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 
-#ifndef STANDALONE
 	start_logging();
-#endif /* !STANDALONE */
 
 	print_buildinfo();
 	msg_gdbg("Command line (%i args):", argc - 1);
@@ -774,9 +761,7 @@ out:
 	/* clean up global variables */
 	free((char *)chip_to_probe); /* Silence! Freeing is not modifying contents. */
 	chip_to_probe = NULL;
-#ifndef STANDALONE
 	free(logfile);
 	ret |= close_logfile();
-#endif /* !STANDALONE */
 	return ret;
 }
