@@ -358,9 +358,11 @@ libdir = join_paths(prefix, get_option('libdir'))
 mandir = join_paths(prefix, get_option('mandir'))
 
 install_headers([
-    'libflashrom.h',
+    'include/libflashrom.h',
   ],
 )
+
+include_dir = include_directories('include')
 
 # core modules needed by both the library and the CLI
 srcs += '82802ab.c'
@@ -401,6 +403,7 @@ flashrom = library(
   sources : [
     srcs,
   ],
+  include_directories : include_dir,
   soversion : lt_current,
   version : lt_version,
   dependencies : [
@@ -444,7 +447,7 @@ configure_file(
 
 flashrom_dep = declare_dependency(
   link_with : flashrom,
-  include_directories : include_directories('.'),
+  include_directories : include_dir,
   dependencies : deps
 )
 
@@ -471,6 +474,7 @@ executable(
     'cli_output.c',
     'flashrom.c',
   ],
+  include_directories : include_dir,
   dependencies : [
     deps,
   ],

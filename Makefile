@@ -252,6 +252,8 @@ HAS_LINUX_I2C       := $(call c_compile_test, Makefile.d/linux_i2c_test.c)
 HAS_SERIAL          := $(strip $(if $(filter $(TARGET_OS), DOS libpayload), no, yes))
 EXEC_SUFFIX         := $(strip $(if $(filter $(TARGET_OS), DOS MinGW), .exe))
 
+override CFLAGS += -Iinclude
+
 ifeq ($(TARGET_OS), NetBSD)
 # Needs special `pciutils/pci.h` for older NetBSD packages
 override CPPFLAGS += $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPCIUTILS_PCI_H)
@@ -960,11 +962,11 @@ install: $(PROGRAM)$(EXEC_SUFFIX) $(PROGRAM).8
 	$(INSTALL) -m 0755 $(PROGRAM)$(EXEC_SUFFIX) $(DESTDIR)$(PREFIX)/sbin
 	$(INSTALL) -m 0644 $(PROGRAM).8 $(DESTDIR)$(MANDIR)/man8
 
-libinstall: libflashrom.a libflashrom.h
+libinstall: libflashrom.a include/libflashrom.h
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	$(INSTALL) -m 0644 libflashrom.a $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/include
-	$(INSTALL) -m 0644 libflashrom.h $(DESTDIR)$(PREFIX)/include
+	$(INSTALL) -m 0644 include/libflashrom.h $(DESTDIR)$(PREFIX)/include
 
 versioninfo:
 #	Generate versioninfo.inc containing metadata that would not be available in exported sources otherwise.
