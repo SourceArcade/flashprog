@@ -5,7 +5,7 @@ stdenv.mkDerivation {
 
 	buildInputs = [
 		libftdi1
-#		libjaylink	# Will be added in NixOS 21.11
+		libjaylink
 		libusb1
 		meson
 		ninja
