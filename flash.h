@@ -417,7 +417,6 @@ int erase_flash(struct flashctx *flash);
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
 int read_flash_to_file(struct flashctx *flash, const char *filename);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
-int need_erase(const uint8_t *have, const uint8_t *want, unsigned int len, enum write_granularity gran, const uint8_t erased_value);
 void print_version(void);
 void print_buildinfo(void);
 void print_banner(void);
