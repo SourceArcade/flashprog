@@ -196,13 +196,16 @@ int main(int argc, char *argv[])
 	struct flashctx *fill_flash;
 	const char *name;
 	int namelen, opt, i, j;
-	int startchip = -1, chipcount = 0, option_index = 0, force = 0, ifd = 0, fmap = 0;
+	int startchip = -1, chipcount = 0, option_index = 0;
+	int operation_specified = 0;
+	bool force = false, ifd = false, fmap = false;
 #if CONFIG_PRINT_WIKI == 1
-	int list_supported_wiki = 0;
+	bool list_supported_wiki = false;
 #endif
-	int flash_name = 0, flash_size = 0;
-	int read_it = 0, write_it = 0, erase_it = 0, verify_it = 0;
-	int dont_verify_it = 0, dont_verify_all = 0, list_supported = 0, operation_specified = 0;
+	bool flash_name = false, flash_size = false;
+	bool read_it = false, write_it = false, erase_it = false, verify_it = false;
+	bool dont_verify_it = false, dont_verify_all = false;
+	bool list_supported = false;
 	struct flashrom_layout *layout = NULL;
 	static const struct programmer_entry *prog = NULL;
 	enum {
@@ -281,12 +284,12 @@ int main(int argc, char *argv[])
 		case 'r':
 			cli_classic_validate_singleop(&operation_specified);
 			filename = strdup(optarg);
-			read_it = 1;
+			read_it = true;
 			break;
 		case 'w':
 			cli_classic_validate_singleop(&operation_specified);
 			filename = strdup(optarg);
-			write_it = 1;
+			write_it = true;
 			break;
 		case 'v':
 			//FIXME: gracefully handle superfluous -v
@@ -295,16 +298,16 @@ int main(int argc, char *argv[])
 				cli_classic_abort_usage("--verify and --noverify are mutually exclusive. Aborting.\n");
 			}
 			filename = strdup(optarg);
-			verify_it = 1;
+			verify_it = true;
 			break;
 		case 'n':
 			if (verify_it) {
 				cli_classic_abort_usage("--verify and --noverify are mutually exclusive. Aborting.\n");
 			}
-			dont_verify_it = 1;
+			dont_verify_it = true;
 			break;
 		case 'N':
-			dont_verify_all = 1;
+			dont_verify_all = true;
 			break;
 		case 'c':
 			chip_to_probe = strdup(optarg);
@@ -316,10 +319,10 @@ int main(int argc, char *argv[])
 			break;
 		case 'E':
 			cli_classic_validate_singleop(&operation_specified);
-			erase_it = 1;
+			erase_it = true;
 			break;
 		case 'f':
-			force = 1;
+			force = true;
 			break;
 		case 'l':
 			if (layoutfile)
@@ -335,7 +338,7 @@ int main(int argc, char *argv[])
 				cli_classic_abort_usage("Error: --layout and --ifd both specified. Aborting.\n");
 			if (fmap)
 				cli_classic_abort_usage("Error: --fmap-file and --ifd both specified. Aborting.\n");
-			ifd = 1;
+			ifd = true;
 			break;
 		case OPTION_FMAP_FILE:
 			if (fmap)
@@ -346,7 +349,7 @@ int main(int argc, char *argv[])
 			if (layoutfile)
 				cli_classic_abort_usage("Error: --fmap-file and --layout both specified. Aborting.\n");
 			fmapfile = strdup(optarg);
-			fmap = 1;
+			fmap = true;
 			break;
 		case OPTION_FMAP:
 			if (fmap)
@@ -356,7 +359,7 @@ int main(int argc, char *argv[])
 				cli_classic_abort_usage("Error: --fmap and --ifd both specified. Aborting.\n");
 			if (layoutfile)
 				cli_classic_abort_usage("Error: --layout and --fmap both specified. Aborting.\n");
-			fmap = 1;
+			fmap = true;
 			break;
 		case 'i':
 			tempstr = strdup(optarg);
@@ -373,20 +376,20 @@ int main(int argc, char *argv[])
 			break;
 		case OPTION_FLASH_NAME:
 			cli_classic_validate_singleop(&operation_specified);
-			flash_name = 1;
+			flash_name = true;
 			break;
 		case OPTION_FLASH_SIZE:
 			cli_classic_validate_singleop(&operation_specified);
-			flash_size = 1;
+			flash_size = true;
 			break;
 		case 'L':
 			cli_classic_validate_singleop(&operation_specified);
-			list_supported = 1;
+			list_supported = true;
 			break;
 		case 'z':
 #if CONFIG_PRINT_WIKI == 1
 			cli_classic_validate_singleop(&operation_specified);
-			list_supported_wiki = 1;
+			list_supported_wiki = true;
 #else
 			cli_classic_abort_usage("Error: Wiki output was not "
 					"compiled in. Aborting.\n");
@@ -611,7 +614,7 @@ int main(int argc, char *argv[])
 				goto out_shutdown;
 			}
 			msg_cinfo("Please note that forced reads most likely contain garbage.\n");
-			flashrom_flag_set(&flashes[0], FLASHROM_FLAG_FORCE, !!force);
+			flashrom_flag_set(&flashes[0], FLASHROM_FLAG_FORCE, force);
 			ret = do_read(&flashes[0], filename);
 			free(flashes[0].chip);
 			goto out_shutdown;
@@ -706,9 +709,9 @@ int main(int argc, char *argv[])
 	}
 
 	flashrom_layout_set(fill_flash, layout);
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE, !!force);
+	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE, force);
 #if CONFIG_INTERNAL == 1
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE_BOARDMISMATCH, !!force_boardmismatch);
+	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE_BOARDMISMATCH, force_boardmismatch);
 #endif
 	flashrom_flag_set(fill_flash, FLASHROM_FLAG_VERIFY_AFTER_WRITE, !dont_verify_it);
 	flashrom_flag_set(fill_flash, FLASHROM_FLAG_VERIFY_WHOLE_CHIP, !dont_verify_all);
