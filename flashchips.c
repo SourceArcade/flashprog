@@ -7431,7 +7431,6 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total; read 0x68; write 0x62, erase 0x64, read ID 0x4B */
-		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_4BA_ENTER_EAR7,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -7607,7 +7606,6 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total; read 0x68; write 0x62, erase 0x64, read ID 0x4B */
-		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_4BA_ENTER_EAR7,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -17404,7 +17402,6 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_ENTER_WREN |
 				  FEATURE_4BA_EXT_ADDR | FEATURE_4BA_READ | FEATURE_4BA_FAST_READ |
 				  FEATURE_WRSR2,
@@ -17511,7 +17508,6 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_WRSR2,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -17613,7 +17609,6 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		/* FOUR_BYTE_ADDR: supports 4-bytes addressing mode */
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
