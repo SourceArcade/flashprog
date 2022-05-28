@@ -666,6 +666,8 @@
 #define SPANSION_S25FL216	0x4015	/* Same as S25FL216K, but the latter supports OTP, 3 status regs, quad I/O, SFDP etc. */
 #define SPANSION_S25FL132K	0x4016
 #define SPANSION_S25FL164K	0x4017
+#define SPANSION_S25FL128L	0x6018
+#define SPANSION_S25FL256L	0x6019
 
 /* Spansion 29GL families got a suffix indicating the process technology but share the same 3-Byte IDs. They can
  * however be differentiated by CFI byte 45h. Some versions exist which have special top or bottom boot sectors
