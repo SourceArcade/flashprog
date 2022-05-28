@@ -640,6 +640,8 @@ vendor):
 .sp
 .RB "* Macronix " MX25L6436 " SPI flash chip (8192 kB, RDID, SFDP)"
 .sp
+.RB "* Spansion " S25FL128L " SPI flash chip (16384 kB, RDID)"
+.sp
 Example:
 .B "flashrom -p dummy:emulate=SST25VF040.REMS"
 .TP
@@ -722,7 +724,7 @@ registers content.
 .TP
 .B Write protection
 .sp
-Chips with emulated WP: W25Q128FV.
+Chips with emulated WP: W25Q128FV, S25FL128L.
 .sp
 You can simulate state of hardware protection pin (WP) with the
 .sp
