@@ -74,8 +74,6 @@
 // #define FL_BUSY	30
 // #define FL_ER	31
 
-#define BIT(x) (1<<(x))
-
 static uint8_t *nicintel_spibar;
 
 static const struct dev_entry nics_intel_spi[] = {
