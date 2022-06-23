@@ -65,13 +65,13 @@ static int wbsio_spi_read(struct flashctx *flash, uint8_t *buf,
 			  unsigned int start, unsigned int len);
 
 static const struct spi_master spi_master_wbsio = {
-	.max_data_read = MAX_DATA_UNSPECIFIED,
-	.max_data_write = MAX_DATA_UNSPECIFIED,
-	.command = wbsio_spi_send_command,
-	.multicommand = default_spi_send_multicommand,
-	.read = wbsio_spi_read,
-	.write_256 = spi_chip_write_1,
-	.write_aai = spi_chip_write_1,
+	.max_data_read	= MAX_DATA_UNSPECIFIED,
+	.max_data_write	= MAX_DATA_UNSPECIFIED,
+	.command	= wbsio_spi_send_command,
+	.multicommand	= default_spi_send_multicommand,
+	.read		= wbsio_spi_read,
+	.write_256	= spi_chip_write_1,
+	.write_aai	= spi_chip_write_1,
 };
 
 int wbsio_check_for_spi(void)

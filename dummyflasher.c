@@ -124,14 +124,14 @@ static struct spi_master spi_master_dummyflasher = {
 };
 
 static struct par_master par_master_dummy = {
-		.chip_readb		= dummy_chip_readb,
-		.chip_readw		= dummy_chip_readw,
-		.chip_readl		= dummy_chip_readl,
-		.chip_readn		= dummy_chip_readn,
-		.chip_writeb		= dummy_chip_writeb,
-		.chip_writew		= dummy_chip_writew,
-		.chip_writel		= dummy_chip_writel,
-		.chip_writen		= dummy_chip_writen,
+	.chip_readb	= dummy_chip_readb,
+	.chip_readw	= dummy_chip_readw,
+	.chip_readl	= dummy_chip_readl,
+	.chip_readn	= dummy_chip_readn,
+	.chip_writeb	= dummy_chip_writeb,
+	.chip_writew	= dummy_chip_writew,
+	.chip_writel	= dummy_chip_writel,
+	.chip_writen	= dummy_chip_writen,
 };
 
 static int dummy_shutdown(void *data)

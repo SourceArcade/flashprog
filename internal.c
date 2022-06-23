@@ -136,14 +136,14 @@ static uint32_t internal_chip_readl(const struct flashctx *flash,
 static void internal_chip_readn(const struct flashctx *flash, uint8_t *buf,
 				const chipaddr addr, size_t len);
 static const struct par_master par_master_internal = {
-		.chip_readb		= internal_chip_readb,
-		.chip_readw		= internal_chip_readw,
-		.chip_readl		= internal_chip_readl,
-		.chip_readn		= internal_chip_readn,
-		.chip_writeb		= internal_chip_writeb,
-		.chip_writew		= internal_chip_writew,
-		.chip_writel		= internal_chip_writel,
-		.chip_writen		= fallback_chip_writen,
+	.chip_readb	= internal_chip_readb,
+	.chip_readw	= internal_chip_readw,
+	.chip_readl	= internal_chip_readl,
+	.chip_readn	= internal_chip_readn,
+	.chip_writeb	= internal_chip_writeb,
+	.chip_writew	= internal_chip_writew,
+	.chip_writel	= internal_chip_writel,
+	.chip_writen	= fallback_chip_writen,
 };
 
 enum chipbustype internal_buses_supported = BUS_NONE;
