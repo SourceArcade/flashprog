@@ -182,7 +182,6 @@ if config_internal
     srcs += 'amd_imc.c'
     srcs += 'dmi.c'
     srcs += 'ichspi.c'
-    srcs += 'it85spi.c'
     srcs += 'it87spi.c'
     srcs += 'mcp6x_spi.c'
     srcs += 'sb600spi.c'
