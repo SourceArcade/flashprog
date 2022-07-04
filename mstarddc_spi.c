@@ -223,6 +223,7 @@ static const struct spi_master spi_master_mstarddc = {
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
 	.shutdown	= mstarddc_spi_shutdown,
+	.probe_opcode	= default_spi_probe_opcode,
 };
 
 const struct programmer_entry programmer_mstarddc_spi = {

@@ -114,6 +114,7 @@ static const struct spi_master spi_master_it87xx = {
 	.read		= it8716f_spi_chip_read,
 	.write_256	= it8716f_spi_chip_write_256,
 	.write_aai	= spi_chip_write_1,
+	.probe_opcode	= default_spi_probe_opcode,
 };
 
 static uint16_t it87spi_probe(uint16_t port)
