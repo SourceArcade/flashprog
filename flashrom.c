@@ -1062,6 +1062,58 @@ int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e
 	return layout_idx;
 }
 
+/*
+ * @brief	Function to select the list of sectors that need erasing
+ *
+ * @param	flashctx	flash context
+ * @param	layout		erase layout
+ * @param	findex		index of the erase function
+ * @param	block_num	index of the block to erase according to the erase function index
+ * @param	curcontents	buffer containg the current contents of the flash
+ * @param	newcontents	buffer containg the new contents of the flash
+ * @param	rstart		start address of the region
+ * @rend	rend		end address of the region
+ */
+void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
+				size_t findex, size_t block_num, uint8_t *curcontents, uint8_t *newcontents,
+				chipoff_t rstart, chipoff_t rend);
+void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
+				size_t findex, size_t block_num, uint8_t *curcontents, uint8_t *newcontents,
+				chipoff_t rstart, chipoff_t rend)
+{
+	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
+	if (!findex) {
+		if (ll->start_addr >= rstart && ll->end_addr <= rend) {
+			chipoff_t start_addr = ll->start_addr;
+			chipoff_t end_addr = ll->end_addr;
+			const chipsize_t erase_len = end_addr - start_addr + 1;
+			const uint8_t erased_value = ERASED_VALUE(flashctx);
+			ll->selected = need_erase(curcontents + start_addr, newcontents + start_addr, erase_len,
+						flashctx->chip->gran, erased_value);
+		}
+	} else {
+		int count = 0;
+		const int sub_block_start = ll->first_sub_block_index;
+		const int sub_block_end = ll->last_sub_block_index;
+
+		for (int j = sub_block_start; j <= sub_block_end; j++) {
+			select_erase_functions(flashctx, layout, findex - 1, j, curcontents, newcontents,
+						rstart, rend);
+			if (layout[findex - 1].layout_list[j].selected)
+				count++;
+		}
+
+		const int total_blocks = sub_block_end - sub_block_start + 1;
+		if (count && count > total_blocks/2) {
+			if (ll->start_addr >= rstart && ll->end_addr <= rend) {
+				for (int j = sub_block_start; j <= sub_block_end; j++)
+					layout[findex - 1].layout_list[j].selected = false;
+				ll->selected = true;
+			}
+		}
+	}
+}
+
 static int write_range(struct flashctx *const flashctx, const chipoff_t flash_offset,
 		       const uint8_t *const curcontents, const uint8_t *const newcontents,
 		       const chipsize_t len, bool *const skipped)
