@@ -920,10 +920,146 @@ struct walk_info {
 	chipoff_t erase_end;
 };
 
+struct eraseblock_data {
+	chipoff_t start_addr;
+	chipoff_t end_addr;
+	bool selected;
+	size_t block_num;
+	size_t first_sub_block_index;
+	size_t last_sub_block_index;
+};
+
+struct erase_layout {
+	struct eraseblock_data* layout_list;
+	size_t block_count;
+	const struct block_eraser *eraser;
+};
+
 static bool explicit_erase(const struct walk_info *const info)
 {
 	/* For explicit erase, we are called without new contents. */
 	return !info->newcontents;
+}
+
+static size_t calculate_block_count(const struct flashchip *chip, size_t eraser_idx)
+{
+	size_t block_count = 0;
+
+	chipoff_t addr = 0;
+	for (size_t i = 0; addr < chip->total_size * 1024; i++) {
+		const struct eraseblock *block = &chip->block_erasers[eraser_idx].eraseblocks[i];
+		block_count += block->count;
+		addr += block->size * block->count;
+	}
+
+	return block_count;
+}
+
+static void init_eraseblock(struct erase_layout *layout, size_t idx, size_t block_num,
+		chipoff_t start_addr, chipoff_t end_addr, size_t *sub_block_index)
+{
+	struct eraseblock_data *edata = &layout[idx].layout_list[block_num];
+	edata->start_addr = start_addr;
+	edata->end_addr = end_addr;
+	edata->selected = false;
+	edata->block_num = block_num;
+
+	if (!idx)
+		return;
+
+	edata->first_sub_block_index = *sub_block_index;
+	struct eraseblock_data *subedata = &layout[idx - 1].layout_list[*sub_block_index];
+	while (subedata->start_addr >= start_addr && subedata->end_addr <= end_addr &&
+		*sub_block_index < layout[idx-1].block_count) {
+		(*sub_block_index)++;
+		subedata++;
+	}
+	edata->last_sub_block_index = *sub_block_index - 1;
+}
+
+/*
+ * @brief Function to free the created erase_layout
+ *
+ * @param layout pointer to allocated layout
+ * @param erasefn_count number of erase functions for which the layout was created
+ *
+ */
+static void free_erase_layout(struct erase_layout *layout, unsigned int erasefn_count)
+{
+	if (!layout)
+		return;
+	for (size_t i = 0; i < erasefn_count; i++) {
+		free(layout[i].layout_list);
+	}
+	free(layout);
+}
+
+/*
+ * @brief Function to create an erase layout
+ *
+ * @param	flashctx	flash context
+ * @param	e_layout	address to the pointer to store the layout
+ * @return	0 on success,
+ *		-1 if layout creation fails
+ *
+ * This function creates a layout of which erase functions erase which regions
+ * of the flash chip. This helps to optimally select the erase functions for
+ * erase/write operations.
+ */
+int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout);
+int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout)
+{
+	const struct flashchip *chip = flashctx->chip;
+	const size_t erasefn_count = count_usable_erasers(flashctx);
+	struct erase_layout *layout = calloc(erasefn_count, sizeof(struct erase_layout));
+
+	if (!layout) {
+		msg_gerr("Out of memory!\n");
+		return -1;
+	}
+
+	if (!erasefn_count) {
+		msg_gerr("No erase functions supported\n");
+		return 0;
+	}
+
+	size_t layout_idx = 0;
+	for (size_t eraser_idx = 0; eraser_idx < NUM_ERASEFUNCTIONS; eraser_idx++) {
+		if (check_block_eraser(flashctx, eraser_idx, 0))
+			continue;
+
+		layout[layout_idx].eraser = &chip->block_erasers[eraser_idx];
+		const size_t block_count = calculate_block_count(flashctx->chip, eraser_idx);
+		size_t sub_block_index = 0;
+
+		layout[layout_idx].block_count = block_count;
+		layout[layout_idx].layout_list = (struct eraseblock_data *)calloc(block_count,
+									sizeof(struct eraseblock_data));
+
+		if (!layout[layout_idx].layout_list) {
+			free_erase_layout(layout, layout_idx);
+			return -1;
+		}
+
+		size_t block_num = 0;
+		chipoff_t start_addr = 0;
+
+		for (int i = 0; block_num < block_count;  i++) {
+			const struct eraseblock *block = &chip->block_erasers[eraser_idx].eraseblocks[i];
+
+			for (size_t num = 0; num < block->count; num++) {
+				chipoff_t end_addr = start_addr + block->size - 1;
+				init_eraseblock(layout, layout_idx, block_num,
+						start_addr, end_addr, &sub_block_index);
+				block_num += 1;
+				start_addr = end_addr + 1;
+			}
+		}
+		layout_idx++;
+	}
+
+	*e_layout = layout;
+	return layout_idx;
 }
 
 static int write_range(struct flashctx *const flashctx, const chipoff_t flash_offset,
