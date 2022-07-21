@@ -1,5 +1,5 @@
 project('flashromutils', 'c',
-  version : run_command('util/getversion.sh', '--version').stdout().strip(),
+  version : run_command('util/getversion.sh', '--version', check : true).stdout().strip(),
   license : 'GPL-2.0',
   meson_version : '>=0.50.0',
   default_options : [
@@ -7,7 +7,8 @@ project('flashromutils', 'c',
     'c_std=c99',
     'werror=true',
     'optimization=s',
-    'debug=false'],
+    'debug=false',
+  ],
 )
 
 # libtool versioning
@@ -445,7 +446,7 @@ pkgg.generate(
 )
 
 conf.set('VERSION', version)
-conf.set('MAN_DATE', run_command('util/getversion.sh', '--man-date').stdout().strip())
+conf.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
 configure_file(
   input : 'flashrom.8.tmpl',
   output : 'flashrom.8',
