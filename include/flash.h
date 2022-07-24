@@ -186,6 +186,7 @@ enum flash_reg {
 	STATUS2,
 	STATUS3,
 	SECURITY,
+	CONFIG,
 	MAX_REGISTERS
 };
 
