@@ -138,8 +138,7 @@ static int developerbox_spi_shutdown(void *data)
 
 static int developerbox_spi_init(void)
 {
-	libusb_init(&usb_ctx);
-	if (!usb_ctx) {
+	if (libusb_init(&usb_ctx)) {
 		msg_perr("Could not initialize libusb!\n");
 		return 1;
 	}

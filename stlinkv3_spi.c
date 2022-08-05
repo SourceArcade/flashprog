@@ -456,8 +456,7 @@ static int stlinkv3_spi_init(void)
 	int ret = 1;
 	int devIndex = 0;
 
-	libusb_init(&usb_ctx);
-	if (!usb_ctx) {
+	if (libusb_init(&usb_ctx)) {
 		msg_perr("Could not initialize libusb!\n");
 		return 1;
 	}
