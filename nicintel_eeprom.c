@@ -411,8 +411,10 @@ static const struct opaque_master opaque_master_nicintel_ee_i210 = {
 
 static int nicintel_ee_shutdown_i210(void *arg)
 {
+	int ret = 0;
+
 	if (!done_i20_write)
-		return 0;
+		goto out;
 
 	uint32_t flup = pci_mmio_readl(nicintel_eebar + EEC);
 
@@ -422,11 +424,13 @@ static int nicintel_ee_shutdown_i210(void *arg)
 	int i;
 	for (i = 0; i < MAX_ATTEMPTS; i++)
 		if (pci_mmio_readl(nicintel_eebar + EEC) & BIT(EE_FLUDONE))
-			return 0;
+			goto out;
 
+	ret = -1;
 	msg_perr("Flash update failed\n");
 
-	return -1;
+out:
+	return ret;
 }
 
 static int nicintel_ee_shutdown_82580(void *eecp)
