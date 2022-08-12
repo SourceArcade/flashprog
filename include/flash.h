@@ -383,6 +383,9 @@ uint32_t chip_readl(const struct flashctx *flash, const chipaddr addr);
 void chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
 
 /* print.c */
+void print_buildinfo(void);
+void print_version(void);
+void print_banner(void);
 int print_supported(void);
 void print_supported_wiki(void);
 
@@ -418,9 +421,6 @@ int erase_flash(struct flashctx *flash);
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
 void emergency_help_message(void);
-void print_version(void);
-void print_buildinfo(void);
-void print_banner(void);
 void list_programmers_linebreak(int startcol, int cols, int paren);
 int selfcheck(void);
 int read_buf_from_file(unsigned char *buf, unsigned long size, const char *filename);
