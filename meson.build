@@ -469,4 +469,6 @@ executable(
   link_with : libflashrom.get_static_lib(), # flashrom needs internal symbols of libflashrom
 )
 
-subdir('util')
+if get_option('ich_descriptors_tool').auto() or get_option('ich_descriptors_tool').enabled()
+  subdir('util/ich_descriptors_tool')
+endif
