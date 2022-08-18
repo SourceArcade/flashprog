@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <strings.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -227,8 +228,8 @@ static int buspirate_spi_init(void)
 	int spispeed = 0x7;
 	int serialspeed_index = -1;
 	int ret = 0;
-	int pullup = 0;
-	int psu = 0;
+	bool pullup = false;
+	bool psu = false;
 
 	dev = extract_programmer_param("dev");
 	if (dev && !strlen(dev)) {
@@ -270,7 +271,7 @@ static int buspirate_spi_init(void)
 	tmp = extract_programmer_param("pullups");
 	if (tmp) {
 		if (strcasecmp("on", tmp) == 0)
-			pullup = 1;
+			pullup = true;
 		else if (strcasecmp("off", tmp) == 0)
 			; // ignore
 		else
@@ -281,7 +282,7 @@ static int buspirate_spi_init(void)
 	tmp = extract_programmer_param("psus");
 	if (tmp) {
 		if (strcasecmp("on", tmp) == 0)
-			psu = 1;
+			psu = true;
 		else if (strcasecmp("off", tmp) == 0)
 			; // ignore
 		else
@@ -533,11 +534,11 @@ static int buspirate_spi_init(void)
 
 	/* Initial setup (SPI peripherals config): Enable power, CS high, AUX */
 	bp_commbuf[0] = 0x40 | 0x0b;
-	if (pullup == 1) {
+	if (pullup) {
 		bp_commbuf[0] |= (1 << 2);
 		msg_pdbg("Enabling pull-up resistors.\n");
 	}
-	if (psu == 1) {
+	if (psu) {
 		bp_commbuf[0] |= (1 << 3);
 		msg_pdbg("Enabling PSUs.\n");
 	}
@@ -563,7 +564,7 @@ static int buspirate_spi_init(void)
 
 	/* Set SPI config: output type, idle, clock edge, sample */
 	bp_commbuf[0] = 0x80 | 0xa;
-	if (pullup == 1) {
+	if (pullup) {
 		bp_commbuf[0] &= ~(1 << 3);
 		msg_pdbg("Pull-ups enabled, so using HiZ pin output! (Open-Drain mode)\n");
 	}
