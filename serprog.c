@@ -17,6 +17,7 @@
 
 #include "platform.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #if ! IS_WINDOWS /* stuff (presumably) needed for sockets only */
 #include <stdlib.h>
@@ -362,7 +363,7 @@ static int serprog_init(void)
 	unsigned char rbuf[3];
 	unsigned char c;
 	char *device;
-	int have_device = 0;
+	bool have_device = false;
 
 	/* the parameter is either of format "dev=/dev/device[:baud]" or "ip=ip:port" */
 	device = extract_programmer_param("dev");
@@ -389,7 +390,7 @@ static int serprog_init(void)
 				free(device);
 				return 1;
 			}
-			have_device++;
+			have_device = true;
 		}
 	}
 
@@ -428,7 +429,7 @@ static int serprog_init(void)
 				free(device);
 				return 1;
 			}
-			have_device++;
+			have_device = true;
 		}
 	}
 	if (device && !strlen(device)) {
