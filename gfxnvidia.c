@@ -14,6 +14,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "flash.h"
@@ -102,7 +103,7 @@ static int gfxnvidia_init(void)
 	rpci_write_long(dev, 0x50, reg32);
 
 	/* Write/erase doesn't work. */
-	programmer_may_write = 0;
+	programmer_may_write = false;
 	register_par_master(&par_master_gfxnvidia, BUS_PARALLEL);
 
 	return 0;

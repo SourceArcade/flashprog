@@ -26,6 +26,7 @@
 
 #define _LARGEFILE64_SOURCE
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -1490,7 +1491,7 @@ static int enable_flash_ck804(struct pci_dev *dev, const char *name)
 
 	if (err > 0) {
 		msg_pinfo("%d locks could not be disabled, disabling writes (reads may also fail).\n", err);
-		programmer_may_write = 0;
+		programmer_may_write = false;
 	}
 
 	reg = 0x88;

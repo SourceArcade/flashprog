@@ -20,6 +20,7 @@
 
 #if defined(__i386__) || defined(__x86_64__)
 
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #include "flash.h"
@@ -516,7 +517,7 @@ static int handle_imc(struct pci_dev *dev)
 	}
 
 	if (!amd_imc_force)
-		programmer_may_write = 0;
+		programmer_may_write = false;
 	msg_pinfo("Writes have been disabled for safety reasons because the presence of the IMC\n"
 		  "was detected and it could interfere with accessing flash memory. Flashrom will\n"
 		  "try to disable it temporarily but even then this might not be safe:\n"
