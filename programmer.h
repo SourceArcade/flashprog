@@ -271,7 +271,7 @@ struct pci_dev *pci_card_find(uint16_t vendor, uint16_t device,
 int rget_io_perms(void);
 #if CONFIG_INTERNAL == 1
 extern int is_laptop;
-extern int laptop_ok;
+extern bool laptop_ok;
 extern int force_boardenable;
 extern int force_boardmismatch;
 void probe_superio(void);

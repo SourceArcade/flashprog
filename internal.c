@@ -119,7 +119,7 @@ int register_superio(struct superio s)
 #endif
 
 int is_laptop = 0;
-int laptop_ok = 0;
+bool laptop_ok = false;
 
 static void internal_chip_writeb(const struct flashctx *flash, uint8_t val,
 				 chipaddr addr);
