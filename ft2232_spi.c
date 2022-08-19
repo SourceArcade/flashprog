@@ -16,6 +16,7 @@
 
 #if CONFIG_FT2232_SPI == 1
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <strings.h>
 #include <string.h>
@@ -313,7 +314,7 @@ static int ft2232_spi_init(void)
 	 * but the non-H chips can only run at 12 MHz. We enable the divide-by-5
 	 * prescaler on the former to run on the same speed.
 	 */
-	uint8_t clock_5x = 1;
+	bool clock_5x = true;
 	/* In addition to the prescaler mentioned above there is also another
 	 * configurable one on all versions of the chips. Its divisor div can be
 	 * set by a 16 bit value x according to the following formula:
@@ -623,7 +624,7 @@ format_error:
 
 	if (ftdic->type != TYPE_2232H && ftdic->type != TYPE_4232H && ftdic->type != TYPE_232H) {
 		msg_pdbg("FTDI chip type %d is not high-speed.\n", ftdic->type);
-		clock_5x = 0;
+		clock_5x = false;
 	}
 
 	if (ftdi_usb_reset(ftdic) < 0) {
