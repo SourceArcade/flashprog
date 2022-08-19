@@ -15,6 +15,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -47,7 +48,7 @@ struct emu_data {
 	 *       WRSR code on enabling WRSR_EXT2 for more chips. */
 	bool emu_wrsr_ext2;
 	bool emu_wrsr_ext3;
-	int emu_modified;	/* is the image modified since reading it? */
+	bool emu_modified;	/* is the image modified since reading it? */
 	uint8_t emu_status[3];
 	uint8_t emu_status_len;	/* number of emulated status registers */
 	unsigned int emu_max_byteprogram_size;
@@ -678,7 +679,7 @@ static int write_flash_data(struct emu_data *data, uint32_t start, uint32_t len,
 	}
 
 	memcpy(data->flashchip_contents + start, buf, len);
-	data->emu_modified = 1;
+	data->emu_modified = true;
 	return 0;
 }
 
@@ -691,7 +692,7 @@ static int erase_flash_data(struct emu_data *data, uint32_t start, uint32_t len)
 	}
 
 	memset(data->flashchip_contents + start, 0xff, len);
-	data->emu_modified = 1;
+	data->emu_modified = true;
 	return 0;
 }
 
