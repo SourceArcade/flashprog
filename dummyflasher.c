@@ -1194,5 +1194,4 @@ const struct programmer_entry programmer_dummy = {
 	.init			= dummy_init,
 	.map_flash_region	= dummy_map,
 	.unmap_flash_region	= dummy_unmap,
-	.delay			= internal_delay,
 };

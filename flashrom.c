@@ -223,8 +223,12 @@ void programmer_unmap_flash_region(void *virt_addr, size_t len)
 
 void programmer_delay(unsigned int usecs)
 {
-	if (usecs > 0)
-		programmer->delay(usecs);
+	if (usecs > 0) {
+		if (programmer->delay)
+			programmer->delay(usecs);
+		else
+			internal_delay(usecs);
+	}
 }
 
 int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start,
@@ -1414,10 +1418,6 @@ int selfcheck(void)
 		}
 		if (p->init == NULL) {
 			msg_gerr("Programmer %s does not have a valid init function!\n", p->name);
-			ret = 1;
-		}
-		if (p->delay == NULL) {
-			msg_gerr("Programmer %s does not have a valid delay function!\n", p->name);
 			ret = 1;
 		}
 		if (p->map_flash_region == NULL) {

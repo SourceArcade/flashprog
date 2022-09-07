@@ -721,5 +721,4 @@ const struct programmer_entry programmer_buspirate_spi = {
 	.init			= buspirate_spi_init,
 	.map_flash_region	= fallback_map,
 	.unmap_flash_region	= fallback_unmap,
-	.delay			= internal_delay,
 };
