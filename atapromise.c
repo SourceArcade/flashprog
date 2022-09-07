@@ -170,5 +170,4 @@ const struct programmer_entry programmer_atapromise = {
 	.devs.dev		= ata_promise,
 	.init			= atapromise_init,
 	.map_flash_region	= atapromise_map,
-	.unmap_flash_region	= fallback_unmap,
 };

@@ -192,5 +192,4 @@ const struct programmer_entry programmer_atavia = {
 	.devs.dev		= ata_via,
 	.init			= atavia_init,
 	.map_flash_region	= atavia_map,
-	.unmap_flash_region	= fallback_unmap,
 };
