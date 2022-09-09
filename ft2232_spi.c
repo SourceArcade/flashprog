@@ -295,7 +295,6 @@ static const struct spi_master spi_master_ft2232 = {
 	.multicommand	= ft2232_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
-	.write_aai	= default_spi_write_aai,
 	.shutdown	= ft2232_shutdown,
 };
 

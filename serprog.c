@@ -332,7 +332,6 @@ static struct spi_master spi_master_serprog = {
 	.multicommand	= default_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
-	.write_aai	= default_spi_write_aai,
 };
 
 static void serprog_chip_writeb(const struct flashctx *flash, uint8_t val,

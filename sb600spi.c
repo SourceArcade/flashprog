@@ -68,7 +68,6 @@ static struct spi_master spi_master_sb600 = {
 	.multicommand	= default_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
-	.write_aai	= default_spi_write_aai,
 };
 
 static struct spi_master spi_master_yangtze = {
@@ -78,7 +77,6 @@ static struct spi_master spi_master_yangtze = {
 	.multicommand	= default_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
-	.write_aai	= default_spi_write_aai,
 };
 
 static int find_smbus_dev_rev(uint16_t vendor, uint16_t device)

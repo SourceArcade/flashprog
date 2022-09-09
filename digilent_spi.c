@@ -322,7 +322,6 @@ static const struct spi_master spi_master_digilent_spi = {
 	.multicommand	= default_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
-	.write_aai	= default_spi_write_aai,
 	.shutdown	= digilent_spi_shutdown,
 };
 
