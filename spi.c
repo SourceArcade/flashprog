@@ -165,28 +165,40 @@ int register_spi_master(const struct spi_master *mst, void *data)
 	return register_master(&rmst);
 }
 
+/*
+ * The following array has erasefn and opcode list pair. The opcode list pair is
+ * 0 termintated and must have size one more than the maximum number of opcodes
+ * used by any erasefn. Also the opcodes must be in increasing order.
+ */
 static const struct {
 	erasefunc_t *func;
-	uint8_t opcode;
+	uint8_t opcode[3];
 } function_opcode_list[] = {
-	{spi_block_erase_20, 0x20},
-	{spi_block_erase_21, 0x21},
-	{spi_block_erase_50, 0x50},
-	{spi_block_erase_52, 0x52},
-	{spi_block_erase_53, 0x53},
-	{spi_block_erase_5c, 0x5c},
-	{spi_block_erase_60, 0x60},
-	{spi_block_erase_62, 0x62},
-	{spi_block_erase_81, 0x81},
-	{spi_block_erase_c4, 0xc4},
-	{spi_block_erase_c7, 0xc7},
-	{spi_block_erase_d7, 0xd7},
-	{spi_block_erase_d8, 0xd8},
-	{spi_block_erase_db, 0xdb},
-	{spi_block_erase_dc, 0xdc},
+	{spi_block_erase_20, {0x20}},
+	{spi_block_erase_21, {0x21}},
+	{spi_block_erase_50, {0x50}},
+	{spi_block_erase_52, {0x52}},
+	{spi_block_erase_53, {0x53}},
+	{spi_block_erase_5c, {0x5c}},
+	{spi_block_erase_60, {0x60}},
+	{spi_block_erase_62, {0x62}},
+	{spi_block_erase_81, {0x81}},
+	{spi_block_erase_c4, {0xc4}},
+	{spi_block_erase_c7, {0xc7}},
+	{spi_block_erase_d7, {0xd7}},
+	{spi_block_erase_d8, {0xd8}},
+	{spi_block_erase_db, {0xdb}},
+	{spi_block_erase_dc, {0xdc}},
+	//AT45CS1282
+	{spi_erase_at45cs_sector, {0x50, 0x7c, 0}},
+	//AT45DB**
+	{spi_erase_at45db_page, {0x81}},
+	{spi_erase_at45db_block, {0x50}},
+	{spi_erase_at45db_sector, {0x7c}},
+	{spi_erase_at45db_chip, {0xc7}},
 };
 
-uint8_t spi_get_opcode_from_erasefn(erasefunc_t *func)
+const uint8_t *spi_get_opcode_from_erasefn(erasefunc_t *func)
 {
 	size_t i;
 	for (i = 0; i < ARRAY_SIZE(function_opcode_list); i++) {
@@ -195,5 +207,5 @@ uint8_t spi_get_opcode_from_erasefn(erasefunc_t *func)
 	}
 	msg_cinfo("%s: unknown erase function (0x%p). Please report "
 			"this at flashrom-stable@flashrom.org\n", __func__, func);
-	return 0x00; //Assuming 0x00 is not a erase function opcode
+	return NULL;
 }
