@@ -603,7 +603,7 @@ int spi_block_erase_dc(struct flashctx *flash, unsigned int addr, unsigned int b
 static const struct {
 	erasefunc_t *func;
 	uint8_t opcode;
-} function_opcode_list[] = {
+} spi25_function_opcode_list[] = {
 	{&spi_block_erase_20, 0x20},
 	{&spi_block_erase_21, 0x21},
 	{&spi_block_erase_50, 0x50},
@@ -621,12 +621,12 @@ static const struct {
 	{&spi_block_erase_dc, 0xdc},
 };
 
-erasefunc_t *spi_get_erasefn_from_opcode(uint8_t opcode)
+erasefunc_t *spi25_get_erasefn_from_opcode(uint8_t opcode)
 {
 	size_t i;
-	for (i = 0; i < ARRAY_SIZE(function_opcode_list); i++) {
-		if (function_opcode_list[i].opcode == opcode)
-			return function_opcode_list[i].func;
+	for (i = 0; i < ARRAY_SIZE(spi25_function_opcode_list); i++) {
+		if (spi25_function_opcode_list[i].opcode == opcode)
+			return spi25_function_opcode_list[i].func;
 	}
 	msg_cinfo("%s: unknown erase opcode (0x%02x). Please report "
 			  "this at flashrom-stable@flashrom.org\n", __func__, opcode);
