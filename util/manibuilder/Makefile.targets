@@ -186,6 +186,69 @@ DEFAULT_TAGS += $(filter-out $(DEFAULT_TAGS),$(NATIVE_TAGS))
 # can only run what is still maintained
 11X_TAGS := $(filter $(11X_TAGS),$(ALL_TAGS))
 
+# 1.2.x tags -- list was crafted late at the 1.2.1 release
+12X_TAGS := \
+	djgpp\:6.1.0 \
+	fedora\:30-aarch64 \
+	fedora\:30-x86_64 \
+	fedora\:31-x86_64 \
+	fedora\:32-aarch64 \
+	fedora\:32-x86_64 \
+	fedora\:33-ppc64le \
+	fedora\:33-x86_64 \
+	fedora\:34-aarch64 \
+	fedora\:34-ppc64le \
+	fedora\:34-s390x \
+	fedora\:34-x86_64 \
+	centos\:7.6-amd64-clean \
+	debian-debootstrap\:amd64-stretch \
+	debian-debootstrap\:arm64-stretch \
+	debian-debootstrap\:armhf-stretch \
+	debian-debootstrap\:i386-stretch \
+	debian-debootstrap\:mipsel-stretch \
+	debian-debootstrap\:amd64-buster \
+	debian-debootstrap\:arm64-buster \
+	debian-debootstrap\:armhf-buster \
+	debian-debootstrap\:i386-buster \
+	debian-debootstrap\:mips-buster \
+	debian-debootstrap\:mipsel-buster \
+	debian-debootstrap\:ppc64el-buster \
+	debian-debootstrap\:amd64-bullseye \
+	debian-debootstrap\:armhf-bullseye \
+	debian-debootstrap\:i386-bullseye \
+	debian-debootstrap\:mipsel-bullseye \
+	debian-debootstrap\:ppc64el-bullseye \
+	ubuntu-debootstrap\:amd64-bionic \
+	ubuntu-debootstrap\:arm64-bionic \
+	ubuntu-debootstrap\:i386-bionic \
+	ubuntu-debootstrap\:amd64-focal \
+	ubuntu-debootstrap\:arm64-focal \
+	ubuntu-debootstrap\:armhf-focal \
+	ubuntu-debootstrap\:ppc64el-focal \
+	ubuntu-debootstrap\:amd64-jammy \
+	ubuntu-debootstrap\:arm64-jammy \
+	ubuntu-debootstrap\:armhf-jammy \
+	ubuntu-debootstrap\:ppc64el-jammy \
+	alpine\:aarch64-v3.9 \
+	alpine\:amd64-v3.9 \
+	alpine\:i386-v3.9 \
+	alpine\:aarch64-v3.10 \
+	alpine\:amd64-v3.10 \
+	alpine\:armhf-v3.10 \
+	alpine\:i386-v3.10 \
+	alpine\:aarch64-v3.10 \
+	alpine\:amd64-v3.10 \
+	alpine\:armhf-v3.10 \
+	alpine\:i386-v3.10 \
+	alpine\:aarch64-v3.12 \
+	alpine\:amd64-v3.12 \
+	alpine\:i386-v3.12 \
+	alpine\:amd64-v3.14 \
+	alpine\:i386-v3.14 \
+
+# can only run what is still maintained
+12X_TAGS := $(filter $(12X_TAGS),$(ALL_TAGS))
+
 default: $(DEFAULT_TAGS)
 
 native: $(NATIVE_TAGS)
@@ -199,6 +262,9 @@ all: $(ALL_TAGS)
 
 1.1.x: export TEST_REVISION=refs/heads/1.1.x
 1.1.x: $(11X_TAGS)
+
+1.2.x: export TEST_REVISION=refs/heads/1.2.x
+1.2.x: $(12X_TAGS)
 
 show-default:
 	@printf "%s\n" $(DEFAULT_TAGS)
@@ -218,6 +284,9 @@ show-1.0.x:
 show-1.1.x:
 	@printf "%s\n" $(11X_TAGS)
 
-.PHONY: default native all 1.0.x 1.1.x
-.PHONY: show-default show-native show-all show-1.0.x show-1.1.x
+show-1.2.x:
+	@printf "%s\n" $(12X_TAGS)
+
+.PHONY: default native all 1.0.x 1.1.x 1.2.x
+.PHONY: show-default show-native show-all show-1.0.x show-1.1.x show-1.2.x
 .PHONY: $(ALL_TAGS)
