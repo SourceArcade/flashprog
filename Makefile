@@ -339,9 +339,6 @@ RELEASENAME ?= $(shell echo "$(VERSION)" | sed -e 's/ /_/')
 # Inform user of the version string
 $(info Replacing all version templates with $(VERSION).)
 
-# If a VCS is found then try to install hooks.
-$(shell ./util/getrevision.sh -c 2>/dev/null && ./util/git-hooks/install.sh)
-
 ###############################################################################
 # Default settings of CONFIG_* variables.
 
@@ -1307,7 +1304,10 @@ tarball: _export
 libpayload: clean
 	make CC="CC=i386-elf-gcc lpgcc" AR=i386-elf-ar RANLIB=i386-elf-ranlib
 
-.PHONY: all install clean distclean compiler hwlibs features _export export tarball featuresavailable libpayload
+gitconfig:
+	./util/getrevision.sh -c 2>/dev/null && ./util/git-hooks/install.sh
+
+.PHONY: all install clean distclean compiler hwlibs features _export export tarball featuresavailable libpayload gitconfig
 
 # Disable implicit suffixes and built-in rules (for performance and profit)
 .SUFFIXES:
