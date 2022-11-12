@@ -353,7 +353,7 @@ static int check_erased_range(struct flashctx *flash, unsigned int start, unsign
 	uint8_t *cmpbuf = malloc(len);
 	if (!cmpbuf) {
 		msg_gerr("Out of memory!\n");
-		exit(1);
+		return -1;
 	}
 	memset(cmpbuf, erased_value, len);
 	ret = verify_range(flash, cmpbuf, start, len);
@@ -700,7 +700,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		flash->chip = calloc(1, sizeof(*flash->chip));
 		if (!flash->chip) {
 			msg_gerr("Out of memory!\n");
-			exit(1);
+			return -1;
 		}
 		*flash->chip = *chip;
 		flash->mst = mst;
