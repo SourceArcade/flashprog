@@ -112,7 +112,7 @@ static uint8_t dummy_chip_readb(const struct flashctx *flash, const chipaddr add
 static uint16_t dummy_chip_readw(const struct flashctx *flash, const chipaddr addr);
 static uint32_t dummy_chip_readl(const struct flashctx *flash, const chipaddr addr);
 static void dummy_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
-static bool dummy_spi_probe_opcode(struct flashctx *flash, uint8_t opcode);
+static bool dummy_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode);
 
 static const struct spi_master spi_master_dummyflasher = {
 	.features	= SPI_MASTER_4BA,
@@ -1187,10 +1187,10 @@ static int dummy_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsig
 	return spi_write_chunked(flash, buf, start, len, data->spi_write_256_chunksize);
 }
 
-static bool dummy_spi_probe_opcode(struct flashctx *flash, uint8_t opcode)
+static bool dummy_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 {
 	size_t i;
-	struct emu_data *emu_data = flash->mst->spi.data;
+	const struct emu_data *emu_data = flash->mst->spi.data;
 	for (i = 0; i < emu_data->spi_blacklist_size; i++) {
 		if (emu_data->spi_blacklist[i] == opcode)
 			return false;
