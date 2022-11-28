@@ -223,6 +223,9 @@ static int internal_init(void)
 		goto internal_init_exit;
 	}
 
+	/* Unconditionally reset global state from previous operation. */
+	laptop_ok = false;
+
 	/* Default to Parallel/LPC/FWH flash devices. If a known host controller
 	 * is found, the host controller init routine sets the
 	 * internal_buses_supported bitfield.
