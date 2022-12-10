@@ -49,9 +49,11 @@ $(filter alpine% centos%,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter %-xenial %-stretch,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter centos%,$(MULTIARCH_TAGS)): MAKEARGS+=WARNERROR=no
 $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
-$(ALL_TAGS): export TEST_REVISION?=master
-$(ALL_TAGS): export TEST_REMOTE?=origin
-$(ALL_TAGS): %: %-check-build mani-net
+$(ALL_TAGS): export TEST_REMOTE?=$(if $(TEST_LOCAL),\
+					git://mani-git/flashrom.git,\
+					origin)
+$(ALL_TAGS): export TEST_REVISION?=$(if $(TEST_LOCAL),HEAD,master)
+$(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 	$(QUIET_TEST)docker rm -f mani_$(call ident,$*) >/dev/null 2>&1 || true
 	$(QUIET_TEST)\
 	docker run \
