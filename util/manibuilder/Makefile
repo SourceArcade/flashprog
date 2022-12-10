@@ -51,12 +51,13 @@ $(filter centos%,$(MULTIARCH_TAGS)): MAKEARGS+=WARNERROR=no
 $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
 $(ALL_TAGS): export TEST_REVISION?=master
 $(ALL_TAGS): export TEST_REMOTE?=origin
-$(ALL_TAGS): %: %-check-build
+$(ALL_TAGS): %: %-check-build mani-net
 	$(QUIET_TEST)docker rm -f mani_$(call ident,$*) >/dev/null 2>&1 || true
 	$(QUIET_TEST)\
 	docker run \
 		--env IDENT=$(call ident,$*) \
 		--volume manicache:/home/mani/.ccache \
+		--network=manibuilder \
 		--name mani_$(call ident,$*) mani/$* \
 		"git fetch $(TEST_REMOTE) $(TEST_REVISION) && \
 		 git checkout FETCH_HEAD && \
@@ -73,6 +74,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 		docker run --rm -it \
 			--env IDENT=$(call ident,$*) \
 			--volume manicache:/home/mani/.ccache \
+			--network=manibuilder \
 			--entrypoint /bin/sh mani_run/$* \
 			/home/mani/mani-wrapper.sh \
 			$(patsubst %,"%",$(SHELL_ARG)); \
@@ -81,6 +83,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 		docker run --rm -it \
 			--env IDENT=$(call ident,$*) \
 			--volume manicache:/home/mani/.ccache \
+			--network=manibuilder \
 			mani/$* $(patsubst %,"%",$(SHELL_ARG)); \
 	fi
 
@@ -92,4 +95,11 @@ register:
 		-t mani/qemu-user-static:register
 	docker run --rm --privileged mani/qemu-user-static:register --reset
 
-.PHONY: register
+mani-net:
+	$(QUIET_SETUP)\
+	if [ -z "$$(docker network ls -qf name=manibuilder)" ]; then \
+		docker network create manibuilder \
+			$(if $(QUIET_SETUP),>/dev/null); \
+	fi
+
+.PHONY: register mani-net
