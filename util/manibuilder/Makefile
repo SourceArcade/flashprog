@@ -49,6 +49,7 @@ $(filter alpine% centos%,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter %-xenial %-stretch,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter centos%,$(MULTIARCH_TAGS)): MAKEARGS+=WARNERROR=no
 $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
+$(ALL_TAGS): export TEST_REVISION?=master
 $(ALL_TAGS): %: %-check-build
 	$(QUIET_TEST)docker rm -f mani_$(call ident,$*) >/dev/null 2>&1 || true
 	$(QUIET_TEST)\
@@ -56,7 +57,7 @@ $(ALL_TAGS): %: %-check-build
 		--env IDENT=$(call ident,$*) \
 		--volume manicache:/home/mani/.ccache \
 		--name mani_$(call ident,$*) mani/$* \
-		"git fetch origin $${TEST_REVISION:-master} && \
+		"git fetch origin $(TEST_REVISION) && \
 		 git checkout FETCH_HEAD && \
 		 $(MAKECMD) clean && $(MAKECMD) -j$${CPUS:-1} CC='$(CC)' \
 		 $(if $(STRIP),STRIP='$(STRIP)') \
