@@ -119,7 +119,7 @@ int register_include_arg(struct layout_include_args **args, char *name)
 
 	tmp = malloc(sizeof(*tmp));
 	if (tmp == NULL) {
-		msg_gerr("Out of memory");
+		msg_gerr("Out of memory\n");
 		return 1;
 	}
 
