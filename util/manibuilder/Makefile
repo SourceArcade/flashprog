@@ -33,7 +33,7 @@ $(addsuffix -build,$(filter alpine%v3.7 alpine%v3.8,$(MULTIARCH_TAGS))): \
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$*
 
-$(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
+git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 	$(QUIET_SETUP)\
 	[ $$(docker image ls -q mani/$*) ] \
 		|| $(MAKE) $*-build $(if $(QUIET_SETUP),>/dev/null 2>/dev/null)
@@ -102,4 +102,29 @@ mani-net:
 			$(if $(QUIET_SETUP),>/dev/null); \
 	fi
 
-.PHONY: register mani-net
+git-build: Dockerfile.git
+	$(QUIET_SETUP)docker build . -f $< -t mani/git
+
+local-git: TEST_LOCAL_GIT:=$(abspath $(wildcard \
+		$(TEST_LOCAL)$(if $(filter %.git,$(TEST_LOCAL)),,/.git)))
+local-git: git-check-build mani-net
+	$(QUIET_SETUP)\
+	if [ -z "$(TEST_LOCAL_GIT)" ]; then \
+		echo '$${TEST_LOCAL} should point to a Git repository.'; \
+		exit 1; \
+	fi; \
+	if [ -n "$$(docker container ls -qf name=mani-git)" ]; then \
+		if docker inspect -f '{{ .Mounts }}' mani-git | \
+				grep -q ' $(TEST_LOCAL_GIT) '; then \
+			exit 0; \
+		else \
+			docker stop mani-git >/dev/null; \
+		fi; \
+	fi; \
+	docker run --rm --detach \
+		--name mani-git \
+		--volume=$(TEST_LOCAL_GIT):/git/flashrom.git:ro \
+		--network=manibuilder \
+		mani/git $(if $(QUIET_SETUP),>/dev/null)
+
+.PHONY: register mani-net git-build local-git
