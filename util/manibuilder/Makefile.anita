@@ -50,3 +50,12 @@ $(addsuffix -build,$(ANITA_TAGS)): %-build: Dockerfile.anita anita-wrapper.sh
 		--build-arg DISK_SIZE=$(QEMU_DISK_SIZE) \
 		--build-arg INSTALL_MEM=$(QEMU_INSTALL_MEM) \
 		--build-arg RUNTIME_MEM=$(QEMU_RUNTIME_MEM)
+
+kvm_arches = \
+	$(if $(filter x86_64,$(shell uname -m)),amd64 i386)
+
+ANITA_KVM_TAGS := $(filter $(addprefix %-,$(kvm_arches)),$(ANITA_TAGS))
+ANITA_KVM_TAGS += $(addsuffix -shell,$(ANITA_KVM_TAGS))
+
+$(ANITA_KVM_TAGS): MANI_DOCKER_ARGS=--privileged
+$(ANITA_KVM_TAGS): MANI_DOCKER_ARGS+=--env ANITA_VMM_ARGS="-enable-kvm"

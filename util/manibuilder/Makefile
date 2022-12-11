@@ -57,6 +57,7 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 	$(QUIET_TEST)docker rm -f mani_$(call ident,$*) >/dev/null 2>&1 || true
 	$(QUIET_TEST)\
 	docker run \
+		$(MANI_DOCKER_ARGS) \
 		--env IDENT=$(call ident,$*) \
 		--volume manicache:/home/mani/.ccache \
 		--network=manibuilder \
@@ -75,6 +76,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 	if [ $$(docker ps -a -q -f name=mani_$(call ident,$*)) ]; then \
 		docker commit mani_$(call ident,$*) mani_run/$* && \
 		docker run --rm -it \
+			$(MANI_DOCKER_ARGS) \
 			--env IDENT=$(call ident,$*) \
 			--volume manicache:/home/mani/.ccache \
 			--network=manibuilder \
@@ -84,6 +86,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 		docker image rm mani_run/$*; \
 	else \
 		docker run --rm -it \
+			$(MANI_DOCKER_ARGS) \
 			--env IDENT=$(call ident,$*) \
 			--volume manicache:/home/mani/.ccache \
 			--network=manibuilder \
