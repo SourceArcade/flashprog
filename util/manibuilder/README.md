@@ -46,7 +46,7 @@ like this:
     $ make register
     [...]
     $ # run the default target:
-    $ make -j4
+    $ make -j4 -k 2>/dev/null
     debian-debootstrap:mips-stretch: 2
     debian-debootstrap:mips-sid: 2
     debian-debootstrap:mips-buster: 2
@@ -56,7 +56,8 @@ like this:
 For each *tag* that returns with a non-zero exit code, the *tag*
 and actual exit code is printed. An exit code of `2` is most likely
 as that is what *make* returns on failure. Other exit codes might
-hint towards a problem in the setup. Failing *tags* can then be
+hint towards a problem in the setup. The `-k` lets *make* continue
+running all *tags* even if one failed. Failing *tags* can then be
 investigated individually with the <tag>-shell target, e.g.:
 
     $ make debian-debootstrap:mips-sid-shell

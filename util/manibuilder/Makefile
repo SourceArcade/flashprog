@@ -67,7 +67,8 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 		 $(if $(STRIP),STRIP='$(STRIP)') \
 		 $(if $(LIBS_BASE),LIBS_BASE='$(LIBS_BASE)') \
 		 $(MAKEARGS)" \
-		$(if $(QUIET_TEST),>/dev/null 2>&1) || echo $*: $$?
+		$(if $(QUIET_TEST),>/dev/null 2>&1) \
+			|| { RET=$$?; echo $*: $${RET}; exit $${RET}; }
 
 $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 	$(QUIET_SETUP)\
