@@ -62,32 +62,67 @@ NATIVE_TAGS := $(call arch_filter,$(call machine_map,$(shell uname -m)))
 
 # rather arbitrary selection of images that seem to work (focus on amd64)
 DEFAULT_TAGS := \
-	anita\:9.1-sparc64 \
 	anita\:9.1-amd64 \
 	anita\:9.1-i386 \
 	anita\:8.2-amd64 \
+	anita\:8.2-i386 \
 	djgpp\:6.1.0 \
 	fedora\:30-aarch64 \
-	fedora\:25-x86_64 \
-	fedora\:25-ppc64le \
-	fedora\:25-aarch64 \
-	fedora\:24-x86_64 \
-	centos\:7.3-aarch64-clean \
-	centos\:7.3-amd64-clean \
-	centos\:7.2-amd64-clean \
-	debian-debootstrap\:ppc64el-stretch \
-	debian-debootstrap\:armhf-stretch \
-	debian-debootstrap\:mips-stretch \
-	debian-debootstrap\:mipsel-stretch \
+	fedora\:30-x86_64 \
+	fedora\:31-x86_64 \
+	fedora\:32-aarch64 \
+	fedora\:32-x86_64 \
+	fedora\:33-ppc64le \
+	fedora\:33-x86_64 \
+	fedora\:34-aarch64 \
+	fedora\:34-ppc64le \
+	fedora\:34-s390x \
+	fedora\:34-x86_64 \
+	centos\:7.6-amd64-clean \
 	debian-debootstrap\:amd64-stretch \
+	debian-debootstrap\:arm64-stretch \
+	debian-debootstrap\:armhf-stretch \
 	debian-debootstrap\:i386-stretch \
-	ubuntu-debootstrap\:arm64-xenial \
-	ubuntu-debootstrap\:amd64-xenial \
-	ubuntu-debootstrap\:powerpc-xenial \
+	debian-debootstrap\:mipsel-stretch \
+	debian-debootstrap\:amd64-buster \
+	debian-debootstrap\:arm64-buster \
+	debian-debootstrap\:armhf-buster \
+	debian-debootstrap\:i386-buster \
+	debian-debootstrap\:mips-buster \
+	debian-debootstrap\:mipsel-buster \
+	debian-debootstrap\:ppc64el-buster \
+	debian-debootstrap\:amd64-bullseye \
+	debian-debootstrap\:armhf-bullseye \
+	debian-debootstrap\:i386-bullseye \
+	debian-debootstrap\:mipsel-bullseye \
+	debian-debootstrap\:ppc64el-bullseye \
 	ubuntu-debootstrap\:amd64-bionic \
+	ubuntu-debootstrap\:arm64-bionic \
+	ubuntu-debootstrap\:i386-bionic \
+	ubuntu-debootstrap\:amd64-focal \
+	ubuntu-debootstrap\:arm64-focal \
+	ubuntu-debootstrap\:armhf-focal \
+	ubuntu-debootstrap\:ppc64el-focal \
+	ubuntu-debootstrap\:amd64-jammy \
+	ubuntu-debootstrap\:arm64-jammy \
+	ubuntu-debootstrap\:armhf-jammy \
+	ubuntu-debootstrap\:ppc64el-jammy \
 	alpine\:aarch64-v3.9 \
-	alpine\:amd64-v3.8 \
-	alpine\:amd64-v3.7 \
+	alpine\:amd64-v3.9 \
+	alpine\:i386-v3.9 \
+	alpine\:aarch64-v3.10 \
+	alpine\:amd64-v3.10 \
+	alpine\:armhf-v3.10 \
+	alpine\:i386-v3.10 \
+	alpine\:aarch64-v3.10 \
+	alpine\:amd64-v3.10 \
+	alpine\:armhf-v3.10 \
+	alpine\:i386-v3.10 \
+	alpine\:aarch64-v3.12 \
+	alpine\:amd64-v3.12 \
+	alpine\:i386-v3.12 \
+	alpine\:amd64-v3.14 \
+	alpine\:i386-v3.14 \
 
 # also run all native tests by default
 DEFAULT_TAGS += $(filter-out $(DEFAULT_TAGS),$(NATIVE_TAGS))
