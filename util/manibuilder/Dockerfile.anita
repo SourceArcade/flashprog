@@ -37,7 +37,9 @@ RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
 		boot ${INST_IMG}
 
 RUN cd && dd if=/dev/zero bs=1M count=64 of=cache.img && \
-	  anita --vmm-args '-hdb cache.img' --persist \
+	  anita --vmm-args \
+			'-drive file=cache.img,index=1,media=disk,format=raw' \
+		--persist \
 		--memory-size=${RUNTIME_MEM} --run \
 "if [ \$(uname -m) = i386 -o \$(uname -m) = amd64 ]; then \
      bdev=wd1d; \

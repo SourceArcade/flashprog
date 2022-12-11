@@ -8,7 +8,7 @@ CCACHE=.ccache/anita-${IDENT}.img
 
 [ -f ${CCACHE} ] || zcat cache.img.gz >${CCACHE}
 
-AV_ARGS="${ANITA_VMM_ARGS} -hdb ${CCACHE}"
+AV_ARGS="${ANITA_VMM_ARGS} -drive file=${CCACHE},index=1,media=disk,format=raw"
 
 if [ $# -eq 0 ]; then
 	exec anita --vmm-args "${AV_ARGS}" --memory-size=${MEM_SIZE} \
