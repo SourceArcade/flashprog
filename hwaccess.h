@@ -30,7 +30,7 @@
  */
 #define index shadow_workaround_index
 
-#if !defined (__NetBSD__)
+#if !defined (PCIUTILS_PCI_H)
 #include <pci/pci.h>
 #else
 #include <pciutils/pci.h>

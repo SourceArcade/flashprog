@@ -126,7 +126,9 @@ override LDFLAGS += -L/usr/local/lib
 endif
 
 ifeq ($(TARGET_OS), NetBSD)
-override CPPFLAGS += -I/usr/pkg/include
+# Needs special `pciutils/pci.h` for older NetBSD packages
+PCIUTILS_PCI_H := $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPCIUTILS_PCI_H)
+override CPPFLAGS += -I/usr/pkg/include $(PCIUTILS_PCI_H)
 override LDFLAGS += -L/usr/pkg/lib
 endif
 
@@ -1206,7 +1208,7 @@ endif
 define LIBPCI_TEST
 /* Avoid a failing test due to libpci header symbol shadowing breakage */
 #define index shadow_workaround_index
-#if !defined __NetBSD__
+#if !defined PCIUTILS_PCI_H
 #include <pci/pci.h>
 #else
 #include <pciutils/pci.h>
@@ -1225,7 +1227,7 @@ export LIBPCI_TEST
 define PCI_GET_DEV_TEST
 /* Avoid a failing test due to libpci header symbol shadowing breakage */
 #define index shadow_workaround_index
-#if !defined __NetBSD__
+#if !defined PCIUTILS_PCI_H
 #include <pci/pci.h>
 #else
 #include <pciutils/pci.h>
