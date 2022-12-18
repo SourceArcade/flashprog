@@ -262,8 +262,9 @@ static int linux_mtd_erase(struct flashctx *flash,
 	uint32_t u;
 
 	if (mtd_no_erase) {
-		msg_perr("%s: device does not support erasing. Please file a "
-				"bug report at flashrom@flashrom.org\n", __func__);
+		msg_perr("%s: device does not support erasing.\n"
+			 "Please file a bug report at flashrom-stable@flashrom.org\n",
+			 __func__);
 		return 1;
 	}
 

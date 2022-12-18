@@ -69,10 +69,10 @@ void print_chip_support_status(const struct flashchip *chip)
 		}
 		msg_cinfo("The test status of this chip may have been updated in the latest development\n"
 			  "version of flashrom. If you are running the latest development version,\n"
-			  "please email a report to flashrom@flashrom.org if any of the above operations\n"
-			  "work correctly for you with this flash chip. Please include the flashrom log\n"
-			  "file for all operations you tested (see the man page for details), and mention\n"
-			  "which mainboard or programmer you tested in the subject line.\n"
+			  "please email a report to flashrom-stable@flashrom.org if any of the above\n"
+			  "operations work correctly for you with this flash chip. Please include the\n"
+			  "flashrom log file for all operations you tested (see the man page for details),\n"
+			  "and mention which mainboard or programmer you tested in the subject line.\n"
 			  "Thanks for your help!\n");
 	}
 }

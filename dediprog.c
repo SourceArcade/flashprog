@@ -375,8 +375,8 @@ static int prepare_rw_cmd(
 	const struct dediprog_data *dp_data = flash->mst->spi.data;
 
 	if (count >= 1 << 16) {
-		msg_perr("%s: Unsupported transfer length of %u blocks! "
-			 "Please report a bug at flashrom@flashrom.org\n",
+		msg_perr("%s: Unsupported transfer length of %u blocks!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
 			 __func__, count);
 		return 1;
 	}
@@ -459,7 +459,8 @@ static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned
 		return 0;
 
 	if ((start % chunksize) || (len % chunksize)) {
-		msg_perr("%s: Unaligned start=%i, len=%i! Please report a bug at flashrom@flashrom.org\n",
+		msg_perr("%s: Unaligned start=%i, len=%i!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
 			 __func__, start, len);
 		return 1;
 	}
@@ -609,13 +610,15 @@ static int dediprog_spi_bulk_write(struct flashctx *flash, const uint8_t *buf, u
 	 */
 	if (chunksize != 256) {
 		msg_perr("%s: Chunk sizes other than 256 bytes are unsupported, chunksize=%u!\n"
-			 "Please report a bug at flashrom@flashrom.org\n", __func__, chunksize);
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__, chunksize);
 		return 1;
 	}
 
 	if ((start % chunksize) || (len % chunksize)) {
-		msg_perr("%s: Unaligned start=%i, len=%i! Please report a bug "
-			 "at flashrom@flashrom.org\n", __func__, start, len);
+		msg_perr("%s: Unaligned start=%i, len=%i!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__, start, len);
 		return 1;
 	}
 

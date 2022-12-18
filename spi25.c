@@ -636,8 +636,9 @@ erasefunc_t *spi_get_erasefn_from_opcode(uint8_t opcode)
 	case 0xdc:
 		return &spi_block_erase_dc;
 	default:
-		msg_cinfo("%s: unknown erase opcode (0x%02x). Please report "
-			  "this at flashrom@flashrom.org\n", __func__, opcode);
+		msg_cinfo("%s: unknown erase opcode (0x%02x).\n"
+			  "Please report this at flashrom-stable@flashrom.org\n",
+			  __func__, opcode);
 		return NULL;
 	}
 }
@@ -758,8 +759,9 @@ int default_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned i
 	 */
 	/* The data sheet requires a start address with the low bit cleared. */
 	if (start % 2) {
-		msg_cerr("%s: start address not even! Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+		msg_cerr("%s: start address not even!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__);
 		if (spi_chip_write_1(flash, buf, start, start % 2))
 			return SPI_GENERIC_ERROR;
 		pos += start % 2;
@@ -768,8 +770,9 @@ int default_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned i
 	}
 	/* The data sheet requires total AAI write length to be even. */
 	if (len % 2) {
-		msg_cerr("%s: total write length not even! Please report a "
-			 "bug at flashrom@flashrom.org\n", __func__);
+		msg_cerr("%s: total write length not even!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__);
 		/* Do not return an error for now. */
 		//return SPI_GENERIC_ERROR;
 	}

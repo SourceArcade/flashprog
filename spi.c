@@ -76,9 +76,8 @@ int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 {
 	unsigned int max_data = flash->mst->spi.max_data_read;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
-		msg_perr("%s called, but SPI read chunk size not defined "
-			 "on this hardware. Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+		msg_perr("%s called, but SPI read chunk size not defined on this hardware.\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
 		return 1;
 	}
 	return spi_read_chunked(flash, buf, start, len, max_data);
@@ -88,9 +87,8 @@ int default_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned i
 {
 	unsigned int max_data = flash->mst->spi.max_data_write;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
-		msg_perr("%s called, but SPI write chunk size not defined "
-			 "on this hardware. Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+		msg_perr("%s called, but SPI write chunk size not defined on this hardware.\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
 		return 1;
 	}
 	return spi_write_chunked(flash, buf, start, len, max_data);
@@ -139,8 +137,8 @@ int register_spi_master(const struct spi_master *mst)
 	    !mst->multicommand ||
 	    ((mst->command == default_spi_send_command) &&
 	     (mst->multicommand == default_spi_send_multicommand))) {
-		msg_perr("%s called with incomplete master definition. "
-			 "Please report a bug at flashrom@flashrom.org\n",
+		msg_perr("%s called with incomplete master definition.\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
 			 __func__);
 		return ERROR_FLASHROM_BUG;
 	}

@@ -142,7 +142,7 @@ uintptr_t pcidev_readbar(struct pci_dev *dev, int bar)
 		addr &= PCI_ROM_ADDRESS_MASK;
 		break;
 	case TYPE_UNKNOWN:
-		msg_perr("BAR type unknown, please report a bug at flashrom@flashrom.org\n");
+		msg_perr("BAR type unknown, please report a bug at flashrom-stable@flashrom.org\n");
 	}
 
 	return (uintptr_t)addr;
@@ -152,7 +152,8 @@ static int pcidev_shutdown(void *data)
 {
 	if (pacc == NULL) {
 		msg_perr("%s: Tried to cleanup an invalid PCI context!\n"
-			 "Please report a bug at flashrom@flashrom.org\n", __func__);
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__);
 		return 1;
 	}
 	pci_cleanup(pacc);
@@ -164,7 +165,7 @@ int pci_init_common(void)
 {
 	if (pacc != NULL) {
 		msg_perr("%s: Tried to allocate a new PCI context, but there is still an old one!\n"
-			 "Please report a bug at flashrom@flashrom.org\n", __func__);
+			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
 		return 1;
 	}
 	pacc = pci_alloc();     /* Get the pci_access structure */
@@ -222,8 +223,8 @@ struct pci_dev *pcidev_init(const struct dev_entry *devs, int bar)
 			if (devs[i].status == NT)
 				msg_pinfo("===\nThis PCI device is UNTESTED. Please report the 'flashrom -p "
 					  "xxxx' output\n"
-					  "to flashrom@flashrom.org if it works for you. Please add the name "
-					  "of your\n"
+					  "to flashrom-stable@flashrom.org if it works for you. Please add "
+					  "the name of your\n"
 					  "PCI device to the subject. Thank you for your help!\n===\n");
 
 			/* FIXME: We should count all matching devices, not
@@ -271,7 +272,7 @@ static int undo_pci_write(void *p)
 	struct undo_pci_write_data *data = p;
 	if (pacc == NULL || data->dev == NULL) {
 		msg_perr("%s: Tried to undo PCI writes without a valid PCI %s!\n"
-			"Please report a bug at flashrom@flashrom.org\n",
+			"Please report a bug at flashrom-stable@flashrom.org\n",
 			__func__, data->dev == NULL ? "device" : "context");
 		return 1;
 	}

@@ -86,7 +86,7 @@ static int sfdp_add_uniform_eraser(struct flashchip *chip, uint8_t opcode, uint3
 	if (erasefn == NULL || total_size == 0 || block_size == 0 ||
 	    total_size % block_size != 0) {
 		msg_cdbg("%s: invalid input, please report to "
-			 "flashrom@flashrom.org\n", __func__);
+			 "flashrom-stable@flashrom.org\n", __func__);
 		return 1;
 	}
 
@@ -115,8 +115,8 @@ static int sfdp_add_uniform_eraser(struct flashchip *chip, uint8_t opcode, uint3
 			  opcode);
 		return 0;
 	}
-	msg_cinfo("%s: Not enough space to store another eraser (i=%d)."
-		  " Please report this at flashrom@flashrom.org\n",
+	msg_cinfo("%s: Not enough space to store another eraser (i=%d).\n"
+		  "Please report this at flashrom-stable@flashrom.org\n",
 		  __func__, i);
 	return 1;
 }

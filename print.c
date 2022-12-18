@@ -497,8 +497,9 @@ int print_supported(void)
 			}
 			break;
 		default:
-			msg_gerr("\n%s: %s: Uninitialized programmer type! Please report a bug at "
-				 "flashrom@flashrom.org\n", __func__, prog->name);
+			msg_gerr("\n%s: %s: Uninitialized programmer type!\n"
+				 "Please report a bug at flashrom-stable@flashrom.org\n",
+				 __func__, prog->name);
 			break;
 		}
 	}

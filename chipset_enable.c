@@ -1623,8 +1623,8 @@ static int enable_flash_mcp6x_7x(struct pci_dev *dev, const char *name)
 		internal_buses_supported = BUS_NONE;
 		msg_pwarn("Flash bus type is unknown (none)\n");
 		msg_pinfo("Please send the log files created by \"flashrom -p internal -o logfile\" to\n"
-			  "flashrom@flashrom.org with \"your board name: flashrom -V\" as the subject to\n"
-			  "help us finish support for your chipset. Thanks.\n");
+			  "flashrom-stable@flashrom.org with \"your board name: flashrom -V\" as the subject\n"
+			  "to help us finish support for your chipset. Thanks.\n");
 		return ERROR_NONFATAL;
 	}
 
@@ -2154,7 +2154,7 @@ int chipset_flash_enable(void)
 			msg_pwarn("Warning: unexpected second chipset match: "
 				    "\"%s %s\"\n"
 				  "ignoring, please report lspci and board URL "
-				    "to flashrom@flashrom.org\n"
+				    "to flashrom-stable@flashrom.org\n"
 				  "with \'CHIPSET: your board name\' in the "
 				    "subject line.\n",
 				chipset_enables[i].vendor_name,
@@ -2179,8 +2179,8 @@ int chipset_flash_enable(void)
 				  "flashrom *and* were (not) able to "
 				  "successfully update your firmware with it,\n"
 				  "then please email a report to "
-				  "flashrom@flashrom.org including a verbose "
-				  "(-V) log.\nThank you!\n");
+				  "flashrom-stable@flashrom.org including a\n"
+				  "verbose (-V) log.\nThank you!\n");
 		}
 		if (!(chipset_enables[i].buses & (internal_buses_supported | BUS_SPI))) {
 			msg_pdbg("Skipping chipset enable: No supported buses enabled.\n");

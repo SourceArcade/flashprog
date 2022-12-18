@@ -113,8 +113,9 @@ static int determine_generation(struct pci_dev *dev)
 			msg_pdbg("SB8xx/SB9xx/Hudson-1 detected.\n");
 		} else {
 			msg_pwarn("SB device found but SMBus revision 0x%02x does not match known values.\n"
-				  "Assuming SB8xx/SB9xx/Hudson-1. Please send a log to flashrom@flashrom.org\n",
-				   rev);
+				  "Assuming SB8xx/SB9xx/Hudson-1.\n"
+				  "Please send a log to flashrom-stable@flashrom.org\n",
+				  rev);
 			amd_gen = CHIPSET_SB89XX;
 		}
 	} else if (dev->device_id == 0x780e) {
@@ -134,8 +135,8 @@ static int determine_generation(struct pci_dev *dev)
 			msg_pdbg("Yangtze detected.\n");
 		} else {
 			msg_pwarn("FCH device found but SMBus revision 0x%02x does not match known values.\n"
-				  "Please report this to flashrom@flashrom.org and include this log and\n"
-				  "the output of lspci -nnvx, thanks!.\n", rev);
+				  "Please report this to flashrom-stable@flashrom.org and include this\n"
+				  "log and the output of lspci -nnvx, thanks!.\n", rev);
 		}
 	} else if (dev->device_id == 0x790e) {
 		int rev = find_smbus_dev_rev(0x1022, 0x790B);
@@ -149,15 +150,15 @@ static int determine_generation(struct pci_dev *dev)
 			msg_pdbg("Promontory detected.\n");
 		} else {
 			msg_pwarn("FCH device found but SMBus revision 0x%02x does not match known values.\n"
-				  "Please report this to flashrom@flashrom.org and include this log and\n"
-				  "the output of lspci -nnvx, thanks!.\n", rev);
+				  "Please report this to flashrom-stable@flashrom.org and include this\n"
+				  "log and the output of lspci -nnvx, thanks!.\n", rev);
 		}
 
 
 	} else
 		msg_pwarn("%s: Unknown LPC device %" PRIx16 ":%" PRIx16 ".\n"
-			  "Please report this to flashrom@flashrom.org and include this log and\n"
-			  "the output of lspci -nnvx, thanks!\n",
+			  "Please report this to flashrom-stable@flashrom.org and include this\n"
+			  "log and the output of lspci -nnvx, thanks!\n",
 			  __func__, dev->vendor_id, dev->device_id);
 	if (amd_gen == CHIPSET_AMD_UNKNOWN) {
 		msg_perr("Could not determine chipset generation.");

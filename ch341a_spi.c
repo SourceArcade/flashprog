@@ -422,7 +422,8 @@ static int ch341a_spi_shutdown(void *data)
 static int ch341a_spi_init(void)
 {
 	if (handle != NULL) {
-		msg_cerr("%s: handle already set! Please report a bug at flashrom@flashrom.org\n", __func__);
+		msg_cerr("%s: handle already set! Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__);
 		return -1;
 	}
 

@@ -1066,7 +1066,7 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			msg_pwarn("\nThe flash descriptor looks like a Skylake/Sunrise Point descriptor.\n"
 				  "However, the read frequency isn't set to 17MHz (the only valid value).\n"
 				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashrom@flashrom.org\n\n");
+				  "your descriptor and the output of `lspci -nn` to flashrom-stable@flashrom.org\n\n");
 		}
 		break;
 	default:
@@ -1074,7 +1074,7 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			msg_pwarn("\nThe flash descriptor has the read frequency set to 17MHz. However,\n"
 				  "it doesn't look like a Skylake/Sunrise Point compatible descriptor.\n"
 				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashrom@flashrom.org\n\n");
+				  "your descriptor and the output of `lspci -nn` to flashrom-stable@flashrom.org\n\n");
 		}
 	}
 	return guess;

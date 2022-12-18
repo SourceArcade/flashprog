@@ -87,8 +87,8 @@ int register_par_master(const struct par_master *mst,
 	if (!mst->chip_writeb || !mst->chip_writew || !mst->chip_writel ||
 	    !mst->chip_writen || !mst->chip_readb || !mst->chip_readw ||
 	    !mst->chip_readl || !mst->chip_readn) {
-		msg_perr("%s called with incomplete master definition. "
-			 "Please report a bug at flashrom@flashrom.org\n",
+		msg_perr("%s called with incomplete master definition.\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
 			 __func__);
 		return ERROR_FLASHROM_BUG;
 	}

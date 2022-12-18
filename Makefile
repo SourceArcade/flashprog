@@ -1258,7 +1258,7 @@ $(PROGRAM).8.html: $(PROGRAM).8
 
 $(PROGRAM).8: $(PROGRAM).8.tmpl
 	@# Add the man page change date and version to the man page
-	@sed -e 's#.TH FLASHROM 8 .*#.TH FLASHROM 8 "$(MAN_DATE)" "$(VERSION)" "$(MAN_DATE)"#' <$< >$@
+	@sed -e 's#.TH FLASHROM 8 .*#.TH FLASHROM 8 "$(MAN_DATE)" "flashrom-stable-$(VERSION)" "$(MAN_DATE)"#' <$< >$@
 
 install: $(PROGRAM)$(EXEC_SUFFIX) $(PROGRAM).8
 	mkdir -p $(DESTDIR)$(PREFIX)/sbin

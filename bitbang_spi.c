@@ -97,7 +97,7 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master)
 	    (master->request_bus && !master->release_bus) ||
 	    (!master->request_bus && master->release_bus)) {
 		msg_perr("Incomplete SPI bitbang master setting!\n"
-			 "Please report a bug at flashrom@flashrom.org\n");
+			 "Please report a bug at flashrom-stable@flashrom.org\n");
 		return ERROR_FLASHROM_BUG;
 	}
 

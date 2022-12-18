@@ -297,7 +297,7 @@ static char *extract_param(char *const *haystack, const char *needle, const char
 	needlelen = strlen(needle);
 	if (!needlelen) {
 		msg_gerr("%s: empty needle! Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+			 "flashrom-stable@flashrom.org\n", __func__);
 		return NULL;
 	}
 	/* No programmer parameters given. */
@@ -517,7 +517,7 @@ static int need_erase(const uint8_t *have, const uint8_t *want, unsigned int len
 		break;
 	default:
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+			 "flashrom-stable@flashrom.org\n", __func__);
 	}
 	return result;
 }
@@ -582,7 +582,7 @@ static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, uns
 		break;
 	default:
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
-			 "flashrom@flashrom.org\n", __func__);
+			 "flashrom-stable@flashrom.org\n", __func__);
 		/* Claim that no write was needed. A write with unknown
 		 * granularity is too dangerous to try.
 		 */
@@ -809,7 +809,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 
 			msg_cinfo(" we need to add them manually.\n"
 				  "You can help us by mailing us the output of the following command to "
-				  "flashrom@flashrom.org:\n"
+				  "flashrom-stable@flashrom.org:\n"
 				  "'flashrom -VV [plus the -p/--programmer parameter]'\n"
 				  "Thanks for your help!\n"
 				  "===\n");
@@ -1012,19 +1012,17 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			/* Blocks with zero size are bugs in flashchips.c. */
 			if (eraser.eraseblocks[i].count &&
 			    !eraser.eraseblocks[i].size) {
-				msg_gerr("ERROR: Flash chip %s erase function "
-					"%i region %i has size 0. Please report"
-					" a bug at flashrom@flashrom.org\n",
-					chip->name, k, i);
+				msg_gerr("ERROR: Flash chip %s erase function %i region %i has size 0.\n"
+					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 chip->name, k, i);
 				ret = 1;
 			}
 			/* Blocks with zero count are bugs in flashchips.c. */
 			if (!eraser.eraseblocks[i].count &&
 			    eraser.eraseblocks[i].size) {
-				msg_gerr("ERROR: Flash chip %s erase function "
-					"%i region %i has count 0. Please report"
-					" a bug at flashrom@flashrom.org\n",
-					chip->name, k, i);
+				msg_gerr("ERROR: Flash chip %s erase function %i region %i has count 0.\n"
+					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 chip->name, k, i);
 				ret = 1;
 			}
 			done += eraser.eraseblocks[i].count *
@@ -1040,9 +1038,9 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 		if (done != chip->total_size * 1024) {
 			msg_gerr("ERROR: Flash chip %s erase function %i "
 				"region walking resulted in 0x%06x bytes total,"
-				" expected 0x%06x bytes. Please report a bug at"
-				" flashrom@flashrom.org\n", chip->name, k,
-				done, chip->total_size * 1024);
+				" expected 0x%06x bytes.\n"
+				"Please report a bug at flashrom-stable@flashrom.org\n",
+				chip->name, k, done, chip->total_size * 1024);
 			ret = 1;
 		}
 		if (!eraser.block_erase)
@@ -1054,18 +1052,17 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 		for (j = k + 1; j < NUM_ERASEFUNCTIONS; j++) {
 			if (eraser.block_erase ==
 			    chip->block_erasers[j].block_erase) {
-				msg_gerr("ERROR: Flash chip %s erase function "
-					"%i and %i are identical. Please report"
-					" a bug at flashrom@flashrom.org\n",
-					chip->name, k, j);
+				msg_gerr("ERROR: Flash chip %s erase function %i and %i are identical.\n"
+					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 chip->name, k, j);
 				ret = 1;
 			}
 		}
 		if(curr_eraseblock_count > prev_eraseblock_count)
 		{
-			msg_gerr("ERROR: Flash chip %s erase function %i is not "
-					"in order. Please report a bug at flashrom@flashrom.org\n",
-					chip->name, k);
+			msg_gerr("ERROR: Flash chip %s erase function %i is not in order.\n"
+				 "Please report a bug at flashrom-stable@flashrom.org\n",
+				 chip->name, k);
 			ret = 1;
 		}
 		prev_eraseblock_count = curr_eraseblock_count;
@@ -1491,16 +1488,16 @@ static void nonfatal_help_message(void)
 #if CONFIG_INTERNAL == 1
 	if (programmer == &programmer_internal)
 		msg_gerr("This means we have to add special support for your board, programmer or flash\n"
-			 "chip. Please report this to the mailing list at flashrom@flashrom.org or on\n"
-			 "IRC (see https://www.flashrom.org/Contact for details), thanks!\n"
+			 "chip. Please report this to the mailing list at flashrom-stable@flashrom.org or\n"
+			 "on IRC (see https://www.flashrom.org/Contact for details), thanks!\n"
 			 "-------------------------------------------------------------------------------\n"
 			 "You may now reboot or simply leave the machine running.\n");
 	else
 #endif
 		msg_gerr("Please check the connections (especially those to write protection pins) between\n"
 			 "the programmer and the flash chip. If you think the error is caused by flashrom\n"
-			 "please report this to the mailing list at flashrom@flashrom.org or on IRC (see\n"
-			 "https://www.flashrom.org/Contact for details), thanks!\n");
+			 "please report this to the mailing list at flashrom-stable@flashrom.org or on IRC\n"
+			 "(see https://www.flashrom.org/Contact for details), thanks!\n");
 }
 
 static void emergency_help_message(void)
@@ -1509,13 +1506,13 @@ static void emergency_help_message(void)
 #if CONFIG_INTERNAL == 1
 	if (programmer == &programmer_internal)
 		msg_gerr("Get help on IRC (see https://www.flashrom.org/Contact) or mail\n"
-			"flashrom@flashrom.org with the subject \"FAILED: <your board name>\"!"
+			"flashrom-stable@flashrom.org with the subject \"FAILED: <your board name>\"!\n"
 			"-------------------------------------------------------------------------------\n"
 			"DO NOT REBOOT OR POWEROFF!\n");
 	else
 #endif
-		msg_gerr("Please report this to the mailing list at flashrom@flashrom.org or\n"
-			 "on IRC (see https://www.flashrom.org/Contact for details), thanks!\n");
+		msg_gerr("Please report this to the mailing list at flashrom-stable@flashrom.org\n"
+			 "or on IRC (see https://www.flashrom.org/Contact for details), thanks!\n");
 }
 
 void list_programmers_linebreak(int startcol, int cols, int paren)
@@ -1632,7 +1629,7 @@ void print_buildinfo(void)
 
 void print_version(void)
 {
-	msg_ginfo("flashrom %s", flashrom_version);
+	msg_ginfo("flashrom-stable %s", flashrom_version);
 	print_sysinfo();
 	msg_ginfo("\n");
 }
@@ -1713,7 +1710,7 @@ int selfcheck(void)
 			if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE) {
 				ret = 1;
 				msg_gerr("ERROR: Some field of flash chip #%d (%s) is misconfigured.\n"
-					 "Please report a bug at flashrom@flashrom.org\n", i,
+					 "Please report a bug at flashrom-stable@flashrom.org\n", i,
 					 chip->name == NULL ? "unnamed" : chip->name);
 			}
 			if (selfcheck_eraseblocks(chip)) {

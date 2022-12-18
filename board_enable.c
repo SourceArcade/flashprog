@@ -618,9 +618,9 @@ int it8705f_write_enable(uint8_t port)
 			/* The data sheet contradicts itself about max size. */
 			max_rom_decode.parallel = 1024 * 1024;
 			msg_pinfo("IT8705F with very unusual settings.\n"
-				  "Please send the output of \"flashrom -V -p internal\" to flashrom@flashrom.org\n"
-				  "with \"IT8705: your board name: flashrom -V\" as the subject to help us finish\n"
-				  "support for your Super I/O. Thanks.\n");
+				  "Please send the output of \"flashrom -V -p internal\" to\n"
+				  "flashrom-stable@flashrom.org with \"IT8705: your board name: flashrom -V\"\n"
+				  "as the subject to help us finish support for your Super I/O. Thanks.\n");
 			ret = 1;
 		} else if (tmp & 0x08) {
 			max_rom_decode.parallel = 512 * 1024;
@@ -2549,7 +2549,7 @@ int selfcheck_board_enables(void)
 		const struct board_match *b = &board_matches[i];
 		if (b->vendor_name == NULL || b->board_name == NULL) {
 			msg_gerr("ERROR: Board enable #%d does not define a vendor and board name.\n"
-				 "Please report a bug at flashrom@flashrom.org\n", i);
+				 "Please report a bug at flashrom-stable@flashrom.org\n", i);
 			ret = 1;
 			continue;
 		}
@@ -2558,7 +2558,7 @@ int selfcheck_board_enables(void)
 		    ((b->lb_vendor == NULL) ^ (b->lb_part == NULL)) ||
 		    (b->max_rom_decode_parallel == 0 && b->enable == NULL)) {
 			msg_gerr("ERROR: Board enable for %s %s is misdefined.\n"
-				 "Please report a bug at flashrom@flashrom.org\n",
+				 "Please report a bug at flashrom-stable@flashrom.org\n",
 				 b->vendor_name, b->board_name);
 			ret = 1;
 		}
@@ -2626,8 +2626,8 @@ static const struct board_match *board_match_name(const char *vendor, const char
 
 		if (partmatch) {
 			/* More than one entry has a matching name. */
-			msg_perr("Board name \"%s\":\"%s\" and PCI IDs matched more than one board enable "
-				 "entry. Please report a bug at flashrom@flashrom.org\n", vendor, model);
+			msg_perr("Board name \"%s\":\"%s\" and PCI IDs matched more than one board enable\n"
+				 "entry. Please report a bug at flashrom-stable@flashrom.org\n", vendor, model);
 			return NULL;
 		}
 		partmatch = board;
@@ -2710,7 +2710,7 @@ static int board_enable_safetycheck(const struct board_match *board)
 		return 1;
 	}
 	msg_pwarn("NOTE: Running an untested board enable procedure.\n"
-		  "Please report success/failure to flashrom@flashrom.org.\n");
+		  "Please report success/failure to flashrom-stable@flashrom.org.\n");
 	return 0;
 }
 

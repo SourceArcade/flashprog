@@ -375,7 +375,9 @@ static int digilent_spi_init(void)
 	int i;
 
 	if (handle != NULL) {
-		msg_cerr("%s: handle already set! Please report a bug at flashrom@flashrom.org\n", __func__);
+		msg_cerr("%s: handle already set!\n"
+			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 __func__);
 		return -1;
 	}
 
