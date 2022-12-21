@@ -110,7 +110,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"8 series Lynx Point", "Baytrail", "8 series Lynx Point LP", "8 series Wellsburg",
 		"9 series Wildcat Point", "9 series Wildcat Point LP", "100 series Sunrise Point",
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
-		"500 series Tiger Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
+		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -1024,6 +1024,8 @@ static enum ich_chipset guess_ich_chipset_from_content(const struct ich_desc_con
 		if (content->ICCRIBA == 0x34)
 			return CHIPSET_300_SERIES_CANNON_POINT;
 		if (content->CSSL == 0x11)
+			return CHIPSET_500_SERIES_TIGER_POINT;
+		if (content->CSSL == 0x14) /* backwards compatible Alder Point */
 			return CHIPSET_500_SERIES_TIGER_POINT;
 		if (content->CSSL == 0x03)
 			return CHIPSET_ELKHART_LAKE;

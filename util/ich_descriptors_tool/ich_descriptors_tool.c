@@ -137,6 +137,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"300\" or \"cannon\" for Intel's 300 series chipsets.\n"
 "\t- \"400\" or \"comet\" for Intel's 400 series chipsets.\n"
 "\t- \"500\" or \"tiger\" for Intel's 500 series chipsets.\n"
+"\t- \"600\" or \"alder\" for Intel's 600 series chipsets.\n"
 "If '-d' is specified some regions such as the BIOS image as seen by the CPU or\n"
 "the GbE blob that is required to initialize the GbE are also dumped to files.\n",
 	argv[0], argv[0]);
@@ -231,7 +232,9 @@ int main(int argc, char *argv[])
 			 (strcmp(csn, "comet") == 0))
 			cs = CHIPSET_300_SERIES_CANNON_POINT;
 		else if ((strcmp(csn, "500") == 0) ||
-			 (strcmp(csn, "tiger") == 0))
+			 (strcmp(csn, "tiger") == 0) ||
+			 (strcmp(csn, "600") == 0) ||
+			 (strcmp(csn, "alder") == 0))
 			cs = CHIPSET_500_SERIES_TIGER_POINT;
 		else if (strcmp(csn, "apollo") == 0)
 			cs = CHIPSET_APOLLO_LAKE;
