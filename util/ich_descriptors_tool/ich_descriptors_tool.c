@@ -128,6 +128,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"silvermont\" for chipsets from Intel's Silvermont architecture (e.g. Bay Trail),\n"
 "\t- \"apollo\" for Intel's Apollo Lake SoC.\n"
 "\t- \"gemini\" for Intel's Gemini Lake SoC.\n"
+"\t- \"jasper\" for Intel's Jasper Lake SoC.\n"
 "\t- \"5\" or \"ibex\" for Intel's 5 series chipsets,\n"
 "\t- \"6\" or \"cougar\" for Intel's 6 series chipsets,\n"
 "\t- \"7\" or \"panther\" for Intel's 7 series chipsets.\n"
@@ -229,7 +230,8 @@ int main(int argc, char *argv[])
 		else if ((strcmp(csn, "300") == 0) ||
 			 (strcmp(csn, "cannon") == 0) ||
 			 (strcmp(csn, "400") == 0) ||
-			 (strcmp(csn, "comet") == 0))
+			 (strcmp(csn, "comet") == 0) ||
+			 (strcmp(csn, "jasper") == 0))
 			cs = CHIPSET_300_SERIES_CANNON_POINT;
 		else if ((strcmp(csn, "500") == 0) ||
 			 (strcmp(csn, "tiger") == 0) ||

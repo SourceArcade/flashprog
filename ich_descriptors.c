@@ -1028,8 +1028,12 @@ static enum ich_chipset guess_ich_chipset_from_content(const struct ich_desc_con
 			return CHIPSET_500_SERIES_TIGER_POINT;
 		if (content->CSSL == 0x14) /* backwards compatible Alder Point */
 			return CHIPSET_500_SERIES_TIGER_POINT;
-		if (content->CSSL == 0x03)
-			return CHIPSET_ELKHART_LAKE;
+		if (content->CSSL == 0x03) {
+			if (content->CSSO == 0x58)
+				return CHIPSET_ELKHART_LAKE;
+			else if (content->CSSO == 0x6c) /* backwards compatible Jasper Lake */
+				return CHIPSET_300_SERIES_CANNON_POINT;
+		}
 		msg_pwarn("Unknown flash descriptor, assuming 500 series compatibility.\n");
 		return CHIPSET_500_SERIES_TIGER_POINT;
 	}
