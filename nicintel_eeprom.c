@@ -395,18 +395,24 @@ static int nicintel_ee_erase_82580(struct flashctx *flash, unsigned int addr, un
 	return nicintel_ee_write_82580(flash, NULL, addr, len);
 }
 
+static int nicintel_ee_shutdown_82580(void *eecp);
+
 static const struct opaque_master opaque_master_nicintel_ee_82580 = {
 	.probe		= nicintel_ee_probe_82580,
 	.read		= nicintel_ee_read,
 	.write		= nicintel_ee_write_82580,
 	.erase		= nicintel_ee_erase_82580,
+	.shutdown	= nicintel_ee_shutdown_82580,
 };
+
+static int nicintel_ee_shutdown_i210(void *arg);
 
 static const struct opaque_master opaque_master_nicintel_ee_i210 = {
 	.probe		= nicintel_ee_probe_i210,
 	.read		= nicintel_ee_read,
 	.write		= nicintel_ee_write_i210,
 	.erase		= nicintel_ee_erase_i210,
+	.shutdown	= nicintel_ee_shutdown_i210,
 };
 
 static int nicintel_ee_shutdown_i210(void *arg)
@@ -497,17 +503,11 @@ static int nicintel_ee_init(void)
 			*eecp = eec;
 		}
 
-		if (register_shutdown(nicintel_ee_shutdown_82580, eecp))
-			return 1;
-
-		return register_opaque_master(&opaque_master_nicintel_ee_82580, NULL);
+		return register_opaque_master(&opaque_master_nicintel_ee_82580, eecp);
 	} else {
 		nicintel_eebar = rphysmap("Intel i210 NIC w/ emulated EEPROM",
 					  io_base_addr + 0x12000, MEMMAP_SIZE);
 		if (!nicintel_eebar)
-			return 1;
-
-		if (register_shutdown(nicintel_ee_shutdown_i210, NULL))
 			return 1;
 
 		return register_opaque_master(&opaque_master_nicintel_ee_i210, NULL);
