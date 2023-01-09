@@ -9,6 +9,7 @@ stdenv.mkDerivation {
 		libftdi1
 		libjaylink
 		libusb1
+		libgpiod
 		meson
 		ninja
 		pciutils

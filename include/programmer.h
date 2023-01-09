@@ -76,6 +76,7 @@ extern const struct programmer_entry programmer_gfxnvidia;
 extern const struct programmer_entry programmer_internal;
 extern const struct programmer_entry programmer_it8212;
 extern const struct programmer_entry programmer_jlink_spi;
+extern const struct programmer_entry programmer_linux_gpio_spi;
 extern const struct programmer_entry programmer_linux_mtd;
 extern const struct programmer_entry programmer_linux_spi;
 extern const struct programmer_entry programmer_mstarddc_spi;

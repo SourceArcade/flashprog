@@ -109,6 +109,7 @@ group_usb    = get_option('programmer').contains('group_usb')
 group_i2c    = get_option('programmer').contains('group_i2c')
 group_serial = get_option('programmer').contains('group_serial')
 group_jlink  = get_option('programmer').contains('group_jlink')
+group_gpiod  = get_option('programmer').contains('group_gpiod')
 group_internal = get_option('programmer').contains('group_internal')
 group_external = get_option('programmer').contains('group_external')
 
@@ -116,6 +117,7 @@ libpci     = dependency('libpci', required : group_pci, static : (host_machine.s
 libusb1    = dependency('libusb-1.0', required : group_usb)
 libftdi1   = dependency('libftdi1', required : group_ftdi)
 libjaylink = dependency('libjaylink', required : group_jlink)
+libgpiod   = dependency('libgpiod', required : group_gpiod)
 
 subdir('platform')
 
@@ -283,6 +285,13 @@ programmer = {
     'srcs'    : files('jlink_spi.c'),
     'flags'   : [ '-DCONFIG_JLINK_SPI=1' ],
     'default' : false,
+  },
+  'linux_gpio_spi' : {
+    'systems' : [ 'linux' ],
+    'deps'    : [ libgpiod ],
+    'groups'  : [ group_gpiod, group_external ],
+    'srcs'    : files('linux_gpio_spi.c'),
+    'flags'   : [ '-DCONFIG_LINUX_GPIOD=1' ],
   },
   'linux_mtd' : {
     'systems' : [ 'linux' ],

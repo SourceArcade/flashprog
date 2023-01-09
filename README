@@ -57,6 +57,7 @@ Linux et al:
  * pciutils / libpci
  * pciutils-devel / pciutils-dev / libpci-dev
  * zlib-devel / zlib1g-dev (needed if libpci was compiled with libz support)
+ * libgpiod-dev (if you want support for Linux GPIO devices)
 
 On FreeBSD, you need the following ports:
 

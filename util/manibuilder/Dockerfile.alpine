@@ -8,6 +8,8 @@ RUN \
 	apk add ca-certificates build-base linux-headers git ccache \
 		pciutils-dev libusb-compat-dev libusb-dev
 
+RUN apk add libgpiod-dev || true
+
 # fix weird permissions in armhf-v3.11
 RUN [ -d /usr/share/git-core/templates ] && \
 	chmod -R a+r /usr/share/git-core/templates

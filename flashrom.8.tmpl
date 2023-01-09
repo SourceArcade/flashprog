@@ -331,6 +331,8 @@ bitbanging adapter)
 .sp
 .BR "* ogp_spi" " (for SPI flash ROMs on Open Graphics Project graphics card)"
 .sp
+.BR "* linux_gpio_spi" " (for SPI flash ROMs attached to a GPIO chip device accessible via /dev/gpiochipX on Linux)"
+.sp
 .BR "* linux_mtd" " (for SPI flash ROMs accessible via /dev/mtdX on Linux)"
 .sp
 .BR "* linux_spi" " (for SPI flash ROMs accessible via /dev/spidevX.Y on Linux)"
@@ -1132,6 +1134,34 @@ parameter as explained in the
 .B nic3com et al.\&
 section above.
 .SS
+.BR "linux_gpio_spi " programmer
+.IP
+Either the GPIO device node or the chip number as well as the GPIO numbers
+of the SPI lines must be specified like in the following examples:
+.sp
+.B "  flashrom \-p linux_gpio_spi:dev=/dev/gpiochip0,cs=8,sck=11,mosi=10,miso=9"
+.sp
+or
+.sp
+.B "  flashrom \-p linux_gpio_spi:gpiochip=0,cs=8,sck=11,mosi=10,miso=9"
+.sp
+Here,
+.B gpiochip=0
+selects the GPIO chip 0, accessible through Linux device node /dev/gpiochip0, and the
+.B cs, sck, mosi, miso
+arguments select the GPIO numbers used as SPI lines connected to the flash ROM chip. In this example
+the GPIO numbers of the hardware SPI lines of of a Raspberry Pi single board computer are specified.
+All programmer arguments are mandatory.
+Note that this is a bitbanged driver, and if your device has a hardware SPI controller, use the
+.B linux_spi
+programmer driver instead for better performance.
+.sp
+Refer to the output of the
+.B gpioinfo
+utility to make sure the GPIO numbers are correct and unused.
+.sp
+Please note that the linux_gpio_spi driver only works on Linux, and depends on libgpiod.
+.SS
 .BR "linux_mtd " programmer
 .IP
 You may specify the MTD device to use with the
@@ -1583,6 +1613,8 @@ Stefan Tauner
 Stefan Wildemann
 .br
 Stephan Guilloux
+.br
+Steve Markgraf
 .br
 Steven James
 .br

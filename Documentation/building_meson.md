@@ -11,6 +11,7 @@
   * libusb1 >=1.0.9 ***
   * libftdi1 ***
   * libjaylink ***
+  * libgpiod (Linux only) ***
 
 \*   Compile time dependency
 \*** Runtime / Programmer specific
@@ -46,14 +47,14 @@ ninja -C builddir install
 ```
 apt-get install -y gcc meson ninja-build pkg-config \
 	linux-headers-generic libpci-dev libusb-1.0-0-dev libftdi1-dev \
-	libjaylink-dev
+	libjaylink-dev libgpiod-dev
 ```
 
 ### ArchLinux / Manjaro
   * __libjaylink__ is not available through the package manager
 ```
 pacman -S --noconfirm gcc meson ninja pkg-config \
-	pciutils libusb libftdi
+	pciutils libusb libftdi libgpiod
 ```
 
 ### NixOS / Nixpkgs
@@ -62,20 +63,20 @@ nix-shell <flashrom_source>/util/shell.nix
 ```
 or
 ```
-nix-shell -p meson ninja pkg-config pciutils libusb1 libftdi1 libjaylink
+nix-shell -p meson ninja pkg-config pciutils libusb1 libftdi1 libjaylink libgpiod
 ```
 
 ### OpenSUSE
 ```
 zypper install -y gcc meson ninja pkg-config \
 	pciutils-devel libusb-1_0-devel libftdi1-devel \
-	libjaylink-devel
+	libjaylink-devel libgpiod-devel
 ```
 
 ### Alpine
 ```
 apk add build-base meson ninja pkgconf pciutils-dev libusb-dev \
-	libftdi1-dev libjaylink-dev linux-headers
+	libftdi1-dev libjaylink-dev linux-headers libgpiod-dev
 ```
 
 ### Freebsd / DragonFly BSD
