@@ -334,7 +334,9 @@ MAN_DATE ?= $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)
 SCMDEF := -D'FLASHROM_VERSION="$(VERSION)"'
 
 # Inform user of the version string
+ifeq ($(filter branch tag,$(MAKECMDGOALS)), )
 $(info Replacing all version templates with $(VERSION).)
+endif
 
 ###############################################################################
 # Default settings of CONFIG_* variables.
@@ -1275,6 +1277,16 @@ versioninfo:
 	@echo "VERSION = $(RELEASE)" > $@.inc
 	@echo "MAN_DATE = $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)" >> $@.inc
 
+branch: versioninfo
+	@git checkout -b $(RELEASE)
+	@git add -f $<.inc
+	@git commit -sm'Update version info for $(RELEASE)'
+
+tag: versioninfo
+	@git add -f $<.inc
+	@git commit -sm'Update version info for $(RELEASE)'
+	@git tag -s $(RELEASE)
+
 # No spaces in release names unless set explicitly
 RELEASENAME ?= $(shell echo "$(VERSION)" | sed -e 's/ /_/')
 
@@ -1323,7 +1335,7 @@ libpayload: clean
 gitconfig:
 	./util/getrevision.sh -c 2>/dev/null && ./util/git-hooks/install.sh
 
-.PHONY: all install clean distclean compiler hwlibs features versioninfo _export export tarball featuresavailable libpayload gitconfig
+.PHONY: all install clean distclean compiler hwlibs features branch tag versioninfo _export export tarball featuresavailable libpayload gitconfig
 
 # Disable implicit suffixes and built-in rules (for performance and profit)
 .SUFFIXES:
