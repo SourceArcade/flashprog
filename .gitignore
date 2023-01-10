@@ -9,6 +9,7 @@
 /flashrom.exe
 /flashrom.8
 /libflashrom-doc/
+/versioninfo.inc
 
 /util/ich_descriptors_tool/ich_descriptors_tool
 /util/ich_descriptors_tool/ich_descriptors_tool.exe

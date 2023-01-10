@@ -333,9 +333,6 @@ MAN_DATE ?= $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)
 
 SCMDEF := -D'FLASHROM_VERSION="$(VERSION)"'
 
-# No spaces in release names unless set explicitly
-RELEASENAME ?= $(shell echo "$(VERSION)" | sed -e 's/ /_/')
-
 # Inform user of the version string
 $(info Replacing all version templates with $(VERSION).)
 
@@ -1272,13 +1269,32 @@ libinstall: libflashrom.a libflashrom.h
 	mkdir -p $(DESTDIR)$(PREFIX)/include
 	$(INSTALL) -m 0644 libflashrom.h $(DESTDIR)$(PREFIX)/include
 
+versioninfo:
+#	Generate versioninfo.inc containing metadata that would not be available in exported sources otherwise.
+	@[ "$(RELEASE)" ] || { echo 'Error: Must provide `RELEASE=...`'; exit 1; }
+	@echo "VERSION = $(RELEASE)" > $@.inc
+	@echo "MAN_DATE = $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)" >> $@.inc
+
+# No spaces in release names unless set explicitly
+RELEASENAME ?= $(shell echo "$(VERSION)" | sed -e 's/ /_/')
+
+_export: EXPORT_VERSIONINFO := $(EXPORTDIR)/flashrom-$(RELEASENAME)/versioninfo.inc
 _export: $(PROGRAM).8
 	@rm -rf "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
 	@mkdir -p "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
 	@git archive HEAD | tar -x -C "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
-#	Generate versioninfo.inc containing metadata that would not be available in exported sources otherwise.
-	@echo "VERSION = $(VERSION)" > "$(EXPORTDIR)/flashrom-$(RELEASENAME)/versioninfo.inc"
-	@echo "MAN_DATE = $(MAN_DATE)" >> "$(EXPORTDIR)/flashrom-$(RELEASENAME)/versioninfo.inc"
+#	Generate fresh versioninfo.inc and compare
+	@echo "VERSION = $(shell ./util/getrevision.sh --revision)" > "$(EXPORT_VERSIONINFO)"
+	@echo "MAN_DATE = $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)" >> \
+		"$(EXPORT_VERSIONINFO)"
+	@if [ -f versioninfo.inc ]; then				\
+		cmp -s versioninfo.inc "$(EXPORT_VERSIONINFO)" ||	\
+		{ echo Error: Version info changed:;			\
+		  cat "$(EXPORT_VERSIONINFO)";				\
+		  echo Update versioninfo.inc and tag accordingly.;	\
+		  exit 1;						\
+		};							\
+	fi
 #	Restore modification date of all tracked files not marked 'export-ignore' in .gitattributes.
 #	sed is required to filter out file names having the attribute set.
 #	The sed program saves the file name in the hold buffer and then checks if the respective value is 'set'.
@@ -1307,7 +1323,7 @@ libpayload: clean
 gitconfig:
 	./util/getrevision.sh -c 2>/dev/null && ./util/git-hooks/install.sh
 
-.PHONY: all install clean distclean compiler hwlibs features _export export tarball featuresavailable libpayload gitconfig
+.PHONY: all install clean distclean compiler hwlibs features versioninfo _export export tarball featuresavailable libpayload gitconfig
 
 # Disable implicit suffixes and built-in rules (for performance and profit)
 .SUFFIXES:
