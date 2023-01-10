@@ -1288,13 +1288,13 @@ tag: versioninfo
 	@git tag -s $(RELEASE)
 
 # No spaces in release names unless set explicitly
-RELEASENAME ?= $(shell echo "$(VERSION)" | sed -e 's/ /_/')
+RELEASENAME ?= flashrom-stable-$(shell echo "$(VERSION)" | sed -e 's/ /_/')
 
-_export: EXPORT_VERSIONINFO := $(EXPORTDIR)/flashrom-$(RELEASENAME)/versioninfo.inc
+_export: EXPORT_VERSIONINFO := $(EXPORTDIR)/$(RELEASENAME)/versioninfo.inc
 _export: $(PROGRAM).8
-	@rm -rf "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
-	@mkdir -p "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
-	@git archive HEAD | tar -x -C "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
+	@rm -rf "$(EXPORTDIR)/$(RELEASENAME)"
+	@mkdir -p "$(EXPORTDIR)/$(RELEASENAME)"
+	@git archive HEAD | tar -x -C "$(EXPORTDIR)/$(RELEASENAME)"
 #	Generate fresh versioninfo.inc and compare
 	@echo "VERSION = $(shell ./util/getrevision.sh --revision)" > "$(EXPORT_VERSIONINFO)"
 	@echo "MAN_DATE = $(shell ./util/getrevision.sh --date $(PROGRAM).8.tmpl 2>/dev/null)" >> \
@@ -1316,18 +1316,18 @@ _export: $(PROGRAM).8
 		sed -zne 'x;n;n;{/^set$$/b;};x;p;' | \
 		xargs -0 sh -c 'for f; do \
 			touch -d $$(git log --pretty=format:%cI -1 HEAD -- "$$f") \
-				"$(EXPORTDIR)/flashrom-$(RELEASENAME)/$$f"; \
+				"$(EXPORTDIR)/$(RELEASENAME)/$$f"; \
 		done' dummy_arg0
 
 export: _export
-	@echo "Exported $(EXPORTDIR)/flashrom-$(RELEASENAME)/"
+	@echo "Exported $(EXPORTDIR)/$(RELEASENAME)/"
 
 tarball: _export
-	@tar -cj --format=ustar -f "$(EXPORTDIR)/flashrom-$(RELEASENAME).tar.bz2" -C $(EXPORTDIR)/ \
-		$(TAROPTIONS) "flashrom-$(RELEASENAME)/"
+	@tar -cj --format=ustar -f "$(EXPORTDIR)/$(RELEASENAME).tar.bz2" -C $(EXPORTDIR)/ \
+		$(TAROPTIONS) "$(RELEASENAME)/"
 #	Delete the exported directory again because it is most likely what's expected by the user.
-	@rm -rf "$(EXPORTDIR)/flashrom-$(RELEASENAME)"
-	@echo Created "$(EXPORTDIR)/flashrom-$(RELEASENAME).tar.bz2"
+	@rm -rf "$(EXPORTDIR)/$(RELEASENAME)"
+	@echo Created "$(EXPORTDIR)/$(RELEASENAME).tar.bz2"
 
 libpayload: clean
 	make CC="CC=i386-elf-gcc lpgcc" AR=i386-elf-ar RANLIB=i386-elf-ranlib
