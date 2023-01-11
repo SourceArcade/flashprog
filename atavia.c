@@ -121,7 +121,7 @@ static void *atavia_map(const char *descr, uintptr_t phys_addr, size_t len)
 	return (atavia_offset != 0) ? atavia_offset : (void *)phys_addr;
 }
 
-static int atavia_init(void)
+static int atavia_init(struct flashprog_programmer *const prog)
 {
 	char *arg = extract_programmer_param("offset");
 	if (arg) {

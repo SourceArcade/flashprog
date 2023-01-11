@@ -75,7 +75,7 @@ static const struct par_master par_master_gfxnvidia = {
 	.chip_writen	= fallback_chip_writen,
 };
 
-static int gfxnvidia_init(void)
+static int gfxnvidia_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 	uint32_t reg32;

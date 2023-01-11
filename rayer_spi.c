@@ -163,7 +163,7 @@ static const struct bitbang_spi_master bitbang_spi_master_rayer = {
 	.half_period	= 0,
 };
 
-static int rayer_spi_init(void)
+static int rayer_spi_init(struct flashprog_programmer *const flashprog)
 {
 	const struct rayer_programmer *prog = rayer_spi_types;
 	char *arg = NULL;

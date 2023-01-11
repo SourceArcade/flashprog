@@ -421,7 +421,7 @@ static int ch341a_spi_shutdown(void *data)
 	return 0;
 }
 
-static int ch341a_spi_init(void)
+static int ch341a_spi_init(struct flashprog_programmer *const prog)
 {
 	if (handle != NULL) {
 		msg_cerr("%s: handle already set! Please report a bug at flashprog@flashprog.org\n",

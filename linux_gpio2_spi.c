@@ -108,7 +108,7 @@ static int linux_gpio_spi_shutdown(void *data)
 	return 0;
 }
 
-static int linux_gpio_spi_init(void)
+static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 {
 	struct linux_gpio_spi *gpio_spi = NULL;
 	const char *param_str[] = { "cs", "sck", "mosi", "miso", "gpiochip" };

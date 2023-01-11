@@ -48,7 +48,7 @@ static const struct par_master par_master_nicnatsemi = {
 	.chip_writen	= fallback_chip_writen,
 };
 
-static int nicnatsemi_init(void)
+static int nicnatsemi_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 

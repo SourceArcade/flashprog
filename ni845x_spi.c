@@ -389,7 +389,7 @@ static void ni845x_spi_print_available_devices(void)
 		ni845x_report_error("ni845xCloseFindDeviceHandle", tmp);
 }
 
-int ni845x_spi_init(void)
+int ni845x_spi_init(struct flashprog_programmer *const prog)
 {
 	char *speed_str = NULL;
 	char *CS_str = NULL;

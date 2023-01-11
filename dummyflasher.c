@@ -436,7 +436,7 @@ static int init_data(struct emu_data *data, enum chipbustype *dummy_buses_suppor
 	return 0;
 }
 
-static int dummy_init(void)
+static int dummy_init(struct flashprog_programmer *const prog)
 {
 	int ret = 0;
 	struct stat image_stat;

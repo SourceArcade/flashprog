@@ -279,7 +279,7 @@ static const struct spi_master spi_master_dirtyjtag_spi = {
 	.probe_opcode	= default_spi_probe_opcode,
 };
 
-static int dirtyjtag_spi_init(void)
+static int dirtyjtag_spi_init(struct flashprog_programmer *const prog)
 {
 	struct spi_master dirtyjtag_spi = spi_master_dirtyjtag_spi;
 	struct libusb_device_handle *handle = NULL;

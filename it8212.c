@@ -46,7 +46,7 @@ static const struct par_master par_master_it8212 = {
 	.chip_writen	= fallback_chip_writen,
 };
 
-static int it8212_init(void)
+static int it8212_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = pcidev_init(devs_it8212, PCI_ROM_ADDRESS);
 	if (!dev)

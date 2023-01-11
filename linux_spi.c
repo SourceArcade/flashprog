@@ -112,7 +112,7 @@ out:
 	return result;
 }
 
-static int linux_spi_init(void)
+static int linux_spi_init(struct flashprog_programmer *const prog)
 {
 	char *p, *endp, *dev;
 	uint32_t speed_hz = 2 * 1000 * 1000;

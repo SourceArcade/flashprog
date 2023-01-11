@@ -269,7 +269,7 @@ static unsigned int ch347_div_to_khz(unsigned int div)
 }
 
 /* Largely copied from ch341a_spi.c */
-static int ch347_spi_init(void)
+static int ch347_spi_init(struct flashprog_programmer *const prog)
 {
 	struct ch347_spi_data *ch347_data = calloc(1, sizeof(*ch347_data));
 	if (!ch347_data) {

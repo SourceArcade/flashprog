@@ -65,7 +65,7 @@ static uint32_t satasii_wait_done(void)
 	return ctrl_reg;
 }
 
-static int satasii_init(void)
+static int satasii_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 	uint32_t addr;

@@ -108,7 +108,7 @@ static void atapromise_limit_chip(struct flashchip *chip)
 	}
 }
 
-static int atapromise_init(void)
+static int atapromise_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 

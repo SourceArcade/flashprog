@@ -374,7 +374,7 @@ static int linux_mtd_shutdown(void *data)
 	return 0;
 }
 
-static int linux_mtd_init(void)
+static int linux_mtd_init(struct flashprog_programmer *const prog)
 {
 	char *param;
 	int dev_num = 0;

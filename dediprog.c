@@ -1098,7 +1098,7 @@ out:
 	return ret;
 }
 
-static int dediprog_init(void)
+static int dediprog_init(struct flashprog_programmer *const prog)
 {
 	char *voltage, *id_str, *device, *spispeed, *target_str;
 	int spispeed_idx = 1;

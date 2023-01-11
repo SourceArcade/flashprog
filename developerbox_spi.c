@@ -134,7 +134,7 @@ static int developerbox_spi_shutdown(void *data)
 	return 0;
 }
 
-static int developerbox_spi_init(void)
+static int developerbox_spi_init(struct flashprog_programmer *const prog)
 {
 	if (libusb_init(&usb_ctx)) {
 		msg_perr("Could not initialize libusb!\n");

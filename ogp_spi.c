@@ -93,7 +93,7 @@ static const struct bitbang_spi_master bitbang_spi_master_ogp = {
 	.half_period	= 0,
 };
 
-static int ogp_spi_init(void)
+static int ogp_spi_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 	char *type;

@@ -389,7 +389,7 @@ static int pickit2_shutdown(void *data)
 	return ret;
 }
 
-static int pickit2_spi_init(void)
+static int pickit2_spi_init(struct flashprog_programmer *const prog)
 {
 	uint8_t buf[CMD_LENGTH] = {
 		CMD_EXEC_SCRIPT,

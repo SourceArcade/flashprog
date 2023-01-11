@@ -465,7 +465,7 @@ out:
 	return ret;
 }
 
-static int nicintel_ee_init(void)
+static int nicintel_ee_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = pcidev_init(nics_intel_ee, PCI_BASE_ADDRESS_0);
 	if (!dev)

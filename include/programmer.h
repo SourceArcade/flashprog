@@ -40,6 +40,7 @@ struct dev_entry {
 	const char *device_name;
 };
 
+struct flashprog_programmer;
 struct programmer_entry {
 	const char *name;
 	const enum programmer_type type;
@@ -48,7 +49,7 @@ struct programmer_entry {
 		const char *const note;
 	} devs;
 
-	int (*init) (void);
+	int (*init) (struct flashprog_programmer *);
 
 	void (*delay) (unsigned int usecs);
 };
@@ -377,9 +378,9 @@ int init_superio_ite(void);
 
 #if CONFIG_LINUX_MTD == 1 && LINUX_MTD_AS_INTERNAL == 1
 /* trivial wrapper to avoid cluttering internal_init() with #if */
-static inline int try_mtd(void) { return programmer_linux_mtd.init(); };
+static inline int try_mtd(struct flashprog_programmer *prog) { return programmer_linux_mtd.init(prog); };
 #else
-static inline int try_mtd(void) { return 1; };
+static inline int try_mtd(struct flashprog_programmer *prog) { return 1; };
 #endif
 
 /* mcp6x_spi.c */

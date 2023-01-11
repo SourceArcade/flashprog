@@ -195,7 +195,7 @@ static int jlink_spi_shutdown(void *data)
 	return 0;
 }
 
-static int jlink_spi_init(void)
+static int jlink_spi_init(struct flashprog_programmer *const prog)
 {
 	char *arg;
 	unsigned long speed = 0;

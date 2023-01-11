@@ -83,7 +83,7 @@ static int linux_gpio_spi_shutdown(void *spi_data)
 	return 0;
 }
 
-static int linux_gpio_spi_init(void)
+static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 {
 	struct linux_gpio_spi *data = NULL;
 	struct gpiod_chip *chip = NULL;

@@ -70,7 +70,7 @@ static const struct par_master par_master_satamv = {
  * 0xc08	PCI BAR2 (Flash/NVRAM) Control
  * 0x1046c	Flash Parameters
  */
-static int satamv_init(void)
+static int satamv_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 	uintptr_t addr;

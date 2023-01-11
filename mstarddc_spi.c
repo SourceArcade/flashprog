@@ -66,7 +66,7 @@ static int mstarddc_spi_shutdown(void *data)
 }
 
 /* Returns 0 upon success, a negative number upon errors. */
-static int mstarddc_spi_init(void)
+static int mstarddc_spi_init(struct flashprog_programmer *const prog)
 {
 	int ret = 0;
 

@@ -55,7 +55,7 @@ static int nicrealtek_shutdown(void *data)
 	return 0;
 }
 
-static int nicrealtek_init(void)
+static int nicrealtek_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 

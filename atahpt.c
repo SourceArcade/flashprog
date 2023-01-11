@@ -53,7 +53,7 @@ static const struct par_master par_master_atahpt = {
 	.chip_writen	= fallback_chip_writen,
 };
 
-static int atahpt_init(void)
+static int atahpt_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 	uint32_t reg32;

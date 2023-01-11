@@ -156,7 +156,7 @@ int programmer_init(struct flashprog_programmer *const prog)
 	programmer_may_write = true;
 
 	msg_pdbg("Initializing %s programmer\n", programmer->name);
-	ret = programmer->init();
+	ret = programmer->init(prog);
 	if (programmer_param && strlen(programmer_param)) {
 		if (ret != 0) {
 			/* It is quite possible that any unhandled programmer parameter would have been valid,

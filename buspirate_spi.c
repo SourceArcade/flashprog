@@ -221,7 +221,7 @@ out_shutdown:
  */
 #define BP_DIVISOR(baud) ((4000000/(baud)) - 1)
 
-static int buspirate_spi_init(void)
+static int buspirate_spi_init(struct flashprog_programmer *const prog)
 {
 	char *tmp;
 	char *dev;

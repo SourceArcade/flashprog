@@ -82,7 +82,7 @@ static int nic3com_shutdown(void *data)
 	return 0;
 }
 
-static int nic3com_init(void)
+static int nic3com_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
 

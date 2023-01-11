@@ -371,7 +371,7 @@ static const struct digilent_spispeeds spispeeds[] = {
 	{ NULL,		0 },
 };
 
-static int digilent_spi_init(void)
+static int digilent_spi_init(struct flashprog_programmer *const prog)
 {
 	char *p;
 	uint32_t speed_hz = spispeeds[0].speed;

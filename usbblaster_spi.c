@@ -72,7 +72,7 @@ static uint8_t reverse(uint8_t b)
 
 
 /* Returns 0 upon success, a negative number upon errors. */
-static int usbblaster_spi_init(void)
+static int usbblaster_spi_init(struct flashprog_programmer *const prog)
 {
 	uint8_t buf[BUF_SIZE + 1] = { 0 };
 

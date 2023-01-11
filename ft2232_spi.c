@@ -300,7 +300,7 @@ static const struct spi_master spi_master_ft2232 = {
 };
 
 /* Returns 0 upon success, a negative number upon errors. */
-static int ft2232_spi_init(void)
+static int ft2232_spi_init(struct flashprog_programmer *const prog)
 {
 	int ret;
 	unsigned char buf[512];

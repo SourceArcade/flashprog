@@ -162,7 +162,7 @@ static int get_params(bool *boardenable, bool *boardmismatch,
 	return 0;
 }
 
-static int internal_init(void)
+static int internal_init(struct flashprog_programmer *const prog)
 {
 	int ret = 0;
 	bool force_laptop;
@@ -189,7 +189,7 @@ static int internal_init(void)
 	 */
 	internal_buses_supported = BUS_NONSPI;
 
-	if (try_mtd() == 0) {
+	if (try_mtd(prog) == 0) {
 		ret = 0;
 		goto internal_init_exit;
 	}

@@ -110,7 +110,7 @@ static int pony_spi_shutdown(void *data)
 	return ret;
 }
 
-static int pony_spi_init(void)
+static int pony_spi_init(struct flashprog_programmer *const prog)
 {
 	int i, data_out;
 	char *arg = NULL;
