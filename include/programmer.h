@@ -154,7 +154,7 @@ struct penable {
 	const enum test_state status;
 	const char *vendor_name;
 	const char *device_name;
-	int (*doit) (struct pci_dev *dev, const char *name);
+	int (*doit) (struct flashprog_programmer *, struct pci_dev *, const char *name);
 };
 
 extern const struct penable chipset_enables[];
@@ -235,7 +235,7 @@ void board_handle_before_laptop(struct flashprog_programmer *);
 int board_flash_enable(struct flashprog_programmer *, const char *vendor, const char *model, const char *cb_vendor, const char *cb_model);
 
 /* chipset_enable.c */
-int chipset_flash_enable(void);
+int chipset_flash_enable(struct flashprog_programmer *);
 
 /* processor_enable.c */
 int processor_flash_enable(void);
