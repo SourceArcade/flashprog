@@ -32,6 +32,9 @@
 #define ITE_SUPERIO_PORT1	0x2e
 #define ITE_SUPERIO_PORT2	0x4e
 
+const size_t it87spi_max_mmapped = 512*KiB; /* maximum of memory mapped flash this driver can handle */
+static unsigned char *it87spi_mmapped_flash;
+
 static uint16_t it8716f_flashport = 0;
 /* use fast 33MHz SPI (<>0) or slow 16MHz (0) */
 static int fast_spi = 1;
@@ -220,6 +223,12 @@ static uint16_t it87spi_probe(uint16_t port)
 	}
 	free(param);
 	exit_conf_mode_ite(port);
+
+	it87spi_mmapped_flash = rphysmap("it87spi memory mapped SPI",
+			0xffffffff - it87spi_max_mmapped + 1, it87spi_max_mmapped);
+	if (it87spi_mmapped_flash == ERROR_PTR)
+		return 1;
+
 	it8716f_flashport = flashport;
 	if (internal_buses_supported & BUS_SPI)
 		msg_pdbg("Overriding chipset SPI with IT87 SPI.\n");
@@ -337,7 +346,8 @@ static int it8716f_spi_page_program(struct flashctx *flash, const uint8_t *buf, 
 {
 	unsigned int i;
 	int result;
-	chipaddr bios = flash->virtual_memory;
+	unsigned char *const bios = it87spi_mmapped_flash +
+		it87spi_max_mmapped - flashprog_flash_getsize(flash);
 
 	result = spi_write_enable(flash);
 	if (result)
@@ -380,10 +390,12 @@ static int it8716f_spi_chip_read(struct flashctx *flash, uint8_t *buf,
 	 * the mainboard does not use IT87 SPI translation. This should be done
 	 * via a programmer parameter for the internal programmer.
 	 */
-	if ((flash->chip->total_size * 1024 > 512 * 1024)) {
+	if ((flash->chip->total_size * 1024 > it87spi_max_mmapped)) {
 		default_spi_read(flash, buf, start, len);
 	} else {
-		mmio_readn((void *)(flash->virtual_memory + start), buf, len);
+		unsigned char *const bios = it87spi_mmapped_flash +
+			it87spi_max_mmapped - flashprog_flash_getsize(flash);
+		mmio_readn(bios + start, buf, len);
 	}
 
 	return 0;
@@ -403,7 +415,7 @@ static int it8716f_spi_chip_write_256(struct flashctx *flash, const uint8_t *buf
 	 * the mainboard does not use IT87 SPI translation. This should be done
 	 * via a programmer parameter for the internal programmer.
 	 */
-	if ((chip->total_size * 1024 > 512 * 1024) || (chip->page_size > 256)) {
+	if ((chip->total_size * 1024 > it87spi_max_mmapped) || (chip->page_size > 256)) {
 		spi_chip_write_1(flash, buf, start, len);
 	} else {
 		unsigned int lenhere;
