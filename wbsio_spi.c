@@ -26,6 +26,9 @@
 
 static uint16_t wbsio_spibase = 0;
 
+const size_t wbsio_max_mmapped = 1*MiB; /* maximum of memory mapped flash these SIOs can handle */
+static unsigned char *wbsio_mmapped_flash;
+
 static uint16_t wbsio_get_spibase(uint16_t port)
 {
 	uint8_t id;
@@ -82,9 +85,14 @@ int wbsio_check_for_spi(void)
 
 	msg_pspew("\nwbsio_spibase = 0x%x\n", wbsio_spibase);
 
+	wbsio_mmapped_flash = rphysmap("wbsio memory mapped SPI",
+			0xffffffff - wbsio_max_mmapped + 1, wbsio_max_mmapped);
+	if (wbsio_mmapped_flash == ERROR_PTR)
+		return 1;
+
 	msg_pdbg("%s: Winbond saved on 4 register bits so max chip size is "
 		 "1024 kB!\n", __func__);
-	max_rom_decode.spi = 1024 * 1024;
+	max_rom_decode.spi = wbsio_max_mmapped;
 	register_spi_master(&spi_master_wbsio, NULL);
 
 	return 0;
@@ -199,6 +207,8 @@ static int wbsio_spi_send_command(const struct flashctx *flash, unsigned int wri
 static int wbsio_spi_read(struct flashctx *flash, uint8_t *buf,
 			  unsigned int start, unsigned int len)
 {
-	mmio_readn((void *)(flash->virtual_memory + start), buf, len);
+	unsigned char *const bios = wbsio_mmapped_flash +
+		wbsio_max_mmapped - flashprog_flash_getsize(flash);
+	mmio_readn(bios + start, buf, len);
 	return 0;
 }
