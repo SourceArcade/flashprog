@@ -231,7 +231,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 	dmi_init();
 
 	/* In case Super I/O probing would cause pretty explosions. */
-	board_handle_before_superio();
+	board_handle_before_superio(prog);
 
 	/* Probe for the Super I/O chip and fill global struct superio. */
 	probe_superio();
@@ -244,7 +244,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 #endif
 
 	/* Check laptop whitelist. */
-	board_handle_before_laptop();
+	board_handle_before_laptop(prog);
 
 	/*
 	 * Disable all internal buses by default if we are not sure
@@ -270,7 +270,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 	 * parallel writes on IT8705F. Also, this handles the manual chip select for Gigabyte's DualBIOS. */
 	init_superio_ite();
 
-	if (board_flash_enable(board_vendor, board_model, cb_vendor, cb_model)) {
+	if (board_flash_enable(prog, board_vendor, board_model, cb_vendor, cb_model)) {
 		msg_perr("Aborting to be safe.\n");
 		ret = 1;
 		goto internal_init_exit;

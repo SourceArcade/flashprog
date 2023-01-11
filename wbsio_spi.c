@@ -77,7 +77,7 @@ static const struct spi_master spi_master_wbsio = {
 	.probe_opcode	= default_spi_probe_opcode,
 };
 
-int wbsio_check_for_spi(void)
+int wbsio_check_for_spi(struct flashprog_programmer *const prog)
 {
 	if (0 == (wbsio_spibase = wbsio_get_spibase(WBSIO_PORT1)))
 		if (0 == (wbsio_spibase = wbsio_get_spibase(WBSIO_PORT2)))

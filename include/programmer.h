@@ -194,7 +194,7 @@ struct board_match {
 
 	int max_rom_decode_parallel;
 	const enum test_state status;
-	int (*enable) (void); /* May be NULL. */
+	int (*enable) (struct flashprog_programmer *); /* May be NULL. */
 };
 
 extern const struct board_match board_matches[];
@@ -230,9 +230,9 @@ int it8705f_write_enable(uint8_t port);
 uint8_t sio_read(uint16_t port, uint8_t reg);
 void sio_write(uint16_t port, uint8_t reg, uint8_t data);
 void sio_mask(uint16_t port, uint8_t reg, uint8_t data, uint8_t mask);
-void board_handle_before_superio(void);
-void board_handle_before_laptop(void);
-int board_flash_enable(const char *vendor, const char *model, const char *cb_vendor, const char *cb_model);
+void board_handle_before_superio(struct flashprog_programmer *);
+void board_handle_before_laptop(struct flashprog_programmer *);
+int board_flash_enable(struct flashprog_programmer *, const char *vendor, const char *model, const char *cb_vendor, const char *cb_model);
 
 /* chipset_enable.c */
 int chipset_flash_enable(void);
@@ -390,7 +390,7 @@ int mcp6x_spi_init(int want_spi);
 int sb600_probe_spi(struct pci_dev *dev);
 
 /* wbsio_spi.c */
-int wbsio_check_for_spi(void);
+int wbsio_check_for_spi(struct flashprog_programmer *);
 #endif
 
 /* opaque.c */
