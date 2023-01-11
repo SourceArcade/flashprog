@@ -1626,6 +1626,9 @@ int prepare_flash_access(struct flashctx *const flash,
 		return 1;
 	}
 
+	if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_FULL))
+		return 1;
+
 	if (map_flash(flash) != 0)
 		return 1;
 
@@ -1670,6 +1673,8 @@ void finalize_flash_access(struct flashctx *const flash)
 {
 	deregister_chip_restore(flash);
 	unmap_flash(flash);
+	if (flash->chip->finish_access)
+		flash->chip->finish_access(flash);
 }
 
 /**
