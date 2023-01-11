@@ -143,7 +143,33 @@ int flashprog_programmer_init(struct flashprog_programmer **const flashprog,
 		msg_ginfo(".\n");
 		return 1;
 	}
-	return programmer_init(programmer_table[prog], prog_param);
+
+	*flashprog = malloc(sizeof(**flashprog));
+	if (!*flashprog) {
+		msg_gerr("Out of memory!\n");
+		return 1;
+	}
+
+	(*flashprog)->driver = programmer_table[prog];
+	if (prog_param) {
+		(*flashprog)->param = strdup(prog_param);
+		if (!(*flashprog)->param) {
+			msg_gerr("Out of memory!\n");
+			goto _free_err;
+		}
+	} else {
+		(*flashprog)->param = NULL;
+	}
+
+	if (programmer_init(*flashprog))
+		goto _free_err;
+
+	return 0;
+
+_free_err:
+	free((*flashprog)->param);
+	free(*flashprog);
+	return 1;
 }
 
 /**
@@ -154,7 +180,10 @@ int flashprog_programmer_init(struct flashprog_programmer **const flashprog,
  */
 int flashprog_programmer_shutdown(struct flashprog_programmer *const flashprog)
 {
-	return programmer_shutdown();
+	if (programmer_shutdown(flashprog))
+		return 1;
+	free(flashprog);
+	return 0;
 }
 
 /* TODO: flashprog_programmer_capabilities()? */

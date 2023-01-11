@@ -130,15 +130,16 @@ static int deregister_chip_restore(struct flashctx *flash)
 	return rc;
 }
 
-int programmer_init(const struct programmer_entry *prog, const char *param)
+int programmer_init(struct flashprog_programmer *const prog)
 {
 	int ret;
 
-	if (prog == NULL) {
+	if (prog == NULL || prog->driver == NULL) {
 		msg_perr("Invalid programmer specified!\n");
 		return -1;
 	}
-	programmer = prog;
+	programmer = prog->driver;
+	programmer_param = prog->param;
 	/* Initialize all programmer specific data. */
 	/* Default to unlimited decode sizes. */
 	max_rom_decode = (const struct decode_sizes) {
@@ -153,16 +154,6 @@ int programmer_init(const struct programmer_entry *prog, const char *param)
 	may_register_shutdown = true;
 	/* Default to allowing writes. Broken programmers set this to 0. */
 	programmer_may_write = true;
-
-	if (param) {
-		programmer_param = strdup(param);
-		if (!programmer_param) {
-			msg_perr("Out of memory!\n");
-			return ERROR_FATAL;
-		}
-	} else {
-		programmer_param = NULL;
-	}
 
 	msg_pdbg("Initializing %s programmer\n", programmer->name);
 	ret = programmer->init();
@@ -182,7 +173,6 @@ int programmer_init(const struct programmer_entry *prog, const char *param)
 			ret = ERROR_FATAL;
 		}
 	}
-	free(programmer_param);
 	programmer_param = NULL;
 	return ret;
 }
@@ -192,7 +182,7 @@ int programmer_init(const struct programmer_entry *prog, const char *param)
  * require a call to programmer_init() (afterwards).
  *
  * @return The OR-ed result values of all shutdown functions (i.e. 0 on success). */
-int programmer_shutdown(void)
+int programmer_shutdown(struct flashprog_programmer *const prog)
 {
 	int ret = 0;
 

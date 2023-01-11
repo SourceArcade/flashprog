@@ -594,10 +594,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (programmer_init(prog, pparam)) {
+	struct flashprog_programmer *flashprog;
+	if (flashprog_programmer_init(&flashprog, prog->name, pparam)) {
 		msg_perr("Error: Programmer initialization failed.\n");
 		ret = 1;
-		goto out_shutdown;
+		goto out;
 	}
 	tempstr = flashbuses_to_text(get_buses_supported());
 	msg_pdbg("The following protocols are supported: %s.\n", tempstr);
@@ -789,7 +790,7 @@ int main(int argc, char *argv[])
 	flashprog_layout_release(layout);
 
 out_shutdown:
-	flashprog_programmer_shutdown(NULL);
+	flashprog_programmer_shutdown(flashprog);
 out:
 	for (i = 0; i < chipcount; i++) {
 		flashprog_layout_release(flashes[i].default_layout);

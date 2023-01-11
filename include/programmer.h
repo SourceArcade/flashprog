@@ -95,8 +95,13 @@ extern const struct programmer_entry programmer_stlinkv3_spi;
 extern const struct programmer_entry programmer_usbblaster_spi;
 extern const struct programmer_entry programmer_dirtyjtag_spi;
 
-int programmer_init(const struct programmer_entry *prog, const char *param);
-int programmer_shutdown(void);
+struct flashprog_programmer {
+	const struct programmer_entry *driver;
+	char *param; /* TODO: Replace with flashprog_cfg (cf. flashrom/master) */
+};
+
+int programmer_init(struct flashprog_programmer *);
+int programmer_shutdown(struct flashprog_programmer *);
 
 struct bitbang_spi_master {
 	/* Note that CS# is active low, so val=0 means the chip is active. */
