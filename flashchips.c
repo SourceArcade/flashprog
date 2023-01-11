@@ -6857,6 +6857,7 @@ const struct flashchip flashchips[] = {
 			.tb     = {STATUS1, 6, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -7565,6 +7566,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -7741,6 +7743,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -8797,6 +8800,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -9535,6 +9539,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1650, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -9626,6 +9631,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1650, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -10206,6 +10212,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -10255,6 +10262,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	/* The ST M25P05 is a bit of a problem. It has the same ID as the
@@ -11109,6 +11117,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11149,6 +11158,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11474,6 +11484,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11514,6 +11525,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11554,6 +11566,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11594,6 +11607,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11640,6 +11654,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11686,6 +11701,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11732,6 +11748,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11778,6 +11795,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11907,6 +11925,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -11956,6 +11975,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -12012,6 +12032,7 @@ const struct flashchip flashchips[] = {
 			.tb     = {STATUS1, 5, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -12061,6 +12082,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {1700, 2000},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -16854,6 +16876,7 @@ const struct flashchip flashchips[] = {
 			.wps	= {STATUS3, 2, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -16900,6 +16923,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -16937,6 +16961,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256, /* Multi I/O supported, IGNORE for now */
 		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -17671,6 +17696,7 @@ const struct flashchip flashchips[] = {
 			.cmp    = {STATUS2, 6, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -17726,6 +17752,7 @@ const struct flashchip flashchips[] = {
 			.cmp    = {STATUS2, 6, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -17781,6 +17808,7 @@ const struct flashchip flashchips[] = {
 			.cmp    = {STATUS2, 6, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -17827,6 +17855,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -17884,6 +17913,7 @@ const struct flashchip flashchips[] = {
 			.wps	= {STATUS3, 2, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -18406,6 +18436,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -18460,6 +18491,7 @@ const struct flashchip flashchips[] = {
 			.wps	= {STATUS3, 2, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -20012,6 +20044,7 @@ const struct flashchip flashchips[] = {
 			.tb     = {STATUS1, 6, RW},
 		},
 		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
@@ -20134,6 +20167,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.prepare_access	= spi_prepare_4ba,
 	},
 
 	{
