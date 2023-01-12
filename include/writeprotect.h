@@ -78,12 +78,12 @@ struct wp_bits  {
 struct flashprog_flashctx;
 
 /* Write WP configuration to the chip */
-enum flashprog_wp_result wp_write_cfg(struct flashprog_flashctx *, const struct flashprog_wp_cfg *);
+enum flashprog_wp_result spi_wp_write_cfg(struct flashprog_flashctx *, const struct flashprog_wp_cfg *);
 
 /* Read WP configuration from the chip */
-enum flashprog_wp_result wp_read_cfg(struct flashprog_wp_cfg *, struct flashprog_flashctx *);
+enum flashprog_wp_result spi_wp_read_cfg(struct flashprog_wp_cfg *, struct flashprog_flashctx *);
 
 /* Get a list of protection ranges supported by the chip */
-enum flashprog_wp_result wp_get_available_ranges(struct flashprog_wp_ranges **, struct flashprog_flashctx *);
+enum flashprog_wp_result spi_wp_get_available_ranges(struct flashprog_wp_ranges **, struct flashprog_flashctx *);
 
 #endif /* !__WRITEPROTECT_H__ */

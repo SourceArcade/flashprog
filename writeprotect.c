@@ -454,7 +454,7 @@ static bool chip_supported(struct flashctx *flash)
 	return (flash->chip != NULL) && (flash->chip->decode_range != NULL);
 }
 
-enum flashprog_wp_result wp_read_cfg(struct flashprog_wp_cfg *cfg, struct flashctx *flash)
+enum flashprog_wp_result spi_wp_read_cfg(struct flashprog_wp_cfg *cfg, struct flashctx *flash)
 {
 	struct wp_bits bits;
 	enum flashprog_wp_result ret = FLASHPROG_WP_OK;
@@ -474,7 +474,7 @@ enum flashprog_wp_result wp_read_cfg(struct flashprog_wp_cfg *cfg, struct flashc
 	return ret;
 }
 
-enum flashprog_wp_result wp_write_cfg(struct flashctx *flash, const struct flashprog_wp_cfg *cfg)
+enum flashprog_wp_result spi_wp_write_cfg(struct flashctx *flash, const struct flashprog_wp_cfg *cfg)
 {
 	struct wp_bits bits;
 	enum flashprog_wp_result ret = FLASHPROG_WP_OK;
@@ -500,7 +500,7 @@ enum flashprog_wp_result wp_write_cfg(struct flashctx *flash, const struct flash
 	return ret;
 }
 
-enum flashprog_wp_result wp_get_available_ranges(struct flashprog_wp_ranges **list, struct flashprog_flashctx *flash)
+enum flashprog_wp_result spi_wp_get_available_ranges(struct flashprog_wp_ranges **list, struct flashprog_flashctx *flash)
 {
 	struct wp_bits bits;
 	struct wp_range_and_bits *range_pairs = NULL;
