@@ -48,14 +48,6 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 	flash->virtual_memory = (chipaddr)ERROR_PTR;
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
 
-	/*
-	 * FIXME: This avoids mapping (and unmapping) of flash chip definitions with size 0.
-	 * These are used for various probing-related hacks that would not map successfully
-	 * anyway and should be removed ASAP.
-	 */
-	if (flash->chip->total_size == 0)
-		return 0;
-
 	const chipsize_t size = flash->chip->total_size * 1024;
 	const uintptr_t base = flashbase ? flashbase : (0xffffffff - size + 1);
 	void *const addr = programmer_map_flash_region(flash, flash->chip->name, base, size);
