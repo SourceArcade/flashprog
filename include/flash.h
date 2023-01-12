@@ -211,6 +211,7 @@ struct reg_bit_info {
 struct wp_bits;
 
 enum preparation_steps {
+	PREPARE_PROBE,
 	PREPARE_FULL,
 };
 

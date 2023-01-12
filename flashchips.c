@@ -86,6 +86,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -55, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -118,6 +120,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -55, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -145,6 +149,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -172,6 +178,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -199,6 +207,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -226,6 +236,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -253,6 +265,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -280,6 +294,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -307,6 +323,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -338,6 +356,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -45R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -369,6 +389,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -45R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -401,6 +423,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -55, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -433,6 +457,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -55, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -465,6 +491,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -497,6 +525,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -529,6 +559,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -70R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -561,6 +593,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -70R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -588,6 +622,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -60R, others 2.7-3.6V*/
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -615,6 +651,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -70R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -1393,6 +1431,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -1425,6 +1465,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -1452,6 +1494,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -1480,6 +1524,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -2621,6 +2667,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,	/* FIXME */
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -2645,6 +2693,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -2669,6 +2719,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -2693,6 +2745,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3129,6 +3183,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3153,6 +3209,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3185,6 +3243,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3217,6 +3277,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3248,6 +3310,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3279,6 +3343,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3310,6 +3376,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3342,6 +3410,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3378,6 +3448,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3414,6 +3486,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3450,6 +3524,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3553,6 +3629,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3577,6 +3655,8 @@ const struct flashchip flashchips[] = {
 		.write		= NULL, /* TODO */
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -3796,6 +3876,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5646,6 +5728,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5678,6 +5762,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5706,6 +5792,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5736,6 +5824,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5766,6 +5856,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5793,6 +5885,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5820,6 +5914,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5847,6 +5943,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -45R and 55R, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -5877,6 +5975,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_en29lv640b,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6181,6 +6281,8 @@ const struct flashchip flashchips[] = {
 		.write		= NULL,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6213,6 +6315,8 @@ const struct flashchip flashchips[] = {
 		.write		= NULL,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6246,6 +6350,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -55, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6278,6 +6384,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -55, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6310,6 +6418,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1, /* Supports a fast mode too */
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -70, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -6342,6 +6452,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1, /* Supports a fast mode too */
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* 3.0-3.6V for type -70, others 2.7-3.6V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7375,6 +7487,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -45, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7407,6 +7521,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -45, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7434,6 +7550,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7774,6 +7892,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7801,6 +7921,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7831,6 +7953,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -7858,6 +7982,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8119,6 +8245,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8146,6 +8274,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8173,6 +8303,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8200,6 +8332,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8227,6 +8361,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8250,6 +8386,8 @@ const struct flashchip flashchips[] = {
 		.unlock		= unlock_28f004s5,
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8278,6 +8416,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8306,6 +8446,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_82802ab,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8331,6 +8473,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -8356,6 +8500,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9747,6 +9893,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9780,6 +9928,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9812,6 +9962,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9844,6 +9996,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9876,6 +10030,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9908,6 +10064,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9935,6 +10093,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9962,6 +10122,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -9992,6 +10154,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10019,6 +10183,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10049,6 +10215,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10079,6 +10247,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10106,6 +10276,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10136,6 +10308,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -10163,6 +10337,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12110,6 +12286,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12137,6 +12315,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12164,6 +12344,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12191,6 +12373,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12218,6 +12402,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12245,6 +12431,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -12272,6 +12460,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13121,6 +13311,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13153,6 +13345,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13183,6 +13377,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13213,6 +13409,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13243,6 +13441,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13273,6 +13473,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13304,6 +13506,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -13335,6 +13539,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14344,6 +14550,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_28sf040,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14368,6 +14576,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14392,6 +14602,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14416,6 +14628,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14440,6 +14654,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14467,6 +14683,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14494,6 +14712,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14521,6 +14741,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14548,6 +14770,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14575,6 +14799,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14602,6 +14828,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14629,6 +14857,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14659,6 +14889,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14686,6 +14918,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14718,6 +14952,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14750,6 +14986,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14785,6 +15023,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14819,6 +15059,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14851,6 +15093,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14885,6 +15129,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14919,6 +15165,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14949,6 +15197,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -14979,6 +15229,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15009,6 +15261,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15040,6 +15294,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15070,6 +15326,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15104,6 +15362,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15136,6 +15396,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -X, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15168,6 +15430,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -X, others 4.5-5.5V */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15195,6 +15459,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15228,6 +15494,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15261,6 +15529,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15288,6 +15558,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15315,6 +15587,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15339,6 +15613,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15372,6 +15648,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15405,6 +15683,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15439,6 +15719,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15473,6 +15755,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15507,6 +15791,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15532,6 +15818,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15557,6 +15845,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15582,6 +15872,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15607,6 +15899,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -15639,6 +15933,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -16095,6 +16391,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -16128,6 +16426,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -16989,6 +17289,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17016,6 +17318,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17042,6 +17346,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17068,6 +17374,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17095,6 +17403,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17122,6 +17432,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17149,6 +17461,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17176,6 +17490,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17208,6 +17524,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -17240,6 +17558,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19151,6 +19471,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_jedec,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19174,6 +19496,8 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_jedec,
 		.read		= read_memmapped,
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19198,6 +19522,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19222,6 +19548,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19246,6 +19574,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19276,6 +19606,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19303,6 +19635,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19333,6 +19667,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19363,6 +19699,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19390,6 +19728,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19420,6 +19760,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19447,6 +19789,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {2700, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19475,6 +19819,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19503,6 +19849,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19534,6 +19882,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19565,6 +19915,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19593,6 +19945,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19621,6 +19975,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19649,6 +20005,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19681,6 +20039,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19710,6 +20070,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19738,6 +20100,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19766,6 +20130,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19795,6 +20161,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19823,6 +20191,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19855,6 +20225,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19879,6 +20251,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19911,6 +20285,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{
@@ -19943,6 +20319,8 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
 	},
 
 	{

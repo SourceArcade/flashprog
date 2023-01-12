@@ -546,7 +546,7 @@ static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, chi
 	return first_len;
 }
 
-void unmap_flash(struct flashctx *flash)
+void finish_memory_access(struct flashctx *flash)
 {
 	if (flash->virtual_registers != (chipaddr)ERROR_PTR) {
 		programmer_unmap_flash_region((void *)flash->virtual_registers, flash->chip->total_size * 1024);
@@ -561,7 +561,7 @@ void unmap_flash(struct flashctx *flash)
 	}
 }
 
-int map_flash(struct flashctx *flash)
+int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 {
 	/* Init pointers to the fail-safe state to distinguish them later from legit values. */
 	flash->virtual_memory = (chipaddr)ERROR_PTR;
@@ -675,8 +675,8 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		*flash->chip = *chip;
 		flash->mst = mst;
 
-		if (map_flash(flash) != 0)
-			goto notfound;
+		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_PROBE))
+			goto free_chip;
 
 		/* We handle a forced match like a real match, we just avoid probing. Note that probe_flash()
 		 * is only called with force=1 after normal probing failed.
@@ -725,7 +725,9 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 			break;
 		/* Not the first flash chip detected on this bus, and it's just a generic match. Ignore it. */
 notfound:
-		unmap_flash(flash);
+		if (flash->chip->finish_access)
+			flash->chip->finish_access(flash);
+free_chip:
 		free(flash->chip);
 		flash->chip = NULL;
 	}
@@ -741,7 +743,7 @@ notfound:
 		  flash->chip->vendor, flash->chip->name, flash->chip->total_size, tmp);
 	free(tmp);
 #if CONFIG_INTERNAL == 1
-	if (programmer->map_flash_region == physmap)
+	if (flash->physical_memory != 0 && programmer->map_flash_region == physmap)
 		msg_cinfo("mapped at physical address 0x%0*" PRIxPTR ".\n",
 			  PRIxPTR_WIDTH, flash->physical_memory);
 	else
@@ -755,7 +757,8 @@ notfound:
 			flash->chip->printlock(flash);
 
 	/* Get out of the way for later runs. */
-	unmap_flash(flash);
+	if (flash->chip->finish_access)
+		flash->chip->finish_access(flash);
 
 	/* Return position of matching chip. */
 	return chip - flashchips;
@@ -1629,9 +1632,6 @@ int prepare_flash_access(struct flashctx *const flash,
 	if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_FULL))
 		return 1;
 
-	if (map_flash(flash) != 0)
-		return 1;
-
 	/* Initialize chip_restore_fn_count before chip unlock calls. */
 	flash->chip_restore_fn_count = 0;
 
@@ -1646,7 +1646,6 @@ int prepare_flash_access(struct flashctx *const flash,
 void finalize_flash_access(struct flashctx *const flash)
 {
 	deregister_chip_restore(flash);
-	unmap_flash(flash);
 	if (flash->chip->finish_access)
 		flash->chip->finish_access(flash);
 }
