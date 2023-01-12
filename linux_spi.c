@@ -186,7 +186,7 @@ static int linux_spi_init(struct flashprog_programmer *const prog)
 	spi_data->fd = fd;
 	spi_data->max_kernel_buf_size = max_kernel_buf_size;
 
-	return register_spi_master(&spi_master_linux, spi_data);
+	return register_spi_master(&spi_master_linux, 0, spi_data);
 
 init_err:
 	close(fd);

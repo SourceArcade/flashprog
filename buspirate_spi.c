@@ -607,7 +607,7 @@ static int buspirate_spi_init(struct flashprog_programmer *const prog)
 		goto init_err_cleanup_exit;
 	}
 
-	return register_spi_master(&spi_master_buspirate, bp_data);
+	return register_spi_master(&spi_master_buspirate, 0, bp_data);
 
 init_err_cleanup_exit:
 	buspirate_spi_shutdown(bp_data);

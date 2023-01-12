@@ -691,7 +691,7 @@ format_error:
 	spi_data->aux_bits = aux_bits;
 	spi_data->pindir = pindir;
 
-	return register_spi_master(&spi_master_ft2232, spi_data);
+	return register_spi_master(&spi_master_ft2232, 0, spi_data);
 
 ftdi_err:
 	if ((f = ftdi_usb_close(ftdic)) < 0) {

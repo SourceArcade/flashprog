@@ -102,7 +102,7 @@ static int gfxnvidia_init(struct flashprog_programmer *const prog)
 
 	/* Write/erase doesn't work. */
 	programmer_may_write = false;
-	return register_par_master(&par_master_gfxnvidia, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_gfxnvidia, BUS_PARALLEL, 0, NULL);
 }
 
 static void gfxnvidia_chip_writeb(const struct flashctx *flash, uint8_t val,

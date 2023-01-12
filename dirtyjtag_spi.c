@@ -399,7 +399,7 @@ static int dirtyjtag_spi_init(struct flashprog_programmer *const prog)
 		goto cleanup_libusb_handle;
 	}
 
-	return register_spi_master(&dirtyjtag_spi, djtag_data);
+	return register_spi_master(&dirtyjtag_spi, 0, djtag_data);
 
 cleanup_libusb_handle:
 	libusb_attach_kernel_driver(handle, 0);

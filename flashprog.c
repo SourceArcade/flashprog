@@ -40,12 +40,6 @@ const char *chip_to_probe = NULL;
 static const struct programmer_entry *programmer = NULL;
 static char *programmer_param = NULL;
 
-/*
- * Programmers supporting multiple buses can have differing size limits on
- * each bus. Store the limits for each bus in a common struct.
- */
-struct decode_sizes max_rom_decode;
-
 /* If nonzero, used as the start address of bottom-aligned flash. */
 unsigned long flashbase;
 
@@ -141,13 +135,6 @@ int programmer_init(struct flashprog_programmer *const prog)
 	programmer = prog->driver;
 	programmer_param = prog->param;
 	/* Initialize all programmer specific data. */
-	/* Default to unlimited decode sizes. */
-	max_rom_decode = (const struct decode_sizes) {
-		.parallel	= 0xffffffff,
-		.lpc		= 0xffffffff,
-		.fwh		= 0xffffffff,
-		.spi		= 0xffffffff,
-	};
 	/* Default to top aligned flash at 4 GB. */
 	flashbase = 0;
 	/* Registering shutdown functions is now allowed. */

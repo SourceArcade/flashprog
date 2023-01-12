@@ -518,7 +518,7 @@ static int jlink_spi_init(struct flashprog_programmer *const prog)
 	if (!deassert_cs(jlink_data))
 		goto init_err;
 
-	return register_spi_master(&spi_master_jlink_spi, jlink_data);
+	return register_spi_master(&spi_master_jlink_spi, 0, jlink_data);
 
 init_err:
 	if (jaylink_devh)

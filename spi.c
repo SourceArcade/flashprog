@@ -136,7 +136,7 @@ bool default_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 	return true;
 }
 
-int register_spi_master(const struct spi_master *mst, void *data)
+int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, void *data)
 {
 	struct registered_master rmst;
 
@@ -157,7 +157,10 @@ int register_spi_master(const struct spi_master *mst, void *data)
 		return ERROR_FLASHPROG_BUG;
 	}
 
-
+	if (max_rom_decode)
+		rmst.max_rom_decode = max_rom_decode;
+	else
+		rmst.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
 	rmst.buses_supported = BUS_SPI;
 	rmst.spi = *mst;
 	if (data)

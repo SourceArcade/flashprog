@@ -359,7 +359,7 @@ static int ch347_spi_init(struct flashprog_programmer *const prog)
 	if (ch347_spi_config(ch347_data, div) < 0)
 		goto error_exit;
 
-	return register_spi_master(&spi_master_ch347_spi, ch347_data);
+	return register_spi_master(&spi_master_ch347_spi, 0, ch347_data);
 
 error_exit:
 	ch347_spi_shutdown(ch347_data);

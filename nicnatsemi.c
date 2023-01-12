@@ -63,14 +63,14 @@ static int nicnatsemi_init(struct flashprog_programmer *const prog)
 	if (!io_base_addr)
 		return 1;
 
-	/* The datasheet shows address lines MA0-MA16 in one place and MA0-MA15
+	/*
+	 * The datasheet shows address lines MA0-MA16 in one place and MA0-MA15
 	 * in another. My NIC has MA16 connected to A16 on the boot ROM socket
-	 * so I'm assuming it is accessible. If not then next line wants to be
-	 * max_rom_decode.parallel = 65536; and the mask in the read/write
-	 * functions below wants to be 0x0000FFFF.
+	 * so I'm assuming it is accessible. If not then max_rom_decode wants
+	 * to be 64KiB; and the mask in the read/write functions below wants
+	 * to be 0x0000FFFF.
 	 */
-	max_rom_decode.parallel = 131072;
-	return register_par_master(&par_master_nicnatsemi, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_nicnatsemi, BUS_PARALLEL, 128*KiB, NULL);
 }
 
 static void nicnatsemi_chip_writeb(const struct flashctx *flash, uint8_t val,

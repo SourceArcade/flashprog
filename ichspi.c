@@ -1827,7 +1827,7 @@ int ich_init_spi(void *spibar, enum ich_chipset ich_gen)
 		}
 		ich_init_opcodes();
 		ich_set_bbar(0);
-		register_spi_master(&spi_master_ich7, NULL);
+		register_spi_master(&spi_master_ich7, 0, NULL);
 		break;
 	case CHIPSET_ICH8:
 	default:		/* Future version might behave the same */
@@ -2065,7 +2065,7 @@ int ich_init_spi(void *spibar, enum ich_chipset ich_gen)
 
 			register_opaque_master(&opaque_master_ich_hwseq, NULL);
 		} else {
-			register_spi_master(&spi_master_ich9, NULL);
+			register_spi_master(&spi_master_ich9, 0, NULL);
 		}
 		break;
 	}
@@ -2095,7 +2095,7 @@ int via_init_spi(uint32_t mmio_base)
 	/* Not sure if it speaks all these bus protocols. */
 	internal_buses_supported &= BUS_LPC | BUS_FWH;
 	ich_generation = CHIPSET_ICH7;
-	register_spi_master(&spi_master_via, NULL);
+	register_spi_master(&spi_master_via, 0, NULL);
 
 	msg_pdbg("0x00: 0x%04x     (SPIS)\n", mmio_readw(ich_spibar + 0));
 	msg_pdbg("0x02: 0x%04x     (SPIC)\n", mmio_readw(ich_spibar + 2));

@@ -505,7 +505,7 @@ static int stlinkv3_spi_init(struct flashprog_programmer *const prog)
 	if (stlinkv3_spi_open(sck_freq_kHz))
 		goto init_err_exit;
 
-	return register_spi_master(&spi_programmer_stlinkv3, NULL);
+	return register_spi_master(&spi_programmer_stlinkv3, 0, NULL);
 
 init_err_exit:
 	if (stlinkv3_handle)

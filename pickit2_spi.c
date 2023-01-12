@@ -498,7 +498,7 @@ static int pickit2_spi_init(struct flashprog_programmer *const prog)
 		goto init_err_cleanup_exit;
 	}
 
-	return register_spi_master(&spi_master_pickit2, pickit2_data);
+	return register_spi_master(&spi_master_pickit2, 0, pickit2_data);
 
 init_err_cleanup_exit:
 	pickit2_shutdown(pickit2_data);

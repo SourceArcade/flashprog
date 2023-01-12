@@ -74,7 +74,7 @@ static int atahpt_init(struct flashprog_programmer *const prog)
 	reg32 |= (1 << 24);
 	rpci_write_long(dev, REG_FLASH_ACCESS, reg32);
 
-	return register_par_master(&par_master_atahpt, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_atahpt, BUS_PARALLEL, 0, NULL);
 }
 
 static void atahpt_chip_writeb(const struct flashctx *flash, uint8_t val,

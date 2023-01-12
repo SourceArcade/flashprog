@@ -63,9 +63,8 @@ void chip_readn(const struct flashctx *flash, uint8_t *buf, chipaddr addr,
 	flash->mst->par.chip_readn(flash, buf, addr, len);
 }
 
-int register_par_master(const struct par_master *mst,
-			    const enum chipbustype buses,
-			    void *data)
+int register_par_master(const struct par_master *mst, const enum chipbustype buses,
+			const size_t max_rom_decode, void *data)
 {
 	struct registered_master rmst;
 
@@ -85,6 +84,10 @@ int register_par_master(const struct par_master *mst,
 		return ERROR_FLASHPROG_BUG;
 	}
 
+	if (max_rom_decode)
+		rmst.max_rom_decode = max_rom_decode;
+	else
+		rmst.max_rom_decode = DEFAULT_MAX_DECODE_PARALLEL;
 	rmst.buses_supported = buses;
 	rmst.par = *mst;
 	if (data)

@@ -476,7 +476,7 @@ int ni845x_spi_init(struct flashprog_programmer *const prog)
 		return 1;
 	}
 
-	return register_spi_master(&spi_programmer_ni845x, NULL);
+	return register_spi_master(&spi_programmer_ni845x, 0, NULL);
 }
 
 static int ni845x_spi_shutdown(void *data)

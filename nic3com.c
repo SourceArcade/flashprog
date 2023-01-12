@@ -117,9 +117,7 @@ static int nic3com_init(struct flashprog_programmer *const prog)
 	 */
 	OUTW(SELECT_REG_WINDOW + 0, io_base_addr + INT_STATUS);
 
-	max_rom_decode.parallel = 128 * 1024;
-
-	return register_par_master(&par_master_nic3com, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_nic3com, BUS_PARALLEL, 128*KiB, NULL);
 }
 
 static void nic3com_chip_writeb(const struct flashctx *flash, uint8_t val,

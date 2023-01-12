@@ -449,7 +449,7 @@ static int digilent_spi_init(struct flashprog_programmer *const prog)
 	if (spi_set_mode(0x00) != 0)
 		goto close_handle;
 
-	return register_spi_master(&spi_master_digilent_spi, NULL);
+	return register_spi_master(&spi_master_digilent_spi, 0, NULL);
 
 close_handle:
 	libusb_close(handle);

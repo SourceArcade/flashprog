@@ -233,11 +233,11 @@ static uint16_t it87spi_probe(uint16_t port)
 	if (internal_buses_supported & BUS_SPI)
 		msg_pdbg("Overriding chipset SPI with IT87 SPI.\n");
 	/* FIXME: Add the SPI bus or replace the other buses with it? */
-	register_spi_master(&spi_master_it87xx, NULL);
+	register_spi_master(&spi_master_it87xx, 0, NULL);
 	return 0;
 }
 
-int init_superio_ite(void)
+int init_superio_ite(struct flashprog_programmer *const prog)
 {
 	int i;
 	int ret = 0;
@@ -248,7 +248,7 @@ int init_superio_ite(void)
 
 		switch (superios[i].model) {
 		case 0x8705:
-			ret |= it8705f_write_enable(superios[i].port);
+			ret |= it8705f_write_enable(prog, superios[i].port);
 			break;
 		case 0x8686:
 		case 0x8716:

@@ -110,7 +110,7 @@ static int usbblaster_spi_init(struct flashprog_programmer *const prog)
 		return -1;
 	}
 
-	register_spi_master(&spi_master_usbblaster, NULL);
+	register_spi_master(&spi_master_usbblaster, 0, NULL);
 	return 0;
 }
 

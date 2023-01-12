@@ -309,5 +309,5 @@ int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_
 
 	spi100_check_4ba(spi100);
 
-	return register_spi_master(&spi100_master, spi100);
+	return register_spi_master(&spi100_master, 0, spi100);
 }

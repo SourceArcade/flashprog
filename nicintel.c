@@ -93,8 +93,7 @@ static int nicintel_init(struct flashprog_programmer *const prog)
 	 */
 	pci_rmmio_writew(0x0001, nicintel_control_bar + CSR_FCR);
 
-	max_rom_decode.parallel = NICINTEL_MEMMAP_SIZE;
-	return register_par_master(&par_master_nicintel, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_nicintel, BUS_PARALLEL, NICINTEL_MEMMAP_SIZE, NULL);
 }
 
 static void nicintel_chip_writeb(const struct flashctx *flash, uint8_t val,

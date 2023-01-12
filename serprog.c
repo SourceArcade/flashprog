@@ -730,9 +730,9 @@ static int serprog_init(struct flashprog_programmer *const prog)
 	if (register_shutdown(serprog_shutdown, NULL))
 		goto init_err_cleanup_exit;
 	if (serprog_buses_supported & BUS_SPI)
-		register_spi_master(&spi_master_serprog, NULL);
+		register_spi_master(&spi_master_serprog, 0, NULL);
 	if (serprog_buses_supported & BUS_NONSPI)
-		register_par_master(&par_master_serprog, serprog_buses_supported & BUS_NONSPI, NULL);
+		register_par_master(&par_master_serprog, serprog_buses_supported & BUS_NONSPI, 0, NULL);
 	return 0;
 
 init_err_cleanup_exit:

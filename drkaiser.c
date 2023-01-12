@@ -74,8 +74,7 @@ static int drkaiser_init(struct flashprog_programmer *const prog)
 	if (drkaiser_bar == ERROR_PTR)
 		return 1;
 
-	max_rom_decode.parallel = 128 * 1024;
-	return register_par_master(&par_master_drkaiser, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_drkaiser, BUS_PARALLEL, 128*KiB, NULL);
 }
 
 static void drkaiser_chip_writeb(const struct flashctx *flash, uint8_t val,

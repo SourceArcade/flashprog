@@ -20,6 +20,7 @@
 #ifndef __PROGRAMMER_H__
 #define __PROGRAMMER_H__ 1
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -99,6 +100,7 @@ extern const struct programmer_entry programmer_dirtyjtag_spi;
 struct flashprog_programmer {
 	const struct programmer_entry *driver;
 	char *param; /* TODO: Replace with flashprog_cfg (cf. flashrom/master) */
+	void *data;
 };
 
 int programmer_init(struct flashprog_programmer *);
@@ -226,7 +228,7 @@ int board_parse_parameter(const char *boardstring, char **vendor, char **model);
 void w836xx_ext_enter(uint16_t port);
 void w836xx_ext_leave(uint16_t port);
 void probe_superio_winbond(void);
-int it8705f_write_enable(uint8_t port);
+int it8705f_write_enable(struct flashprog_programmer *, uint8_t port);
 uint8_t sio_read(uint16_t port, uint8_t reg);
 void sio_write(uint16_t port, uint8_t reg, uint8_t data);
 void sio_mask(uint16_t port, uint8_t reg, uint8_t data, uint8_t mask);
@@ -254,6 +256,9 @@ int dmi_match(const char *pattern);
 #endif // defined(__i386__) || defined(__x86_64__)
 
 /* internal.c */
+struct internal_data {
+	size_t max_rom_decode;
+};
 struct superio {
 	uint16_t vendor;
 	uint16_t port;
@@ -281,14 +286,7 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *s
 
 
 /* flashprog.c */
-struct decode_sizes {
-	uint32_t parallel;
-	uint32_t lpc;
-	uint32_t fwh;
-	uint32_t spi;
-};
 // FIXME: These need to be local, not global
-extern struct decode_sizes max_rom_decode;
 extern bool programmer_may_write;
 extern unsigned long flashbase;
 char *extract_programmer_param(const char *param_name);
@@ -326,7 +324,7 @@ int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start, u
 int default_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len);
 int default_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len);
 bool default_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode);
-int register_spi_master(const struct spi_master *mst, void *data);
+int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, void *data);
 
 /* The following enum is needed by ich_descriptor_tool and ich* code as well as in chipset_enable.c. */
 enum ich_chipset {
@@ -374,7 +372,7 @@ int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_
 void enter_conf_mode_ite(uint16_t port);
 void exit_conf_mode_ite(uint16_t port);
 void probe_superio_ite(void);
-int init_superio_ite(void);
+int init_superio_ite(struct flashprog_programmer *);
 
 #if CONFIG_LINUX_MTD == 1 && LINUX_MTD_AS_INTERNAL == 1
 /* trivial wrapper to avoid cluttering internal_init() with #if */
@@ -424,7 +422,7 @@ struct par_master {
 	int (*shutdown)(void *data);
 	void *data;
 };
-int register_par_master(const struct par_master *mst, const enum chipbustype buses, void *data);
+int register_par_master(const struct par_master *mst, const enum chipbustype buses, size_t max_rom_decode, void *data);
 
 /* programmer.c */
 void *fallback_map(const char *descr, uintptr_t phys_addr, size_t len);
@@ -435,7 +433,10 @@ void fallback_chip_writen(const struct flashctx *flash, const uint8_t *buf, chip
 uint16_t fallback_chip_readw(const struct flashctx *flash, const chipaddr addr);
 uint32_t fallback_chip_readl(const struct flashctx *flash, const chipaddr addr);
 void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
+#define DEFAULT_MAX_DECODE_PARALLEL (16*MiB)
+#define MAX_ROM_DECODE_UNLIMITED UINT32_MAX
 struct registered_master {
+	size_t max_rom_decode;
 	enum chipbustype buses_supported;
 	union {
 		struct par_master par;

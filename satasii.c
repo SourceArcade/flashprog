@@ -98,7 +98,7 @@ static int satasii_init(struct flashprog_programmer *const prog)
 	if ((id != 0x0680) && (!(pci_mmio_readl(sii_bar) & (1 << 26))))
 		msg_pwarn("Warning: Flash seems unconnected.\n");
 
-	return register_par_master(&par_master_satasii, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_satasii, BUS_PARALLEL, 0, NULL);
 }
 
 static void satasii_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)

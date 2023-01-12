@@ -84,7 +84,7 @@ static int nicrealtek_init(struct flashprog_programmer *const prog)
 		break;
 	}
 
-	return register_par_master(&par_master_nicrealtek, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_nicrealtek, BUS_PARALLEL, 0, NULL);
 }
 
 static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)

@@ -378,8 +378,10 @@ static int enable_flash_ich_bios_cntl_memmapped(enum ich_chipset ich_generation,
 	return enable_flash_ich_bios_cntl_common(ich_generation, addr, NULL, 0);
 }
 
-static int enable_flash_ich_fwh_decode(struct pci_dev *dev, enum ich_chipset ich_generation)
+static int enable_flash_ich_fwh_decode(struct flashprog_programmer *prog,
+				       struct pci_dev *dev, enum ich_chipset ich_generation)
 {
+	struct internal_data *const internal = prog->data;
 	uint8_t fwh_sel1 = 0, fwh_sel2 = 0, fwh_dec_en_lo = 0, fwh_dec_en_hi = 0; /* silence compilers */
 	bool implemented = 0;
 	void *ilb = NULL; /* Only for Baytrail */
@@ -547,18 +549,19 @@ idsel_garbage_out:
 			contiguous = 0;
 		}
 	}
-	max_rom_decode.fwh = min(max_decode_fwh_idsel, max_decode_fwh_decode);
-	msg_pdbg("Maximum FWH chip size: 0x%x bytes\n", max_rom_decode.fwh);
+	internal->max_rom_decode = min(max_decode_fwh_idsel, max_decode_fwh_decode);
+	msg_pdbg("Maximum FWH chip size: 0x%zx bytes\n", internal->max_rom_decode);
 
 	return 0;
 }
 
-static int enable_flash_ich_fwh(struct pci_dev *dev, enum ich_chipset ich_generation, uint8_t bios_cntl)
+static int enable_flash_ich_fwh(struct flashprog_programmer *prog,
+				struct pci_dev *dev, enum ich_chipset ich_generation, uint8_t bios_cntl)
 {
 	int err;
 
 	/* Configure FWH IDSEL decoder maps. */
-	if ((err = enable_flash_ich_fwh_decode(dev, ich_generation)) != 0)
+	if ((err = enable_flash_ich_fwh_decode(prog, dev, ich_generation)) != 0)
 		return err;
 
 	internal_buses_supported &= BUS_FWH;
@@ -567,22 +570,22 @@ static int enable_flash_ich_fwh(struct pci_dev *dev, enum ich_chipset ich_genera
 
 static int enable_flash_ich0(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_fwh(dev, CHIPSET_ICH, 0x4e);
+	return enable_flash_ich_fwh(prog, dev, CHIPSET_ICH, 0x4e);
 }
 
 static int enable_flash_ich2345(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_fwh(dev, CHIPSET_ICH2345, 0x4e);
+	return enable_flash_ich_fwh(prog, dev, CHIPSET_ICH2345, 0x4e);
 }
 
 static int enable_flash_ich6(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_fwh(dev, CHIPSET_ICH6, 0xdc);
+	return enable_flash_ich_fwh(prog, dev, CHIPSET_ICH6, 0xdc);
 }
 
 static int enable_flash_poulsbo(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_fwh(dev, CHIPSET_POULSBO, 0xd8);
+	return enable_flash_ich_fwh(prog, dev, CHIPSET_POULSBO, 0xd8);
 }
 
 static enum chipbustype enable_flash_ich_report_gcs(
@@ -756,7 +759,8 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	return boot_straps[bbs].bus;
 }
 
-static int enable_flash_ich_spi(struct pci_dev *dev, enum ich_chipset ich_generation, uint8_t bios_cntl)
+static int enable_flash_ich_spi(struct flashprog_programmer *prog, struct pci_dev *dev,
+				enum ich_chipset ich_generation, uint8_t bios_cntl)
 {
 	/* Get physical address of Root Complex Register Block */
 	uint32_t rcra = pci_read_long(dev, 0xf0) & 0xffffc000;
@@ -770,7 +774,7 @@ static int enable_flash_ich_spi(struct pci_dev *dev, enum ich_chipset ich_genera
 	const enum chipbustype boot_buses = enable_flash_ich_report_gcs(dev, ich_generation, rcrb);
 
 	/* Handle FWH-related parameters and initialization */
-	int ret_fwh = enable_flash_ich_fwh(dev, ich_generation, bios_cntl);
+	int ret_fwh = enable_flash_ich_fwh(prog, dev, ich_generation, bios_cntl);
 	if (ret_fwh == ERROR_FATAL)
 		return ret_fwh;
 
@@ -819,80 +823,80 @@ static int enable_flash_ich_spi(struct pci_dev *dev, enum ich_chipset ich_genera
 
 static int enable_flash_tunnelcreek(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_TUNNEL_CREEK, 0xd8);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_TUNNEL_CREEK, 0xd8);
 }
 
 static int enable_flash_s12x0(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_CENTERTON, 0xd8);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_CENTERTON, 0xd8);
 }
 
 static int enable_flash_ich7(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_ICH7, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_ICH7, 0xdc);
 }
 
 static int enable_flash_ich8(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_ICH8, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_ICH8, 0xdc);
 }
 
 static int enable_flash_ich9(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_ICH9, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_ICH9, 0xdc);
 }
 
 static int enable_flash_ich10(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_ICH10, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_ICH10, 0xdc);
 }
 
 /* Ibex Peak aka. 5 series & 3400 series */
 static int enable_flash_pch5(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_5_SERIES_IBEX_PEAK, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_5_SERIES_IBEX_PEAK, 0xdc);
 }
 
 /* Cougar Point aka. 6 series & c200 series */
 static int enable_flash_pch6(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_6_SERIES_COUGAR_POINT, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_6_SERIES_COUGAR_POINT, 0xdc);
 }
 
 /* Panther Point aka. 7 series */
 static int enable_flash_pch7(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_7_SERIES_PANTHER_POINT, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_7_SERIES_PANTHER_POINT, 0xdc);
 }
 
 /* Lynx Point aka. 8 series */
 static int enable_flash_pch8(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_8_SERIES_LYNX_POINT, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_8_SERIES_LYNX_POINT, 0xdc);
 }
 
 /* Lynx Point LP aka. 8 series low-power */
 static int enable_flash_pch8_lp(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_8_SERIES_LYNX_POINT_LP, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_8_SERIES_LYNX_POINT_LP, 0xdc);
 }
 
 /* Wellsburg (for Haswell-EP Xeons) */
 static int enable_flash_pch8_wb(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_8_SERIES_WELLSBURG, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_8_SERIES_WELLSBURG, 0xdc);
 }
 
 /* Wildcat Point */
 static int enable_flash_pch9(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_9_SERIES_WILDCAT_POINT, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_9_SERIES_WILDCAT_POINT, 0xdc);
 }
 
 /* Wildcat Point LP */
 static int enable_flash_pch9_lp(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
-	return enable_flash_ich_spi(dev, CHIPSET_9_SERIES_WILDCAT_POINT_LP, 0xdc);
+	return enable_flash_ich_spi(prog, dev, CHIPSET_9_SERIES_WILDCAT_POINT_LP, 0xdc);
 }
 
 /* Sunrise Point */
@@ -1033,7 +1037,7 @@ static int enable_flash_silvermont(struct flashprog_programmer *prog, struct pci
 	physunmap(rcrb, 4);
 
 	/* Handle fwh_idsel parameter */
-	int ret_fwh = enable_flash_ich_fwh_decode(dev, ich_generation);
+	int ret_fwh = enable_flash_ich_fwh_decode(prog, dev, ich_generation);
 	if (ret_fwh == ERROR_FATAL)
 		return ret_fwh;
 
@@ -1176,6 +1180,7 @@ static int enable_flash_vt8237s_spi(struct flashprog_programmer *prog, struct pc
 
 static int enable_flash_cs5530(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
+	struct internal_data *const internal = prog->data;
 	uint8_t reg8;
 
 #define DECODE_CONTROL_REG2		0x5b	/* F0 index 0x5b */
@@ -1212,18 +1217,18 @@ static int enable_flash_cs5530(struct flashprog_programmer *prog, struct pci_dev
 	reg8 = pci_read_byte(dev, CS5530_RESET_CONTROL_REG);
 	if (reg8 & CS5530_ISA_MASTER) {
 		/* We have A0-A23 available. */
-		max_rom_decode.parallel = 16 * 1024 * 1024;
+		internal->max_rom_decode = 16*MiB;
 	} else {
 		reg8 = pci_read_byte(dev, CS5530_USB_SHADOW_REG);
 		if (reg8 & CS5530_ENABLE_SA2320) {
 			/* We have A0-19, A20-A23 available. */
-			max_rom_decode.parallel = 16 * 1024 * 1024;
+			internal->max_rom_decode = 16*MiB;
 		} else if (reg8 & CS5530_ENABLE_SA20) {
 			/* We have A0-19, A20 available. */
-			max_rom_decode.parallel = 2 * 1024 * 1024;
+			internal->max_rom_decode = 2*MiB;
 		} else {
 			/* A20 and above are not active. */
-			max_rom_decode.parallel = 1024 * 1024;
+			internal->max_rom_decode = 1*MiB;
 		}
 	}
 
@@ -1328,23 +1333,26 @@ static int enable_flash_amd_via(struct pci_dev *dev, const char *name, uint8_t d
 
 static int enable_flash_amd_768_8111(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
+	struct internal_data *const internal = prog->data;
 	/* Enable decoding of 0xFFB00000 to 0xFFFFFFFF (5 MB). */
-	max_rom_decode.lpc = 5 * 1024 * 1024;
+	internal->max_rom_decode = 5 * 1024 * 1024;
 	return enable_flash_amd_via(dev, name, 0xC0);
 }
 
 static int enable_flash_vt82c586(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
+	struct internal_data *const internal = prog->data;
 	/* Enable decoding of 0xFFF80000 to 0xFFFFFFFF. (512 kB) */
-	max_rom_decode.parallel = 512 * 1024;
+	internal->max_rom_decode = 512 * 1024;
 	return enable_flash_amd_via(dev, name, 0xC0);
 }
 
 /* Works for VT82C686A/B too. */
 static int enable_flash_vt82c596(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
+	struct internal_data *const internal = prog->data;
 	/* Enable decoding of 0xFFF00000 to 0xFFFFFFFF. (1 MB) */
-	max_rom_decode.parallel = 1024 * 1024;
+	internal->max_rom_decode = 1024 * 1024;
 	return enable_flash_amd_via(dev, name, 0xE0);
 }
 

@@ -508,7 +508,7 @@ static int ch341a_spi_init(struct flashprog_programmer *const prog)
 	if ((config_stream(CH341A_STM_I2C_100K) < 0) || (enable_pins(true) < 0))
 		goto dealloc_transfers;
 
-	return register_spi_master(&spi_master_ch341a_spi, NULL);
+	return register_spi_master(&spi_master_ch341a_spi, 0, NULL);
 
 dealloc_transfers:
 	for (i = 0; i < USB_IN_TRANSFERS; i++) {

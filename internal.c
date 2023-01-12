@@ -180,6 +180,19 @@ static int internal_init(struct flashprog_programmer *const prog)
 	if (ret)
 		return ret;
 
+	struct internal_data *const internal = malloc(sizeof(*internal));
+	if (!internal) {
+		msg_perr("Out of memory!\n");
+		ret = 1;
+		goto internal_init_exit;
+	}
+	if (register_shutdown(shutdown_free, internal)) {
+		ret = 1;
+		goto internal_init_exit;
+	}
+	internal->max_rom_decode = 0;
+	prog->data = internal;
+
 	/* Unconditionally reset global state from previous operation. */
 	laptop_ok = false;
 
@@ -268,7 +281,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 #if defined(__i386__) || defined(__x86_64__)
 	/* Probe unconditionally for ITE Super I/O chips. This enables LPC->SPI translation on IT87* and
 	 * parallel writes on IT8705F. Also, this handles the manual chip select for Gigabyte's DualBIOS. */
-	init_superio_ite();
+	init_superio_ite(prog);
 
 	if (board_flash_enable(prog, board_vendor, board_model, cb_vendor, cb_model)) {
 		msg_perr("Aborting to be safe.\n");
@@ -277,8 +290,10 @@ static int internal_init(struct flashprog_programmer *const prog)
 	}
 #endif
 
-	if (internal_buses_supported & BUS_NONSPI)
-		register_par_master(&par_master_internal, internal_buses_supported, NULL);
+	if (internal_buses_supported & BUS_NONSPI) {
+		register_par_master(&par_master_internal, internal_buses_supported,
+				    internal->max_rom_decode, NULL);
+	}
 
 	/* Report if a non-whitelisted laptop is detected that likely uses a legacy bus. */
 	if (is_laptop && !laptop_ok) {

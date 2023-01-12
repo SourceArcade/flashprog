@@ -117,7 +117,7 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *s
 
 	data->mst = master;
 	data->spi_data = spi_data;
-	register_spi_master(&mst, data);
+	register_spi_master(&mst, 0, data);
 
 	/* Only mess with the bus if we're sure nobody else uses it. */
 	bitbang_spi_request_bus(master, spi_data);

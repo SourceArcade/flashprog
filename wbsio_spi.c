@@ -92,8 +92,7 @@ int wbsio_check_for_spi(struct flashprog_programmer *const prog)
 
 	msg_pdbg("%s: Winbond saved on 4 register bits so max chip size is "
 		 "1024 kB!\n", __func__);
-	max_rom_decode.spi = wbsio_max_mmapped;
-	register_spi_master(&spi_master_wbsio, NULL);
+	register_spi_master(&spi_master_wbsio, wbsio_max_mmapped, NULL);
 
 	return 0;
 }

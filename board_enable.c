@@ -601,8 +601,9 @@ static int w836xx_memw_enable_4e(struct flashprog_programmer *const prog)
  * Suited for all boards with ITE IT8705F.
  * The SIS950 Super I/O probably requires a similar flash write enable.
  */
-int it8705f_write_enable(uint8_t port)
+int it8705f_write_enable(struct flashprog_programmer *const prog, const uint8_t port)
 {
+	struct internal_data *const internal = prog->data;
 	uint8_t tmp;
 	int ret = 0;
 
@@ -620,16 +621,16 @@ int it8705f_write_enable(uint8_t port)
 		msg_pdbg("Enabling IT8705F flash ROM interface write.\n");
 		if (tmp & 0x02) {
 			/* The data sheet contradicts itself about max size. */
-			max_rom_decode.parallel = 1024 * 1024;
+			internal->max_rom_decode = 1024 * 1024;
 			msg_pinfo("IT8705F with very unusual settings.\n"
 				  "Please send the output of \"flashprog -V -p internal\" to\n"
 				  "flashprog@flashprog.org with \"IT8705: your board name: flashprog -V\"\n"
 				  "as the subject to help us finish support for your Super I/O. Thanks.\n");
 			ret = 1;
 		} else if (tmp & 0x08) {
-			max_rom_decode.parallel = 512 * 1024;
+			internal->max_rom_decode = 512 * 1024;
 		} else {
-			max_rom_decode.parallel = 256 * 1024;
+			internal->max_rom_decode = 256 * 1024;
 		}
 		/* Safety checks. The data sheet is unclear here: Segments 1+3
 		 * overlap, no segment seems to cover top - 1MB to top - 512kB.
@@ -672,8 +673,8 @@ int it8705f_write_enable(uint8_t port)
 			 */
 			ret = 1;
 		}
-		msg_pdbg("Maximum IT8705F parallel flash decode size is %u.\n",
-			max_rom_decode.parallel);
+		msg_pdbg("Maximum IT8705F parallel flash decode size is %zu.\n",
+			internal->max_rom_decode);
 		if (ret) {
 			msg_pinfo("Not enabling IT8705F flash write.\n");
 		} else {
@@ -2753,6 +2754,7 @@ void board_handle_before_laptop(struct flashprog_programmer *const prog)
 int board_flash_enable(struct flashprog_programmer *const prog,
 		       const char *vendor, const char *model, const char *cb_vendor, const char *cb_model)
 {
+	struct internal_data *const internal = prog->data;
 	const struct board_match *board = NULL;
 	int ret = 0;
 
@@ -2782,7 +2784,7 @@ int board_flash_enable(struct flashprog_programmer *const prog,
 
 	/* limit the maximum size of the parallel bus */
 	if (board->max_rom_decode_parallel)
-		max_rom_decode.parallel = board->max_rom_decode_parallel * 1024;
+		internal->max_rom_decode = board->max_rom_decode_parallel * 1024;
 
 	if (board->enable != NULL) {
 		msg_pinfo("Enabling full flash access for board \"%s %s\"... ",

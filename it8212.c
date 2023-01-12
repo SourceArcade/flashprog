@@ -64,8 +64,7 @@ static int it8212_init(struct flashprog_programmer *const prog)
 	/* Restore ROM BAR decode state automatically at shutdown. */
 	rpci_write_long(dev, PCI_ROM_ADDRESS, io_base_addr | 0x01);
 
-	max_rom_decode.parallel = IT8212_MEMMAP_SIZE;
-	return register_par_master(&par_master_it8212, BUS_PARALLEL, NULL);
+	return register_par_master(&par_master_it8212, BUS_PARALLEL, IT8212_MEMMAP_SIZE, NULL);
 }
 
 static void it8212_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)

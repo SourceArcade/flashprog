@@ -142,7 +142,7 @@ static int mstarddc_spi_init(struct flashprog_programmer *const prog)
 	}
 
 	// Register programmer
-	register_spi_master(&spi_master_mstarddc, NULL);
+	register_spi_master(&spi_master_mstarddc, 0, NULL);
 out:
 	free(i2c_device);
 	return ret;

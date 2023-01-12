@@ -503,9 +503,9 @@ dummy_init_out:
 	if (dummy_buses_supported & BUS_NONSPI)
 		ret |= register_par_master(&par_master_dummyflasher,
 					   dummy_buses_supported & BUS_NONSPI,
-					   data);
+					   0, data);
 	if (dummy_buses_supported & BUS_SPI)
-		ret |= register_spi_master(&spi_master_dummyflasher, data);
+		ret |= register_spi_master(&spi_master_dummyflasher, 0, data);
 
 	return ret;
 }
