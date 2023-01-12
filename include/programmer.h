@@ -50,9 +50,6 @@ struct programmer_entry {
 
 	int (*init) (void);
 
-	void *(*map_flash_region) (const char *descr, uintptr_t phys_addr, size_t len);
-	void (*unmap_flash_region) (void *virt_addr, size_t len);
-
 	void (*delay) (unsigned int usecs);
 };
 
@@ -414,6 +411,10 @@ struct par_master {
 	uint16_t (*chip_readw) (const struct flashctx *flash, const chipaddr addr);
 	uint32_t (*chip_readl) (const struct flashctx *flash, const chipaddr addr);
 	void (*chip_readn) (const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
+
+	void *(*map_flash) (const char *descr, uintptr_t phys_addr, size_t len);
+	void (*unmap_flash) (void *virt_addr, size_t len);
+
 	int (*shutdown)(void *data);
 	void *data;
 };

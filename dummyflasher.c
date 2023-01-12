@@ -113,6 +113,8 @@ static uint16_t dummy_chip_readw(const struct flashctx *flash, const chipaddr ad
 static uint32_t dummy_chip_readl(const struct flashctx *flash, const chipaddr addr);
 static void dummy_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
 static bool dummy_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode);
+static void *dummy_map(const char *descr, uintptr_t phys_addr, size_t len);
+static void dummy_unmap(void *virt_addr, size_t len);
 
 static const struct spi_master spi_master_dummyflasher = {
 	.features	= SPI_MASTER_4BA,
@@ -134,6 +136,8 @@ static const struct par_master par_master_dummyflasher = {
 	.chip_writew	= dummy_chip_writew,
 	.chip_writel	= dummy_chip_writel,
 	.chip_writen	= dummy_chip_writen,
+	.map_flash	= dummy_map,
+	.unmap_flash	= dummy_unmap,
 };
 
 static int dummy_shutdown(void *data)
@@ -1205,6 +1209,4 @@ const struct programmer_entry programmer_dummy = {
 				/* FIXME */
 	.devs.note		= "Dummy device, does nothing and logs all accesses\n",
 	.init			= dummy_init,
-	.map_flash_region	= dummy_map,
-	.unmap_flash_region	= dummy_unmap,
 };

@@ -61,6 +61,7 @@ srcs = files(
   'jedec.c',
   'layout.c',
   'libflashprog.c',
+  'memory_bus.c',
   'opaque.c',
   'parallel.c',
   'print.c',

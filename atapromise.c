@@ -55,6 +55,7 @@ static const struct dev_entry ata_promise[] = {
 
 static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
 static uint8_t atapromise_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len);
 
 static const struct par_master par_master_atapromise = {
 	.chip_readb	= atapromise_chip_readb,
@@ -65,6 +66,7 @@ static const struct par_master par_master_atapromise = {
 	.chip_writew	= fallback_chip_writew,
 	.chip_writel	= fallback_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.map_flash	= atapromise_map,
 };
 
 static void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len)
@@ -169,5 +171,4 @@ const struct programmer_entry programmer_atapromise = {
 	.type			= PCI,
 	.devs.dev		= ata_promise,
 	.init			= atapromise_init,
-	.map_flash_region	= atapromise_map,
 };

@@ -343,6 +343,7 @@ static uint8_t serprog_chip_readb(const struct flashctx *flash,
 				  const chipaddr addr);
 static void serprog_chip_readn(const struct flashctx *flash, uint8_t *buf,
 			       const chipaddr addr, size_t len);
+static void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len);
 static const struct par_master par_master_serprog = {
 	.chip_readb	= serprog_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -352,6 +353,7 @@ static const struct par_master par_master_serprog = {
 	.chip_writew	= fallback_chip_writew,
 	.chip_writel	= fallback_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.map_flash	= serprog_map,
 };
 
 static enum chipbustype serprog_buses_supported = BUS_NONE;
@@ -1007,6 +1009,5 @@ const struct programmer_entry programmer_serprog = {
 				/* FIXME */
 	.devs.note		= "All programmer devices speaking the serprog protocol\n",
 	.init			= serprog_init,
-	.map_flash_region	= serprog_map,
 	.delay			= serprog_delay,
 };

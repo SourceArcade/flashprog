@@ -56,6 +56,7 @@ static const struct dev_entry ata_via[] = {
 
 static void atavia_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
 static uint8_t atavia_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void *atavia_map(const char *descr, uintptr_t phys_addr, size_t len);
 static const struct par_master lpc_master_atavia = {
 	.chip_readb	= atavia_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -65,6 +66,7 @@ static const struct par_master lpc_master_atavia = {
 	.chip_writew	= fallback_chip_writew,
 	.chip_writel	= fallback_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.map_flash	= atavia_map,
 };
 
 static void *atavia_offset = NULL;
@@ -191,5 +193,4 @@ const struct programmer_entry programmer_atavia = {
 	.type			= PCI,
 	.devs.dev		= ata_via,
 	.init			= atavia_init,
-	.map_flash_region	= atavia_map,
 };

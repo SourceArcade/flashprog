@@ -84,6 +84,8 @@ static const struct par_master par_master_internal = {
 	.chip_writew	= internal_chip_writew,
 	.chip_writel	= internal_chip_writel,
 	.chip_writen	= fallback_chip_writen,
+	.map_flash	= physmap,
+	.unmap_flash	= physunmap,
 };
 
 enum chipbustype internal_buses_supported = BUS_NONE;
@@ -362,6 +364,4 @@ const struct programmer_entry programmer_internal = {
 	.type			= OTHER,
 	.devs.note		= NULL,
 	.init			= internal_init,
-	.map_flash_region	= physmap,
-	.unmap_flash_region	= physunmap,
 };
