@@ -1506,7 +1506,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= AMIC_A49LF040A,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_jedec,
 		.probe_timing	= TIMING_ZERO,	/* routine is wrapper to probe_jedec (pm49fl00x.c) */
@@ -1524,7 +1524,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -3422,7 +3422,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ATMEL_AT49LH002,
 		.total_size	= 256,
 		.page_size	= 0, /* unused */
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,
@@ -3448,7 +3447,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -3460,7 +3459,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ATMEL_AT49LH004,
 		.total_size	= 512,
 		.page_size	= 0, /* unused */
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,
@@ -3486,7 +3484,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -3498,7 +3496,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ATMEL_AT49LH00B4,
 		.total_size	= 512,
 		.page_size	= 0, /* unused */
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,
@@ -3524,7 +3521,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -8458,7 +8455,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= INTEL_82802AB,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine does not use probe_timing (82802ab.c) */
@@ -8473,7 +8469,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -8485,7 +8481,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= INTEL_82802AC,
 		.total_size	= 1024,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine does not use probe_timing (82802ab.c) */
@@ -8500,7 +8495,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -13485,7 +13480,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= PMC_PM49FL002,
 		.total_size	= 256,
 		.page_size	= 16 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_jedec,
 		.probe_timing	= TIMING_ZERO,	/* routine is wrapper to probe_jedec (pm49fl00x.c) */
@@ -13506,7 +13501,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -13518,7 +13513,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= PMC_PM49FL004,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= TIMING_ZERO,
@@ -13539,7 +13534,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -14930,7 +14925,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF002A,
 		.total_size	= 256,
 		.page_size	= 16 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 1,		/* 150 ns */
@@ -14952,7 +14947,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -14964,7 +14959,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF003A,
 		.total_size	= 384,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 1,		/* 150 ns */
@@ -14986,7 +14981,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15001,7 +14996,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF004A,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 1,		/* 150 ns */
@@ -15023,7 +15018,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15035,7 +15030,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF004C,
 		.total_size	= 512,
 		.page_size	= 4 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (sst49lfxxxc.c) */
@@ -15059,7 +15053,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15071,7 +15065,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF008A,
 		.total_size	= 1024,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 1,		/* 150 ns */
@@ -15093,7 +15087,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15105,7 +15099,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF008C,
 		.total_size	= 1024,
 		.page_size	= 4 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (sst49lfxxxc.c) */
@@ -15129,7 +15122,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15141,7 +15134,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF016C,
 		.total_size	= 2048,
 		.page_size	= 4 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (sst49lfxxxc.c) */
@@ -15165,7 +15157,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15273,7 +15265,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF040B,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_EITHER_RESET | FEATURE_REGISTERMAP,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 1,		/* 150ns */
@@ -15294,7 +15286,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15338,7 +15330,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= SST_SST49LF160C,
 		.total_size	= 2048,
 		.page_size	= 4 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (sst49lfxxxc.c) */
@@ -15362,7 +15353,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15625,7 +15616,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FLW040A,
 		.total_size	= 512,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_FIXME,
@@ -15648,7 +15638,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15660,7 +15650,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FLW040B,
 		.total_size	= 512,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_FIXME,
@@ -15683,7 +15672,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15695,7 +15684,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FLW080A,
 		.total_size	= 1024,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_FIXME,
@@ -15719,7 +15707,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15731,7 +15719,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FLW080B,
 		.total_size	= 1024,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_FIXME,
@@ -15755,7 +15742,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15767,7 +15754,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FW002,
 		.total_size	= 256,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (82802ab.c) */
@@ -15791,7 +15777,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15803,7 +15789,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FW016,
 		.total_size	= 2048,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (82802ab.c) */
@@ -15818,7 +15803,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15830,7 +15815,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FW040,
 		.total_size	= 512,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (82802ab.c) */
@@ -15845,7 +15829,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15857,7 +15841,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50FW080,
 		.total_size	= 1024,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_OK_PR,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_IGNORED, /* routine doesn't use probe_timing (82802ab.c) */
@@ -15872,7 +15855,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15884,7 +15867,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50LPW080,
 		.total_size	= 1024,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
@@ -15899,7 +15881,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -15911,7 +15893,6 @@ const struct flashchip flashchips[] = {
 		.model_id	= ST_M50LPW116,
 		.total_size	= 2048,
 		.page_size	= 0,
-		.feature_bits	= FEATURE_REGISTERMAP,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
@@ -15933,7 +15914,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program & erase */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -16403,7 +16384,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= SHARP_LHF00L04,
 		.total_size	= 1024,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_EITHER_RESET | FEATURE_REGISTERMAP,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_82802ab,
 		.probe_timing	= TIMING_ZERO,
@@ -16426,7 +16407,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_82802ab,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -20017,7 +19998,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_W39V040FA,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 10,
@@ -20039,7 +20020,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600},
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -20051,7 +20032,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_W39V040B,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 10,
@@ -20070,7 +20051,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -20082,7 +20063,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_W39V040C,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 10,
@@ -20100,7 +20081,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -20142,7 +20123,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_W39V080FA,
 		.total_size	= 1024,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_jedec,
 		.probe_timing	= 10,
@@ -20161,7 +20142,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 
@@ -20173,7 +20154,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_W39V080FA_DM,
 		.total_size	= 512,
 		.page_size	= 64 * 1024,
-		.feature_bits	= FEATURE_REGISTERMAP | FEATURE_EITHER_RESET,
+		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_jedec,
 		.probe_timing	= 10,
@@ -20191,7 +20172,7 @@ const struct flashchip flashchips[] = {
 		.write		= write_jedec_1,
 		.read		= read_memmapped,
 		.voltage	= {3000, 3600}, /* Also has 12V fast program */
-		.prepare_access	= prepare_memory_access,
+		.prepare_access	= prepare_memory_register_access,
 		.finish_access	= finish_memory_access,
 	},
 

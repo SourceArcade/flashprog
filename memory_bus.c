@@ -57,8 +57,8 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 		return 0;
 
 	const chipsize_t size = flash->chip->total_size * 1024;
-	uintptr_t base = flashbase ? flashbase : (0xffffffff - size + 1);
-	void *addr = programmer_map_flash_region(flash, flash->chip->name, base, size);
+	const uintptr_t base = flashbase ? flashbase : (0xffffffff - size + 1);
+	void *const addr = programmer_map_flash_region(flash, flash->chip->name, base, size);
 	if (addr == ERROR_PTR) {
 		msg_perr("Could not map flash chip %s at 0x%0*" PRIxPTR ".\n",
 			 flash->chip->name, PRIxPTR_WIDTH, base);
@@ -67,22 +67,30 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 	flash->physical_memory = base;
 	flash->virtual_memory = (chipaddr)addr;
 
+	return 0;
+}
+
+int prepare_memory_register_access(struct flashctx *flash, enum preparation_steps prep)
+{
+	if (prepare_memory_access(flash, prep))
+		return 1;
+
 	/*
 	 * FIXME: Special function registers normally live 4 MByte below flash space,
 	 * but it might be somewhere completely different on some chips and programmers,
 	 * or not mappable at all. Ignore these problems for now and always report success.
 	 */
-	if (flash->chip->feature_bits & FEATURE_REGISTERMAP) {
-		base = 0xffffffff - size - 0x400000 + 1;
-		addr = programmer_map_flash_region(flash, "flash chip registers", base, size);
-		if (addr == ERROR_PTR) {
-			msg_pdbg2("Could not map flash chip registers %s at 0x%0*" PRIxPTR ".\n",
-				 flash->chip->name, PRIxPTR_WIDTH, base);
-			return 0;
-		}
-		flash->physical_registers = base;
-		flash->virtual_registers = (chipaddr)addr;
+	const chipsize_t size = flash->chip->total_size * 1024;
+	const uintptr_t base = 0xffffffff - size - 0x400000 + 1;
+	void *const addr = programmer_map_flash_region(flash, "flash chip registers", base, size);
+	if (addr == ERROR_PTR) {
+		msg_pdbg2("Could not map flash chip registers %s at 0x%0*" PRIxPTR ".\n",
+			 flash->chip->name, PRIxPTR_WIDTH, base);
+		return 0;
 	}
+	flash->physical_registers = base;
+	flash->virtual_registers = (chipaddr)addr;
+
 	return 0;
 }
 

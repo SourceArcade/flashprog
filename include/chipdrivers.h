@@ -217,6 +217,7 @@ void decode_range_spi25_2x_block(size_t *start, size_t *len, const struct wp_bit
 
 /* memory_bus.c */
 int prepare_memory_access(struct flashctx *, enum preparation_steps);
+int prepare_memory_register_access(struct flashctx *, enum preparation_steps);
 void finish_memory_access(struct flashctx *);
 
 #endif /* !__CHIPDRIVERS_H__ */
