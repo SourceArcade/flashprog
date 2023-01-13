@@ -617,7 +617,7 @@ init_err_cleanup_exit:
 static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr)
 {
-	struct bp_spi_data *bp_data = flash->mst->spi.data;
+	struct bp_spi_data *bp_data = flash->mst.spi->data;
 	unsigned int i = 0;
 	int ret = 0;
 
@@ -673,7 +673,7 @@ static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned 
 static int buspirate_spi_send_command_v2(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr)
 {
-	struct bp_spi_data *bp_data = flash->mst->spi.data;
+	struct bp_spi_data *bp_data = flash->mst.spi->data;
 	int i = 0, ret = 0;
 
 	if (writecnt > 4096 || readcnt > 4096 || (readcnt + writecnt) > 4096)

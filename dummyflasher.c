@@ -1149,7 +1149,7 @@ static int dummy_spi_send_command(const struct flashctx *flash, unsigned int wri
 				  unsigned char *readarr)
 {
 	unsigned int i;
-	struct emu_data *emu_data = flash->mst->spi.data;
+	struct emu_data *emu_data = flash->mst.spi->data;
 	if (!emu_data) {
 		msg_perr("No data in flash context!\n");
 		return 1;
@@ -1188,14 +1188,14 @@ static int dummy_spi_send_command(const struct flashctx *flash, unsigned int wri
 
 static int dummy_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	const struct emu_data *const data = flash->mst->spi.data;
+	const struct emu_data *const data = flash->mst.spi->data;
 	return spi_write_chunked(flash, buf, start, len, data->spi_write_256_chunksize);
 }
 
 static bool dummy_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 {
 	size_t i;
-	const struct emu_data *emu_data = flash->mst->spi.data;
+	const struct emu_data *emu_data = flash->mst.spi->data;
 	for (i = 0; i < emu_data->spi_blacklist_size; i++) {
 		if (emu_data->spi_blacklist[i] == opcode)
 			return false;

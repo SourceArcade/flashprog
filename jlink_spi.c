@@ -109,7 +109,7 @@ static int jlink_spi_send_command(const struct flashctx *flash, unsigned int wri
 {
 	uint32_t length;
 	uint8_t *buffer;
-	struct jlink_spi_data *jlink_data = flash->mst->spi.data;
+	struct jlink_spi_data *jlink_data = flash->mst.spi->data;
 
 	length = writecnt + readcnt;
 

@@ -28,22 +28,22 @@
 
 int probe_opaque(struct flashctx *flash)
 {
-	return flash->mst->opaque.probe(flash);
+	return flash->mst.opaque->probe(flash);
 }
 
 int read_opaque(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return flash->mst->opaque.read(flash, buf, start, len);
+	return flash->mst.opaque->read(flash, buf, start, len);
 }
 
 int write_opaque(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return flash->mst->opaque.write(flash, buf, start, len);
+	return flash->mst.opaque->write(flash, buf, start, len);
 }
 
 int erase_opaque(struct flashctx *flash, unsigned int blockaddr, unsigned int blocklen)
 {
-	return flash->mst->opaque.erase(flash, blockaddr, blocklen);
+	return flash->mst.opaque->erase(flash, blockaddr, blocklen);
 }
 
 int register_opaque_master(const struct opaque_master *mst, void *data)

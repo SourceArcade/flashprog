@@ -206,7 +206,7 @@ static int linux_spi_send_command(const struct flashctx *flash, unsigned int wri
 				  const unsigned char *txbuf,
 				  unsigned char *rxbuf)
 {
-	struct linux_spi_data *spi_data = flash->mst->spi.data;
+	struct linux_spi_data *spi_data = flash->mst.spi->data;
 	int iocontrol_code;
 	struct spi_ioc_transfer msg[2] = {
 		{
@@ -242,7 +242,7 @@ static int linux_spi_send_command(const struct flashctx *flash, unsigned int wri
 
 static int linux_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
-	struct linux_spi_data *spi_data = flash->mst->spi.data;
+	struct linux_spi_data *spi_data = flash->mst.spi->data;
 	/* Older kernels use a single buffer for combined input and output
 	   data. So account for longest possible command + address, too. */
 	return spi_read_chunked(flash, buf, start, len, spi_data->max_kernel_buf_size - 5);
@@ -250,7 +250,7 @@ static int linux_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int sta
 
 static int linux_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	struct linux_spi_data *spi_data = flash->mst->spi.data;
+	struct linux_spi_data *spi_data = flash->mst.spi->data;
 	/* 5 bytes must be reserved for longest possible command + address. */
 	return spi_write_chunked(flash, buf, start, len, spi_data->max_kernel_buf_size - 5);
 }

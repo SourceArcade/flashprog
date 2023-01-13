@@ -24,8 +24,8 @@ static void *programmer_map_flash_region(const struct flashctx *flash, const cha
 					 uintptr_t phys_addr, size_t len)
 {
 	void *ret;
-	if (flash->mst->par.map_flash)
-		ret = flash->mst->par.map_flash(descr, phys_addr, len);
+	if (flash->mst.par->map_flash)
+		ret = flash->mst.par->map_flash(descr, phys_addr, len);
 	else
 		ret = fallback_map(descr, phys_addr, len);
 	msg_gspew("%s: mapping %s from 0x%0*" PRIxPTR " to 0x%0*" PRIxPTR "\n",
@@ -35,8 +35,8 @@ static void *programmer_map_flash_region(const struct flashctx *flash, const cha
 
 static void programmer_unmap_flash_region(const struct flashctx *flash, void *virt_addr, size_t len)
 {
-	if (flash->mst->par.unmap_flash)
-		flash->mst->par.unmap_flash(virt_addr, len);
+	if (flash->mst.par->unmap_flash)
+		flash->mst.par->unmap_flash(virt_addr, len);
 	else
 		fallback_unmap(virt_addr, len);
 	msg_gspew("%s: unmapped 0x%0*" PRIxPTR "\n", __func__, PRIxPTR_WIDTH, (uintptr_t)virt_addr);

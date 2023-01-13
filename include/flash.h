@@ -350,7 +350,11 @@ struct flashprog_flashctx {
 	/* Some flash devices have an additional register space; semantics are like above. */
 	uintptr_t physical_registers;
 	chipaddr virtual_registers;
-	struct registered_master *mst;
+	union {
+		struct par_master *par;
+		struct spi_master *spi;
+		struct opaque_master *opaque;
+	} mst;
 	const struct flashprog_layout *layout;
 	struct flashprog_layout *default_layout;
 	struct {
@@ -432,6 +436,7 @@ int map_flash(struct flashctx *flash);
 void unmap_flash(struct flashctx *flash);
 int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len);
 int erase_flash(struct flashctx *flash);
+struct registered_master;
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
 void emergency_help_message(void);

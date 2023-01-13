@@ -574,7 +574,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 			return -1;
 		}
 		*flash->chip = *chip;
-		flash->mst = mst;
+		flash->mst.par = &mst->par; /* both `mst` are unions, so we need only one pointer */
 
 		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_PROBE))
 			goto free_chip;
@@ -768,7 +768,7 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 		const uint8_t *opcode = spi_get_opcode_from_erasefn(eraser.block_erase, &native_4ba);
 		for (i = 0; opcode[i]; i++) {
 			if ((native_4ba && !spi_master_4ba(flash)) ||
-			    !flash->mst->spi.probe_opcode(flash, opcode[i])) {
+			    !flash->mst.spi->probe_opcode(flash, opcode[i])) {
 				if (log)
 					msg_cdbg("block erase function and layout found "
 						 "but SPI master doesn't support the function. ");

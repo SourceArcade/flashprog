@@ -193,14 +193,14 @@ static int compare_internal_fifo_pointer(uint8_t want)
 /* Check the number of bytes to be transmitted and extract opcode. */
 static int check_readwritecnt(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt)
 {
-	unsigned int maxwritecnt = flash->mst->spi.max_data_write + 3;
+	unsigned int maxwritecnt = flash->mst.spi->max_data_write + 3;
 	if (writecnt > maxwritecnt) {
 		msg_pinfo("%s: SPI controller can not send %d bytes, it is limited to %d bytes\n",
 			  __func__, writecnt, maxwritecnt);
 		return SPI_INVALID_LENGTH;
 	}
 
-	unsigned int maxreadcnt = flash->mst->spi.max_data_read;
+	unsigned int maxreadcnt = flash->mst.spi->max_data_read;
 	if (readcnt > maxreadcnt) {
 		msg_pinfo("%s: SPI controller can not receive %d bytes, it is limited to %d bytes\n",
 			  __func__, readcnt, maxreadcnt);

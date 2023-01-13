@@ -498,11 +498,11 @@ int sp_get_pin(enum SP_PIN pin);
 /* spi_master feature checks */
 static inline bool spi_master_4ba(const struct flashctx *const flash)
 {
-	return flash->mst->spi.features & SPI_MASTER_4BA;
+	return flash->mst.spi->features & SPI_MASTER_4BA;
 }
 static inline bool spi_master_no_4ba_modes(const struct flashctx *const flash)
 {
-	return flash->mst->spi.features & SPI_MASTER_NO_4BA_MODES;
+	return flash->mst.spi->features & SPI_MASTER_NO_4BA_MODES;
 }
 
 /* usbdev.c */

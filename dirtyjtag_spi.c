@@ -174,7 +174,7 @@ static int dirtyjtag_djtag1_spi_send_command(const struct flashctx *flash,
 					     unsigned int writecnt, unsigned int readcnt,
 					     const unsigned char *writearr, unsigned char *readarr)
 {
-	struct dirtyjtag_spi_data *context = flash->mst->spi.data;
+	struct dirtyjtag_spi_data *context = flash->mst.spi->data;
 	const size_t max_xfer_size = 30; // max transfer size in DJTAG1
 	size_t len = writecnt + readcnt;
 	size_t num_xfer = (len + max_xfer_size - 1 ) / max_xfer_size; // ceil(len/max_xfer_size)
@@ -224,7 +224,7 @@ static int dirtyjtag_djtag2_spi_send_command(const struct flashctx *flash,
 					     unsigned int writecnt, unsigned int readcnt,
 					     const unsigned char *writearr, unsigned char *readarr)
 {
-	struct dirtyjtag_spi_data *const context = flash->mst->spi.data;
+	struct dirtyjtag_spi_data *const context = flash->mst.spi->data;
 	const size_t max_xfer_size = 62; /* max transfer size in DJTAG2 */
 	uint8_t transfer_buffer[2 + max_xfer_size]; /* 1B command + 1B len + payload */
 	size_t i;

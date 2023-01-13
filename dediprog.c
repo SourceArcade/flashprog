@@ -371,7 +371,7 @@ static int prepare_rw_cmd(
 		struct flashctx *const flash, uint8_t *data_packet, unsigned int count,
 		uint8_t dedi_spi_cmd, unsigned int *value, unsigned int *idx, unsigned int start, int is_read)
 {
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	if (count > MAX_BLOCK_COUNT) {
 		msg_perr("%s: Unsupported transfer length of %u blocks!\n"
@@ -444,7 +444,7 @@ static int prepare_rw_cmd(
 static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	int err = 1;
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	/* chunksize must be 512, other sizes will NOT work at all. */
 	const unsigned int chunksize = 512;
@@ -550,7 +550,7 @@ static int dediprog_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int 
 	const unsigned int chunksize = 0x200;
 	unsigned int residue = start % chunksize ? min(len, chunksize - start % chunksize) : 0;
 	unsigned int bulklen;
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	dediprog_set_leds(LED_BUSY, dp_data);
 
@@ -600,7 +600,7 @@ static int dediprog_spi_bulk_write(struct flashctx *flash, const uint8_t *buf, u
 	 * space in a USB bulk transfer must be filled with 0xff padding.
 	 */
 	const unsigned int count = len / chunksize;
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	/*
 	 * We should change this check to
@@ -674,7 +674,7 @@ static int dediprog_spi_write(struct flashctx *flash, const uint8_t *buf,
 	const unsigned int chunksize = flash->chip->page_size;
 	unsigned int residue = start % chunksize ? chunksize - start % chunksize : 0;
 	unsigned int bulklen;
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	dediprog_set_leds(LED_BUSY, dp_data);
 
@@ -754,14 +754,14 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 				     unsigned char *readarr)
 {
 	int ret;
-	const struct dediprog_data *dp_data = flash->mst->spi.data;
+	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	msg_pspew("%s, writecnt=%i, readcnt=%i\n", __func__, writecnt, readcnt);
-	if (writecnt > flash->mst->spi.max_data_write) {
+	if (writecnt > flash->mst.spi->max_data_write) {
 		msg_perr("Invalid writecnt=%i, aborting.\n", writecnt);
 		return 1;
 	}
-	if (readcnt > flash->mst->spi.max_data_read) {
+	if (readcnt > flash->mst.spi->max_data_read) {
 		msg_perr("Invalid readcnt=%i, aborting.\n", readcnt);
 		return 1;
 	}

@@ -215,7 +215,7 @@ static bool ft2232_spi_command_fits(const struct spi_command *cmd, size_t buffer
 /* Returns 0 upon success, a negative number upon errors. */
 static int ft2232_spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds)
 {
-	struct ft2232_data *spi_data = flash->mst->spi.data;
+	struct ft2232_data *spi_data = flash->mst.spi->data;
 	struct ftdi_context *ftdic = &spi_data->ftdi_context;
 	static unsigned char buf[FTDI_HW_BUFFER_SIZE];
 	size_t i = 0;

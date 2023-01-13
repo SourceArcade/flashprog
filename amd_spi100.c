@@ -96,7 +96,7 @@ static int spi100_send_command(const struct flashctx *const flash,
 			       const unsigned int writecnt, const unsigned int readcnt,
 			       const unsigned char *const writearr, unsigned char *const readarr)
 {
-	const struct spi100 *const spi100 = flash->mst->spi.data;
+	const struct spi100 *const spi100 = flash->mst.spi->data;
 
 	int ret = spi100_check_readwritecnt(writecnt, readcnt);
 	if (ret)
@@ -139,7 +139,7 @@ static int spi100_send_command(const struct flashctx *const flash,
 
 static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
-	const struct spi100 *const spi100 = flash->mst->spi.data;
+	const struct spi100 *const spi100 = flash->mst.spi->data;
 	const chipsize_t chip_size = flashprog_flash_getsize(flash);
 
 	/* Don't consider memory mapping at all

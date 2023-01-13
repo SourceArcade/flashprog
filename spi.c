@@ -30,13 +30,13 @@ int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
 		     unsigned int readcnt, const unsigned char *writearr,
 		     unsigned char *readarr)
 {
-	return flash->mst->spi.command(flash, writecnt, readcnt, writearr,
+	return flash->mst.spi->command(flash, writecnt, readcnt, writearr,
 				       readarr);
 }
 
 int spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds)
 {
-	return flash->mst->spi.multicommand(flash, cmds);
+	return flash->mst.spi->multicommand(flash, cmds);
 }
 
 int default_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
@@ -74,7 +74,7 @@ int default_spi_send_multicommand(const struct flashctx *flash,
 int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 		     unsigned int len)
 {
-	unsigned int max_data = flash->mst->spi.max_data_read;
+	unsigned int max_data = flash->mst.spi->max_data_read;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
 		msg_perr("%s called, but SPI read chunk size not defined on this hardware.\n"
 			 "Please report a bug at flashprog@flashprog.org\n", __func__);
@@ -85,7 +85,7 @@ int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 
 int default_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	unsigned int max_data = flash->mst->spi.max_data_write;
+	unsigned int max_data = flash->mst.spi->max_data_write;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
 		msg_perr("%s called, but SPI write chunk size not defined on this hardware.\n"
 			 "Please report a bug at flashprog@flashprog.org\n", __func__);
@@ -105,7 +105,7 @@ int spi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 		   o multi-die 4-byte-addressing chips,
 		   o dediprog that has a protocol limit of 32MiB-512B. */
 		to_read = min(ALIGN_DOWN(start + 16*MiB, 16*MiB) - start, len);
-		ret = flash->mst->spi.read(flash, buf, start, to_read);
+		ret = flash->mst.spi->read(flash, buf, start, to_read);
 		if (ret)
 			return ret;
 	}
@@ -121,13 +121,13 @@ int spi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 /* real chunksize is up to 256, logical chunksize is 256 */
 int spi_chip_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return flash->mst->spi.write_256(flash, buf, start, len);
+	return flash->mst.spi->write_256(flash, buf, start, len);
 }
 
 int spi_aai_write(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	if (flash->mst->spi.write_aai)
-		return flash->mst->spi.write_aai(flash, buf, start, len);
+	if (flash->mst.spi->write_aai)
+		return flash->mst.spi->write_aai(flash, buf, start, len);
 	return default_spi_write_aai(flash, buf, start, len);
 }
 

@@ -175,7 +175,7 @@ static int get_mtd_info(const char *sysfs_path, struct linux_mtd_data *data)
 
 static int linux_mtd_probe(struct flashctx *flash)
 {
-	struct linux_mtd_data *data = flash->mst->opaque.data;
+	struct linux_mtd_data *data = flash->mst.opaque->data;
 
 	if (data->no_erase)
 		flash->chip->feature_bits |= FEATURE_NO_ERASE;
@@ -190,7 +190,7 @@ static int linux_mtd_probe(struct flashctx *flash)
 static int linux_mtd_read(struct flashctx *flash, uint8_t *buf,
 			  unsigned int start, unsigned int len)
 {
-	struct linux_mtd_data *data = flash->mst->opaque.data;
+	struct linux_mtd_data *data = flash->mst.opaque->data;
 	unsigned int eb_size = flash->chip->block_erasers[0].eraseblocks[0].size;
 	unsigned int i;
 
@@ -224,7 +224,7 @@ static int linux_mtd_read(struct flashctx *flash, uint8_t *buf,
 static int linux_mtd_write(struct flashctx *flash, const uint8_t *buf,
 				unsigned int start, unsigned int len)
 {
-	struct linux_mtd_data *data = flash->mst->opaque.data;
+	struct linux_mtd_data *data = flash->mst.opaque->data;
 	unsigned int chunksize = flash->chip->block_erasers[0].eraseblocks[0].size;
 	unsigned int i;
 
@@ -265,7 +265,7 @@ static int linux_mtd_write(struct flashctx *flash, const uint8_t *buf,
 static int linux_mtd_erase(struct flashctx *flash,
 			unsigned int start, unsigned int len)
 {
-	struct linux_mtd_data *data = flash->mst->opaque.data;
+	struct linux_mtd_data *data = flash->mst.opaque->data;
 	uint32_t u;
 
 	if (data->no_erase) {

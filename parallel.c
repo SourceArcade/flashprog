@@ -24,43 +24,43 @@
 
 void chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
 {
-	flash->mst->par.chip_writeb(flash, val, addr);
+	flash->mst.par->chip_writeb(flash, val, addr);
 }
 
 void chip_writew(const struct flashctx *flash, uint16_t val, chipaddr addr)
 {
-	flash->mst->par.chip_writew(flash, val, addr);
+	flash->mst.par->chip_writew(flash, val, addr);
 }
 
 void chip_writel(const struct flashctx *flash, uint32_t val, chipaddr addr)
 {
-	flash->mst->par.chip_writel(flash, val, addr);
+	flash->mst.par->chip_writel(flash, val, addr);
 }
 
 void chip_writen(const struct flashctx *flash, const uint8_t *buf, chipaddr addr, size_t len)
 {
-	flash->mst->par.chip_writen(flash, buf, addr, len);
+	flash->mst.par->chip_writen(flash, buf, addr, len);
 }
 
 uint8_t chip_readb(const struct flashctx *flash, const chipaddr addr)
 {
-	return flash->mst->par.chip_readb(flash, addr);
+	return flash->mst.par->chip_readb(flash, addr);
 }
 
 uint16_t chip_readw(const struct flashctx *flash, const chipaddr addr)
 {
-	return flash->mst->par.chip_readw(flash, addr);
+	return flash->mst.par->chip_readw(flash, addr);
 }
 
 uint32_t chip_readl(const struct flashctx *flash, const chipaddr addr)
 {
-	return flash->mst->par.chip_readl(flash, addr);
+	return flash->mst.par->chip_readl(flash, addr);
 }
 
 void chip_readn(const struct flashctx *flash, uint8_t *buf, chipaddr addr,
 		size_t len)
 {
-	flash->mst->par.chip_readn(flash, buf, addr, len);
+	flash->mst.par->chip_readn(flash, buf, addr, len);
 }
 
 int register_par_master(const struct par_master *mst, const enum chipbustype buses,

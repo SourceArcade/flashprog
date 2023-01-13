@@ -182,7 +182,7 @@ static int ch347_read(struct ch347_spi_data *ch347_data, unsigned int readcnt, u
 static int ch347_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
 		unsigned int readcnt, const unsigned char *writearr, unsigned char *readarr)
 {
-	struct ch347_spi_data *ch347_data = flash->mst->spi.data;
+	struct ch347_spi_data *ch347_data = flash->mst.spi->data;
 	int ret = 0;
 
 	ch347_cs_control(ch347_data, CH347_CS_ASSERT | CH347_CS_CHANGE, CH347_CS_IGNORE);

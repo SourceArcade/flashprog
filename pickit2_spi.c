@@ -202,7 +202,7 @@ static int pickit2_spi_send_command(const struct flashctx *flash, unsigned int w
 				     const unsigned char *writearr, unsigned char *readarr)
 {
 	const unsigned int total_packetsize = writecnt + readcnt + 20;
-	struct pickit2_spi_data *pickit2_data = flash->mst->spi.data;
+	struct pickit2_spi_data *pickit2_data = flash->mst.spi->data;
 
 	/* Maximum number of bytes per transaction (including command overhead) is 64. Lets play it safe
 	 * and always assume the worst case scenario of 20 bytes command overhead.
