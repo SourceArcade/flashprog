@@ -859,7 +859,8 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 
 	if (flash->chip->bustype == BUS_SPI) {
 		const uint8_t *opcode = spi_get_opcode_from_erasefn(eraser.block_erase);
-		for (int i = 0; opcode[i]; i++) {
+		int i;
+		for (i = 0; opcode[i]; i++) {
 			if (!flash->mst->spi.probe_opcode(flash, opcode[i])) {
 				if (log)
 					msg_cdbg("block erase function and layout found "
@@ -986,9 +987,11 @@ static void init_eraseblock(struct erase_layout *layout, size_t idx, size_t bloc
  */
 static void free_erase_layout(struct erase_layout *layout, unsigned int erasefn_count)
 {
+	size_t i;
+
 	if (!layout)
 		return;
-	for (size_t i = 0; i < erasefn_count; i++) {
+	for (i = 0; i < erasefn_count; i++) {
 		free(layout[i].layout_list);
 	}
 	free(layout);
@@ -1023,8 +1026,8 @@ int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e
 		return -1;
 	}
 
-	size_t layout_idx = 0;
-	for (size_t eraser_idx = 0; eraser_idx < NUM_ERASEFUNCTIONS; eraser_idx++) {
+	size_t layout_idx = 0, eraser_idx;
+	for (eraser_idx = 0; eraser_idx < NUM_ERASEFUNCTIONS; eraser_idx++) {
 		if (check_block_eraser(flashctx, eraser_idx, 0))
 			continue;
 
@@ -1044,10 +1047,12 @@ int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e
 		size_t block_num = 0;
 		chipoff_t start_addr = 0;
 
-		for (int i = 0; block_num < block_count;  i++) {
+		int i;
+		for (i = 0; block_num < block_count;  i++) {
 			const struct eraseblock *block = &chip->block_erasers[eraser_idx].eraseblocks[i];
 
-			for (size_t num = 0; num < block->count; num++) {
+			size_t num;
+			for (num = 0; num < block->count; num++) {
 				chipoff_t end_addr = start_addr + block->size - 1;
 				init_eraseblock(layout, layout_idx, block_num,
 						start_addr, end_addr, &sub_block_index);
@@ -1096,7 +1101,8 @@ void select_erase_functions(struct flashctx *flashctx, const struct erase_layout
 		const int sub_block_start = ll->first_sub_block_index;
 		const int sub_block_end = ll->last_sub_block_index;
 
-		for (int j = sub_block_start; j <= sub_block_end; j++) {
+		int j;
+		for (j = sub_block_start; j <= sub_block_end; j++) {
 			select_erase_functions(flashctx, layout, findex - 1, j, curcontents, newcontents,
 						rstart, rend);
 			if (layout[findex - 1].layout_list[j].selected)
@@ -1106,7 +1112,7 @@ void select_erase_functions(struct flashctx *flashctx, const struct erase_layout
 		const int total_blocks = sub_block_end - sub_block_start + 1;
 		if (count && count > total_blocks/2) {
 			if (ll->start_addr >= rstart && ll->end_addr <= rend) {
-				for (int j = sub_block_start; j <= sub_block_end; j++)
+				for (j = sub_block_start; j <= sub_block_end; j++)
 					layout[findex - 1].layout_list[j].selected = false;
 				ll->selected = true;
 			}
