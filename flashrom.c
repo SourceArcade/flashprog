@@ -942,16 +942,12 @@ static bool explicit_erase(const struct walk_info *const info)
 	return !info->newcontents;
 }
 
-static size_t calculate_block_count(const struct flashchip *chip, size_t eraser_idx)
+static size_t calculate_block_count(const struct block_eraser *const eraser)
 {
-	size_t block_count = 0;
+	size_t block_count = 0, i;
 
-	chipoff_t addr = 0;
-	for (size_t i = 0; addr < chip->total_size * 1024; i++) {
-		const struct eraseblock *block = &chip->block_erasers[eraser_idx].eraseblocks[i];
-		block_count += block->count;
-		addr += block->size * block->count;
-	}
+	for (i = 0; i < ARRAY_SIZE(eraser->eraseblocks); ++i)
+		block_count += eraser->eraseblocks[i].count;
 
 	return block_count;
 }
@@ -1031,7 +1027,7 @@ static int create_erase_layout(struct flashctx *const flashctx, struct erase_lay
 			continue;
 
 		layout[layout_idx].eraser = &chip->block_erasers[eraser_idx];
-		const size_t block_count = calculate_block_count(flashctx->chip, eraser_idx);
+		const size_t block_count = calculate_block_count(&chip->block_erasers[eraser_idx]);
 		size_t sub_block_index = 0;
 
 		layout[layout_idx].block_count = block_count;
