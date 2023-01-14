@@ -963,13 +963,12 @@ static void init_eraseblock(struct erase_layout *layout, size_t idx, size_t bloc
 
 	if (!idx)
 		return;
+	const struct erase_layout *const sub_layout = &layout[idx - 1];
 
 	edata->first_sub_block_index = *sub_block_index;
-	struct eraseblock_data *subedata = &layout[idx - 1].layout_list[*sub_block_index];
-	while (subedata->start_addr >= start_addr && subedata->end_addr <= end_addr &&
-		*sub_block_index < layout[idx-1].block_count) {
-		(*sub_block_index)++;
-		subedata++;
+	for (; *sub_block_index < sub_layout->block_count; ++*sub_block_index) {
+		if (sub_layout->layout_list[*sub_block_index].end_addr > end_addr)
+			break;
 	}
 	edata->last_sub_block_index = *sub_block_index - 1;
 }
