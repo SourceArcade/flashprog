@@ -1097,82 +1097,36 @@ static int erase_by_layout(struct flashctx *const flashctx)
 	return walk_by_layout(flashctx, &info, &erase_block);
 }
 
-static int read_erase_write_block(struct flashctx *const flashctx,
-				  const struct walk_info *const info, const erasefn_t erasefn)
+static int write_block(struct flashctx *const flashctx,
+		       const struct walk_info *const info, const erasefn_t erasefn)
 {
-	const chipsize_t erase_len = info->erase_end + 1 - info->erase_start;
-	const bool region_unaligned = info->region_start > info->erase_start ||
-				      info->erase_end > info->region_end;
-	const uint8_t *newcontents = NULL;
-	int ret = 2;
-
-	/*
-	 * If the region is not erase-block aligned, merge current flash con-
-	 * tents into `info->curcontents` and a new buffer `newc`. The former
-	 * is necessary since we have no guarantee that the full erase block
-	 * was already read into `info->curcontents`. For the latter a new
-	 * buffer is used since `info->newcontents` might contain data for
-	 * other unaligned regions that touch this erase block too.
-	 */
-	if (region_unaligned) {
-		msg_cdbg("R");
-		uint8_t *const newc = malloc(erase_len);
-		if (!newc) {
-			msg_cerr("Out of memory!\n");
-			return 1;
-		}
-		memcpy(newc, info->newcontents + info->erase_start, erase_len);
-
-		/* Merge data preceding the current region. */
-		if (info->region_start > info->erase_start) {
-			const chipoff_t start	= info->erase_start;
-			const chipsize_t len	= info->region_start - info->erase_start;
-			if (flashctx->chip->read(flashctx, newc, start, len)) {
-				msg_cerr("Can't read! Aborting.\n");
-				goto _free_ret;
-			}
-			memcpy(info->curcontents + start, newc, len);
-		}
-		/* Merge data following the current region. */
-		if (info->erase_end > info->region_end) {
-			const chipoff_t start     = info->region_end + 1;
-			const chipoff_t rel_start = start - info->erase_start; /* within this erase block */
-			const chipsize_t len      = info->erase_end - info->region_end;
-			if (flashctx->chip->read(flashctx, newc + rel_start, start, len)) {
-				msg_cerr("Can't read! Aborting.\n");
-				goto _free_ret;
-			}
-			memcpy(info->curcontents + start, newc + rel_start, len);
-		}
-
-		newcontents = newc;
-	} else {
-		newcontents = info->newcontents + info->erase_start;
-	}
-
-	ret = 1;
-	bool skipped = true;
-	uint8_t *const curcontents = info->curcontents + info->erase_start;
+	const chipoff_t write_start = MAX(info->region_start, info->erase_start);
+	const chipoff_t write_end = MIN(info->region_end, info->erase_end);
+	const chipsize_t write_len = write_end + 1 - write_start;
+	const uint8_t *const newcontents = info->newcontents + write_start;
+	uint8_t *const curcontents = info->curcontents + write_start;
 	const uint8_t erased_value = ERASED_VALUE(flashctx);
+	bool skipped = true;
+
 	if (!(flashctx->chip->feature_bits & FEATURE_NO_ERASE) &&
-			need_erase(curcontents, newcontents, erase_len, flashctx->chip->gran, erased_value)) {
+	    need_erase(curcontents, newcontents, write_len, flashctx->chip->gran, erased_value)) {
 		if (erase_block(flashctx, info, erasefn))
-			goto _free_ret;
+			return 1;
 		/* Erase was successful. Adjust curcontents. */
-		memset(curcontents, erased_value, erase_len);
+		memset(curcontents, erased_value, write_len);
 		skipped = false;
 	}
 
 	unsigned int starthere = 0, lenhere = 0, writecount = 0;
 	/* get_next_write() sets starthere to a new value after the call. */
 	while ((lenhere = get_next_write(curcontents + starthere, newcontents + starthere,
-					 erase_len - starthere, &starthere, flashctx->chip->gran))) {
+					 write_len - starthere, &starthere, flashctx->chip->gran))) {
 		if (!writecount++)
 			msg_cdbg("W");
 		/* Needs the partial write function signature. */
 		if (flashctx->chip->write(flashctx, newcontents + starthere,
-					  info->erase_start + starthere, lenhere))
-			goto _free_ret;
+					  write_start + starthere, lenhere))
+			return 1;
 		starthere += lenhere;
 		skipped = false;
 	}
@@ -1183,13 +1137,8 @@ static int read_erase_write_block(struct flashctx *const flashctx,
 
 	/* Update curcontents, other regions with overlapping erase blocks
 	   might rely on this. */
-	memcpy(curcontents, newcontents, erase_len);
-	ret = 0;
-
-_free_ret:
-	if (region_unaligned)
-		free((void *)newcontents);
-	return ret;
+	memcpy(curcontents, newcontents, write_len);
+	return 0;
 }
 
 /**
@@ -1210,7 +1159,7 @@ static int write_by_layout(struct flashctx *const flashctx,
 	struct walk_info info;
 	info.curcontents = curcontents;
 	info.newcontents = newcontents;
-	return walk_by_layout(flashctx, &info, read_erase_write_block);
+	return walk_by_layout(flashctx, &info, write_block);
 }
 
 /**
