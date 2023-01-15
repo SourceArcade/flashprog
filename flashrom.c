@@ -978,37 +978,24 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 		info->region_end   = entry->end;
 
 		size_t j;
-		int error = 1; /* retry as long as it's 1 */
 		for (j = 0; j < NUM_ERASEFUNCTIONS; ++j) {
 			if (j != 0)
 				msg_cinfo("Looking for another erase function.\n");
 			msg_cdbg("Trying erase function %zi... ", j);
-			if (check_block_eraser(flashctx, j, 1))
-				continue;
-
-			error = walk_eraseblocks(flashctx, info, j, per_blockfn);
-			if (error != 1)
+			if (!check_block_eraser(flashctx, j, 1))
 				break;
-
-			if (info->curcontents) {
-				msg_cinfo("Reading current flash chip contents... ");
-				if (read_by_layout(flashctx, info->curcontents)) {
-					/* Now we are truly screwed. Read failed as well. */
-					msg_cerr("Can't read anymore! Aborting.\n");
-					/* We have no idea about the flash chip contents, so
-					   retrying with another erase function is pointless. */
-					error = 2;
-					break;
-				}
-				msg_cinfo("done. ");
-			}
 		}
-		if (error == 1)
-			msg_cinfo("No usable erase functions left.\n");
-		if (error) {
+
+		if (j == NUM_ERASEFUNCTIONS) {
+			msg_cinfo("No usable erase function found.\n");
+			return 1;
+		}
+
+		if (walk_eraseblocks(flashctx, info, j, per_blockfn)) {
 			msg_cerr("FAILED!\n");
 			return 1;
 		}
+
 	}
 	if (all_skipped)
 		msg_cinfo("\nWarning: Chip content is identical to the requested image.\n");
@@ -1023,7 +1010,7 @@ static int erase_block(struct flashctx *const flashctx,
 	const bool region_unaligned = info->region_start > info->erase_start ||
 				      info->erase_end > info->region_end;
 	uint8_t *backup_contents = NULL, *erased_contents = NULL;
-	int ret = 2;
+	int ret = 1;
 
 	/*
 	 * If the region is not erase-block aligned, merge current flash con-
@@ -1034,7 +1021,6 @@ static int erase_block(struct flashctx *const flashctx,
 		erased_contents = malloc(erase_len);
 		if (!backup_contents || !erased_contents) {
 			msg_cerr("Out of memory!\n");
-			ret = 1;
 			goto _free_ret;
 		}
 		memset(backup_contents, ERASED_VALUE(flashctx), erase_len);
@@ -1062,7 +1048,6 @@ static int erase_block(struct flashctx *const flashctx,
 		}
 	}
 
-	ret = 1;
 	all_skipped = false;
 
 	msg_cdbg("E");
