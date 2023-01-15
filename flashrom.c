@@ -506,9 +506,8 @@ static int need_erase(const uint8_t *have, const uint8_t *want, unsigned int len
  * in relation to the max write length of the programmer and the max write
  * length of the chip.
  */
-static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, unsigned int len,
-			  unsigned int *first_start,
-			  enum write_granularity gran)
+static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, chipsize_t len,
+				   chipoff_t *first_start, enum write_granularity gran)
 {
 	bool need_write = false;
 	unsigned int rel_start = 0, first_len = 0;
@@ -899,7 +898,6 @@ static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer
 	return 0;
 }
 
-typedef int (*erasefn_t)(struct flashctx *, unsigned int addr, unsigned int len);
 /**
  * @private
  *
@@ -921,6 +919,30 @@ struct walk_info {
 	chipoff_t erase_start;
 	chipoff_t erase_end;
 };
+
+static int write_range(struct flashctx *const flashctx, const chipoff_t flash_offset,
+		       const uint8_t *const curcontents, const uint8_t *const newcontents,
+		       const chipsize_t len, bool *const skipped)
+{
+	unsigned int writecount = 0;
+	chipoff_t starthere = 0;
+	chipsize_t lenhere = 0;
+
+	while ((lenhere = get_next_write(curcontents + starthere, newcontents + starthere,
+					 len - starthere, &starthere, flashctx->chip->gran))) {
+		if (!writecount++)
+			msg_cdbg("W");
+		if (flashctx->chip->write(flashctx, newcontents + starthere,
+					  flash_offset + starthere, lenhere))
+			return 1;
+		starthere += lenhere;
+		if (skipped)
+			*skipped = false;
+	}
+	return 0;
+}
+
+typedef int (*erasefn_t)(struct flashctx *, unsigned int addr, unsigned int len);
 /* returns 0 on success, 1 to retry with another erase function, 2 for immediate abort */
 typedef int (*per_blockfn_t)(struct flashctx *, const struct walk_info *, erasefn_t);
 
@@ -1059,18 +1081,8 @@ static int erase_block(struct flashctx *const flashctx,
 	}
 
 	if (region_unaligned) {
-		unsigned int starthere = 0, lenhere = 0, writecount = 0;
-		/* get_next_write() sets starthere to a new value after the call. */
-		while ((lenhere = get_next_write(erased_contents + starthere, backup_contents + starthere,
-						 erase_len - starthere, &starthere, flashctx->chip->gran))) {
-			if (!writecount++)
-				msg_cdbg("W");
-			/* Needs the partial write function signature. */
-			if (flashctx->chip->write(flashctx, backup_contents + starthere,
-						  info->erase_start + starthere, lenhere))
-				goto _free_ret;
-			starthere += lenhere;
-		}
+		if (write_range(flashctx, info->erase_start, erased_contents, backup_contents, erase_len, NULL))
+			goto _free_ret;
 	}
 
 	ret = 0;
@@ -1117,19 +1129,8 @@ static int write_block(struct flashctx *const flashctx,
 		skipped = false;
 	}
 
-	unsigned int starthere = 0, lenhere = 0, writecount = 0;
-	/* get_next_write() sets starthere to a new value after the call. */
-	while ((lenhere = get_next_write(curcontents + starthere, newcontents + starthere,
-					 write_len - starthere, &starthere, flashctx->chip->gran))) {
-		if (!writecount++)
-			msg_cdbg("W");
-		/* Needs the partial write function signature. */
-		if (flashctx->chip->write(flashctx, newcontents + starthere,
-					  write_start + starthere, lenhere))
-			return 1;
-		starthere += lenhere;
-		skipped = false;
-	}
+	if (write_range(flashctx, write_start, curcontents, newcontents, write_len, &skipped))
+		return 1;
 	if (skipped)
 		msg_cdbg("S");
 	else
