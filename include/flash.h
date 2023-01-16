@@ -93,6 +93,8 @@ enum write_granularity {
 	write_gran_1byte_implicit_erase, /* EEPROMs and other chips with implicit erase and 1-byte writes. */
 };
 
+size_t gran_to_bytes(enum write_granularity);
+
 /*
  * How many different contiguous runs of erase blocks with one size each do
  * we have for a given erase function?

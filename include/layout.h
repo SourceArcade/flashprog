@@ -61,6 +61,6 @@ void cleanup_include_args(struct layout_include_args **);
 const struct romentry *layout_next_included_region(const struct flashrom_layout *, chipoff_t);
 const struct romentry *layout_next_included(const struct flashrom_layout *, const struct romentry *);
 const struct romentry *layout_next(const struct flashrom_layout *, const struct romentry *);
-int layout_sanity_checks(const struct flashrom_flashctx *);
+int layout_sanity_checks(const struct flashrom_flashctx *, bool write_it);
 
 #endif /* !__LAYOUT_H__ */

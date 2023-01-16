@@ -197,10 +197,11 @@ void cleanup_include_args(struct layout_include_args **args)
 	}
 }
 
-int layout_sanity_checks(const struct flashrom_flashctx *const flash)
+int layout_sanity_checks(const struct flashrom_flashctx *const flash, const bool write_it)
 {
 	const struct flashrom_layout *const layout = get_layout(flash);
 	const chipsize_t total_size = flash->chip->total_size * 1024;
+	const size_t gran = gran_to_bytes(flash->chip->gran);
 	int ret = 0;
 
 	const struct romentry *entry = NULL;
@@ -214,6 +215,11 @@ int layout_sanity_checks(const struct flashrom_flashctx *const flash)
 		if (entry->start > entry->end) {
 			msg_gerr("Error: Size of the address range of region \"%s\" is not positive.\n",
 				  entry->name);
+			ret = 1;
+		}
+		if (write_it && entry->included && (entry->start % gran || (entry->end + 1) % gran)) {
+			msg_gerr("Error: Region \"%s\" is not aligned with write granularity (%zuB).\n",
+				 entry->name, gran);
 			ret = 1;
 		}
 	}

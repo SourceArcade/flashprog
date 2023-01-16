@@ -401,7 +401,7 @@ out_free:
 	return ret;
 }
 
-static size_t gran_to_bytes(const enum write_granularity gran)
+size_t gran_to_bytes(const enum write_granularity gran)
 {
 	switch (gran) {
 		case write_gran_1bit:			return 1;
@@ -1488,7 +1488,7 @@ int prepare_flash_access(struct flashctx *const flash,
 		return 1;
 	}
 
-	if (layout_sanity_checks(flash)) {
+	if (layout_sanity_checks(flash, write_it)) {
 		msg_cerr("Requested regions can not be handled. Aborting.\n");
 		return 1;
 	}
