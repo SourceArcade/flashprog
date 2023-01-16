@@ -401,6 +401,23 @@ out_free:
 	return ret;
 }
 
+static size_t gran_to_bytes(const enum write_granularity gran)
+{
+	switch (gran) {
+		case write_gran_1bit:			return 1;
+		case write_gran_1byte:			return 1;
+		case write_gran_1byte_implicit_erase:	return 1;
+		case write_gran_128bytes:		return 128;
+		case write_gran_256bytes:		return 256;
+		case write_gran_264bytes:		return 264;
+		case write_gran_512bytes:		return 512;
+		case write_gran_528bytes:		return 528;
+		case write_gran_1024bytes:		return 1024;
+		case write_gran_1056bytes:		return 1056;
+		default:				return 0;
+	}
+}
+
 /* Helper function for need_erase() that focuses on granularities of gran bytes. */
 static int need_erase_gran_bytes(const uint8_t *have, const uint8_t *want, unsigned int len,
                                  unsigned int gran, const uint8_t erased_value)
@@ -436,54 +453,34 @@ static int need_erase_gran_bytes(const uint8_t *have, const uint8_t *want, unsig
 static int need_erase(const uint8_t *have, const uint8_t *want, unsigned int len,
 		      enum write_granularity gran, const uint8_t erased_value)
 {
-	int result = 0;
 	unsigned int i;
+	size_t stride;
 
 	switch (gran) {
 	case write_gran_1bit:
-		for (i = 0; i < len; i++)
-			if ((have[i] & want[i]) != want[i]) {
-				result = 1;
-				break;
-			}
-		break;
+		for (i = 0; i < len; i++) {
+			if ((have[i] & want[i]) != want[i])
+				return 1;
+		}
+		return 0;
 	case write_gran_1byte:
-		for (i = 0; i < len; i++)
-			if ((have[i] != want[i]) && (have[i] != erased_value)) {
-				result = 1;
-				break;
-			}
-		break;
-	case write_gran_128bytes:
-		result = need_erase_gran_bytes(have, want, len, 128, erased_value);
-		break;
-	case write_gran_256bytes:
-		result = need_erase_gran_bytes(have, want, len, 256, erased_value);
-		break;
-	case write_gran_264bytes:
-		result = need_erase_gran_bytes(have, want, len, 264, erased_value);
-		break;
-	case write_gran_512bytes:
-		result = need_erase_gran_bytes(have, want, len, 512, erased_value);
-		break;
-	case write_gran_528bytes:
-		result = need_erase_gran_bytes(have, want, len, 528, erased_value);
-		break;
-	case write_gran_1024bytes:
-		result = need_erase_gran_bytes(have, want, len, 1024, erased_value);
-		break;
-	case write_gran_1056bytes:
-		result = need_erase_gran_bytes(have, want, len, 1056, erased_value);
-		break;
+		for (i = 0; i < len; i++) {
+			if ((have[i] != want[i]) && (have[i] != erased_value))
+				return 1;
+		}
+		return 0;
 	case write_gran_1byte_implicit_erase:
 		/* Do not erase, handle content changes from anything->0xff by writing 0xff. */
-		result = 0;
-		break;
+		return 0;
 	default:
+		stride = gran_to_bytes(gran);
+		if (stride) {
+			return need_erase_gran_bytes(have, want, len, stride, erased_value);
+		}
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
 			 "flashrom-stable@flashrom.org\n", __func__);
+		return 0;
 	}
-	return result;
 }
 
 /**
@@ -515,36 +512,10 @@ static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, uns
 {
 	bool need_write = false;
 	unsigned int rel_start = 0, first_len = 0;
-	unsigned int i, limit, stride;
+	unsigned int i, limit;
 
-	switch (gran) {
-	case write_gran_1bit:
-	case write_gran_1byte:
-	case write_gran_1byte_implicit_erase:
-		stride = 1;
-		break;
-	case write_gran_128bytes:
-		stride = 128;
-		break;
-	case write_gran_256bytes:
-		stride = 256;
-		break;
-	case write_gran_264bytes:
-		stride = 264;
-		break;
-	case write_gran_512bytes:
-		stride = 512;
-		break;
-	case write_gran_528bytes:
-		stride = 528;
-		break;
-	case write_gran_1024bytes:
-		stride = 1024;
-		break;
-	case write_gran_1056bytes:
-		stride = 1056;
-		break;
-	default:
+	const size_t stride = gran_to_bytes(gran);
+	if (!stride) {
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
 			 "flashrom-stable@flashrom.org\n", __func__);
 		/* Claim that no write was needed. A write with unknown
