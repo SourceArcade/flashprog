@@ -342,6 +342,23 @@ bool flashprog_flag_get(const struct flashprog_flashctx *const flashctx, const e
  * @{
  */
 
+#ifdef __FLASHPROG_LITTLE_ENDIAN__
+static int layout_cmp(const struct romentry *const a, const struct romentry *const b)
+{
+	int ret;
+
+	ret = (int)a->start - (int)b->start;
+	if (ret)
+		return ret;
+
+	ret = (int)a->end - (int)b->end;
+	if (ret)
+		return ret;
+
+	return strcmp(a->name, b->name);
+}
+#endif
+
 /**
  * @brief Read a layout from the Intel ICH descriptor in the flash.
  *
@@ -400,7 +417,7 @@ int flashprog_layout_read_from_ifd(struct flashprog_layout **const layout, struc
 
 		const struct romentry *chip_entry = layout_next(chip_layout, NULL);
 		const struct romentry *dump_entry = layout_next(dump_layout, NULL);
-		while (chip_entry && dump_entry && !memcmp(chip_entry, dump_entry, sizeof(*chip_entry))) {
+		while (chip_entry && dump_entry && !layout_cmp(chip_entry, dump_entry)) {
 			chip_entry = layout_next(chip_layout, chip_entry);
 			dump_entry = layout_next(dump_layout, dump_entry);
 		}
