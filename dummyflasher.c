@@ -434,6 +434,7 @@ static int init_data(struct emu_data *data, enum chipbustype *dummy_buses_suppor
 
 static int dummy_init(void)
 {
+	int ret = 0;
 	struct stat image_stat;
 
 	struct emu_data *data = calloc(1, sizeof(*data));
@@ -496,13 +497,13 @@ dummy_init_out:
 		return 1;
 	}
 	if (dummy_buses_supported & BUS_NONSPI)
-		register_par_master(&par_master_dummyflasher,
-				    dummy_buses_supported & BUS_NONSPI,
-				    data);
+		ret |= register_par_master(&par_master_dummyflasher,
+					   dummy_buses_supported & BUS_NONSPI,
+					   data);
 	if (dummy_buses_supported & BUS_SPI)
-		register_spi_master(&spi_master_dummyflasher, data);
+		ret |= register_spi_master(&spi_master_dummyflasher, data);
 
-	return 0;
+	return ret;
 }
 
 static void *dummy_map(const char *descr, uintptr_t phys_addr, size_t len)
