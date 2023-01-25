@@ -13,27 +13,35 @@
 # GNU General Public License for more details.
 #
 
+GETREVISION=$(dirname ${0})/getrevision.sh
+
 version() {
-	if [ -r versioninfo.inc ]; then
-		v=$(sed -n 's/^VERSION = //p' versioninfo.inc)
-	else
-		v=$($(dirname ${0})/getrevision.sh --revision)
-		if [ $? -ne 0 ]; then
-			v='unknown'
+	v='unknown'
+	if ${GETREVISION} -c; then
+		tmp=$(${GETREVISION} --revision)
+		if [ $? -eq 0 ]; then
+			v="${tmp}"
 		fi
+	fi
+
+	if [ "$v" = unknown -a -r versioninfo.inc ]; then
+		v=$(sed -n 's/^VERSION = //p' versioninfo.inc)
 	fi
 
 	echo ${v}
 }
 
 mandate() {
-	if [ -r versioninfo.inc ]; then
-		d=$(sed -n 's/^MAN_DATE = //p' versioninfo.inc)
-	else
-		d=$($(dirname ${0})/getrevision.sh --date flashrom.8.tmpl)
-		if [ $? -ne 0 ]; then
-			d='unknown'
+	d='unknown'
+	if ${GETREVISION} -c flashrom.8.tmpl; then
+		tmp=$(${GETREVISION} --date flashrom.8.tmpl)
+		if [ $? -eq 0 ]; then
+			d="${tmp}"
 		fi
+	fi
+
+	if [ "$d" = unknown -a -r versioninfo.inc ]; then
+		d=$(sed -n 's/^MAN_DATE = //p' versioninfo.inc)
 	fi
 
 	echo ${d}
