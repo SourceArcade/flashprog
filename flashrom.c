@@ -1076,9 +1076,7 @@ int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e
  * @param	block_num	index of the block to erase according to the erase function index
  * @param	info		current info from walking the regions
  */
-void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
-				       size_t findex, size_t block_num, const struct walk_info *info);
-void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
+static void select_erase_functions_rec(const struct flashctx *flashctx, const struct erase_layout *layout,
 				       size_t findex, size_t block_num, const struct walk_info *info)
 {
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
@@ -1099,7 +1097,7 @@ void select_erase_functions(struct flashctx *flashctx, const struct erase_layout
 
 		int j;
 		for (j = sub_block_start; j <= sub_block_end; j++) {
-			select_erase_functions(flashctx, layout, findex - 1, j, info);
+			select_erase_functions_rec(flashctx, layout, findex - 1, j, info);
 			if (layout[findex - 1].layout_list[j].selected)
 				count++;
 		}
@@ -1113,6 +1111,16 @@ void select_erase_functions(struct flashctx *flashctx, const struct erase_layout
 			}
 		}
 	}
+}
+
+void select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
+				   size_t erasefn_count, const struct walk_info *info);
+void select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
+				   size_t erasefn_count, const struct walk_info *info)
+{
+	size_t block_num;
+	for (block_num = 0; block_num < layout[erasefn_count - 1].block_count; ++block_num)
+		select_erase_functions_rec(flashctx, layout, erasefn_count - 1, block_num, info);
 }
 
 static int write_range(struct flashctx *const flashctx, const chipoff_t flash_offset,
