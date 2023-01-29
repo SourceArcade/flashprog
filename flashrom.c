@@ -1082,13 +1082,13 @@ static void select_erase_functions_rec(const struct flashctx *flashctx, const st
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
 	if (!findex) {
 		if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
-			chipoff_t start_addr = ll->start_addr;
-			chipoff_t end_addr = ll->end_addr;
-			const chipsize_t erase_len = end_addr - start_addr + 1;
-			const uint8_t erased_value = ERASED_VALUE(flashctx);
+			const chipoff_t write_start = MAX(info->region_start, ll->start_addr);
+			const chipoff_t write_end   = MIN(info->region_end, ll->end_addr);
+			const chipsize_t write_len  = write_end - write_start + 1;
+			const uint8_t erased_value  = ERASED_VALUE(flashctx);
 			ll->selected = need_erase(
-				info->curcontents + start_addr, info->newcontents + start_addr,
-				erase_len, flashctx->chip->gran, erased_value);
+				info->curcontents + write_start, info->newcontents + write_start,
+				write_len, flashctx->chip->gran, erased_value);
 		}
 	} else {
 		int count = 0;
