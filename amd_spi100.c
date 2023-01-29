@@ -61,7 +61,7 @@ static uint32_t spi100_read32(const struct spi100 *spi100, unsigned int reg)
 
 static void spi100_readn(const struct spi100 *spi100, unsigned int reg, uint8_t *data, size_t len)
 {
-	mmio_readn(spi100->spibar + reg, data, len);
+	mmio_readn_aligned(spi100->spibar + reg, data, len, 4);
 }
 
 static int spi100_check_readwritecnt(const unsigned int writecnt, const unsigned int readcnt)
