@@ -22,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "flash.h"	/* for chipaddr and flashctx */
 
@@ -142,6 +143,8 @@ int rpci_write_long(struct pci_dev *dev, int reg, uint32_t data);
 struct penable {
 	uint16_t vendor_id;
 	uint16_t device_id;
+	bool match_revision;
+	uint8_t revision_id;
 	enum chipbustype buses;
 	const enum test_state status;
 	const char *vendor_name;
