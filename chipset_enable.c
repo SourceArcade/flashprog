@@ -1416,6 +1416,17 @@ static int enable_flash_sb600(struct pci_dev *dev, const char *name)
 	return ret;
 }
 
+static int enable_flash_sb600_smbus(struct pci_dev *smbus, const char *name)
+{
+	struct pci_dev *const lpc = pci_get_dev(pacc, smbus->domain, smbus->bus, smbus->dev, 3);
+	if (!lpc) {
+		msg_perr("Error: Cannot access LPC device for %s.\n", name);
+		return ERROR_FATAL;
+	}
+
+	return enable_flash_sb600(lpc, name);
+}
+
 /* sets bit 0 in 0x6d */
 static int enable_flash_nvidia_common(struct pci_dev *dev, const char *name)
 {
@@ -1743,7 +1754,8 @@ const struct penable chipset_enables[] = {
 	{0x1022, 0x7440,   ANY_REV, B_PFL,  OK,  "AMD", "AMD-768",			enable_flash_amd_768_8111},
 	{0x1022, 0x7468,   ANY_REV, B_PFL,  OK,  "AMD", "AMD-8111",			enable_flash_amd_768_8111},
 	{0x1022, 0x780e,   ANY_REV, B_FLS,  OK,  "AMD", "FCH",				enable_flash_sb600},
-	{0x1022, 0x790e,   ANY_REV, B_FLS,  OK,  "AMD", "FP4",				enable_flash_sb600},
+	{0x1022, 0x790b, REV(0x4a), B_FLS,  OK,  "AMD", "Merlin Falcon",		enable_flash_sb600_smbus},
+	{0x1022, 0x790b, REV(0x4b), B_FLS,  OK,  "AMD", "Stoney Ridge",			enable_flash_sb600_smbus},
 	{0x1039, 0x0406,   ANY_REV, B_PFL,  NT,  "SiS", "501/5101/5501",		enable_flash_sis501},
 	{0x1039, 0x0496,   ANY_REV, B_PFL,  NT,  "SiS", "85C496+497",			enable_flash_sis85c496},
 	{0x1039, 0x0530,   ANY_REV, B_PFL,  OK,  "SiS", "530",				enable_flash_sis530},
