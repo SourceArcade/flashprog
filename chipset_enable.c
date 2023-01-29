@@ -1460,7 +1460,7 @@ static int enable_flash_amd_spi100(struct pci_dev *const smbus, const char *cons
 	if (virt_spibar == ERROR_PTR)
 		return ERROR_FATAL;
 
-	return ERROR_FATAL; /* FIXME: implement spi_master */
+	return amd_spi100_probe(virt_spibar);
 }
 
 /* sets bit 0 in 0x6d */

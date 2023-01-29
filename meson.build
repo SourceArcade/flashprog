@@ -249,6 +249,7 @@ programmer = {
       'it87spi.c',
       'sb600spi.c',
       'amd_imc.c',
+      'amd_spi100.c',
       'wbsio_spi.c',
       'mcp6x_spi.c',
       'ichspi.c',
