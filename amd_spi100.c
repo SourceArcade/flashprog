@@ -25,6 +25,9 @@
 
 struct spi100 {
 	uint8_t *spibar;
+	uint8_t *memory;
+	size_t mapped_len;
+
 	unsigned int altspeed;
 };
 
@@ -123,6 +126,27 @@ static int spi100_send_command(const struct flashctx *const flash,
 	return 0;
 }
 
+static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int start, unsigned int len)
+{
+	const struct spi100 *const spi100 = flash->mst->spi.data;
+
+	/* Use SPI100 engine for data outside the memory-mapped range */
+	const chipoff_t from_top = flashrom_flash_getsize(flash) - start;
+	if (from_top > spi100->mapped_len) {
+		const chipsize_t unmapped_len = MIN(len, from_top - spi100->mapped_len);
+		const int ret = default_spi_read(flash, buf, start, unmapped_len);
+		if (ret)
+			return ret;
+		start += unmapped_len;
+		buf += unmapped_len;
+		len -= unmapped_len;
+	}
+
+	mmio_readn_aligned(spi100->memory + start, buf, len, 8);
+
+	return 0;
+}
+
 static int spi100_shutdown(void *data)
 {
 	struct spi100 *const spi100 = data;
@@ -139,7 +163,7 @@ static struct spi_master spi100_master = {
 	.max_data_write	= SPI100_FIFO_SIZE - 4,
 	.command	= spi100_send_command,
 	.multicommand	= default_spi_send_multicommand,
-	.read		= default_spi_read,
+	.read		= spi100_read,
 	.write_256	= default_spi_write_256,
 	.probe_opcode	= default_spi_probe_opcode,
 	.shutdown	= spi100_shutdown,
@@ -215,7 +239,7 @@ static void spi100_set_altspeed(struct spi100 *const spi100)
 	}
 }
 
-int amd_spi100_probe(void *const spibar)
+int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_t mapped_len)
 {
 	struct spi100 *const spi100 = malloc(sizeof(*spi100));
 	if (!spi100) {
@@ -223,6 +247,8 @@ int amd_spi100_probe(void *const spibar)
 		return ERROR_FATAL;
 	}
 	spi100->spibar = spibar;
+	spi100->memory = memory_mapping;
+	spi100->mapped_len = mapped_len;
 
 	spi100_print(spi100);
 

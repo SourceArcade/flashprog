@@ -364,7 +364,7 @@ int via_init_spi(uint32_t mmio_base);
 int amd_imc_shutdown(struct pci_dev *dev);
 
 /* amd_spi100.c */
-int amd_spi100_probe(void *const spibar);
+int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_t mapped_len);
 
 /* it87spi.c */
 void enter_conf_mode_ite(uint16_t port);
