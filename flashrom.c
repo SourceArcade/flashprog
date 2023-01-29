@@ -1009,8 +1009,7 @@ static void free_erase_layout(struct erase_layout *layout, unsigned int erasefn_
  * of the flash chip. This helps to optimally select the erase functions for
  * erase/write operations.
  */
-int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout);
-int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout)
+static int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout)
 {
 	const struct flashchip *chip = flashctx->chip;
 	const size_t erasefn_count = count_usable_erasers(flashctx);
@@ -1117,9 +1116,7 @@ static void select_erase_functions_rec(const struct flashctx *flashctx, const st
 	}
 }
 
-void select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
-				   size_t erasefn_count, const struct walk_info *info);
-void select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
+static void select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
 				   size_t erasefn_count, const struct walk_info *info)
 {
 	size_t block_num;
@@ -1154,51 +1151,45 @@ typedef int (*erasefn_t)(struct flashctx *, unsigned int addr, unsigned int len)
 typedef int (*per_blockfn_t)(struct flashctx *, const struct walk_info *, erasefn_t);
 
 static int walk_eraseblocks(struct flashctx *const flashctx,
+			    struct erase_layout *const layouts,
+			    const size_t layout_count,
 			    struct walk_info *const info,
-			    const size_t erasefunction, const per_blockfn_t per_blockfn)
+			    const per_blockfn_t per_blockfn)
 {
 	int ret;
 	size_t i, j;
 	bool first = true;
-	struct block_eraser *const eraser = &flashctx->chip->block_erasers[erasefunction];
 
-	info->erase_start = 0;
-	for (i = 0; i < NUM_ERASEREGIONS; ++i) {
-		/* count==0 for all automatically initialized array
-		   members so the loop below won't be executed for them. */
-		for (j = 0; j < eraser->eraseblocks[i].count; ++j, info->erase_start = info->erase_end + 1) {
-			info->erase_end = info->erase_start + eraser->eraseblocks[i].size - 1;
+	for (i = 0; i < layout_count; ++i) {
+		const struct erase_layout *const layout = &layouts[i];
 
-			/* Skip any eraseblock that is completely outside the current region. */
-			if (info->erase_end < info->region_start)
-				continue;
-			if (info->region_end < info->erase_start)
+		for (j = 0; j < layout->block_count; ++j) {
+			struct eraseblock_data *const eb = &layout->layout_list[j];
+
+			if (eb->start_addr > info->region_end)
 				break;
-
-			/* Check if we want to erase this block. */
-			if (!explicit_erase(info)) {
-				const chipoff_t write_start = MAX(info->region_start, info->erase_start);
-				const chipoff_t write_end = MIN(info->region_end, info->erase_end);
-				const chipsize_t write_len = write_end + 1 - write_start;
-				if (!need_erase(info->curcontents + write_start,
-						info->newcontents + write_start,
-						write_len, flashctx->chip->gran, ERASED_VALUE(flashctx)))
-					continue;
-			}
+			if (eb->end_addr < info->region_start)
+				continue;
+			if (!eb->selected)
+				continue;
 
 			/* Print this for every block except the first one. */
 			if (first)
 				first = false;
 			else
 				msg_cdbg(", ");
-			msg_cdbg("0x%06x-0x%06x:", info->erase_start, info->erase_end);
+			msg_cdbg("0x%06x-0x%06x:", eb->start_addr, eb->end_addr);
 
-			ret = per_blockfn(flashctx, info, eraser->block_erase);
+			info->erase_start = eb->start_addr;
+			info->erase_end = eb->end_addr;
+			ret = per_blockfn(flashctx, info, layout->eraser->block_erase);
 			if (ret)
 				return ret;
+
+			/* Clean the erase layout up for future use on other
+			   regions. `.selected` is the only field we alter. */
+			eb->selected = false;
 		}
-		if (info->region_end < info->erase_start)
-			break;
 	}
 	msg_cdbg("\n");
 	return 0;
@@ -1207,46 +1198,44 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *const info,
 			  const per_blockfn_t per_blockfn)
 {
+	const bool do_erase = explicit_erase(info) || !(flashctx->chip->feature_bits & FEATURE_NO_ERASE);
 	const struct flashrom_layout *const layout = get_layout(flashctx);
+	struct erase_layout *erase_layouts = NULL;
 	const struct romentry *entry = NULL;
+	int ret = 0, layout_count = 0;
 
 	all_skipped = true;
 	msg_cinfo("Erasing and writing flash chip... ");
+
+	if (do_erase) {
+		layout_count = create_erase_layout(flashctx, &erase_layouts);
+		if (layout_count <= 0)
+			return 1;
+	}
 
 	while ((entry = layout_next_included(layout, entry))) {
 		info->region_start = entry->start;
 		info->region_end   = entry->end;
 
-		if (!(flashctx->chip->feature_bits & FEATURE_NO_ERASE) || explicit_erase(info)) {
-			size_t j;
-			for (j = 0; j < NUM_ERASEFUNCTIONS; ++j) {
-				if (j != 0)
-					msg_cinfo("Looking for another erase function.\n");
-				msg_cdbg("Trying erase function %zi... ", j);
-				if (!check_block_eraser(flashctx, j, 1))
-					break;
-			}
-
-			if (j == NUM_ERASEFUNCTIONS) {
-				msg_cinfo("No usable erase function found.\n");
-				return 1;
-			}
-
-			if (walk_eraseblocks(flashctx, info, j, per_blockfn)) {
+		if (do_erase) {
+			select_erase_functions(flashctx, erase_layouts, layout_count, info);
+			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, info, per_blockfn);
+			if (ret) {
 				msg_cerr("FAILED!\n");
-				return 1;
+				goto free_ret;
 			}
 		}
 
 		if (info->newcontents) {
 			bool skipped = true;
 			msg_cdbg("0x%06x-0x%06x:", info->region_start, info->region_end);
-			if (write_range(flashctx, info->region_start,
-					info->curcontents + info->region_start,
-					info->newcontents + info->region_start,
-					info->region_end + 1 - info->region_start, &skipped)) {
+			ret = write_range(flashctx, info->region_start,
+					  info->curcontents + info->region_start,
+					  info->newcontents + info->region_start,
+					  info->region_end + 1 - info->region_start, &skipped);
+			if (ret) {
 				msg_cerr("FAILED!\n");
-				return 1;
+				goto free_ret;
 			}
 			if (skipped) {
 				msg_cdbg("S\n");
@@ -1259,7 +1248,10 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 	if (all_skipped)
 		msg_cinfo("\nWarning: Chip content is identical to the requested image.\n");
 	msg_cinfo("Erase/write done.\n");
-	return 0;
+
+free_ret:
+	free_erase_layout(erase_layouts, layout_count);
+	return ret;
 }
 
 static int erase_block(struct flashctx *const flashctx,
