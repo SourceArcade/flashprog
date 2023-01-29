@@ -440,6 +440,29 @@ void mmio_readn(const void *addr, uint8_t *buf, size_t len)
 	return;
 }
 
+/* Read source-aligned to `align` bytes. `align` should be 4 or 8. */
+void mmio_readn_aligned(const void *addr, uint8_t *dst, size_t len, size_t align)
+{
+	volatile const uint8_t *src = addr;
+
+	/* align */
+	for (; (uintptr_t)src % align && len > 0; --len, ++dst, ++src)
+		*dst = *src;
+
+	/* copy aligned */
+	if (align == 4) {
+		for (; len >= align; len -= align, dst += align, src += align)
+			*(uint32_t *)dst = *(volatile const uint32_t *)src;
+	} else if (align == 8) {
+		for (; len >= align; len -= align, dst += align, src += align)
+			*(uint64_t *)dst = *(volatile const uint64_t *)src;
+	}
+
+	/* residue */
+	for (; len > 0; --len, ++dst, ++src)
+		*dst = *src;
+}
+
 void mmio_le_writeb(uint8_t val, void *addr)
 {
 	mmio_writeb(cpu_to_le8(val), addr);
