@@ -1427,6 +1427,42 @@ static int enable_flash_sb600_smbus(struct pci_dev *smbus, const char *name)
 	return enable_flash_sb600(lpc, name);
 }
 
+static int enable_flash_amd_spi100(struct pci_dev *const smbus, const char *const name)
+{
+	struct pci_dev *const lpc = pci_get_dev(pacc, smbus->domain, smbus->bus, smbus->dev, 3);
+	if (!lpc) {
+		msg_perr("Error: Cannot access LPC device for %s.\n", name);
+		return ERROR_FATAL;
+	}
+
+	const uint32_t spibar = pci_read_long(lpc, 0xa0);
+	msg_pdbg("AltSpiCSEnable=%u, SpiRomEnable=%u", spibar >> 0 & 1, spibar >> 1 & 1);
+	msg_pdbg(", AbortEnable=%u, RouteTpm2Spi=%u", spibar >> 2 & 1, spibar >> 3 & 1);
+	msg_pdbg(", PspSpiMmioSel=%u\n", spibar >> 4 & 1);
+
+	const bool spirom_enable = spibar & BIT(1);
+	if (spirom_enable) {
+		/* If SPI ROM is memory mapped, nothing else can be */
+		internal_buses_supported &= ~BUS_NONSPI;
+	}
+
+	const uint32_t phys_spibar = spibar & ~0xff;	/* 8 bits config/reserved */
+	if (!phys_spibar) {
+		if (spirom_enable)
+			msg_perr("SPI ROM is enabled but SPI BAR is unconfigured.");
+		else
+			msg_pdbg("SPI100 not used.\n");
+		return 0;
+	}
+	msg_pdbg("SPI100 BAR at 0x%08x\n", phys_spibar);
+
+	void *const virt_spibar = rphysmap("SPI100 SPI registers", phys_spibar, 256);
+	if (virt_spibar == ERROR_PTR)
+		return ERROR_FATAL;
+
+	return ERROR_FATAL; /* FIXME: implement spi_master */
+}
+
 /* sets bit 0 in 0x6d */
 static int enable_flash_nvidia_common(struct pci_dev *dev, const char *name)
 {
@@ -1756,6 +1792,10 @@ const struct penable chipset_enables[] = {
 	{0x1022, 0x780e,   ANY_REV, B_FLS,  OK,  "AMD", "FCH",				enable_flash_sb600},
 	{0x1022, 0x790b, REV(0x4a), B_FLS,  OK,  "AMD", "Merlin Falcon",		enable_flash_sb600_smbus},
 	{0x1022, 0x790b, REV(0x4b), B_FLS,  OK,  "AMD", "Stoney Ridge",			enable_flash_sb600_smbus},
+	{0x1022, 0x790b, REV(0x51), B_FLS,  NT,  "AMD", "Renoir/Cezanne",		enable_flash_amd_spi100},
+	{0x1022, 0x790b, REV(0x59), B_FLS,  NT,  "AMD", "Pinnacle Ridge",		enable_flash_amd_spi100},
+	{0x1022, 0x790b, REV(0x61), B_FLS,  NT,  "AMD", "Raven Ridge/Matisse/Starship",	enable_flash_amd_spi100},
+	{0x1022, 0x790b, REV(0x71), B_FLS,  NT,  "AMD", "Mendocino",			enable_flash_amd_spi100},
 	{0x1039, 0x0406,   ANY_REV, B_PFL,  NT,  "SiS", "501/5101/5501",		enable_flash_sis501},
 	{0x1039, 0x0496,   ANY_REV, B_PFL,  NT,  "SiS", "85C496+497",			enable_flash_sis85c496},
 	{0x1039, 0x0530,   ANY_REV, B_PFL,  OK,  "SiS", "530",				enable_flash_sis530},
