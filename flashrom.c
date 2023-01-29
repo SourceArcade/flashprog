@@ -1081,7 +1081,7 @@ static void select_erase_functions_rec(const struct flashctx *flashctx, const st
 {
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
 	if (!findex) {
-		if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
+		if (ll->start_addr <= info->region_end && ll->end_addr >= info->region_start) {
 			const chipoff_t write_start = MAX(info->region_start, ll->start_addr);
 			const chipoff_t write_end   = MIN(info->region_end, ll->end_addr);
 			const chipsize_t write_len  = write_end - write_start + 1;
