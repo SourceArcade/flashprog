@@ -2264,7 +2264,7 @@ int chipset_flash_enable(void)
 			msg_pdbg("Skipping chipset enable: No supported buses enabled.\n");
 			continue;
 		}
-		msg_pinfo("Enabling flash write... ");
+		msg_pinfo("Enabling flash write... "); msg_pdbg("\n");
 		ret = chipset_enables[i].doit(dev, chipset_enables[i].device_name);
 		if (ret == NOT_DONE_YET) {
 			ret = -2;
