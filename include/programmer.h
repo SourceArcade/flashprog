@@ -361,7 +361,7 @@ int ich_init_spi(void *spibar, enum ich_chipset ich_generation);
 int via_init_spi(uint32_t mmio_base);
 
 /* amd_imc.c */
-int amd_imc_shutdown(struct pci_dev *dev);
+int handle_imc(struct pci_dev *);
 
 /* amd_spi100.c */
 int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_t mapped_len);

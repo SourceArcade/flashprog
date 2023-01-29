@@ -15,6 +15,9 @@
  * GNU General Public License for more details.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
@@ -128,7 +131,7 @@ static int imc_resume(void *data)
 	return ret;
 }
 
-int amd_imc_shutdown(struct pci_dev *dev)
+static int amd_imc_shutdown(struct pci_dev *dev)
 {
 	/* Try to put IMC to sleep */
 	int ret = imc_send_cmd(dev, 0xb4);
@@ -149,4 +152,49 @@ int amd_imc_shutdown(struct pci_dev *dev)
 		return 1;
 
 	return ret;
+}
+
+int handle_imc(struct pci_dev *dev)
+{
+	bool amd_imc_force = false;
+	char *arg = extract_programmer_param("amd_imc_force");
+	if (arg && !strcmp(arg, "yes")) {
+		amd_imc_force = true;
+		msg_pspew("amd_imc_force enabled.\n");
+	} else if (arg && !strlen(arg)) {
+		msg_perr("Missing argument for amd_imc_force.\n");
+		free(arg);
+		return 1;
+	} else if (arg) {
+		msg_perr("Unknown argument for amd_imc_force: \"%s\" (not \"yes\").\n", arg);
+		free(arg);
+		return 1;
+	}
+	free(arg);
+
+	/* TODO: we should not only look at IntegratedImcPresent (LPC Dev 20, Func 3, 40h) but also at
+	 * IMCEnable(Strap) and Override EcEnable(Strap) (sb8xx, sb9xx?, a50, Bolton: Misc_Reg: 80h-87h;
+	 * sb7xx, sp5100: PM_Reg: B0h-B1h) etc. */
+	uint8_t reg = pci_read_byte(dev, 0x40);
+	if ((reg & (1 << 7)) == 0) {
+		msg_pdbg("IMC is not active.\n");
+		return 0;
+	}
+
+	if (!amd_imc_force)
+		programmer_may_write = false;
+	msg_pinfo("Writes have been disabled for safety reasons because the presence of the IMC\n"
+		  "was detected and it could interfere with accessing flash memory. Flashrom will\n"
+		  "try to disable it temporarily but even then this might not be safe:\n"
+		  "when it is re-enabled and after a reboot it expects to find working code\n"
+		  "in the flash and it is unpredictable what happens if there is none.\n"
+		  "\n"
+		  "To be safe make sure that there is a working IMC firmware at the right\n"
+		  "location in the image you intend to write and do not attempt to erase.\n"
+		  "\n"
+		  "You can enforce write support with the amd_imc_force programmer option.\n");
+	if (amd_imc_force)
+		msg_pinfo("Continuing with write support because the user forced us to!\n");
+
+	return amd_imc_shutdown(dev);
 }
