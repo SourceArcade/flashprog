@@ -1074,27 +1074,23 @@ int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e
  * @param	layout		erase layout
  * @param	findex		index of the erase function
  * @param	block_num	index of the block to erase according to the erase function index
- * @param	curcontents	buffer containg the current contents of the flash
- * @param	newcontents	buffer containg the new contents of the flash
- * @param	rstart		start address of the region
- * @rend	rend		end address of the region
+ * @param	info		current info from walking the regions
  */
 void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
-				size_t findex, size_t block_num, uint8_t *curcontents, uint8_t *newcontents,
-				chipoff_t rstart, chipoff_t rend);
+				       size_t findex, size_t block_num, const struct walk_info *info);
 void select_erase_functions(struct flashctx *flashctx, const struct erase_layout *layout,
-				size_t findex, size_t block_num, uint8_t *curcontents, uint8_t *newcontents,
-				chipoff_t rstart, chipoff_t rend)
+				       size_t findex, size_t block_num, const struct walk_info *info)
 {
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
 	if (!findex) {
-		if (ll->start_addr >= rstart && ll->end_addr <= rend) {
+		if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
 			chipoff_t start_addr = ll->start_addr;
 			chipoff_t end_addr = ll->end_addr;
 			const chipsize_t erase_len = end_addr - start_addr + 1;
 			const uint8_t erased_value = ERASED_VALUE(flashctx);
-			ll->selected = need_erase(curcontents + start_addr, newcontents + start_addr, erase_len,
-						flashctx->chip->gran, erased_value);
+			ll->selected = need_erase(
+				info->curcontents + start_addr, info->newcontents + start_addr,
+				erase_len, flashctx->chip->gran, erased_value);
 		}
 	} else {
 		int count = 0;
@@ -1103,15 +1099,14 @@ void select_erase_functions(struct flashctx *flashctx, const struct erase_layout
 
 		int j;
 		for (j = sub_block_start; j <= sub_block_end; j++) {
-			select_erase_functions(flashctx, layout, findex - 1, j, curcontents, newcontents,
-						rstart, rend);
+			select_erase_functions(flashctx, layout, findex - 1, j, info);
 			if (layout[findex - 1].layout_list[j].selected)
 				count++;
 		}
 
 		const int total_blocks = sub_block_end - sub_block_start + 1;
 		if (count && count > total_blocks/2) {
-			if (ll->start_addr >= rstart && ll->end_addr <= rend) {
+			if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
 				for (j = sub_block_start; j <= sub_block_end; j++)
 					layout[findex - 1].layout_list[j].selected = false;
 				ll->selected = true;
