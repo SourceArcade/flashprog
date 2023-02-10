@@ -140,6 +140,7 @@ int flashrom_programmer_init(struct flashrom_programmer **const flashprog,
 	if (prog >= programmer_table_size) {
 		msg_ginfo("Error: Unknown programmer \"%s\". Valid choices are:\n", prog_name);
 		list_programmers_linebreak(0, 80, 0);
+		msg_ginfo(".\n");
 		return 1;
 	}
 	return programmer_init(programmer_table[prog], prog_param);
