@@ -537,12 +537,7 @@ if config_print_wiki.enabled()
   endif
 endif
 
-if config_default_programmer_name != ''
-  cargs += '-DCONFIG_DEFAULT_PROGRAMMER_NAME=&programmer_' + config_default_programmer_name
-else
-  cargs += '-DCONFIG_DEFAULT_PROGRAMMER_NAME=NULL'
-endif
-
+cargs += '-DCONFIG_DEFAULT_PROGRAMMER_NAME="' + config_default_programmer_name + '"'
 cargs += '-DCONFIG_DEFAULT_PROGRAMMER_ARGS="' + config_default_programmer_args + '"'
 
 install_headers([

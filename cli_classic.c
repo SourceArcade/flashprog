@@ -208,8 +208,7 @@ int main(int argc, char *argv[])
 	/* Probe for up to eight flash chips. */
 	struct flashctx flashes[8] = {{0}};
 	struct flashctx *fill_flash;
-	const char *name;
-	int namelen, opt, i, j;
+	int opt, i, j;
 	int startchip = -1, chipcount = 0, option_index = 0;
 	int operation_specified = 0;
 	bool force = false, ifd = false, fmap = false;
@@ -222,7 +221,7 @@ int main(int argc, char *argv[])
 	bool list_supported = false;
 	bool show_progress = false;
 	struct flashprog_layout *layout = NULL;
-	static const struct programmer_entry *prog = NULL;
+	struct flashprog_programmer *prog = NULL;
 	enum {
 		OPTION_IFD = 0x0100,
 		OPTION_FMAP,
@@ -271,6 +270,7 @@ int main(int argc, char *argv[])
 	char *fmapfile = NULL;
 	char *logfile = NULL;
 	char *tempstr = NULL;
+	char *pname = NULL;
 	char *pparam = NULL;
 	struct layout_include_args *include_args = NULL;
 
@@ -414,47 +414,23 @@ int main(int argc, char *argv[])
 #endif
 			break;
 		case 'p':
-			if (prog != NULL) {
+			if (pname != NULL) {
 				cli_classic_abort_usage("Error: --programmer specified "
 					"more than once. You can separate "
 					"multiple\nparameters for a programmer "
 					"with \",\". Please see the man page "
 					"for details.\n");
 			}
-			size_t p;
-			for (p = 0; p < programmer_table_size; p++) {
-				name = programmer_table[p]->name;
-				namelen = strlen(name);
-				if (strncmp(optarg, name, namelen) == 0) {
-					switch (optarg[namelen]) {
-					case ':':
-						pparam = strdup(optarg + namelen + 1);
-						if (!strlen(pparam)) {
-							free(pparam);
-							pparam = NULL;
-						}
-						prog = programmer_table[p];
-						break;
-					case '\0':
-						prog = programmer_table[p];
-						break;
-					default:
-						/* The continue refers to the
-						 * for loop. It is here to be
-						 * able to differentiate between
-						 * foo and foobar.
-						 */
-						continue;
-					}
-					break;
-				}
+			const char *const colon = strchr(optarg, ':');
+			if (colon) {
+				pname = strndup(optarg, colon - optarg);
+				pparam = strdup(colon + 1);
+			} else {
+				pname = strdup(optarg);
 			}
-			if (prog == NULL) {
-				fprintf(stderr, "Error: Unknown programmer \"%s\". Valid choices are:\n",
-					optarg);
-				list_programmers_linebreak(0, 80, 0);
-				msg_ginfo(".\n");
-				cli_classic_abort_usage(NULL);
+			if (!pname || (colon && !pparam)) {
+				fprintf(stderr, "Out of memory!\n");
+				exit(1);
 			}
 			break;
 		case 'R':
@@ -547,15 +523,20 @@ int main(int argc, char *argv[])
 		/* Keep chip around for later usage in case a forced read is requested. */
 	}
 
-	if (prog == NULL) {
-		const struct programmer_entry *const default_programmer = CONFIG_DEFAULT_PROGRAMMER_NAME;
+	if (pname == NULL) {
+		const char *const default_programmer = CONFIG_DEFAULT_PROGRAMMER_NAME;
 
-		if (default_programmer) {
-			prog = default_programmer;
-			/* We need to strdup here because we free(pparam) unconditionally later. */
+		if (default_programmer[0]) {
+			/* We need to strdup here because we free() unconditionally later. */
+			pname = strdup(default_programmer);
 			pparam = strdup(CONFIG_DEFAULT_PROGRAMMER_ARGS);
+			if (!pname || !pparam) {
+				fprintf(stderr, "Out of memory!\n");
+				ret = 1;
+				goto out;
+			}
 			msg_pinfo("Using default programmer \"%s\" with arguments \"%s\".\n",
-				  default_programmer->name, pparam);
+				  pname, pparam);
 		} else {
 			msg_perr("Please select a programmer with the --programmer parameter.\n"
 #if CONFIG_INTERNAL == 1
@@ -569,8 +550,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	struct flashprog_programmer *flashprog;
-	if (flashprog_programmer_init(&flashprog, prog->name, pparam)) {
+	if (flashprog_programmer_init(&prog, pname, pparam)) {
 		msg_perr("Error: Programmer initialization failed.\n");
 		ret = 1;
 		goto out;
@@ -762,7 +742,7 @@ int main(int argc, char *argv[])
 	flashprog_layout_release(layout);
 
 out_shutdown:
-	flashprog_programmer_shutdown(flashprog);
+	flashprog_programmer_shutdown(prog);
 out:
 	for (i = 0; i < chipcount; i++) {
 		flashprog_layout_release(flashes[i].default_layout);
@@ -775,6 +755,7 @@ out:
 	free(referencefile);
 	free(layoutfile);
 	free(pparam);
+	free(pname);
 	/* clean up global variables */
 	free((char *)chip_to_probe); /* Silence! Freeing is not modifying contents. */
 	chip_to_probe = NULL;

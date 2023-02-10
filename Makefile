@@ -601,12 +601,7 @@ endif
 # Programmer drivers and programmer support infrastructure.
 # Depending on the CONFIG_* variables set and verified above we set compiler flags and parameters below.
 
-ifdef CONFIG_DEFAULT_PROGRAMMER_NAME
-FEATURE_FLAGS += -D'CONFIG_DEFAULT_PROGRAMMER_NAME=&programmer_$(CONFIG_DEFAULT_PROGRAMMER_NAME)'
-else
-FEATURE_FLAGS += -D'CONFIG_DEFAULT_PROGRAMMER_NAME=NULL'
-endif
-
+FEATURE_FLAGS += -D'CONFIG_DEFAULT_PROGRAMMER_NAME="$(CONFIG_DEFAULT_PROGRAMMER_NAME)"'
 FEATURE_FLAGS += -D'CONFIG_DEFAULT_PROGRAMMER_ARGS="$(CONFIG_DEFAULT_PROGRAMMER_ARGS)"'
 
 ################################################################################
