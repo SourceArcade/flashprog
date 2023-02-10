@@ -18,7 +18,47 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include "flash.h"
+#include "cli.h"
+
+int cli_parse_flash_args(struct flash_args *const args, const int opt, const char *const optarg)
+{
+	switch (opt) {
+	case OPTION_PROGRAMMER:
+		if (args->prog_name) {
+			fprintf(stderr,
+				"Error: --programmer specified more than once. You can separate multiple\n"
+				"arguments for a programmer with ','. Please see the man page for details.\n");
+			return 1;
+		}
+		const char *const colon = strchr(optarg, ':');
+		if (colon) {
+			args->prog_name = strndup(optarg, colon - optarg);
+			args->prog_args = strdup(colon + 1);
+		} else {
+			args->prog_name = strdup(optarg);
+		}
+		if (!args->prog_name || (colon && !args->prog_args)) {
+			fprintf(stderr, "Out of memory!\n");
+			return 2;
+		}
+		break;
+	case OPTION_CHIP:
+		if (args->chip) {
+			fprintf(stderr, "Error: --chip specified more than once.\n");
+			return 1;
+		}
+		args->chip = strdup(optarg);
+		if (!args->chip) {
+			fprintf(stderr, "Out of memory!\n");
+			return 2;
+		}
+		break;
+	}
+
+	return 0;
+}
 
 void print_chip_support_status(const struct flashchip *chip)
 {
