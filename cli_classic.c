@@ -97,16 +97,6 @@ static void cli_classic_validate_singleop(int *operation_specified)
 	}
 }
 
-/* Ensure a file is open by means of fstat */
-static bool check_file(FILE *file)
-{
-	struct stat statbuf;
-
-	if (fstat(fileno(file), &statbuf) < 0)
-		return false;
-	return true;
-}
-
 static int do_read(struct flashctx *const flash, const char *const filename)
 {
 	int ret;
@@ -252,22 +242,7 @@ int main(int argc, char *argv[])
 	struct layout_args layout_args = { 0 };
 	struct layout_include_args *include_args = NULL;
 
-	/*
-	 * Safety-guard against a user who has (mistakenly) closed
-	 * stdout or stderr before exec'ing flashprog.  We disable
-	 * logging in this case to prevent writing log data to a flash
-	 * chip when a flash device gets opened with fd 1 or 2.
-	 */
-	if (check_file(stdout) && check_file(stderr)) {
-		flashprog_set_log_callback(
-			(flashprog_log_callback *)&flashprog_print_cb);
-	}
-
-	print_version();
-	print_banner();
-
-	/* FIXME: Delay calibration should happen in programmer code. */
-	if (flashprog_init(1))
+	if (cli_init())
 		exit(1);
 
 	setbuf(stdout, NULL);
