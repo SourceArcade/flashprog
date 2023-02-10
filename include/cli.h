@@ -18,6 +18,15 @@
 enum {
 	OPTION_CHIP = 'c',
 	OPTION_PROGRAMMER = 'p',
+
+	/* Options below have only long option names, i.e. no single char: */
+	OPTION_IFD = 0x0100,
+	OPTION_FMAP,
+	OPTION_FMAP_FILE,
+	OPTION_FLASH_CONTENTS,
+	OPTION_FLASH_NAME,
+	OPTION_FLASH_SIZE,
+	OPTION_PROGRESS,
 };
 
 struct flash_args {
