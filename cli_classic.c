@@ -29,6 +29,7 @@
 #include "fmap.h"
 #include "programmer.h"
 #include "libflashprog.h"
+#include "cli.h"
 
 static void cli_classic_usage(const char *name)
 {
@@ -270,8 +271,7 @@ int main(int argc, char *argv[])
 	char *fmapfile = NULL;
 	char *logfile = NULL;
 	char *tempstr = NULL;
-	char *pname = NULL;
-	char *pparam = NULL;
+	struct flash_args flash_args = { 0 };
 	struct layout_include_args *include_args = NULL;
 
 	/*
@@ -328,7 +328,12 @@ int main(int argc, char *argv[])
 			dont_verify_all = true;
 			break;
 		case 'c':
-			chip_to_probe = strdup(optarg);
+		case 'p':
+			ret = cli_parse_flash_args(&flash_args, opt, optarg);
+			if (ret == 1)
+				cli_classic_abort_usage(NULL);
+			else if (ret)
+				exit(1);
 			break;
 		case 'V':
 			verbose_screen++;
@@ -413,26 +418,6 @@ int main(int argc, char *argv[])
 					"compiled in. Aborting.\n");
 #endif
 			break;
-		case 'p':
-			if (pname != NULL) {
-				cli_classic_abort_usage("Error: --programmer specified "
-					"more than once. You can separate "
-					"multiple\nparameters for a programmer "
-					"with \",\". Please see the man page "
-					"for details.\n");
-			}
-			const char *const colon = strchr(optarg, ':');
-			if (colon) {
-				pname = strndup(optarg, colon - optarg);
-				pparam = strdup(colon + 1);
-			} else {
-				pname = strdup(optarg);
-			}
-			if (!pname || (colon && !pparam)) {
-				fprintf(stderr, "Out of memory!\n");
-				exit(1);
-			}
-			break;
 		case 'R':
 			/* print_version() is always called during startup. */
 			cli_classic_validate_singleop(&operation_specified);
@@ -510,12 +495,12 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 	/* Does a chip with the requested name exist in the flashchips array? */
-	if (chip_to_probe) {
+	if (flash_args.chip) {
 		for (chip = flashchips; chip && chip->name; chip++)
-			if (!strcmp(chip->name, chip_to_probe))
+			if (!strcmp(chip->name, flash_args.chip))
 				break;
 		if (!chip || !chip->name) {
-			msg_cerr("Error: Unknown chip '%s' specified.\n", chip_to_probe);
+			msg_cerr("Error: Unknown chip '%s' specified.\n", flash_args.chip);
 			msg_gerr("Run flashprog -L to view the hardware supported in this flashprog version.\n");
 			ret = 1;
 			goto out;
@@ -523,20 +508,20 @@ int main(int argc, char *argv[])
 		/* Keep chip around for later usage in case a forced read is requested. */
 	}
 
-	if (pname == NULL) {
+	if (flash_args.prog_name == NULL) {
 		const char *const default_programmer = CONFIG_DEFAULT_PROGRAMMER_NAME;
 
 		if (default_programmer[0]) {
 			/* We need to strdup here because we free() unconditionally later. */
-			pname = strdup(default_programmer);
-			pparam = strdup(CONFIG_DEFAULT_PROGRAMMER_ARGS);
-			if (!pname || !pparam) {
+			flash_args.prog_name = strdup(default_programmer);
+			flash_args.prog_args = strdup(CONFIG_DEFAULT_PROGRAMMER_ARGS);
+			if (!flash_args.prog_name || !flash_args.prog_args) {
 				fprintf(stderr, "Out of memory!\n");
 				ret = 1;
 				goto out;
 			}
 			msg_pinfo("Using default programmer \"%s\" with arguments \"%s\".\n",
-				  pname, pparam);
+				  flash_args.prog_name, flash_args.prog_args);
 		} else {
 			msg_perr("Please select a programmer with the --programmer parameter.\n"
 #if CONFIG_INTERNAL == 1
@@ -550,7 +535,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (flashprog_programmer_init(&prog, pname, pparam)) {
+	if (flashprog_programmer_init(&prog, flash_args.prog_name, flash_args.prog_args)) {
 		msg_perr("Error: Programmer initialization failed.\n");
 		ret = 1;
 		goto out;
@@ -559,6 +544,7 @@ int main(int argc, char *argv[])
 	msg_pdbg("The following protocols are supported: %s.\n", tempstr);
 	free(tempstr);
 
+	chip_to_probe = flash_args.chip;
 	struct registered_master *matched_master = NULL;
 	for (j = 0; j < registered_master_count; j++) {
 		startchip = 0;
@@ -583,18 +569,18 @@ int main(int argc, char *argv[])
 		goto out_shutdown;
 	} else if (!chipcount) {
 		msg_cinfo("No EEPROM/flash device found.\n");
-		if (!force || !chip_to_probe) {
+		if (!force || !flash_args.chip) {
 			msg_cinfo("Note: flashprog can never write if the flash chip isn't found "
 				  "automatically.\n");
 		}
-		if (force && read_it && chip_to_probe) {
+		if (force && read_it && flash_args.chip) {
 			struct registered_master *mst;
 			int compatible_masters = 0;
 			msg_cinfo("Force read (-f -r -c) requested, pretending the chip is there:\n");
 			/* This loop just counts compatible controllers. */
 			for (j = 0; j < registered_master_count; j++) {
 				mst = &registered_masters[j];
-				/* chip is still set from the chip_to_probe earlier in this function. */
+				/* chip is still set from the search earlier in this function. */
 				if (mst->buses_supported & chip->bustype)
 					compatible_masters++;
 			}
@@ -614,7 +600,7 @@ int main(int argc, char *argv[])
 			}
 			if (startchip == -1) {
 				// FIXME: This should never happen! Ask for a bug report?
-				msg_cinfo("Probing for flash chip '%s' failed.\n", chip_to_probe);
+				msg_cinfo("Probing for flash chip '%s' failed.\n", flash_args.chip);
 				ret = 1;
 				goto out_shutdown;
 			}
@@ -626,7 +612,7 @@ int main(int argc, char *argv[])
 		}
 		ret = 1;
 		goto out_shutdown;
-	} else if (!chip_to_probe) {
+	} else if (!flash_args.chip) {
 		/* repeat for convenience when looking at foreign logs */
 		tempstr = flashbuses_to_text(flashes[0].chip->bustype);
 		msg_gdbg("Found %s flash chip \"%s\" (%d kB, %s).\n",
@@ -754,10 +740,10 @@ out:
 	free(fmapfile);
 	free(referencefile);
 	free(layoutfile);
-	free(pparam);
-	free(pname);
+	free(flash_args.prog_args);
+	free(flash_args.prog_name);
+	free(flash_args.chip);
 	/* clean up global variables */
-	free((char *)chip_to_probe); /* Silence! Freeing is not modifying contents. */
 	chip_to_probe = NULL;
 	free(logfile);
 	ret |= close_logfile();
