@@ -22,6 +22,18 @@
 #include "flash.h"
 #include "cli.h"
 
+int cli_check_filename(const char *const filename, const char *const type)
+{
+	if (!filename || (filename[0] == '\0')) {
+		fprintf(stderr, "Error: No %s file specified.\n", type);
+		return 1;
+	}
+	/* Not an error, but maybe the user intended to specify a CLI option instead of a file name. */
+	if (filename[0] == '-' && filename[1] != '\0')
+		fprintf(stderr, "Warning: Supplied %s file name starts with -\n", type);
+	return 0;
+}
+
 int cli_parse_flash_args(struct flash_args *const args, const int opt, const char *const optarg)
 {
 	switch (opt) {
@@ -51,6 +63,45 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 		}
 		args->chip = strdup(optarg);
 		if (!args->chip) {
+			fprintf(stderr, "Out of memory!\n");
+			return 2;
+		}
+		break;
+	}
+
+	return 0;
+}
+
+int cli_parse_layout_args(struct layout_args *const args, const int opt, const char *const optarg)
+{
+	if (args->layoutfile || args->ifd || args->fmap || args->fmapfile) {
+		fprintf(stderr, "Error: Only one layout source may be specified.\n");
+		return 1;
+	}
+
+	switch (opt) {
+	case OPTION_LAYOUT:
+		if (cli_check_filename(optarg, "layout"))
+			return 1;
+
+		args->layoutfile = strdup(optarg);
+		if (!args->layoutfile) {
+			fprintf(stderr, "Out of memory!\n");
+			return 2;
+		}
+		break;
+	case OPTION_IFD:
+		args->ifd = true;
+		break;
+	case OPTION_FMAP:
+		args->fmap = true;
+		break;
+	case OPTION_FMAP_FILE:
+		if (cli_check_filename(optarg, "fmap"))
+			return 1;
+
+		args->fmapfile = strdup(optarg);
+		if (!args->fmapfile) {
 			fprintf(stderr, "Out of memory!\n");
 			return 2;
 		}

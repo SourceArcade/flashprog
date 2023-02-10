@@ -18,6 +18,7 @@
 enum {
 	OPTION_CHIP = 'c',
 	OPTION_PROGRAMMER = 'p',
+	OPTION_LAYOUT = 'l',
 
 	/* Options below have only long option names, i.e. no single char: */
 	OPTION_IFD = 0x0100,
@@ -35,6 +36,16 @@ struct flash_args {
 	char *prog_args;
 };
 
+struct layout_args {
+	bool ifd;
+	bool fmap;
+	char *fmapfile;
+	char *layoutfile;
+};
+
+int cli_check_filename(const char *filename, const char *type);
+
 int cli_parse_flash_args(struct flash_args *, int opt, const char *optarg);
+int cli_parse_layout_args(struct layout_args *, int opt, const char *optarg);
 
 #endif

@@ -97,18 +97,6 @@ static void cli_classic_validate_singleop(int *operation_specified)
 	}
 }
 
-static int check_filename(char *filename, const char *type)
-{
-	if (!filename || (filename[0] == '\0')) {
-		fprintf(stderr, "Error: No %s file specified.\n", type);
-		return 1;
-	}
-	/* Not an error, but maybe the user intended to specify a CLI option instead of a file name. */
-	if (filename[0] == '-' && filename[1] != '\0')
-		fprintf(stderr, "Warning: Supplied %s file name starts with -\n", type);
-	return 0;
-}
-
 /* Ensure a file is open by means of fstat */
 static bool check_file(FILE *file)
 {
@@ -212,7 +200,7 @@ int main(int argc, char *argv[])
 	int opt, i, j;
 	int startchip = -1, chipcount = 0, option_index = 0;
 	int operation_specified = 0;
-	bool force = false, ifd = false, fmap = false;
+	bool force = false;
 #if CONFIG_PRINT_WIKI == 1
 	bool list_supported_wiki = false;
 #endif
@@ -258,11 +246,10 @@ int main(int argc, char *argv[])
 
 	char *filename = NULL;
 	char *referencefile = NULL;
-	char *layoutfile = NULL;
-	char *fmapfile = NULL;
 	char *logfile = NULL;
 	char *tempstr = NULL;
 	struct flash_args flash_args = { 0 };
+	struct layout_args layout_args = { 0 };
 	struct layout_include_args *include_args = NULL;
 
 	/*
@@ -338,42 +325,15 @@ int main(int argc, char *argv[])
 		case 'f':
 			force = true;
 			break;
-		case 'l':
-			if (layoutfile)
-				cli_classic_abort_usage("Error: --layout specified more than once. Aborting.\n");
-			if (ifd)
-				cli_classic_abort_usage("Error: --layout and --ifd both specified. Aborting.\n");
-			if (fmap)
-				cli_classic_abort_usage("Error: --layout and --fmap-file both specified. Aborting.\n");
-			layoutfile = strdup(optarg);
-			break;
+		case OPTION_LAYOUT:
 		case OPTION_IFD:
-			if (layoutfile)
-				cli_classic_abort_usage("Error: --layout and --ifd both specified. Aborting.\n");
-			if (fmap)
-				cli_classic_abort_usage("Error: --fmap-file and --ifd both specified. Aborting.\n");
-			ifd = true;
-			break;
-		case OPTION_FMAP_FILE:
-			if (fmap)
-				cli_classic_abort_usage("Error: --fmap or --fmap-file specified "
-					"more than once. Aborting.\n");
-			if (ifd)
-				cli_classic_abort_usage("Error: --fmap-file and --ifd both specified. Aborting.\n");
-			if (layoutfile)
-				cli_classic_abort_usage("Error: --fmap-file and --layout both specified. Aborting.\n");
-			fmapfile = strdup(optarg);
-			fmap = true;
-			break;
 		case OPTION_FMAP:
-			if (fmap)
-				cli_classic_abort_usage("Error: --fmap or --fmap-file specified "
-					"more than once. Aborting.\n");
-			if (ifd)
-				cli_classic_abort_usage("Error: --fmap and --ifd both specified. Aborting.\n");
-			if (layoutfile)
-				cli_classic_abort_usage("Error: --layout and --fmap both specified. Aborting.\n");
-			fmap = true;
+		case OPTION_FMAP_FILE:
+			ret = cli_parse_layout_args(&layout_args, opt, optarg);
+			if (ret == 1)
+				cli_classic_abort_usage(NULL);
+			else if (ret)
+				exit(1);
 			break;
 		case 'i':
 			tempstr = strdup(optarg);
@@ -441,15 +401,11 @@ int main(int argc, char *argv[])
 
 	if (optind < argc)
 		cli_classic_abort_usage("Error: Extra parameter found.\n");
-	if ((read_it | write_it | verify_it) && check_filename(filename, "image"))
+	if ((read_it | write_it | verify_it) && cli_check_filename(filename, "image"))
 		cli_classic_abort_usage(NULL);
-	if (layoutfile && check_filename(layoutfile, "layout"))
+	if (referencefile && cli_check_filename(referencefile, "reference"))
 		cli_classic_abort_usage(NULL);
-	if (fmapfile && check_filename(fmapfile, "fmap"))
-		cli_classic_abort_usage(NULL);
-	if (referencefile && check_filename(referencefile, "reference"))
-		cli_classic_abort_usage(NULL);
-	if (logfile && check_filename(logfile, "log"))
+	if (logfile && cli_check_filename(logfile, "log"))
 		cli_classic_abort_usage(NULL);
 	if (logfile && open_logfile(logfile))
 		cli_classic_abort_usage(NULL);
@@ -476,12 +432,13 @@ int main(int argc, char *argv[])
 	}
 	msg_gdbg("\n");
 
-	if (layoutfile && layout_from_file(&layout, layoutfile)) {
+	if (layout_args.layoutfile && layout_from_file(&layout, layout_args.layoutfile)) {
 		ret = 1;
 		goto out;
 	}
 
-	if (!ifd && !fmap && process_include_args(layout, include_args)) {
+	if (!layout_args.ifd && !layout_args.fmap && !layout_args.fmapfile &&
+	    process_include_args(layout, include_args)) {
 		ret = 1;
 		goto out;
 	}
@@ -646,14 +603,14 @@ int main(int argc, char *argv[])
 		goto out_shutdown;
 	}
 
-	if (ifd && (flashprog_layout_read_from_ifd(&layout, fill_flash, NULL, 0) ||
-			   process_include_args(layout, include_args))) {
+	if (layout_args.ifd && (flashprog_layout_read_from_ifd(&layout, fill_flash, NULL, 0) ||
+							process_include_args(layout, include_args))) {
 		ret = 1;
 		goto out_shutdown;
-	} else if (fmap && fmapfile) {
+	} else if (layout_args.fmapfile) {
 		struct stat s;
-		if (stat(fmapfile, &s) != 0) {
-			msg_gerr("Failed to stat fmapfile \"%s\"\n", fmapfile);
+		if (stat(layout_args.fmapfile, &s) != 0) {
+			msg_gerr("Failed to stat fmapfile \"%s\"\n", layout_args.fmapfile);
 			ret = 1;
 			goto out_shutdown;
 		}
@@ -665,7 +622,7 @@ int main(int argc, char *argv[])
 			goto out_shutdown;
 		}
 
-		if (read_buf_from_file(fmapfile_buffer, fmapfile_size, fmapfile)) {
+		if (read_buf_from_file(fmapfile_buffer, fmapfile_size, layout_args.fmapfile)) {
 			ret = 1;
 			free(fmapfile_buffer);
 			goto out_shutdown;
@@ -678,8 +635,8 @@ int main(int argc, char *argv[])
 			goto out_shutdown;
 		}
 		free(fmapfile_buffer);
-	} else if (fmap && (flashprog_layout_read_fmap_from_rom(&layout, fill_flash, 0,
-				flashprog_flash_getsize(fill_flash)) || process_include_args(layout, include_args))) {
+	} else if (layout_args.fmap && (flashprog_layout_read_fmap_from_rom(&layout, fill_flash, 0,
+			flashprog_flash_getsize(fill_flash)) || process_include_args(layout, include_args))) {
 		ret = 1;
 		goto out_shutdown;
 	}
@@ -728,9 +685,9 @@ out:
 
 	cleanup_include_args(&include_args);
 	free(filename);
-	free(fmapfile);
 	free(referencefile);
-	free(layoutfile);
+	free(layout_args.fmapfile);
+	free(layout_args.layoutfile);
 	free(flash_args.prog_args);
 	free(flash_args.prog_name);
 	free(flash_args.chip);
