@@ -223,15 +223,6 @@ int main(int argc, char *argv[])
 	bool show_progress = false;
 	struct flashprog_layout *layout = NULL;
 	struct flashprog_programmer *prog = NULL;
-	enum {
-		OPTION_IFD = 0x0100,
-		OPTION_FMAP,
-		OPTION_FMAP_FILE,
-		OPTION_FLASH_CONTENTS,
-		OPTION_FLASH_NAME,
-		OPTION_FLASH_SIZE,
-		OPTION_PROGRESS,
-	};
 	int ret = 0;
 
 	static const char optstring[] = "r:Rw:v:nNVEfc:l:i:p:Lzho:";
