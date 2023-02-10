@@ -60,4 +60,6 @@ int cli_parse_flash_args(struct flash_args *, int opt, const char *optarg);
 int cli_parse_layout_args(struct layout_args *, int opt, const char *optarg);
 int cli_process_layout_args(struct flashprog_layout **, struct flashprog_flashctx *, const struct layout_args *);
 
+int cli_init(void);
+
 #endif

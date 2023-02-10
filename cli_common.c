@@ -16,6 +16,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -33,6 +34,34 @@ int cli_check_filename(const char *const filename, const char *const type)
 	if (filename[0] == '-' && filename[1] != '\0')
 		fprintf(stderr, "Warning: Supplied %s file name starts with -\n", type);
 	return 0;
+}
+
+/* Ensure a file is open by means of fstat */
+static bool cli_check_file(FILE *file)
+{
+	struct stat statbuf;
+
+	if (fstat(fileno(file), &statbuf) < 0)
+		return false;
+	return true;
+}
+
+int cli_init(void)
+{
+	/*
+	 * Safety-guard against a user who has (mistakenly) closed
+	 * stdout or stderr before exec'ing flashprog.  We disable
+	 * logging in this case to prevent writing log data to a flash
+	 * chip when a flash device gets opened with fd 1 or 2.
+	 */
+	if (cli_check_file(stdout) && cli_check_file(stderr)) {
+		flashprog_set_log_callback((flashprog_log_callback *)&flashprog_print_cb);
+	}
+
+	print_version();
+	print_banner();
+
+	return flashprog_init(/* perform_selfcheck => */1);
 }
 
 int cli_parse_log_args(struct log_args *const args, const int opt, const char *const optarg)
