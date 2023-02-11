@@ -83,6 +83,7 @@ int flashprog_layout_read_fmap_from_buffer(struct flashprog_layout **layout,
 		struct flashprog_flashctx *, const uint8_t *buf, size_t len);
 int flashprog_layout_add_region(struct flashprog_layout *, size_t start, size_t end, const char *name);
 int flashprog_layout_include_region(struct flashprog_layout *, const char *name);
+int flashprog_layout_get_region_range(const struct flashprog_layout *, const char *name, size_t *start, size_t *len);
 void flashprog_layout_release(struct flashprog_layout *);
 void flashprog_layout_set(struct flashprog_flashctx *, const struct flashprog_layout *);
 
