@@ -148,6 +148,45 @@ static int sp_opensocket(char *ip, unsigned int port)
 }
 #endif
 
+static int sp_test_sync(void)
+{
+	int n;
+
+	unsigned char c = S_CMD_SYNCNOP;
+	if (serialport_write_nonblock(&c, 1, 1, NULL) != 0)
+		return -1;
+
+	for (n = 0; n < 10; n++) {
+		int ret = serialport_read_nonblock(&c, 1, 50, NULL);
+		if (ret < 0)
+			return -1;
+		if (ret > 0 || c != S_NAK)
+			continue;
+		ret = serialport_read_nonblock(&c, 1, 20, NULL);
+		if (ret < 0)
+			return -1;
+		if (ret > 0 || c != S_ACK)
+			continue;
+
+		c = S_CMD_SYNCNOP;
+		if (serialport_write_nonblock(&c, 1, 1, NULL) != 0)
+			return -1;
+		ret = serialport_read_nonblock(&c, 1, 500, NULL);
+		if (ret < 0)
+			return -1;
+		if (ret > 0 || c != S_NAK)
+			return 1;	/* soft fail */
+		ret = serialport_read_nonblock(&c, 1, 100, NULL);
+		if (ret > 0 || ret < 0)
+			return -1;
+		if (c != S_ACK)
+			return 1;	/* soft fail */
+		return 0;
+	}
+
+	return 1;	/* soft fail */
+}
+
 /* Synchronize: a bit tricky algorithm that tries to (and in my tests has *
  * always succeeded in) bring the serial protocol to known waiting-for-   *
  * command state - uses nonblocking I/O - rest of the driver uses         *
@@ -156,7 +195,7 @@ static int sp_opensocket(char *ip, unsigned int port)
  * do is synchronize (eg. check that device is alive).			  */
 static int sp_synchronize(void)
 {
-	int i;
+	int i, ret;
 	unsigned char buf[8];
 	/* First sends 8 NOPs, then flushes the return data - should cause *
 	 * the device serial parser to get to a sane state, unless if it   *
@@ -174,41 +213,16 @@ static int sp_synchronize(void)
 	 * up to 500ms per try, 8*0.5s = 4s; +1s (above) = up to 5s sync      *
 	 * attempt, ~1s if immediate success.                                 */
 	for (i = 0; i < 8; i++) {
-		int n;
-		unsigned char c = S_CMD_SYNCNOP;
-		if (serialport_write_nonblock(&c, 1, 1, NULL) != 0) {
-			goto err_out;
-		}
 		msg_pdbg(".");
 		fflush(stdout);
-		for (n = 0; n < 10; n++) {
-			int ret = serialport_read_nonblock(&c, 1, 50, NULL);
-			if (ret < 0)
-				goto err_out;
-			if (ret > 0 || c != S_NAK)
-				continue;
-			ret = serialport_read_nonblock(&c, 1, 20, NULL);
-			if (ret < 0)
-				goto err_out;
-			if (ret > 0 || c != S_ACK)
-				continue;
-			c = S_CMD_SYNCNOP;
-			if (serialport_write_nonblock(&c, 1, 1, NULL) != 0) {
-				goto err_out;
-			}
-			ret = serialport_read_nonblock(&c, 1, 500, NULL);
-			if (ret < 0)
-				goto err_out;
-			if (ret > 0 || c != S_NAK)
-				break;	/* fail */
-			ret = serialport_read_nonblock(&c, 1, 100, NULL);
-			if (ret > 0 || ret < 0)
-				goto err_out;
-			if (c != S_ACK)
-				break;	/* fail */
-			msg_pdbg("\n");
-			return 0;
-		}
+
+		ret = sp_test_sync();
+		if (ret > 0)
+			continue;
+		if (ret < 0)
+			goto err_out;
+		msg_pdbg("\n");
+		return 0;
 	}
 err_out:
 	msg_perr("Error: cannot synchronize protocol - check communications and reset device?\n");
