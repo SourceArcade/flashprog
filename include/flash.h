@@ -565,11 +565,6 @@ int register_chip_restore(chip_restore_fn_cb_t func, struct flashctx *flash, uin
 void print_chip_support_status(const struct flashchip *chip);
 
 /* cli_output.c */
-extern enum flashprog_log_level verbose_screen;
-extern enum flashprog_log_level verbose_logfile;
-int open_logfile(const char * const filename);
-int close_logfile(void);
-void start_logging(void);
 int flashprog_print_cb(enum flashprog_log_level level, const char *fmt, va_list ap);
 void flashprog_progress_cb(enum flashprog_progress_stage, size_t current, size_t total, void *user_data);
 /* Let gcc and clang check for correct printf-style format strings. */

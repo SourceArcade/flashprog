@@ -64,4 +64,10 @@ int cli_init(void);
 
 int flashprog_classic_main(int argc, char *argv[]);
 
+extern enum flashprog_log_level verbose_screen;
+extern enum flashprog_log_level verbose_logfile;
+int open_logfile(const char * const filename);
+int close_logfile(void);
+void start_logging(void);
+
 #endif
