@@ -246,8 +246,8 @@ int main(int argc, char *argv[])
 
 	char *filename = NULL;
 	char *referencefile = NULL;
-	char *logfile = NULL;
 	char *tempstr = NULL;
+	struct log_args log_args = { FLASHPROG_MSG_INFO, FLASHPROG_MSG_DEBUG2, NULL };
 	struct flash_args flash_args = { 0 };
 	struct layout_args layout_args = { 0 };
 	struct layout_include_args *include_args = NULL;
@@ -314,9 +314,12 @@ int main(int argc, char *argv[])
 				exit(1);
 			break;
 		case 'V':
-			verbose_screen++;
-			if (verbose_screen > FLASHPROG_MSG_DEBUG2)
-				verbose_logfile = verbose_screen;
+		case 'o':
+			ret = cli_parse_log_args(&log_args, opt, optarg);
+			if (ret == 1)
+				cli_classic_abort_usage(NULL);
+			else if (ret)
+				exit(1);
 			break;
 		case 'E':
 			cli_classic_validate_singleop(&operation_specified);
@@ -379,17 +382,6 @@ int main(int argc, char *argv[])
 			cli_classic_usage(argv[0]);
 			exit(0);
 			break;
-		case 'o':
-			if (logfile) {
-				fprintf(stderr, "Warning: -o/--output specified multiple times.\n");
-				free(logfile);
-			}
-
-			logfile = strdup(optarg);
-			if (logfile[0] == '\0') {
-				cli_classic_abort_usage("No log filename specified.\n");
-			}
-			break;
 		case OPTION_PROGRESS:
 			show_progress = true;
 			break;
@@ -405,10 +397,10 @@ int main(int argc, char *argv[])
 		cli_classic_abort_usage(NULL);
 	if (referencefile && cli_check_filename(referencefile, "reference"))
 		cli_classic_abort_usage(NULL);
-	if (logfile && cli_check_filename(logfile, "log"))
+	if (log_args.logfile && open_logfile(log_args.logfile))
 		cli_classic_abort_usage(NULL);
-	if (logfile && open_logfile(logfile))
-		cli_classic_abort_usage(NULL);
+	verbose_screen = log_args.screen_level;
+	verbose_logfile = log_args.logfile_level;
 
 #if CONFIG_PRINT_WIKI == 1
 	if (list_supported_wiki) {
@@ -650,9 +642,9 @@ out:
 	free(flash_args.prog_args);
 	free(flash_args.prog_name);
 	free(flash_args.chip);
+	free(log_args.logfile);
 	/* clean up global variables */
 	chip_to_probe = NULL;
-	free(logfile);
 	ret |= close_logfile();
 	return ret;
 }
