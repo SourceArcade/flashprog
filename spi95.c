@@ -41,7 +41,7 @@ int probe_spi_st95(struct flashctx *flash)
 
 	ret = spi_send_command(flash, rdid_outsize, sizeof(readarr), cmd, readarr);
 	if (ret)
-		return ret;
+		return 0;
 
 	id1 = readarr[0]; // manufacture id
 	id2 = (readarr[1] << 8) | readarr[2]; // SPI family code + model id
