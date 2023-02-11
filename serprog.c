@@ -197,6 +197,17 @@ static int sp_synchronize(void)
 {
 	int i, ret;
 	unsigned char buf[8];
+
+	ret = sp_test_sync();
+	if (ret < 0)
+		goto err_out;
+	if (ret == 0) {
+		msg_pdbg("\n");
+		return 0;
+	}
+
+	msg_pdbg(" - attempting to synchronize\n");
+
 	/* First sends 8 NOPs, then flushes the return data - should cause *
 	 * the device serial parser to get to a sane state, unless if it   *
 	 * is waiting for a real long write-n.                             */
@@ -469,7 +480,7 @@ static int serprog_init(struct flashprog_programmer *const prog)
 		return 1;
 	}
 
-	msg_pdbg(MSGHEADER "connected - attempting to synchronize\n");
+	msg_pdbg(MSGHEADER "connected");
 
 	sp_check_avail_automatic = 0;
 
