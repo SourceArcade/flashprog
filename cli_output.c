@@ -19,7 +19,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+
 #include "flash.h"
+#include "cli.h"
 
 enum flashprog_log_level verbose_screen = FLASHPROG_MSG_INFO;
 enum flashprog_log_level verbose_logfile = FLASHPROG_MSG_DEBUG2;
