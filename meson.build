@@ -607,6 +607,7 @@ if get_option('classic_cli').auto() or get_option('classic_cli').enabled()
     files(
       'cli.c',
       'cli_config.c',
+      'cli_wp.c',
       'cli_classic.c',
       'cli_common.c',
       'cli_output.c',

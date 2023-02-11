@@ -35,6 +35,12 @@ enum {
 	OPTION_CONFIG_GET,
 	OPTION_CONFIG_SET,
 	OPTION_CONFIG_VOLATILE,
+	OPTION_WP_STATUS,
+	OPTION_WP_SET_RANGE,
+	OPTION_WP_SET_REGION,
+	OPTION_WP_ENABLE,
+	OPTION_WP_DISABLE,
+	OPTION_WP_LIST,
 };
 
 struct log_args {
@@ -67,6 +73,7 @@ int cli_init(void);
 
 int flashprog_classic_main(int argc, char *argv[]);
 int flashprog_config_main(int argc, char *argv[]);
+int flashprog_wp_main(int argc, char *argv[]);
 
 extern enum flashprog_log_level verbose_screen;
 extern enum flashprog_log_level verbose_logfile;
