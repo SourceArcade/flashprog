@@ -35,6 +35,34 @@ int cli_check_filename(const char *const filename, const char *const type)
 	return 0;
 }
 
+int cli_parse_log_args(struct log_args *const args, const int opt, const char *const optarg)
+{
+	switch (opt) {
+	case OPTION_VERBOSE:
+		args->screen_level++;
+		if (args->screen_level > args->logfile_level)
+			args->logfile_level = args->screen_level;
+		break;
+	case OPTION_LOGFILE:
+		if (cli_check_filename(optarg, "log"))
+			return 1;
+
+		if (args->logfile) {
+			fprintf(stderr, "Warning: -o/--output specified multiple times.\n");
+			free(args->logfile);
+		}
+
+		args->logfile = strdup(optarg);
+		if (!args->logfile) {
+			fprintf(stderr, "Out of memory!\n");
+			return 2;
+		}
+		break;
+	}
+
+	return 0;
+}
+
 int cli_parse_flash_args(struct flash_args *const args, const int opt, const char *const optarg)
 {
 	switch (opt) {

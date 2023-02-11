@@ -18,6 +18,8 @@
 #include "libflashprog.h"
 
 enum {
+	OPTION_VERBOSE = 'V',
+	OPTION_LOGFILE = 'o',
 	OPTION_CHIP = 'c',
 	OPTION_PROGRAMMER = 'p',
 	OPTION_LAYOUT = 'l',
@@ -30,6 +32,12 @@ enum {
 	OPTION_FLASH_NAME,
 	OPTION_FLASH_SIZE,
 	OPTION_PROGRESS,
+};
+
+struct log_args {
+	enum flashprog_log_level screen_level;
+	enum flashprog_log_level logfile_level;
+	char *logfile;
 };
 
 struct flash_args {
@@ -47,6 +55,7 @@ struct layout_args {
 
 int cli_check_filename(const char *filename, const char *type);
 
+int cli_parse_log_args(struct log_args *, int opt, const char *optarg);
 int cli_parse_flash_args(struct flash_args *, int opt, const char *optarg);
 int cli_parse_layout_args(struct layout_args *, int opt, const char *optarg);
 int cli_process_layout_args(struct flashprog_layout **, struct flashprog_flashctx *, const struct layout_args *);
