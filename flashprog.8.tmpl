@@ -46,12 +46,13 @@ flashprog \- detect, read, write, verify and erase flash chips
 .SH SYNOPSIS
 Flashprog supports multiple command modes:
 .sp
-.B flashprog \fR([\fBprog\fR]|\fBconfig\fR|\fBcfg\fR)
+.BR flashprog " ([" prog ]| config | cfg | write-protect | wp )
 .sp
 With
 .B prog
 being the default and described in this manual. For the other commands, see
-.MR flashprog-config 8 .
+.MR flashprog-config 8 ", and"
+.MR flashprog-write-protect 8 .
 .sp
 .B flashprog \fR[\fB\-h\fR|\fB\-R\fR|\fB\-L\fR|\fB\-z\fR|
           \fB\-p\fR <programmername>[:<parameters>] [\fB\-c\fR <chipname>]
@@ -1738,4 +1739,5 @@ Carl-Daniel Hailfinger, Stefan Tauner and others.
 It is licensed under the terms of the GNU GPL (version 2 or later).
 
 .SH SEE ALSO
-.MR flashprog-config 8
+.MR flashprog-config 8 ,
+.MR flashprog-write-protect 8

@@ -401,7 +401,7 @@ LIB_OBJS = libflashprog.o layout.o flashprog.o udelay.o parallel.o programmer.o 
 ###############################################################################
 # Frontend related stuff.
 
-CLI_OBJS = cli.o cli_config.o cli_classic.o cli_output.o cli_common.o print.o
+CLI_OBJS = cli.o cli_config.o cli_wp.o cli_classic.o cli_output.o cli_common.o print.o
 
 # By default version information will be fetched from Git if available.
 # Otherwise, versioninfo.inc stores the metadata required to build a
@@ -925,7 +925,7 @@ endif
 endif
 
 OBJS = $(CHIP_OBJS) $(PROGRAMMER_OBJS) $(LIB_OBJS)
-MANS = $(PROGRAM).8 $(PROGRAM)-config.8
+MANS = $(PROGRAM).8 $(PROGRAM)-config.8 $(PROGRAM)-write-protect.8
 
 all: $(PROGRAM)$(EXEC_SUFFIX) $(MANS)
 ifeq ($(ARCH), x86)

@@ -28,6 +28,8 @@ static const struct {
 	{ "prog",		flashprog_classic_main },
 	{ "cfg",		flashprog_config_main },
 	{ "config",		flashprog_config_main },
+	{ "wp",			flashprog_wp_main },
+	{ "write-protect",	flashprog_wp_main },
 };
 
 static void usage(const char *const name)
@@ -37,6 +39,7 @@ static void usage(const char *const name)
 			" prog                     Standard memory operations\n"
 			"                          (read/erase/write/verify)\n"
 			" cfg | config             Status/config register operations\n"
+			" wp | write-protect       Write-protection operations\n"
 			"\n"
 			"The default is 'prog'. See `%s <command> --help`\n"
 			"for further instructions.\n\n", name);

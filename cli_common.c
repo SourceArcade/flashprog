@@ -230,7 +230,7 @@ int getopt_command(const int argc, char *const argv[], const struct opt_command 
 	return -1;
 }
 
-void print_generic_options(void)
+void print_generic_options(const bool layout_options)
 {
 	fprintf(stderr, "\n"
 		"Where generic <options> are\n"
@@ -241,6 +241,15 @@ void print_generic_options(void)
 		"    -V | --verbose                      more verbose output\n"
 		"    -o | --output <logfile>             log output to <logfile>\n"
 		"    -h | --help                         print help text\n");
+
+	if (!layout_options)
+		return;
+	fprintf(stderr, "\n"
+		"and layout <options> are\n"
+		"    -l | --layout <layoutfile>          read ROM layout from <layoutfile>\n"
+		"         --fmap-file <fmapfile>         read ROM layout from fmap in <fmapfile>\n"
+		"         --fmap                         read ROM layout from fmap embedded in ROM\n"
+		"         --ifd                          read layout from an Intel Flash Descriptor\n");
 }
 
 void print_chip_support_status(const struct flashchip *chip)

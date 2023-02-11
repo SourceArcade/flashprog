@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
 #include <limits.h>
@@ -88,7 +89,7 @@ static void usage(const char *const name, const char *const msg)
 			"\t%s [get] <options> <setting>\n"
 			"\t%s  set  <options> [--temporary] <setting> <value>\n",
 			name, name);
-	print_generic_options();
+	print_generic_options(/* layout_options =>*/false);
 	fprintf(stderr, "\n<setting> can be\n"
 			"    qe | quad-enable        Quad-Enable (QE) bit\n"
 			"\nand <value> can be `true', `false', or a number.\n"

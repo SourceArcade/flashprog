@@ -1,0 +1,241 @@
+.\" Load the www device when using groff; provide a fallback for groff's MTO macro that formats email addresses.
+.ie \n[.g] \
+.  mso www.tmac
+.el \{
+.  de MTO
+     \\$2 \(la\\$1 \(ra\\$3 \
+.  .
+.\}
+.\" Create wrappers for .MTO and .URL that print only text on systems w/o groff or if not outputting to a HTML
+.\" device. To that end we need to distinguish HTML output on groff from other configurations first.
+.nr groffhtml 0
+.if \n[.g] \
+.  if "\*[.T]"html" \
+.    nr groffhtml 1
+.\" For code reuse it would be nice to have a single wrapper that gets its target macro as parameter.
+.\" However, this did not work out with NetBSD's and OpenBSD's groff...
+.de URLB
+.  ie (\n[groffhtml]==1) \{\
+.    URL \\$@
+.  \}
+.  el \{\
+.    ie "\\$2"" \{\
+.      BR "\\$1" "\\$3"
+.    \}
+.    el \{\
+.      RB "\\$2 \(la" "\\$1" "\(ra\\$3"
+.    \}
+.  \}
+..
+.de MTOB
+.  ie (\n[groffhtml]==1) \{\
+.    MTO \\$@
+.  \}
+.  el \{\
+.    ie "\\$2"" \{\
+.      BR "\\$1" "\\$3"
+.    \}
+.    el \{\
+.      RB "\\$2 \(la" "\\$1" "\(ra\\$3"
+.    \}
+.  \}
+..
+.TH FLASHPROG-WRITE-PROTECT 8 "@MAN_DATE@" "flashprog-write-protect-@VERSION@" "@MAN_DATE@"
+
+.SH NAME
+flashprog-write-protect \- control write-protection settings of flash chips
+
+.SH SYNOPSIS
+.I flashprog write-protect \fR[\fIstatus\fR] <options>
+.br
+.I flashprog write-protect \ list \ \ \ \fR<options>
+.br
+.I flashprog write-protect \ disable    \fR<options> [\fB\-\-temporary\fR]
+.br
+.I flashprog write-protect \ enable   \ \fR<options> [\fB\-\-temporary\fR]
+.br
+.I flashprog write-protect \ range  \ \ \fR<options> [\fB\-\-temporary\fR] <start>\fB,\fR<len>
+.br
+.I flashprog write-protect \ region   \ \fR<options> [\fB\-\-temporary\fR] <region-name>
+.sp
+Where generic <options> are:
+.RS 4
+\fB\-p\fR <programmername>[:<parameters>] [\fB\-c\fR <chipname>]
+.br
+[\fB\-V\fR[\fBV\fR[\fBV\fR]]] [\fB-o\fR <logfile>] [\fB\-h\fR]
+.RE
+.sp
+and layout <options> are:
+.RS 4
+[(\fB-l\fR|\fB--layout\fR) <layout-file>|\fB--fmap\fR <fmap-file>|\fB--fmap\fR|\fB--ifd\fR]
+.RE
+
+.SH DESCRIPTION
+.B flashprog-write-protect
+is a utility for reading and writing the write-protection settings
+of flash chips. Currently, it supports only block protection of SPI NOR
+chips.
+
+.SH OPERATIONS
+You can specify one operation per call.
+.B status
+is the default operation.
+.PP
+.B status
+.RS 4
+Shows the write-protection state, including the currently
+programmed protection range.
+.RE
+.PP
+.B list
+.RS 4
+Prints a list of write-protection ranges supported for the
+flash chip.
+.RE
+.PP
+.B disable
+.RS 4
+Disables write protection locks. The configured range usually
+stays as is, but it will be possible to override it.
+.RE
+.PP
+.B enable
+.RS 4
+Enables write protection locks. The write-protection range
+should be set before running the enable operation.
+.RE
+.PP
+.BR range " <start>,<len>"
+.RS 4
+Configures the protected range.
+.BR start " and " length
+specify the range in decimal, octal (\fB0\fR prefix),
+or hexadecimal (\fB0x\fR prefix) numbers of bytes.
+Any zero-length range will unprotect the entire flash
+(e.g. \fBrange 0,0\fR).
+.RE
+.PP
+.BR region " <region-name>"
+.RS 4
+Configures the protected range, matching a region of the loaded
+layout (from a file or flash, see the respective option-descriptions in
+.MR flashprog 8
+for possible layout sources).
+.RE
+
+.SH OPTIONS
+All operations require the
+.B -p/--programmer
+option to be used (please see
+.MR flashprog 8
+for more information on programmer support and parameters).
+.PP
+.BR \-p ", " \-\-programmer " <name>[" : "<parameter>[" , "<parameter>]...]"
+.RS 4
+Specify the programmer device. This is mandatory for all operations.
+Please see the
+.MR flashprog 8
+manual for a list of currently supported programmers and their parameters.
+.RE
+.PP
+.BR \-c ", " \-\-chip " <chipname>"
+.RS 4
+Probe only for the specified flash ROM chip. This option takes the chip name as
+printed by
+.B "flashprog \-L"
+without the vendor name as parameter. Please note that the chip name is
+case sensitive.
+.RE
+.PP
+.BR \-V ", " \-\-verbose
+.RS 4
+More verbose output. This option can be supplied multiple times
+(max. 3 times, i.e.
+.BR \-VVV )
+for even more debug output.
+.RE
+.PP
+.BR \-o ", " \-\-output " <logfile>"
+.RS 4
+Save the full debug log to
+.BR <logfile> .
+If the file already exists, it will be overwritten. This is the recommended
+way to gather logs from flashprog because they will be verbose even if the
+on-screen messages are not verbose and don't require output redirection.
+.RE
+.PP
+.BR \-h ", " \-\-help
+.RS 4
+Show a help text and exit.
+.RE
+.PP
+.RB ( -l | --layout ") <layout-file>, " --fmap-file " <fmap-file>, " --fmap ", " --ifd
+.RS 4
+Please see the
+.MR flashrom 8
+manual for information about layout files and other layout sources.
+.RE
+.PP
+.B \-\-temporary
+.RS 4
+When the
+.B \-\-temporary
+option is provided for any operation that alters the flash chip's
+configuration, flashprog will attempt to write a temporary
+value that is not stored to flash. This requires special support
+by the flash chip for a volatile write status register command.
+The new value will be lost upon reset of the flash chip. Hence,
+it is futile to use this with external programmers that toggle
+power to the flash chip (e.g. Dediprog).
+.RE
+
+.SH EXAMPLES
+To just print the current write-protection state of the internal
+BIOS flash:
+.sp
+.RS 2
+.B flashprog write-protect -p internal
+.sp
+.RE
+or
+.sp
+.RS 2
+.B flashprog write-protect status -p internal
+.sp
+.RE
+To temporarily enable the currently configured range:
+.sp
+.RS 2
+.B flashprog write-protect enable -p internal --temporary
+.RE
+
+.SH EXIT STATUS
+flashprog exits with 0 on success, 1 on most failures but with 3 if a call to mmap() fails.
+
+.SH REQUIREMENTS
+flashprog needs different access permissions for different programmers.
+See this section in the
+.MR flashprog 8
+manual for details.
+
+.SH BUGS
+You can report bugs, ask us questions or send success reports
+via our communication channels listed here:
+.URLB "https://www.flashprog.org/Contact" "" .
+.sp
+
+.SH LICENSE
+.B flashprog
+is covered by the GNU General Public License (GPL), version 2. Some files are
+additionally available under any later version of the GPL.
+
+.SH COPYRIGHT
+.br
+Please see the individual files.
+.PP
+This manual page was written by Nico Huber and is derived from the
+flashprog(8) manual. It is licensed under the terms of the GNU GPL
+(version 2 or later).
+
+.SH SEE ALSO
+.MR flashprog 8
