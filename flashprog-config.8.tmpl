@@ -1,0 +1,221 @@
+.\" Load the www device when using groff; provide a fallback for groff's MTO macro that formats email addresses.
+.ie \n[.g] \
+.  mso www.tmac
+.el \{
+.  de MTO
+     \\$2 \(la\\$1 \(ra\\$3 \
+.  .
+.\}
+.\" Create wrappers for .MTO and .URL that print only text on systems w/o groff or if not outputting to a HTML
+.\" device. To that end we need to distinguish HTML output on groff from other configurations first.
+.nr groffhtml 0
+.if \n[.g] \
+.  if "\*[.T]"html" \
+.    nr groffhtml 1
+.\" For code reuse it would be nice to have a single wrapper that gets its target macro as parameter.
+.\" However, this did not work out with NetBSD's and OpenBSD's groff...
+.de URLB
+.  ie (\n[groffhtml]==1) \{\
+.    URL \\$@
+.  \}
+.  el \{\
+.    ie "\\$2"" \{\
+.      BR "\\$1" "\\$3"
+.    \}
+.    el \{\
+.      RB "\\$2 \(la" "\\$1" "\(ra\\$3"
+.    \}
+.  \}
+..
+.de MTOB
+.  ie (\n[groffhtml]==1) \{\
+.    MTO \\$@
+.  \}
+.  el \{\
+.    ie "\\$2"" \{\
+.      BR "\\$1" "\\$3"
+.    \}
+.    el \{\
+.      RB "\\$2 \(la" "\\$1" "\(ra\\$3"
+.    \}
+.  \}
+..
+.TH FLASHPROG-CONFIG 8 "@MAN_DATE@" "flashprog-config-@VERSION@" "@MAN_DATE@"
+.SH NAME
+flashprog-config \- read and write status and configuration registers of flash chips
+.SH SYNOPSIS
+.I flashprog config \fR[\fIget\fR] <options> <setting>
+.br
+.I flashprog config \ set \ \fR<options> [\fB\-\-temporary\fR] <setting> <value>
+.sp
+Where generic <options> are:
+.RS 4
+\fB\-p\fR <programmername>[:<parameters>] [\fB\-c\fR <chipname>]
+.br
+[\fB\-V\fR[\fBV\fR[\fBV\fR]]] [\fB-o\fR <logfile>] [\fB\-h\fR]
+.RE
+
+.SH DESCRIPTION
+.B flashprog-config
+is a utility for reading and writing status and configuration register
+bits of flash chips. Currently, it supports only SPI NOR chips.
+
+.SH OPERATIONS
+You can specify one of
+.BR get " or " set ", "
+or no operation which defaults to reading a setting.
+.PP
+.BR get " <setting>"
+.RS 4
+Read and print the value of the given setting. See
+.BR SETTINGS " below."
+.RE
+.PP
+.BR set " [" \-\-temporary "] <setting> <value>"
+.RS 4
+Write the given value to the setting. See
+.BR SETTINGS " and " VALUES " below."
+.sp
+When the
+.B \-\-temporary
+option is provided, flashprog will attempt to write a temporary
+value that is not stored to flash. This requires special support
+by the flash chip for a volatile write status register command.
+The new value will be lost upon reset of the flash chip. Hence,
+it is futile to use this with external programmers that toggle
+power to the flash chip (e.g. Dediprog).
+.RE
+
+.SH SETTINGS
+.PP
+.B qe, quad-enable
+.RS 4
+SPI NOR flash chips often support muxing some of their pins (usually
+/WP and /HOLD) with additional i/o lines. This enables them to transfer
+four bits at once when the
+.B quad-enable
+bit is set.
+.RE
+
+.SH VALUES
+.PP
+.BR false ", " true
+.RS 4
+The values
+.BR false " and " true
+will be converted to
+.BR 0 " and " 1
+respectively.
+.RE
+.PP
+.RB "natural numbers: " 0 ", " 1 ", ..."
+.RS 4
+When natural numbers are given, the least-significant bits of their
+binary representation will be written to a setting.
+.RE
+
+.SH OPTIONS
+All operations require the
+.B -p/--programmer
+option to be used (please see
+.MR flashprog 8
+for more information on programmer support and parameters).
+.PP
+.BR \-p ", " \-\-programmer " <name>[" : "<parameter>[" , "<parameter>]...]"
+.RS 4
+Specify the programmer device. This is mandatory for all operations.
+Please see the
+.MR flashprog 8
+manual for a list of currently supported programmers and their parameters.
+.RE
+.PP
+.BR \-c ", " \-\-chip " <chipname>"
+.RS 4
+Probe only for the specified flash ROM chip. This option takes the chip name as
+printed by
+.B "flashprog \-L"
+without the vendor name as parameter. Please note that the chip name is
+case sensitive.
+.RE
+.PP
+.BR \-V ", " \-\-verbose
+.RS 4
+More verbose output. This option can be supplied multiple times
+(max. 3 times, i.e.
+.BR \-VVV )
+for even more debug output.
+.RE
+.PP
+.BR \-o ", " \-\-output " <logfile>"
+.RS 4
+Save the full debug log to
+.BR <logfile> .
+If the file already exists, it will be overwritten. This is the recommended
+way to gather logs from flashprog because they will be verbose even if the
+on-screen messages are not verbose and don't require output redirection.
+.RE
+.PP
+.BR \-h ", " \-\-help
+.RS 4
+Show a help text and exit.
+.RE
+.PP
+.BR \-\-temporary
+.RS 4
+Try to use a volatile write status register command. See
+.BR set " under " OPERATIONS " above."
+.RE
+
+.SH EXAMPLES
+To read the
+.B quad-enable
+setting of the internal BIOS flash:
+.sp
+.RS 2
+.B flashprog config -p internal quad-enable
+.sp
+.RE
+or
+.sp
+.RS 2
+.B flashprog config get -p internal quad-enable
+.sp
+.RE
+To temporarily set the
+.B quad-enable
+bit of a chip connected to an FT4222H:
+.sp
+.RS 2
+.B flashprog config set -p ft4222_spi --temporary quad-enable 1
+.RE
+
+.SH EXIT STATUS
+flashprog exits with 0 on success, 1 on most failures but with 3 if a call to mmap() fails.
+
+.SH REQUIREMENTS
+flashprog needs different access permissions for different programmers.
+See this section in the
+.MR flashprog 8
+manual for details.
+
+.SH BUGS
+You can report bugs, ask us questions or send success reports
+via our communication channels listed here:
+.URLB "https://www.flashprog.org/Contact" "" .
+.sp
+
+.SH LICENSE
+.B flashprog
+is covered by the GNU General Public License (GPL), version 2. Some files are
+additionally available under any later version of the GPL.
+
+.SH COPYRIGHT
+.br
+Please see the individual files.
+.PP
+This manual page was written by Nico Huber and is derived from the
+.MR flashprog 8
+manual. It is licensed under the terms of the GNU GPL (version 2 or later).
+
+.SH SEE ALSO
+.MR flashprog 8

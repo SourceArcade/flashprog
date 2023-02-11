@@ -593,19 +593,22 @@ pkgg.generate(
 config_manfile = configuration_data()
 config_manfile.set('VERSION', version)
 config_manfile.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
-configure_file(
-  input : 'flashprog.8.tmpl',
-  output : 'flashprog.8',
-  configuration : config_manfile,
-  install: true,
-  install_dir: join_paths(get_option('mandir'), 'man8'),
-)
+foreach man : [ 'flashprog.8', 'flashprog-config.8' ]
+  configure_file(
+    input : man + '.tmpl',
+    output : man,
+    configuration : config_manfile,
+    install: true,
+    install_dir: join_paths(get_option('mandir'), 'man8'),
+  )
+endforeach
 
 if get_option('classic_cli').auto() or get_option('classic_cli').enabled()
   executable(
     'flashprog',
     files(
       'cli.c',
+      'cli_config.c',
       'cli_classic.c',
       'cli_common.c',
       'cli_output.c',

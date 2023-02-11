@@ -401,7 +401,7 @@ LIB_OBJS = libflashprog.o layout.o flashprog.o udelay.o parallel.o programmer.o 
 ###############################################################################
 # Frontend related stuff.
 
-CLI_OBJS = cli.o cli_classic.o cli_output.o cli_common.o print.o
+CLI_OBJS = cli.o cli_config.o cli_classic.o cli_output.o cli_common.o print.o
 
 # By default version information will be fetched from Git if available.
 # Otherwise, versioninfo.inc stores the metadata required to build a
@@ -925,9 +925,9 @@ endif
 endif
 
 OBJS = $(CHIP_OBJS) $(PROGRAMMER_OBJS) $(LIB_OBJS)
+MANS = $(PROGRAM).8 $(PROGRAM)-config.8
 
-
-all: $(PROGRAM)$(EXEC_SUFFIX) $(PROGRAM).8
+all: $(PROGRAM)$(EXEC_SUFFIX) $(MANS)
 ifeq ($(ARCH), x86)
 	@+$(MAKE) -C util/ich_descriptors_tool/ HOST_OS=$(HOST_OS) TARGET_OS=$(TARGET_OS)
 endif
@@ -1013,12 +1013,12 @@ libflashprog.a: $(OBJS)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-$(PROGRAM).8.html: $(PROGRAM).8
-	@groff -mandoc -Thtml $< >$@
+%.8.html: %.8
+	@groff -mandoc -Thtml $< | sed 's/href="man:\([^(]*\)(\([^)]*\))"/href="\1.\2.html"/' >$@
 
-$(PROGRAM).8: $(PROGRAM).8.tmpl
+%.8: %.8.tmpl
 	@# Add the man page change date and version to the man page
-	@sed -e 's#.TH FLASHPROG 8 .*#.TH FLASHPROG 8 "$(MAN_DATE)" "flashprog-$(VERSION)" "$(MAN_DATE)"#' <$< >$@
+	@sed -e 's#.TH \(FLASHPROG[^ ]*\) 8 .*#.TH \1 8 "$(MAN_DATE)" "\L\1-$(VERSION)" "$(MAN_DATE)"#' <$< >$@
 
 strip: $(PROGRAM)$(EXEC_SUFFIX)
 	$(STRIP) $(STRIP_ARGS) $(PROGRAM)$(EXEC_SUFFIX)
@@ -1028,14 +1028,14 @@ strip: $(PROGRAM)$(EXEC_SUFFIX)
 # We don't use EXEC_SUFFIX here because we want to clean everything.
 clean:
 	rm -f $(PROGRAM) $(PROGRAM).exe libflashprog.a $(filter-out Makefile.d, $(wildcard *.d *.o platform/*.d platform/*.o)) \
-		$(PROGRAM).8 $(PROGRAM).8.html $(BUILD_DETAILS_FILE)
+		$(MANS) $(MANS:.8=.8.html) $(BUILD_DETAILS_FILE)
 	@+$(MAKE) -C util/ich_descriptors_tool/ clean
 
-install: $(PROGRAM)$(EXEC_SUFFIX) $(PROGRAM).8
+install: $(PROGRAM)$(EXEC_SUFFIX) $(MANS)
 	mkdir -p $(DESTDIR)$(PREFIX)/sbin
 	mkdir -p $(DESTDIR)$(MANDIR)/man8
 	$(INSTALL) -m 0755 $(PROGRAM)$(EXEC_SUFFIX) $(DESTDIR)$(PREFIX)/sbin
-	$(INSTALL) -m 0644 $(PROGRAM).8 $(DESTDIR)$(MANDIR)/man8
+	$(INSTALL) -m 0644 $(MANS) $(DESTDIR)$(MANDIR)/man8
 
 libinstall: libflashprog.a include/libflashprog.h
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
@@ -1063,7 +1063,7 @@ tag: versioninfo
 RELEASENAME ?= flashprog-$(shell echo "$(VERSION)" | sed -e 's/ /_/')
 
 _export: EXPORT_VERSIONINFO := $(EXPORTDIR)/$(RELEASENAME)/versioninfo.inc
-_export: $(PROGRAM).8
+_export: $(MANS)
 	@rm -rf "$(EXPORTDIR)/$(RELEASENAME)"
 	@mkdir -p "$(EXPORTDIR)/$(RELEASENAME)"
 	@git archive HEAD | tar -x -C "$(EXPORTDIR)/$(RELEASENAME)"
