@@ -348,6 +348,31 @@ int flashprog_layout_include_region(struct flashprog_layout *const layout, const
 }
 
 /**
+ * @brief Get given region's offset and length.
+ *
+ * @param layout The layout to read from.
+ * @param name   The name of the region.
+ * @param start  The start address to be written.
+ * @param len    The length of the region to be written.
+ *
+ * @return 0 on success,
+ *         1 if the given name can't be found.
+ */
+int flashprog_layout_get_region_range(const struct flashprog_layout *const layout,
+				      const char *name, size_t *start, size_t *len)
+{
+	const struct romentry *entry = NULL;
+	while ((entry = layout_next(layout, entry))) {
+		if (!strcmp(entry->name, name)) {
+			*start = entry->start;
+			*len = entry->end - entry->start + 1;
+			return 0;
+		}
+	}
+	return 1;
+}
+
+/**
  * @brief Free a layout.
  *
  * @param layout Layout to free.
