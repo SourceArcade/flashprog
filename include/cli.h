@@ -15,6 +15,8 @@
 #ifndef FLASHPROG_CLI_H
 #define FLASHPROG_CLI_H
 
+#include "libflashprog.h"
+
 enum {
 	OPTION_CHIP = 'c',
 	OPTION_PROGRAMMER = 'p',
@@ -47,5 +49,6 @@ int cli_check_filename(const char *filename, const char *type);
 
 int cli_parse_flash_args(struct flash_args *, int opt, const char *optarg);
 int cli_parse_layout_args(struct layout_args *, int opt, const char *optarg);
+int cli_process_layout_args(struct flashprog_layout **, struct flashprog_flashctx *, const struct layout_args *);
 
 #endif
