@@ -32,6 +32,9 @@ enum {
 	OPTION_FLASH_NAME,
 	OPTION_FLASH_SIZE,
 	OPTION_PROGRESS,
+	OPTION_CONFIG_GET,
+	OPTION_CONFIG_SET,
+	OPTION_CONFIG_VOLATILE,
 };
 
 struct log_args {
@@ -63,6 +66,7 @@ int cli_process_layout_args(struct flashprog_layout **, struct flashprog_flashct
 int cli_init(void);
 
 int flashprog_classic_main(int argc, char *argv[]);
+int flashprog_config_main(int argc, char *argv[]);
 
 extern enum flashprog_log_level verbose_screen;
 extern enum flashprog_log_level verbose_logfile;

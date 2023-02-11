@@ -401,7 +401,7 @@ LIB_OBJS = libflashprog.o layout.o flashprog.o udelay.o parallel.o programmer.o 
 ###############################################################################
 # Frontend related stuff.
 
-CLI_OBJS = cli.o cli_classic.o cli_output.o cli_common.o print.o
+CLI_OBJS = cli.o cli_config.o cli_classic.o cli_output.o cli_common.o print.o
 
 # By default version information will be fetched from Git if available.
 # Otherwise, versioninfo.inc stores the metadata required to build a

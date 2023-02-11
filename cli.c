@@ -27,6 +27,8 @@ static const struct {
 } commands[] = {
 	{ "mem",		flashprog_classic_main },
 	{ "memory",		flashprog_classic_main },
+	{ "cfg",		flashprog_config_main },
+	{ "config",		flashprog_config_main },
 };
 
 static void usage(const char *const name)
@@ -35,6 +37,7 @@ static void usage(const char *const name)
 	fprintf(stderr, "\nWhere <command> can be\n\n"
 			" mem[ory]                 Standard memory operations\n"
 			"                          (read/erase/write/verify)\n"
+			" cfg|config               Status/config register operations\n"
 			"\n"
 			"The default is 'memory'. See `%s <command> --help`\n"
 			"for further instructions.\n\n", name);
