@@ -181,7 +181,7 @@ static bool max_decode_exceeded(const struct registered_master *const mst, const
 	return true;
 }
 
-int main(int argc, char *argv[])
+int flashprog_classic_main(int argc, char *argv[])
 {
 	const struct flashchip *chip = NULL;
 	/* Probe for up to eight flash chips. */
