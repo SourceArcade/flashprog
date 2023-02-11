@@ -62,4 +62,6 @@ int cli_process_layout_args(struct flashprog_layout **, struct flashprog_flashct
 
 int cli_init(void);
 
+int flashprog_classic_main(int argc, char *argv[]);
+
 #endif
