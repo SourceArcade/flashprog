@@ -1078,4 +1078,4 @@ gitconfig:
 # Disable implicit suffixes and built-in rules (for performance and profit)
 .SUFFIXES:
 
--include $(OBJS:.o=.d)
+-include $(OBJS:.o=.d) $(CLI_OBJS:.o=.d)
