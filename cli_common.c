@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "flash.h"
 #include "cli.h"
@@ -106,6 +107,50 @@ int cli_parse_layout_args(struct layout_args *const args, const int opt, const c
 			return 2;
 		}
 		break;
+	}
+
+	return 0;
+}
+
+int cli_process_layout_args(struct flashprog_layout **const layout,
+			    struct flashprog_flashctx *const flash,
+			    const struct layout_args *const args)
+{
+	*layout = NULL;
+
+	if (args->layoutfile) {
+		if (layout_from_file(layout, args->layoutfile))
+			return 1;
+	} else if (args->ifd) {
+		if (flashprog_layout_read_from_ifd(layout, flash, NULL, 0))
+			return 1;
+	} else if (args->fmap) {
+		if (flashprog_layout_read_fmap_from_rom(layout, flash, 0, flashprog_flash_getsize(flash)))
+			return 1;
+	} else if (args->fmapfile) {
+		struct stat s;
+		if (stat(args->fmapfile, &s) != 0) {
+			msg_gerr("Failed to stat fmapfile \"%s\"\n", args->fmapfile);
+			return 1;
+		}
+
+		size_t fmapfile_size = s.st_size;
+		uint8_t *fmapfile_buffer = malloc(fmapfile_size);
+		if (!fmapfile_buffer) {
+			fprintf(stderr, "Out of memory!\n");
+			return 1;
+		}
+
+		if (read_buf_from_file(fmapfile_buffer, fmapfile_size, args->fmapfile)) {
+			free(fmapfile_buffer);
+			return 1;
+		}
+
+		if (flashprog_layout_read_fmap_from_buffer(layout, flash, fmapfile_buffer, fmapfile_size)) {
+			free(fmapfile_buffer);
+			return 1;
+		}
+		free(fmapfile_buffer);
 	}
 
 	return 0;

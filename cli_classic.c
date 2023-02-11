@@ -432,16 +432,6 @@ int main(int argc, char *argv[])
 	}
 	msg_gdbg("\n");
 
-	if (layout_args.layoutfile && layout_from_file(&layout, layout_args.layoutfile)) {
-		ret = 1;
-		goto out;
-	}
-
-	if (!layout_args.ifd && !layout_args.fmap && !layout_args.fmapfile &&
-	    process_include_args(layout, include_args)) {
-		ret = 1;
-		goto out;
-	}
 	/* Does a chip with the requested name exist in the flashchips array? */
 	if (flash_args.chip) {
 		for (chip = flashchips; chip && chip->name; chip++)
@@ -603,43 +593,12 @@ int main(int argc, char *argv[])
 		goto out_shutdown;
 	}
 
-	if (layout_args.ifd && (flashprog_layout_read_from_ifd(&layout, fill_flash, NULL, 0) ||
-							process_include_args(layout, include_args))) {
-		ret = 1;
+	ret = cli_process_layout_args(&layout, fill_flash, &layout_args);
+	if (ret)
 		goto out_shutdown;
-	} else if (layout_args.fmapfile) {
-		struct stat s;
-		if (stat(layout_args.fmapfile, &s) != 0) {
-			msg_gerr("Failed to stat fmapfile \"%s\"\n", layout_args.fmapfile);
-			ret = 1;
-			goto out_shutdown;
-		}
-
-		size_t fmapfile_size = s.st_size;
-		uint8_t *fmapfile_buffer = malloc(fmapfile_size);
-		if (!fmapfile_buffer) {
-			ret = 1;
-			goto out_shutdown;
-		}
-
-		if (read_buf_from_file(fmapfile_buffer, fmapfile_size, layout_args.fmapfile)) {
-			ret = 1;
-			free(fmapfile_buffer);
-			goto out_shutdown;
-		}
-
-		if (flashprog_layout_read_fmap_from_buffer(&layout, fill_flash, fmapfile_buffer, fmapfile_size) ||
-		    process_include_args(layout, include_args)) {
-			ret = 1;
-			free(fmapfile_buffer);
-			goto out_shutdown;
-		}
-		free(fmapfile_buffer);
-	} else if (layout_args.fmap && (flashprog_layout_read_fmap_from_rom(&layout, fill_flash, 0,
-			flashprog_flash_getsize(fill_flash)) || process_include_args(layout, include_args))) {
-		ret = 1;
+	ret = process_include_args(layout, include_args);
+	if (ret)
 		goto out_shutdown;
-	}
 
 	flashprog_layout_set(fill_flash, layout);
 	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_FORCE, force);
