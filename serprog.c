@@ -196,7 +196,7 @@ static int sp_test_sync(void)
 static int sp_synchronize(void)
 {
 	int i, ret;
-	unsigned char buf[8];
+	unsigned char buf[512];
 
 	ret = sp_test_sync();
 	if (ret < 0)
@@ -215,9 +215,18 @@ static int sp_synchronize(void)
 	if (serialport_write_nonblock(buf, 8, 1, NULL) != 0) {
 		goto err_out;
 	}
-	/* A second should be enough to get all the answers to the buffer */
-	internal_delay(1000 * 1000);
-	sp_flush_incoming();
+	/* To drain large reading orders that exceed FIFO sizes, we try
+	   to read repeatedly until no data is received for 10ms. */
+	const int timeout_ms = 10;
+	/* Limit the loop to guarantee termination within 10s. */
+	const int limit = 1 << 10;
+	for (i = 0, ret = 0; i < limit && ret == 0; ++i) {
+		ret = serialport_read_nonblock(buf, sizeof(buf), timeout_ms, NULL);
+		if (ret < 0)
+			goto err_out;
+	}
+	if (i == limit)
+		goto err_out;
 
 	/* Then try up to 8 times to send syncnop and get the correct special *
 	 * return of NAK+ACK. Timing note: up to 10 characters, 10*50ms =     *
