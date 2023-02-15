@@ -89,11 +89,11 @@ static void bitbang_spi_run_clock(const struct bitbang_spi_master_data *bbs, uns
 	}
 }
 
-static int bitbang_spi_send_command(const struct flashctx *flash,
+static int bitbang_spi_send_command(const struct spi_master *,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr);
-static int bitbang_spi_send_multicommand(const struct flashctx *, struct spi_command *);
+static int bitbang_spi_send_multicommand(const struct spi_master *, struct spi_command *);
 static int bitbang_spi_shutdown(void *data);
 
 static const struct spi_master spi_master_bitbang = {
@@ -245,13 +245,13 @@ static void bitbang_spi_write_quad(const struct bitbang_spi_master_data *bbs, ui
 	}
 }
 
-static int bitbang_spi_send_command(const struct flashctx *flash,
+static int bitbang_spi_send_command(const struct spi_master *mst,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr)
 {
 	unsigned int i;
-	const struct bitbang_spi_master_data *data = flash->mst.spi->data;
+	const struct bitbang_spi_master_data *data = mst->data;
 	const struct bitbang_spi_master *master = data->mst;
 
 	/* FIXME: Run bitbang_spi_request_bus here or in programmer init?
@@ -275,9 +275,9 @@ static int bitbang_spi_send_command(const struct flashctx *flash,
 	return 0;
 }
 
-static int bitbang_spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds)
+static int bitbang_spi_send_multicommand(const struct spi_master *mst, struct spi_command *cmds)
 {
-	const struct bitbang_spi_master_data *const bbs = flash->mst.spi->data;
+	const struct bitbang_spi_master_data *const bbs = mst->data;
 	int ret = 0;
 
 	bitbang_spi_request_bus(bbs->mst, bbs->spi_data);

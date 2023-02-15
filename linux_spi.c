@@ -50,10 +50,9 @@ struct linux_spi_data {
 };
 
 static int linux_spi_shutdown(void *data);
-static int linux_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *txbuf,
-				  unsigned char *rxbuf);
+static int linux_spi_send_command(
+		const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
+		const unsigned char *txbuf, unsigned char *rxbuf);
 
 static const struct spi_master spi_master_linux = {
 	.features	= SPI_MASTER_4BA,
@@ -203,12 +202,11 @@ static int linux_spi_shutdown(void *data)
 	return 0;
 }
 
-static int linux_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *txbuf,
-				  unsigned char *rxbuf)
+static int linux_spi_send_command(
+		const struct spi_master *mst, unsigned int writecnt, unsigned int readcnt,
+		const unsigned char *txbuf, unsigned char *rxbuf)
 {
-	struct linux_spi_data *spi_data = flash->mst.spi->data;
+	struct linux_spi_data *spi_data = mst->data;
 	int iocontrol_code;
 	struct spi_ioc_transfer msg[2] = {
 		{

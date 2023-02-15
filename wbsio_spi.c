@@ -59,10 +59,9 @@ done:
 	return flashport;
 }
 
-static int wbsio_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *writearr,
-				  unsigned char *readarr);
+static int wbsio_spi_send_command(const struct spi_master *,
+				  unsigned int writecnt, unsigned int readcnt,
+				  const unsigned char *writearr, unsigned char *readarr);
 static int wbsio_spi_read(struct flashctx *flash, uint8_t *buf,
 			  unsigned int start, unsigned int len);
 
@@ -117,10 +116,9 @@ int wbsio_check_for_spi(struct flashprog_programmer *const prog)
  * Would one more byte of RAM in the chip (to get all 24 bits) really make
  * such a big difference?
  */
-static int wbsio_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *writearr,
-				  unsigned char *readarr)
+static int wbsio_spi_send_command(const struct spi_master *mst,
+				  unsigned int writecnt, unsigned int readcnt,
+				  const unsigned char *writearr, unsigned char *readarr)
 {
 	unsigned int i;
 	uint8_t mode = 0;

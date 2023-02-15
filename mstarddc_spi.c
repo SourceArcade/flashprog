@@ -149,11 +149,9 @@ out:
 }
 
 /* Returns 0 upon success, a negative number upon errors. */
-static int mstarddc_spi_send_command(const struct flashctx *flash,
-				     unsigned int writecnt,
-				     unsigned int readcnt,
-				     const unsigned char *writearr,
-				     unsigned char *readarr)
+static int mstarddc_spi_send_command(
+		const struct spi_master *mst, unsigned int writecnt, unsigned int readcnt,
+		const unsigned char *writearr, unsigned char *readarr)
 {
 	int ret = 0;
 	uint8_t *cmd = malloc((writecnt + 1) * sizeof(uint8_t));

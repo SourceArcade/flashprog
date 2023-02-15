@@ -100,7 +100,7 @@ void probe_superio_ite(void)
 	return;
 }
 
-static int it8716f_spi_send_command(const struct flashctx *flash,
+static int it8716f_spi_send_command(const struct spi_master *,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr);
@@ -274,7 +274,7 @@ int init_superio_ite(struct flashprog_programmer *const prog)
  * commands with the address in inverse wire order. That's why the register
  * ordering in case 4 and 5 may seem strange.
  */
-static int it8716f_spi_send_command(const struct flashctx *flash,
+static int it8716f_spi_send_command(const struct spi_master *mst,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr)

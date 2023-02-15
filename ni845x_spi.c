@@ -567,7 +567,7 @@ static int ni845x_adapt_voltage(const struct master_common *const mst,
 	return 0;
 }
 
-static int ni845x_spi_transmit(const struct flashctx *flash,
+static int ni845x_spi_transmit(const struct spi_master *mst,
 			       unsigned int write_cnt,
 			       unsigned int read_cnt,
 			       const unsigned char *write_arr,

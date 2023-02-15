@@ -28,7 +28,7 @@
 #include "spi.h"
 
 static int spi_send_wrapped_command(
-		const struct flashctx *flash, enum io_mode io_mode,
+		const struct spi_master *mst, enum io_mode io_mode,
 		unsigned int writecnt, unsigned int readcnt,
 		const unsigned char *writearr, unsigned char *readarr)
 {
@@ -44,7 +44,7 @@ static int spi_send_wrapped_command(
 		NULL_SPI_CMD
 	};
 
-	return spi_send_multicommand(flash, cmd);
+	return mst->multicommand(mst, cmd);
 }
 
 int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
@@ -52,34 +52,31 @@ int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
 		     unsigned char *readarr)
 {
 	if (spi_current_io_mode(flash) != SINGLE_IO_1_1_1)
-		return spi_send_wrapped_command(flash, spi_current_io_mode(flash),
+		return spi_send_wrapped_command(flash->mst.spi, spi_current_io_mode(flash),
 						writecnt, readcnt, writearr, readarr);
 
-	return flash->mst.spi->command(flash, writecnt, readcnt, writearr,
-				       readarr);
+	return flash->mst.spi->command(flash->mst.spi, writecnt, readcnt, writearr, readarr);
 }
 
 int spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds)
 {
-	return flash->mst.spi->multicommand(flash, cmds);
+	return flash->mst.spi->multicommand(flash->mst.spi, cmds);
 }
 
-int default_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-			     unsigned int readcnt,
-			     const unsigned char *writearr,
-			     unsigned char *readarr)
+int default_spi_send_command(const struct spi_master *mst,
+			     unsigned int writecnt, unsigned int readcnt,
+			     const unsigned char *writearr, unsigned char *readarr)
 {
-	return spi_send_wrapped_command(flash, SINGLE_IO_1_1_1, writecnt, readcnt, writearr, readarr);
+	return spi_send_wrapped_command(mst, SINGLE_IO_1_1_1, writecnt, readcnt, writearr, readarr);
 }
 
-int default_spi_send_multicommand(const struct flashctx *flash,
-				  struct spi_command *cmds)
+int default_spi_send_multicommand(const struct spi_master *mst, struct spi_command *cmds)
 {
 	int result = 0;
 	for (; !spi_is_empty(cmds) && !result; cmds++) {
 		if (cmds->io_mode != SINGLE_IO_1_1_1)
 			return SPI_FLASHPROG_BUG;
-		result = spi_send_command(flash,
+		result = mst->command(mst,
 				spi_write_len(cmds), spi_read_len(cmds),
 				cmds->writearr, cmds->readarr);
 	}

@@ -56,9 +56,9 @@ static enum amd_chipset amd_gen = CHIPSET_AMD_UNKNOWN;
 #define FIFO_SIZE_OLD		8
 #define FIFO_SIZE_YANGTZE	71
 
-static int sb600_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int sb600_spi_send_command(const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
 				  const unsigned char *writearr, unsigned char *readarr);
-static int spi100_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int spi100_spi_send_command(const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
 				  const unsigned char *writearr, unsigned char *readarr);
 
 static struct spi_master spi_master_sb600 = {
@@ -191,16 +191,16 @@ static int compare_internal_fifo_pointer(uint8_t want)
 }
 
 /* Check the number of bytes to be transmitted and extract opcode. */
-static int check_readwritecnt(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt)
+static int check_readwritecnt(const struct spi_master *spi, unsigned int writecnt, unsigned int readcnt)
 {
-	unsigned int maxwritecnt = flash->mst.spi->max_data_write + 3;
+	unsigned int maxwritecnt = spi->max_data_write + 3;
 	if (writecnt > maxwritecnt) {
 		msg_pinfo("%s: SPI controller can not send %d bytes, it is limited to %d bytes\n",
 			  __func__, writecnt, maxwritecnt);
 		return SPI_INVALID_LENGTH;
 	}
 
-	unsigned int maxreadcnt = flash->mst.spi->max_data_read;
+	unsigned int maxreadcnt = spi->max_data_read;
 	if (readcnt > maxreadcnt) {
 		msg_pinfo("%s: SPI controller can not receive %d bytes, it is limited to %d bytes\n",
 			  __func__, readcnt, maxreadcnt);
@@ -218,10 +218,8 @@ static void execute_command(void)
 	msg_pspew("done\n");
 }
 
-static int sb600_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *writearr,
-				  unsigned char *readarr)
+static int sb600_spi_send_command(const struct spi_master *spi, unsigned int writecnt, unsigned int readcnt,
+				  const unsigned char *writearr, unsigned char *readarr)
 {
 	/* First byte is cmd which can not be sent through the FIFO. */
 	unsigned char cmd = *writearr++;
@@ -229,7 +227,7 @@ static int sb600_spi_send_command(const struct flashctx *flash, unsigned int wri
 	msg_pspew("%s, cmd=0x%02x, writecnt=%d, readcnt=%d\n", __func__, cmd, writecnt, readcnt);
 	mmio_writeb(cmd, sb600_spibar + 0);
 
-	int ret = check_readwritecnt(flash, writecnt, readcnt);
+	int ret = check_readwritecnt(spi, writecnt, readcnt);
 	if (ret != 0)
 		return ret;
 
@@ -304,10 +302,8 @@ static int sb600_spi_send_command(const struct flashctx *flash, unsigned int wri
 	return 0;
 }
 
-static int spi100_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *writearr,
-				  unsigned char *readarr)
+static int spi100_spi_send_command(const struct spi_master *spi, unsigned int writecnt, unsigned int readcnt,
+				   const unsigned char *writearr, unsigned char *readarr)
 {
 	/* First byte is cmd which can not be sent through the buffer. */
 	unsigned char cmd = *writearr++;
@@ -315,7 +311,7 @@ static int spi100_spi_send_command(const struct flashctx *flash, unsigned int wr
 	msg_pspew("%s, cmd=0x%02x, writecnt=%d, readcnt=%d\n", __func__, cmd, writecnt, readcnt);
 	mmio_writeb(cmd, sb600_spibar + 0);
 
-	int ret = check_readwritecnt(flash, writecnt, readcnt);
+	int ret = check_readwritecnt(spi, writecnt, readcnt);
 	if (ret != 0)
 		return ret;
 

@@ -356,7 +356,7 @@ static int sp_stream_buffer_op(uint8_t cmd, uint32_t parmlen, uint8_t *parms)
 	return 0;
 }
 
-static int serprog_spi_send_command(const struct flashctx *flash,
+static int serprog_spi_send_command(const struct spi_master *,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr);
@@ -989,7 +989,7 @@ static void serprog_delay(unsigned int usecs)
 	sp_prev_was_write = 0;
 }
 
-static int serprog_spi_send_command(const struct flashctx *flash,
+static int serprog_spi_send_command(const struct spi_master *mst,
 				    unsigned int writecnt, unsigned int readcnt,
 				    const unsigned char *writearr,
 				    unsigned char *readarr)

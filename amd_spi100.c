@@ -101,11 +101,11 @@ static int spi100_check_readwritecnt(const unsigned int writecnt, const unsigned
 	return 0;
 }
 
-static int spi100_send_command(const struct flashctx *const flash,
+static int spi100_send_command(const struct spi_master *const mst,
 			       const unsigned int writecnt, const unsigned int readcnt,
 			       const unsigned char *const writearr, unsigned char *const readarr)
 {
-	const struct spi100 *const spi100 = flash->mst.spi->data;
+	const struct spi100 *const spi100 = mst->data;
 
 	int ret = spi100_check_readwritecnt(writecnt, readcnt);
 	if (ret)

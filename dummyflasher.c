@@ -100,7 +100,7 @@ static const uint8_t sfdp_table[] = {
 
 
 
-static int dummy_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int dummy_spi_send_command(const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
 				  const unsigned char *writearr, unsigned char *readarr);
 static int dummy_spi_write_256(struct flashctx *flash, const uint8_t *buf,
 			       unsigned int start, unsigned int len);
@@ -1143,13 +1143,12 @@ static int emulate_spi_chip_response(unsigned int writecnt,
 	return 0;
 }
 
-static int dummy_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				  unsigned int readcnt,
-				  const unsigned char *writearr,
-				  unsigned char *readarr)
+static int dummy_spi_send_command(const struct spi_master *mst,
+				  unsigned int writecnt, unsigned int readcnt,
+				  const unsigned char *writearr, unsigned char *readarr)
 {
 	unsigned int i;
-	struct emu_data *emu_data = flash->mst.spi->data;
+	struct emu_data *emu_data = mst->data;
 	if (!emu_data) {
 		msg_perr("No data in flash context!\n");
 		return 1;

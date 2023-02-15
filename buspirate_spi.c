@@ -131,9 +131,9 @@ static int buspirate_wait_for_string(unsigned char *buf, const char *key)
 	return ret;
 }
 
-static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int buspirate_spi_send_command_v1(const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr);
-static int buspirate_spi_send_command_v2(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int buspirate_spi_send_command_v2(const struct spi_master *, unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr);
 static int buspirate_spi_shutdown(void *data);
 
@@ -614,10 +614,11 @@ init_err_cleanup_exit:
 	return ret;
 }
 
-static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int buspirate_spi_send_command_v1(const struct spi_master *mst,
+					 unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr)
 {
-	struct bp_spi_data *bp_data = flash->mst.spi->data;
+	struct bp_spi_data *bp_data = mst->data;
 	unsigned int i = 0;
 	int ret = 0;
 
@@ -670,10 +671,11 @@ static int buspirate_spi_send_command_v1(const struct flashctx *flash, unsigned 
 	return ret;
 }
 
-static int buspirate_spi_send_command_v2(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int buspirate_spi_send_command_v2(const struct spi_master *mst,
+					 unsigned int writecnt, unsigned int readcnt,
 					 const unsigned char *writearr, unsigned char *readarr)
 {
-	struct bp_spi_data *bp_data = flash->mst.spi->data;
+	struct bp_spi_data *bp_data = mst->data;
 	int i = 0, ret = 0;
 
 	if (writecnt > 4096 || readcnt > 4096 || (readcnt + writecnt) > 4096)

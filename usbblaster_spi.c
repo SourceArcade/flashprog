@@ -174,7 +174,8 @@ static int send_read(unsigned int readcnt, unsigned char *readarr)
 }
 
 /* Returns 0 upon success, a negative number upon errors. */
-static int usbblaster_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int usbblaster_spi_send_command(const struct spi_master *mst,
+				       unsigned int writecnt, unsigned int readcnt,
 				       const unsigned char *writearr, unsigned char *readarr)
 {
 	uint8_t cmd;

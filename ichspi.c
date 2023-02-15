@@ -294,7 +294,7 @@ static int find_opcode(OPCODES *op, uint8_t opcode);
 static int find_preop(OPCODES *op, uint8_t preop);
 static int generate_opcodes(OPCODES * op);
 static int program_opcodes(OPCODES *op, int enable_undo);
-static int run_opcode(const struct flashctx *flash, OPCODE op, uint32_t offset,
+static int run_opcode(const struct spi_master *, OPCODE op, uint32_t offset,
 		      uint8_t datalength, uint8_t * data);
 
 /* for pairing opcodes with their required preop */
@@ -1013,11 +1013,11 @@ static int ich9_run_opcode(OPCODE op, uint32_t offset,
 	return 0;
 }
 
-static int run_opcode(const struct flashctx *flash, OPCODE op, uint32_t offset,
+static int run_opcode(const struct spi_master *spi, OPCODE op, uint32_t offset,
 		      uint8_t datalength, uint8_t * data)
 {
 	/* max_data_read == max_data_write for all Intel/VIA SPI masters */
-	uint8_t maxlength = flash->mst.spi->max_data_read;
+	uint8_t maxlength = spi->max_data_read;
 
 	if (ich_generation == CHIPSET_ICH_UNKNOWN) {
 		msg_perr("%s: unsupported chipset\n", __func__);
@@ -1037,10 +1037,9 @@ static int run_opcode(const struct flashctx *flash, OPCODE op, uint32_t offset,
 		return ich9_run_opcode(op, offset, datalength, data);
 }
 
-static int ich_spi_send_command(const struct flashctx *flash, unsigned int writecnt,
-				unsigned int readcnt,
-				const unsigned char *writearr,
-				unsigned char *readarr)
+static int ich_spi_send_command(const struct spi_master *spi,
+				unsigned int writecnt, unsigned int readcnt,
+				const unsigned char *writearr, unsigned char *readarr)
 {
 	int result;
 	int opcode_index = -1;
@@ -1140,7 +1139,7 @@ static int ich_spi_send_command(const struct flashctx *flash, unsigned int write
 		}
 	}
 
-	result = run_opcode(flash, *opcode, addr, count, data);
+	result = run_opcode(spi, *opcode, addr, count, data);
 	if (result) {
 		msg_pdbg("Running OPCODE 0x%02x failed ", opcode->opcode);
 		if ((opcode->spi_type == SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS) ||
@@ -1437,8 +1436,7 @@ static int ich_hwseq_write(struct flashctx *flash, const uint8_t *buf, unsigned 
 	return 0;
 }
 
-static int ich_spi_send_multicommand(const struct flashctx *flash,
-				     struct spi_command *cmds)
+static int ich_spi_send_multicommand(const struct spi_master *spi, struct spi_command *cmds)
 {
 	int ret = 0;
 	int i;
@@ -1489,7 +1487,7 @@ static int ich_spi_send_multicommand(const struct flashctx *flash,
 			 * preoppos matched, this is a normal opcode.
 			 */
 		}
-		ret = ich_spi_send_command(flash, spi_write_len(cmds), spi_read_len(cmds),
+		ret = ich_spi_send_command(spi, spi_write_len(cmds), spi_read_len(cmds),
 					   cmds->writearr, cmds->readarr);
 		/* Reset the type of all opcodes to non-atomic. */
 		for (i = 0; i < 8; i++)

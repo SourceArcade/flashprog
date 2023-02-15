@@ -484,11 +484,11 @@ static int ft4222_async_poll(const struct ft4222 *ft4222)
 }
 
 static int ft4222_spi_send_command(
-		const struct flashctx *const flash,
+		const struct spi_master *const mst,
 		const unsigned int writecnt, const unsigned int readcnt,
 		const unsigned char *const writearr, unsigned char *const readarr)
 {
-	struct ft4222 *const ft4222 = flash->mst.spi->data;
+	struct ft4222 *const ft4222 = mst->data;
 	int ret, poll_ret;
 
 	ret = ft4222_spi_set_io_lines(ft4222, 1);
@@ -606,14 +606,14 @@ poll:	/* we should always poll, in case we partially started transfers */
 	return ret ? ret : poll_ret;
 }
 
-static int ft4222_spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds)
+static int ft4222_spi_send_multicommand(const struct spi_master *mst, struct spi_command *cmds)
 {
-	struct ft4222 *const ft4222 = flash->mst.spi->data;
+	struct ft4222 *const ft4222 = mst->data;
 
 	for (; !spi_is_empty(cmds); ++cmds) {
 		int ret;
 		if (cmds->io_mode == SINGLE_IO_1_1_1) {
-			ret = ft4222_spi_send_command(flash, spi_write_len(cmds),
+			ret = ft4222_spi_send_command(mst, spi_write_len(cmds),
 					spi_read_len(cmds), cmds->writearr, cmds->readarr);
 		} else {
 			ret = ft4222_spi_send_multi_io(ft4222, cmds);

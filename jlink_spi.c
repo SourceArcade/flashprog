@@ -104,12 +104,13 @@ static bool deassert_cs(struct jlink_spi_data *jlink_data)
 	return true;
 }
 
-static int jlink_spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt,
+static int jlink_spi_send_command(
+		const struct spi_master *mst, unsigned int writecnt, unsigned int readcnt,
 		const unsigned char *writearr, unsigned char *readarr)
 {
 	uint32_t length;
 	uint8_t *buffer;
-	struct jlink_spi_data *jlink_data = flash->mst.spi->data;
+	struct jlink_spi_data *jlink_data = mst->data;
 
 	length = writecnt + readcnt;
 

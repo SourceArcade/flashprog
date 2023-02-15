@@ -841,21 +841,21 @@ static int dediprog_spi_write_aai(struct flashctx *flash, const uint8_t *buf, un
 	return dediprog_spi_write_chunked(flash, buf, start, len, WRITE_MODE_2B_AAI);
 }
 
-static int dediprog_spi_send_command(const struct flashctx *flash,
+static int dediprog_spi_send_command(const struct spi_master *mst,
 				     unsigned int writecnt,
 				     unsigned int readcnt,
 				     const unsigned char *writearr,
 				     unsigned char *readarr)
 {
-	struct dediprog_data *const dp_data = flash->mst.spi->data;
+	struct dediprog_data *dp_data = mst->data;
 	int ret;
 
 	msg_pspew("%s, writecnt=%i, readcnt=%i\n", __func__, writecnt, readcnt);
-	if (writecnt > flash->mst.spi->max_data_write + 5) {
+	if (writecnt > mst->max_data_write + 5) {
 		msg_perr("Invalid writecnt=%i, aborting.\n", writecnt);
 		return 1;
 	}
-	if (readcnt > flash->mst.spi->max_data_read) {
+	if (readcnt > mst->max_data_read) {
 		msg_perr("Invalid readcnt=%i, aborting.\n", readcnt);
 		return 1;
 	}
