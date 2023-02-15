@@ -292,6 +292,8 @@ char *extract_programmer_param(const char *param_name);
 #define SPI_MASTER_QPI			(1U << 6)  /**< Can send commands with quad i/o */
 #define SPI_MASTER_DTR_IN		(1U << 7)  /**< Double Transfer Rate: Can read two bits
 							per clock cycle per line */
+#define SPI_MASTER_TOP_ALIGNED		(1U << 8)  /**< Use addresses at the top of address space,
+							i.e. 2^24-flash_size .. 2^24-1 */
 
 /* Shorthands: */
 #define SPI_MASTER_DUAL			(SPI_MASTER_DUAL_IN | SPI_MASTER_DUAL_IO)
@@ -532,6 +534,10 @@ static inline bool spi_master_quad(const struct flashctx *const flash)
 static inline bool spi_master_qpi(const struct flashctx *const flash)
 {
 	return flash->mst.spi->features & SPI_MASTER_QPI;
+}
+static inline bool spi_master_top_aligned(const struct flashctx *const flash)
+{
+	return flash->mst.spi->features & SPI_MASTER_TOP_ALIGNED;
 }
 
 /* usbdev.c */

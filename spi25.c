@@ -394,9 +394,13 @@ static size_t spi_address_length(struct flashctx *const flash, const bool native
 }
 
 static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
-			       const bool native_4ba, const unsigned int addr)
+			       const bool native_4ba, const unsigned int rel_addr)
 {
 	const size_t len = spi_address_length(flash, native_4ba);
+	unsigned int addr = rel_addr;
+
+	if (spi_master_top_aligned(flash))
+		addr = rel_addr - flashprog_flash_getsize(flash); /* intentional integer underflow */
 
 	switch (len) {
 	case 4:
@@ -411,9 +415,9 @@ static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
 		return len;
 	case 3:
 		if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
-			if (spi_set_extended_address(flash, addr >> 24))
+			if (spi_set_extended_address(flash, rel_addr >> 24))
 				return -1;
-		} else if (addr >> 24) {
+		} else if (rel_addr >> 24) {
 			msg_cerr("Can't handle 4-byte address for opcode '0x%02x'\n"
 				 "with this chip/programmer combination.\n", cmd_buf[0]);
 			return -1;

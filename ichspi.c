@@ -1127,23 +1127,17 @@ static int ich_spi_send_command(const struct flashctx *flash, unsigned int write
 		addr = ichspi_bbar;
 	} else if (opcode->spi_type == SPI_OPCODE_TYPE_READ_WITH_ADDRESS ||
 	    opcode->spi_type == SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS) {
-		/* BBAR may cut part of the chip off at the lower end. */
-		const uint32_t valid_base = ichspi_bbar & ((flash->chip->total_size * 1024) - 1);
-		const uint32_t addr_offset = ichspi_bbar - valid_base;
 		/* Highest address we can program is (2^24 - 1). */
-		const uint32_t valid_end = (1 << 24) - addr_offset;
+		const uint32_t valid_end = 1 << 24;
 
 		addr = writearr[1] << 16 | writearr[2] << 8 | writearr[3];
-		const uint32_t addr_end = addr + count;
 
-		if (addr < valid_base ||
-		    addr_end < addr || /* integer overflow check */
-		    addr_end > valid_end) {
-			msg_perr("%s: Addressed region 0x%06x-0x%06x not in allowed range 0x%06x-0x%06x\n",
-				 __func__, addr, addr_end - 1, valid_base, valid_end - 1);
+		/* BBAR may cut part of the chip off at the lower end. */
+		if (addr < ichspi_bbar) {
+			msg_perr("%s: Address 0x%06x not in allowed range 0x%06x-0x%06x\n",
+				 __func__, addr, ichspi_bbar, valid_end - 1);
 			return SPI_INVALID_ADDRESS;
 		}
-		addr += addr_offset;
 	}
 
 	result = run_opcode(flash, *opcode, addr, count, data);
@@ -1641,6 +1635,7 @@ static const struct spi_master spi_master_ich7 = {
 
 int ich7_init_spi(void *spibar, enum ich_chipset ich_gen)
 {
+	struct spi_master mst = spi_master_ich7;
 	unsigned int i;
 
 	ich_generation = ich_gen;
@@ -1673,9 +1668,12 @@ int ich7_init_spi(void *spibar, enum ich_chipset ich_gen)
 	}
 
 	ich_init_opcodes();
-	ich_set_bbar(0);
 
-	return register_spi_master(&spi_master_ich7, 0, NULL);
+	ich_set_bbar(0);
+	if (ichspi_bbar > 0)
+		mst.features |= SPI_MASTER_TOP_ALIGNED;
+
+	return register_spi_master(&mst, 0, NULL);
 }
 
 static const struct spi_master spi_master_ich9 = {
@@ -1969,6 +1967,7 @@ static const struct spi_master spi_master_via = {
 
 int via_init_spi(uint32_t mmio_base)
 {
+	struct spi_master mst = spi_master_via;
 	int i;
 
 	ich_spibar = rphysmap("VIA SPI MMIO registers", mmio_base, 0x70);
@@ -1979,7 +1978,6 @@ int via_init_spi(uint32_t mmio_base)
 	/* Not sure if it speaks all these bus protocols. */
 	internal_buses_supported &= BUS_LPC | BUS_FWH;
 	ich_generation = CHIPSET_ICH7;
-	register_spi_master(&spi_master_via, 0, NULL);
 
 	msg_pdbg("0x00: 0x%04x     (SPIS)\n", mmio_readw(ich_spibar + 0));
 	msg_pdbg("0x02: 0x%04x     (SPIC)\n", mmio_readw(ich_spibar + 2));
@@ -2011,8 +2009,11 @@ int via_init_spi(uint32_t mmio_base)
 		ichspi_lock = true;
 	}
 
-	ich_set_bbar(0);
 	ich_init_opcodes();
 
-	return 0;
+	ich_set_bbar(0);
+	if (ichspi_bbar > 0)
+		mst.features |= SPI_MASTER_TOP_ALIGNED;
+
+	return register_spi_master(&mst, 0, NULL);
 }
