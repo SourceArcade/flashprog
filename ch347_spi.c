@@ -261,6 +261,13 @@ static const struct spi_master spi_master_ch347_spi = {
 	.probe_opcode	= default_spi_probe_opcode,
 };
 
+static unsigned int ch347_div_to_khz(unsigned int div)
+{
+	/* divisor is a power of two starting from 2 for `div == 0` */
+	const unsigned int clk_khz = 120*1000;
+	return clk_khz / (1 << (div + 1));
+}
+
 /* Largely copied from ch341a_spi.c */
 static int ch347_spi_init(void)
 {
@@ -268,6 +275,28 @@ static int ch347_spi_init(void)
 	if (!ch347_data) {
 		msg_perr("Could not allocate space for SPI data\n");
 		return 1;
+	}
+
+	unsigned int div = 3; /* Default to 7.5MHz */
+	char *const spispeed = extract_programmer_param("spispeed");
+	if (spispeed) {
+		char *endptr;
+		const unsigned long khz = strtoul(spispeed, &endptr, 10);
+		if (*endptr != '\0' || endptr == spispeed) {
+			msg_perr("Invalid `spispeed` argument, please provide the frequency in kHz.\n");
+			free(spispeed);
+			free(ch347_data);
+			return 1;
+		}
+		free(spispeed);
+
+		for (div = 0; div < 7; ++div) {
+			if (ch347_div_to_khz(div) <= khz)
+				break;
+		}
+		msg_pinfo("Using spispeed of %ukHz.\n", ch347_div_to_khz(div));
+	} else {
+		msg_pdbg("Using default spispeed of %ukHz.\n", ch347_div_to_khz(div));
 	}
 
 	int32_t ret = libusb_init(NULL);
@@ -326,8 +355,8 @@ static int ch347_spi_init(void)
 		(desc.bcdDevice >> 4) & 0x000F,
 		(desc.bcdDevice >> 0) & 0x000F);
 
-	/* TODO: add programmer cfg for things like CS pin and divisor */
-	if (ch347_spi_config(ch347_data, 2) < 0)
+	/* TODO: add programmer cfg for things like CS pin */
+	if (ch347_spi_config(ch347_data, div) < 0)
 		goto error_exit;
 
 	return register_spi_master(&spi_master_ch347_spi, ch347_data);

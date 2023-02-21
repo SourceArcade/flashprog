@@ -1245,8 +1245,23 @@ The WCH CH341A programmer does not support any parameters currently. SPI frequen
 used as per the device.
 .SS
 .BR "ch347_spi " programmer
-The WCH CH347 programmer does not currently support any parameters. SPI frequency is fixed at 2 MHz, and CS0 is
-used as per the device.
+.IP
+The driver is currently hard-coded to use
+.BR CS0 .
+An optional
+.B spispeed
+parameter specifies the frequency of the SPI bus.
+Syntax is
+.sp
+.B "  flashrom \-p ch347_spi:spispeed=frequency"
+.sp
+where
+.B frequency
+is given in
+.B kHz
+and can be in the range 468 .. 60000. The frequency will be rounded down to
+a supported value (60 MHz divided by a power of 2). The default is a frequency
+of 7.5 MHz.
 .SS
 .BR "ni845x_spi " programmer
 .IP
