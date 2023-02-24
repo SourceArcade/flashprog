@@ -1339,23 +1339,20 @@ where
 can be
 .BR 62.5k ", " 125k ", " 250k ", " 500k ", " 1M ", " 2M " or " 4M
 (in Hz). The default is a frequency of 4 MHz.
-.sp
+.SS
 .BR "dirtyjtag_spi " programmer
 .IP
 An optional
-.B freq
+.B spispeed
 parameter specifies the frequency of the SPI bus.
 Syntax is
 .sp
 .B "  flashrom \-p dirtyjtag_spi:spispeed=frequency"
 .sp
 where
-.B spispeed
-can be
-.BR any value in hertz, kilohertz or megahertz supported by the
-programmer. The default is a frequency of 100 KHz.
-.sp
-.SS
+.B frequency
+can be any value in hertz, kilohertz or megahertz supported by the programmer.
+The default is a frequency of 100 kHz.
 .SS
 .BR "jlink_spi " programmer
 .IP
