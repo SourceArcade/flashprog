@@ -114,6 +114,31 @@ static int dirtyjtag_receive(struct dirtyjtag_spi_data *djtag_data, uint8_t *dat
 	return transferred;
 }
 
+static char *dirtyjtag_info(struct dirtyjtag_spi_data *djtag_data)
+{
+	uint8_t buffer[64] = {
+		CMD_INFO,
+	};
+
+	if (dirtyjtag_send(djtag_data, buffer, 1))
+		return NULL;
+
+	const int transferred = dirtyjtag_receive(djtag_data, buffer, sizeof(buffer), -1);
+	if (transferred < 1)
+		return NULL;
+
+	return strndup((char *)buffer, transferred);
+}
+
+static unsigned int dirtyjtag_version(const char *info)
+{
+	if (!strncmp(info, "DJTAG1\n", 7))
+		return 1;
+	if (!strncmp(info, "DJTAG2\n", 7))
+		return 2;
+	return 0;
+}
+
 static int dirtyjtag_spi_shutdown(void *data)
 {
 	struct dirtyjtag_spi_data *djtag_data = (struct dirtyjtag_spi_data*)data;
@@ -125,10 +150,11 @@ static int dirtyjtag_spi_shutdown(void *data)
 	return 0;
 }
 
-static int dirtyjtag_djtag1_spi_send_command(struct dirtyjtag_spi_data *context,
+static int dirtyjtag_djtag1_spi_send_command(const struct flashctx *flash,
 					     unsigned int writecnt, unsigned int readcnt,
 					     const unsigned char *writearr, unsigned char *readarr)
 {
+	struct dirtyjtag_spi_data *context = flash->mst->spi.data;
 	const size_t max_xfer_size = 30; // max transfer size in DJTAG1
 	size_t len = writecnt + readcnt;
 	size_t num_xfer = (len + max_xfer_size - 1 ) / max_xfer_size; // ceil(len/max_xfer_size)
@@ -181,19 +207,10 @@ cleanup_fail:
 	return -1;
 }
 
-static int dirtyjtag_spi_spi_send_command(const struct flashctx *flash,
-					  unsigned int writecnt, unsigned int readcnt,
-					  const unsigned char *writearr, unsigned char *readarr)
-{
-	struct dirtyjtag_spi_data *djtag_data = flash->mst->spi.data;
-	return dirtyjtag_djtag1_spi_send_command(djtag_data, writecnt, readcnt, writearr, readarr);
-}
-
 static const struct spi_master spi_master_dirtyjtag_spi = {
 	.features	= SPI_MASTER_4BA,
 	.max_data_read	= MAX_DATA_READ_UNLIMITED,
 	.max_data_write	= MAX_DATA_WRITE_UNLIMITED,
-	.command	= dirtyjtag_spi_spi_send_command,
 	.multicommand	= default_spi_send_multicommand,
 	.read		= default_spi_read,
 	.write_256	= default_spi_write_256,
@@ -203,6 +220,7 @@ static const struct spi_master spi_master_dirtyjtag_spi = {
 
 static int dirtyjtag_spi_init(void)
 {
+	struct spi_master dirtyjtag_spi = spi_master_dirtyjtag_spi;
 	struct libusb_device_handle *handle = NULL;
 	struct dirtyjtag_spi_data *djtag_data = NULL;
 
@@ -281,6 +299,25 @@ static int dirtyjtag_spi_init(void)
 	}
 	free(tmp);
 
+	char *const info = dirtyjtag_info(djtag_data);
+	if (!info) {
+		msg_perr("Failed to read DirtyJTAG Info.\n");
+		goto cleanup_libusb_handle;
+	}
+
+	msg_pinfo("DirtyJTAG Info: %s\n", info);
+	const unsigned int djtag_version = dirtyjtag_version(info);
+	switch (djtag_version) {
+	default:
+		msg_pwarn("Warning: Unknown DJTAG version %u. Assuming DJTAG1 compatibility.\n",
+			  djtag_version);
+		/* fall-through */
+	case 1:
+		dirtyjtag_spi.command = dirtyjtag_djtag1_spi_send_command;
+		break;
+	}
+	free(info);
+
 	uint8_t commands[] = {
 		CMD_SETSIG, /* Set TDI/TCK to low, SRST/TRST/TMS to high */
 		SIG_TDI | SIG_TMS | SIG_TCK | SIG_SRST | SIG_TRST,
@@ -298,7 +335,7 @@ static int dirtyjtag_spi_init(void)
 		goto cleanup_libusb_handle;
 	}
 
-	return register_spi_master(&spi_master_dirtyjtag_spi, djtag_data);
+	return register_spi_master(&dirtyjtag_spi, djtag_data);
 
 cleanup_libusb_handle:
 	libusb_attach_kernel_driver(handle, 0);
