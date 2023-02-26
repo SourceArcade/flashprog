@@ -6,7 +6,7 @@ RUN \
 	adduser -D mani mani && \
 	apk update && \
 	apk add build-base linux-headers git ccache \
-		pciutils-dev libusb-compat-dev libusb-dev
+		pciutils-dev libusb-dev libftdi1-dev && \
 	if [ ! -h /etc/ssl/cert.pem ]; then \
 		rm -f /etc/ssl/certs/*; \
 		ln -sf /etc/ssl/cert.pem /etc/ssl/certs/ca-certificates.crt; \
