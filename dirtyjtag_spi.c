@@ -62,6 +62,14 @@ enum dirtyjtag_command_identifier {
 	CMD_CLK = 0x06
 };
 
+enum dirtyjtag_command_modifier {
+	/* CMD_XFER */
+	NO_READ		= 0x80,
+	EXTEND_LENGTH	= 0x40,
+	/* CMD_CLK */
+	READOUT		= 0x80,
+};
+
 enum dirtyjtag_signal_identifier {
 	SIG_TCK = 1 << 1,
 	SIG_TDI = 1 << 2,
@@ -150,6 +158,18 @@ static int dirtyjtag_spi_shutdown(void *data)
 	return 0;
 }
 
+static int dirtyjtag_reset_tms(struct dirtyjtag_spi_data *context)
+{
+	uint8_t tms_reset_buffer[] = {
+		CMD_SETSIG,
+		SIG_TMS,
+		SIG_TMS,
+
+		CMD_STOP,
+	};
+	return dirtyjtag_send(context, tms_reset_buffer, sizeof(tms_reset_buffer));
+}
+
 static int dirtyjtag_djtag1_spi_send_command(const struct flashctx *flash,
 					     unsigned int writecnt, unsigned int readcnt,
 					     const unsigned char *writearr, unsigned char *readarr)
@@ -191,20 +211,61 @@ static int dirtyjtag_djtag1_spi_send_command(const struct flashctx *flash,
 
 	free(rxtx_buffer);
 
-	uint8_t tms_reset_buffer[] = {
-		CMD_SETSIG,
-		SIG_TMS,
-		SIG_TMS,
-
-		CMD_STOP,
-	};
-	dirtyjtag_send(context, tms_reset_buffer, sizeof(tms_reset_buffer));
+	dirtyjtag_reset_tms(context);
 
 	return 0;
 
 cleanup_fail:
 	free(rxtx_buffer);
 	return -1;
+}
+
+static int dirtyjtag_djtag2_spi_send_command(const struct flashctx *flash,
+					     unsigned int writecnt, unsigned int readcnt,
+					     const unsigned char *writearr, unsigned char *readarr)
+{
+	struct dirtyjtag_spi_data *const context = flash->mst->spi.data;
+	const size_t max_xfer_size = 62; /* max transfer size in DJTAG2 */
+	uint8_t transfer_buffer[2 + max_xfer_size]; /* 1B command + 1B len + payload */
+	size_t i;
+
+	i = 0;
+	while (i < writecnt) {
+		const size_t txn_size = MIN(max_xfer_size, writecnt - i);
+
+		transfer_buffer[0] = CMD_XFER | NO_READ;
+		if (txn_size * 8 >= 256)
+			transfer_buffer[0] |= EXTEND_LENGTH;
+		transfer_buffer[1] = (txn_size * 8) % 256;
+		memcpy(transfer_buffer + 2, writearr + i, txn_size);
+
+		if (dirtyjtag_send(context, transfer_buffer, 2 + txn_size))
+			return -1;
+
+		i += txn_size;
+	}
+
+	i = 0;
+	while (i < readcnt) {
+		const size_t rxn_size = MIN(max_xfer_size, readcnt - i);
+
+		transfer_buffer[0] = CMD_XFER;
+		if (rxn_size * 8 >= 256)
+			transfer_buffer[0] |= EXTEND_LENGTH;
+		transfer_buffer[1] = (rxn_size * 8) % 256;
+
+		if (dirtyjtag_send(context, transfer_buffer, 2 + rxn_size))
+			return -1;
+
+		if (dirtyjtag_receive(context, readarr + i, rxn_size, rxn_size) < 0)
+			return -1;
+
+		i += rxn_size;
+	}
+
+	dirtyjtag_reset_tms(context);
+
+	return 0;
 }
 
 static const struct spi_master spi_master_dirtyjtag_spi = {
@@ -290,7 +351,7 @@ static int dirtyjtag_spi_init(void)
 		}
 
 		if (freq > UINT16_MAX) {
-			msg_perr("%s: Frequency set above DJTAG1 limits (%d kHz)", __func__, UINT16_MAX);
+			msg_perr("%s: Frequency set above DJTAG1/2 limits (%d kHz)\n", __func__, UINT16_MAX);
 			free(tmp);
 			goto cleanup_libusb_handle;
 		}
@@ -309,9 +370,12 @@ static int dirtyjtag_spi_init(void)
 	const unsigned int djtag_version = dirtyjtag_version(info);
 	switch (djtag_version) {
 	default:
-		msg_pwarn("Warning: Unknown DJTAG version %u. Assuming DJTAG1 compatibility.\n",
+		msg_pwarn("Warning: Unknown DJTAG version %u. Assuming DJTAG2 compatibility.\n",
 			  djtag_version);
 		/* fall-through */
+	case 2:
+		dirtyjtag_spi.command = dirtyjtag_djtag2_spi_send_command;
+		break;
 	case 1:
 		dirtyjtag_spi.command = dirtyjtag_djtag1_spi_send_command;
 		break;
