@@ -27,9 +27,6 @@ endef
 $(foreach tag,$(MULTIARCH_TAGS), \
 	$(eval $(call build_template,$(tag),multiarch)))
 
-$(addsuffix -build,$(filter alpine%v3.7 alpine%v3.8,$(MULTIARCH_TAGS))): \
-	DOCKER_BUILD_ARGS = --build-arg PROTO=http
-
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$*
 

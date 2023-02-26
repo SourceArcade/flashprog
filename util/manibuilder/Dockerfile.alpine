@@ -1,12 +1,16 @@
 FROM manibase
 
-ARG PROTO=https
+COPY isrgrootx1.pem /etc/ssl/cert.pem
+
 RUN \
 	adduser -D mani mani && \
-	sed -i "s/https/${PROTO}/" /etc/apk/repositories && \
 	apk update && \
-	apk add ca-certificates build-base linux-headers git ccache \
+	apk add build-base linux-headers git ccache \
 		pciutils-dev libusb-compat-dev libusb-dev
+	if [ ! -h /etc/ssl/cert.pem ]; then \
+		rm -f /etc/ssl/certs/*; \
+		ln -sf /etc/ssl/cert.pem /etc/ssl/certs/ca-certificates.crt; \
+	fi
 
 RUN apk add libgpiod-dev || true
 
