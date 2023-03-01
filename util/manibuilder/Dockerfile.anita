@@ -29,7 +29,7 @@ RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
 "echo 'dhcpcd'                                   >init && \
  echo 'export PKG_PATH=${PKG_PATH}'             >>init && \
  . ./init && \
- pkg_add gmake git-base ccache pkg-config \
+ pkg_add gmake git-base ccache pkg-config meson \
          pciutils libusb1 libusb-compat libftdi \
          ${EXTRA_PKG} && \
  git config --global --add http.sslVerify false && \
