@@ -2,7 +2,7 @@ FROM manibase
 
 RUN \
 	useradd -p locked -m mani && \
-	dnf install -q -y ca-certificates git gcc ccache make systemd-devel \
+	dnf install -q -y ca-certificates git gcc ccache make systemd-devel meson \
 		pciutils-devel libusbx-devel libftdi-devel libjaylink-devel && \
 	{ dnf install -q -y libgpiod-devel || true; } && \
 	dnf clean -q -y all
