@@ -17,7 +17,7 @@ RUN \
 	fi && \
 	apt-get -qq update && \
 	apt-get -qq upgrade && \
-	apt-get -qqy install gcc make git doxygen ccache pkg-config \
+	apt-get -qqy install gcc make git doxygen ccache pkg-config meson \
 		libpci-dev libftdi1-dev libusb-1.0-0-dev && \
 	{ apt-get -qqy install libjaylink-dev libgpiod-dev || true; } && \
 	apt-get clean
