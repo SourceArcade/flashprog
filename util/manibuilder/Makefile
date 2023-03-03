@@ -49,7 +49,7 @@ $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
 $(ALL_TAGS): export TEST_REMOTE?=$(if $(TEST_LOCAL),\
 					git://mani-git/flashrom.git,\
 					origin)
-$(ALL_TAGS): export TEST_REVISION?=$(if $(TEST_LOCAL),HEAD,master)
+$(ALL_TAGS): export TEST_REVISION?=$(if $(TEST_LOCAL),HEAD,main)
 $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 	$(QUIET_TEST)docker rm -f mani_$(call ident,$*) >/dev/null 2>&1 || true
 	$(QUIET_TEST)\
