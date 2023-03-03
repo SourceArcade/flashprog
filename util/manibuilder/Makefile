@@ -95,8 +95,8 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 register:
 	docker build . \
 		-f Dockerfile.qemu-user-static \
-		-t mani/qemu-user-static:register
-	docker run --rm --privileged mani/qemu-user-static:register --reset
+		-t mani/qemu-user-static
+	docker run --rm --privileged mani/qemu-user-static --reset -p yes
 
 mani-net:
 	$(QUIET_SETUP)\

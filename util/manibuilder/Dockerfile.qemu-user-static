@@ -1,3 +1,5 @@
-FROM multiarch/qemu-user-static:register
+FROM multiarch/qemu-user-static:7.2.0-1
 
 RUN sed -i -e's/ mipsn32 mipsn32el / /' /qemu-binfmt-conf.sh
+
+COPY --from=multiarch/qemu-user-static:6.1.0-8 /usr/bin/qemu-arm-static /usr/bin/
