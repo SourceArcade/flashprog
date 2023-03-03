@@ -36,7 +36,7 @@ MULTIARCH_TAGS := \
 
 OTHER_TAGS := djgpp\:6.1.0
 
-ALL_TAGS := $(ANITA_TAGS) $(MULTIARCH_TAGS) $(OTHER_TAGS)
+ALL_TAGS := $(ANITA_TAGS) $(MULTIARCH_TAGS) $(OFFICIAL_TAGS) $(OTHER_TAGS)
 
 BROKEN_TAGS := anita\:7.1-amd64 anita\:7.1-i386 \
 	       centos\:7.6-armhfp-clean \
@@ -46,7 +46,8 @@ WORKING_TAGS := $(filter-out $(BROKEN_TAGS),$(ALL_TAGS))
 
 arch_filter = $(sort \
 	$(foreach arch,$(1), \
-	  $(filter-out $(subst $(arch),,$(MULTIARCH_TAGS)),$(MULTIARCH_TAGS))))
+	  $(filter-out $(subst $(arch),,$(MULTIARCH_TAGS) $(OFFICIAL_TAGS)), \
+			$(MULTIARCH_TAGS) $(OFFICIAL_TAGS))))
 
 machine_map = \
 	$(if $(filter i386 i686 x86,$(1)),i386 x86, \

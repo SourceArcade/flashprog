@@ -9,14 +9,21 @@ MAKEARGS := CONFIG_EVERYTHING=yes
 spc :=
 spc := $(spc) $(spc)
 
-stem = $(word 1,$(subst :,$(spc),$(subst \:,$(spc),$(1))))
-ident = $(subst :,_,$(subst \:,_,$(1)))
+# Get stem of multiarch tags of the form `stem[-variation]:arch-version`
+ma_stem = $(word 1,$(subst -,$(spc),$(subst :,$(spc),$(subst \:,$(spc),$(1)))))
+# Get stem of official tags of the form `arch/stem:version`
+official_stem = $(word 2,$(subst /,$(spc),$(subst :,$(spc),$(subst \:,$(spc),$(1)))))
+
+ident = $(subst /,_,$(subst :,_,$(subst \:,_,$(1))))
 
 include Makefile.anita
 
+# $(1): mani tag
+# $(2): from tag
+# $(3): Dockerfile suffix
 define build_template
-Dockerfile.$(call ident,$(1)): Dockerfile.$(call stem,$(1)) mani-wrapper.sh
-	$(QUIET_SETUP)sed -e 's|^FROM manibase|FROM $(2)/$(1)|' $$< >$$@
+Dockerfile.$(call ident,$(1)): Dockerfile.$(3) mani-wrapper.sh
+	$(QUIET_SETUP)sed -e 's|^FROM manibase|FROM $(2)|' $$< >$$@
 
 .INTERMEDIATE: Dockerfile.$(call ident,$(1))
 
@@ -25,7 +32,10 @@ $(1)-build: Dockerfile.$(call ident,$(1))
 endef
 
 $(foreach tag,$(MULTIARCH_TAGS), \
-	$(eval $(call build_template,$(tag),multiarch)))
+	$(eval $(call build_template,$(tag),multiarch/$(tag),$(call ma_stem,$(tag)))))
+
+$(foreach tag,$(OFFICIAL_TAGS), \
+	$(eval $(call build_template,$(tag),$(tag),$(call official_stem,$(tag)))))
 
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
