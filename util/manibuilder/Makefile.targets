@@ -35,6 +35,9 @@ MULTIARCH_TAGS := \
 	    alpine\:$(a)-$(v))) \
 
 OFFICIAL_TAGS := \
+	$(foreach a,ppc64le mips64le s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
+	  $(foreach v,bookworm, \
+	    $(a)/debian\:$(v))) \
 	$(foreach a,ppc64le s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
 	  $(foreach v,3.17 3.16 3.15, \
 	    $(a)/alpine\:$(v))) \
