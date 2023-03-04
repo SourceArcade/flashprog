@@ -1,0 +1,29 @@
+FROM manibase
+
+RUN \
+	useradd -p locked -m mani && \
+	if dnf repolist powertools | grep -q powertools; then \
+		powertools=powertools; \
+	else \
+		powertools=crb; \
+	fi && \
+	dnf install -y --enablerepo=${powertools} \
+		ca-certificates shadow-utils \
+		git gcc make systemd-devel meson \
+		pciutils-devel libusbx-devel && \
+	{ dnf install -y libgpiod-devel || true; } && \
+	dnf clean -y all
+
+RUN mkdir -p -m 1777 /ccache
+
+ENV GIT_SSL_NO_VERIFY=1
+USER mani
+
+ARG ORIGIN=https://review.coreboot.org/flashrom-stable.git
+RUN \
+	cd && \
+	git clone ${ORIGIN} flashrom
+
+ENV DEVSHELL /bin/bash
+COPY mani-wrapper.sh /home/mani/
+ENTRYPOINT ["/bin/sh", "/home/mani/mani-wrapper.sh"]

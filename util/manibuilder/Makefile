@@ -45,7 +45,7 @@ git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 	[ $$(docker image ls -q mani/$*) ] \
 		|| $(MAKE) $*-build $(if $(QUIET_SETUP),>/dev/null 2>/dev/null)
 
-$(filter centos%,$(MULTIARCH_TAGS)) anita\:7.1-sparc: CC=cc
+$(ALMALINUX_TAGS) $(filter centos%,$(MULTIARCH_TAGS)) anita\:7.1-sparc: CC=cc
 djgpp\:6.1.0: CC=ccache i586-pc-msdosdjgpp-gcc
 djgpp\:6.1.0: STRIP=i586-pc-msdosdjgpp-strip
 djgpp\:6.1.0: LIBS_BASE=../

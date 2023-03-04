@@ -34,6 +34,11 @@ MULTIARCH_TAGS := \
 	  $(foreach v,v3.14 v3.13 v3.12 v3.11 v3.10 v3.9 v3.8 v3.7 v3.6, \
 	    alpine\:$(a)-$(v))) \
 
+ALMALINUX_TAGS := \
+	$(foreach a,amd64 arm64v8 ppc64le s390x, \
+	  $(foreach v,8 9, \
+	    $(a)/almalinux\:$(v)))
+
 OFFICIAL_TAGS := \
 	$(foreach a,ppc64le s390x arm64v8 amd64, \
 	  $(foreach v,37 36 35, \
@@ -44,6 +49,7 @@ OFFICIAL_TAGS := \
 	$(foreach a,ppc64le s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
 	  $(foreach v,3.17 3.16 3.15, \
 	    $(a)/alpine\:$(v))) \
+	$(ALMALINUX_TAGS)
 
 OTHER_TAGS := djgpp\:6.1.0
 
