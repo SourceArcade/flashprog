@@ -35,6 +35,9 @@ MULTIARCH_TAGS := \
 	    alpine\:$(a)-$(v))) \
 
 OFFICIAL_TAGS := \
+	$(foreach a,ppc64le s390x arm64v8 amd64, \
+	  $(foreach v,37 36 35, \
+	    $(a)/fedora\:$(v))) \
 	$(foreach a,ppc64le mips64le s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
 	  $(foreach v,bookworm, \
 	    $(a)/debian\:$(v))) \
@@ -48,7 +51,7 @@ ALL_TAGS := $(ANITA_TAGS) $(MULTIARCH_TAGS) $(OFFICIAL_TAGS) $(OTHER_TAGS)
 
 BROKEN_TAGS := anita\:7.1-amd64 anita\:7.1-i386 \
 	       centos\:7.6-armhfp-clean \
-	       fedora\:30-s390x fedora\:28-armhfp \
+	       arm64v8/fedora\:35 fedora\:30-s390x fedora\:28-armhfp \
 
 WORKING_TAGS := $(filter-out $(BROKEN_TAGS),$(ALL_TAGS))
 
