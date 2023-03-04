@@ -340,30 +340,6 @@ ifeq ($(or $(filter $(ARCH), x86), $(filter $(TARGET_OS), Linux)), )
 $(call mark_unsupported,CONFIG_INTERNAL)
 endif
 
-ifeq ($(HAS_LIBPCI), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIBPCI))
-endif
-
-ifeq ($(HAS_LIBFTDI1), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIBFTDI1))
-endif
-
-ifeq ($(HAS_LIB_NI845X), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIB_NI845X))
-endif
-
-ifeq ($(HAS_LIBJAYLINK), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIBJAYLINK))
-endif
-
-ifeq ($(HAS_LIBUSB1), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIBUSB1))
-endif
-
-ifeq ($(HAS_LIBGPIOD), no)
-$(call mark_unsupported,$(DEPENDS_ON_LIBGPIOD))
-endif
-
 ifeq ($(HAS_SERIAL), no)
 $(call mark_unsupported, $(DEPENDS_ON_SERIAL))
 endif
@@ -571,6 +547,35 @@ endif
 
 # Use internal DMI/SMBIOS decoder by default instead of relying on dmidecode.
 CONFIG_INTERNAL_DMI ?= yes
+
+###############################################################################
+# Check for missing dependencies for the selected CONFIG_* variables
+
+ifeq ($(HAS_LIBPCI), no)
+$(call mark_missing_dep,libpci,$(DEPENDS_ON_LIBPCI), \
+	"You can disable all PCI programmers with CONFIG_ENABLE_LIBPCI_PROGRAMMERS=no.\n")
+endif
+
+ifeq ($(HAS_LIBFTDI1), no)
+$(call mark_missing_dep,libftdi1,$(DEPENDS_ON_LIBFTDI1))
+endif
+
+ifeq ($(HAS_LIB_NI845X), no)
+$(call mark_missing_dep,libni845x,$(DEPENDS_ON_LIB_NI845X))
+endif
+
+ifeq ($(HAS_LIBJAYLINK), no)
+$(call mark_missing_dep,libjaylink,$(DEPENDS_ON_LIBJAYLINK))
+endif
+
+ifeq ($(HAS_LIBUSB1), no)
+$(call mark_missing_dep,libusb1/libusbx,$(DEPENDS_ON_LIBUSB1), \
+	"You can disable all USB programmers with CONFIG_ENABLE_LIBUSB1_PROGRAMMERS=no.\n");
+endif
+
+ifeq ($(HAS_LIBGPIOD), no)
+$(call mark_missing_dep,libgpiod,$(DEPENDS_ON_LIBGPIOD))
+endif
 
 ###############################################################################
 # Programmer drivers and programmer support infrastructure.
