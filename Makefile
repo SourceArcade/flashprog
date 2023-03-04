@@ -505,8 +505,8 @@ CONFIG_DIGILENT_SPI ?= yes
 # DirtyJTAG
 CONFIG_DIRTYJTAG_SPI ?= yes
 
-# Disable J-Link for now.
-CONFIG_JLINK_SPI ?= no
+# J-Link SPI
+CONFIG_JLINK_SPI ?= yes
 
 # National Instruments USB-845x is Windows only and needs a proprietary library.
 CONFIG_NI845X_SPI ?= no
