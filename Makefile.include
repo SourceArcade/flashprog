@@ -20,6 +20,15 @@ $(foreach p,$1, \
 		$(eval override $(p) := no)))
 endef
 
+define mark_missing_dep
+$(foreach p,$2, \
+	$(if $(filter $($(p)),yes), \
+		$(eval MISSING_DEPENDENCY += $(1)) \
+		$(eval MISSING_DEPENDENCY_$(1) += $(p)=yes)))
+$(eval MISSING_DEPENDENCY := $(sort $(MISSING_DEPENDENCY)))
+$(eval MISSING_DEPENDENCY_NOTE_$(1) := $(if $(3),$(3),""))
+endef
+
 define filter_deps
 $(strip $(foreach p,$1, \
 	$(if $(filter $($(p)),yes), \

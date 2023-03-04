@@ -961,8 +961,16 @@ config:
 		echo "You have to enable at least one programmer driver!";	\
 		exit 1;								\
 	fi
+	@$(foreach dep,$(MISSING_DEPENDENCY),					\
+		printf "The following features require $(dep): ";		\
+		printf "$(MISSING_DEPENDENCY_$(dep))\n";			\
+		printf $(MISSING_DEPENDENCY_NOTE_$(dep));)
 	@if [ "$(UNSUPPORTED_FEATURES)" ]; then					\
 		echo "The following features are unavailable on your machine: $(UNSUPPORTED_FEATURES)"; \
+	fi
+	@if [ "$(MISSING_DEPENDENCY)" -o "$(UNSUPPORTED_FEATURES)" ]; then	\
+		printf "You can disable individual features with ";		\
+		printf "CONFIG_feature=no in your make command.\n";		\
 		exit 1;								\
 	fi
 
