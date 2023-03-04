@@ -962,7 +962,7 @@ config:
 		exit 1;								\
 	fi
 	@if [ "$(UNSUPPORTED_FEATURES)" ]; then					\
-		echo "The following features are unavailable on your machine: $(UNSUPPORTED_FEATURES)" \
+		echo "The following features are unavailable on your machine: $(UNSUPPORTED_FEATURES)"; \
 		exit 1;								\
 	fi
 
