@@ -7,6 +7,8 @@ RUN \
 	{ dnf install -q -y libgpiod-devel || true; } && \
 	dnf clean -q -y all
 
+RUN mkdir -p -m 1777 /ccache
+
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
@@ -15,6 +17,12 @@ RUN \
 	cd && \
 	mkdir .ccache && chown mani:mani .ccache && \
 	git clone ${ORIGIN} flashrom
+
+ARG IDENT=mani
+ARG CCACHE_MAX=32M
+RUN \
+	ccache --set-config cache_dir=/ccache/${IDENT} && \
+	ccache --set-config max_size=${CCACHE_MAX}
 
 ENV DEVSHELL /bin/bash
 COPY mani-wrapper.sh /home/mani/

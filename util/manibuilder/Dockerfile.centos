@@ -6,6 +6,8 @@ RUN \
 			  pciutils-devel libusb-devel libusbx-devel && \
 	yum clean -q -y all
 
+RUN mkdir -p -m 1777 /ccache
+
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 

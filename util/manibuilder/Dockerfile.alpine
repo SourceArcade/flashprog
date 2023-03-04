@@ -18,6 +18,8 @@ RUN apk add libgpiod-dev meson || true
 RUN [ -d /usr/share/git-core/templates ] && \
 	chmod -R a+r /usr/share/git-core/templates
 
+RUN mkdir -p -m 1777 /ccache
+
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
@@ -26,6 +28,12 @@ RUN \
 	cd && \
 	mkdir .ccache && chown mani:mani .ccache && \
 	git clone ${ORIGIN} flashrom
+
+ARG IDENT=mani
+ARG CCACHE_MAX=32M
+RUN \
+	ccache --set-config cache_dir=/ccache/${IDENT} && \
+	ccache --set-config max_size=${CCACHE_MAX}
 
 ENV DEVSHELL /bin/sh
 COPY mani-wrapper.sh /home/mani/

@@ -21,14 +21,14 @@ Dockerfile.$(call ident,$(1)): Dockerfile.$(call stem,$(1)) mani-wrapper.sh
 .INTERMEDIATE: Dockerfile.$(call ident,$(1))
 
 $(1)-build: Dockerfile.$(call ident,$(1))
-	$(QUIET_SETUP)docker build . -f $$< -t mani/$(1) $$(DOCKER_BUILD_ARGS)
+	$(QUIET_SETUP)docker build . -f $$< -t mani/$(1) --build-arg IDENT=$(call ident,$(1)) $$(DOCKER_BUILD_ARGS)
 endef
 
 $(foreach tag,$(MULTIARCH_TAGS), \
 	$(eval $(call build_template,$(tag),multiarch)))
 
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
-	$(QUIET_SETUP)docker build . -f $< -t mani/$*
+	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
 
 git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 	$(QUIET_SETUP)\
@@ -56,7 +56,7 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 	docker run \
 		$(MANI_DOCKER_ARGS) \
 		--env IDENT=$(call ident,$*) \
-		--volume manicache:/home/mani/.ccache \
+		--volume manicache:/ccache \
 		--network=manibuilder \
 		--name mani_$(call ident,$*) mani/$* \
 		"git fetch $(TEST_REMOTE) $(TEST_REVISION) && \
@@ -75,7 +75,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 		docker run --rm -it \
 			$(MANI_DOCKER_ARGS) \
 			--env IDENT=$(call ident,$*) \
-			--volume manicache:/home/mani/.ccache \
+			--volume manicache:/ccache \
 			--network=manibuilder \
 			--entrypoint /bin/sh mani_run/$* \
 			/home/mani/mani-wrapper.sh \
@@ -85,7 +85,7 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 		docker run --rm -it \
 			$(MANI_DOCKER_ARGS) \
 			--env IDENT=$(call ident,$*) \
-			--volume manicache:/home/mani/.ccache \
+			--volume manicache:/ccache \
 			--network=manibuilder \
 			mani/$* $(patsubst %,"%",$(SHELL_ARG)); \
 	fi

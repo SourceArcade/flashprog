@@ -6,6 +6,8 @@ RUN \
 	useradd -p locked -m mani && \
 	zypper -q install -y tar make git ccache
 
+RUN mkdir -p -m 1777 /ccache
+
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
@@ -26,6 +28,12 @@ RUN cd && \
 	curl --insecure https://flashrom.org/images/3/3d/Libgetopt.tar.gz | zcat | tar x && \
 	cd libgetopt && \
 		make && cp libgetopt.a ../lib/ && cp getopt.h ../include/
+
+ARG IDENT=mani
+ARG CCACHE_MAX=32M
+RUN \
+	ccache --set-config cache_dir=/ccache/${IDENT} && \
+	ccache --set-config max_size=${CCACHE_MAX}
 
 ENV DEVSHELL /bin/bash
 COPY mani-wrapper.sh /home/mani/

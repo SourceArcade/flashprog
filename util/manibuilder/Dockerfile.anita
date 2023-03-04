@@ -11,6 +11,8 @@ RUN \
 RUN	git clone https://github.com/gson1703/anita.git
 RUN	cd anita && python setup.py install
 
+RUN mkdir -p -m 1777 /ccache
+
 ARG DISK_SIZE=1G
 ARG INSTALL_MEM=128M
 ARG INST_IMG=http://ftp.de.netbsd.org/pub/NetBSD/NetBSD-7.1/amd64/

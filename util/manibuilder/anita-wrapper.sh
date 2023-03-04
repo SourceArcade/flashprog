@@ -4,7 +4,7 @@ cd
 
 [ "${IDENT}" ] || IDENT=$(mktemp -u XXXXXXXX)
 
-CCACHE=.ccache/anita-${IDENT}.img
+CCACHE=/ccache/${IDENT}.img
 
 [ -f ${CCACHE} ] || zcat cache.img.gz >${CCACHE}
 
