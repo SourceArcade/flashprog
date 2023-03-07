@@ -4,9 +4,15 @@ set -e
 TEMP_DIR=$(mktemp -d)
 trap "rm -rf ${TEMP_DIR}" EXIT
 
-${MAKECMD:-make} clean
-${MAKECMD:-make} -j${CPUS:-$(nproc)} CC="${CC:-ccache cc}" CONFIG_EVERYTHING=yes
-FLASHROM=./flashrom
+if command -v meson >/dev/null 2>&1; then
+	meson setup --buildtype release ${TEMP_DIR}/build
+	ninja ${CPUS:+-j${CPUS}} -C ${TEMP_DIR}/build
+	FLASHROM=${TEMP_DIR}/build/flashrom
+else
+	${MAKECMD:-make} clean
+	${MAKECMD:-make} -j${CPUS:-$(nproc)} CC="${CC:-ccache cc}" CONFIG_EVERYTHING=yes
+	FLASHROM=./flashrom
+fi
 
 dd bs=128K count=1 </dev/urandom >${TEMP_DIR}/rand
 ${FLASHROM} -p dummy:emulate=M25P10.RES,image=${TEMP_DIR}/image -w ${TEMP_DIR}/rand
