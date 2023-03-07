@@ -333,12 +333,6 @@ static int ft2232_spi_init(void)
 	uint8_t aux_bits_high = 0x00;
 	uint8_t pindir_high = 0x00;
 
-	struct ft2232_data *const spi_data = calloc(1, sizeof(*spi_data));
-	if (!spi_data) {
-		msg_perr("Unable to allocate space for SPI master data\n");
-		return SPI_GENERIC_ERROR;
-	}
-
 	arg = extract_programmer_param("type");
 	if (arg) {
 		if (!strcasecmp(arg, "2232H")) {
@@ -438,8 +432,7 @@ static int ft2232_spi_init(void)
 		} else {
 			msg_perr("Error: Invalid device type specified.\n");
 			free(arg);
-			ret = -1;
-			goto init_err;
+			return -1;
 		}
 	}
 	free(arg);
@@ -475,8 +468,7 @@ static int ft2232_spi_init(void)
 		if (channel_count < 0 || strlen(arg) != 1) {
 			msg_perr("Error: Invalid channel/port/interface specified: \"%s\".\n", arg);
 			free(arg);
-			ret = -2;
-			goto init_err;
+			return -2;
 		}
 	}
 	free(arg);
@@ -490,8 +482,7 @@ static int ft2232_spi_init(void)
 			msg_perr("Error: Invalid SPI frequency divisor specified: \"%s\".\n"
 				 "Valid are even values between 2 and 131072.\n", arg);
 			free(arg);
-			ret = -2;
-			goto init_err;
+			return -2;
 		}
 		divisor = (uint32_t)temp;
 	}
@@ -510,8 +501,7 @@ static int ft2232_spi_init(void)
 			msg_perr("Error: Invalid GPIOL specified: \"%s\".\n"
 				 "Valid values are between 0 and 3.\n", arg);
 			free(arg);
-			ret = -2;
-			goto init_err;
+			return -2;
 		}
 
 		unsigned int pin = temp + 4;
@@ -596,6 +586,12 @@ format_error:
 		 (ft2232_interface == INTERFACE_A) ? "A" :
 		 (ft2232_interface == INTERFACE_B) ? "B" :
 		 (ft2232_interface == INTERFACE_C) ? "C" : "D");
+
+	struct ft2232_data *const spi_data = calloc(1, sizeof(*spi_data));
+	if (!spi_data) {
+		msg_perr("Unable to allocate space for SPI master data\n");
+		return SPI_GENERIC_ERROR;
+	}
 
 	struct ftdi_context *const ftdic = &spi_data->ftdi_context;
 	if (ftdi_init(ftdic) < 0) {
