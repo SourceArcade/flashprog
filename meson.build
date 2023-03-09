@@ -299,7 +299,7 @@ programmer = {
     'deps'    : [ libgpiod ],
     'groups'  : [ group_gpiod, group_external ],
     'srcs'    : files('linux_gpio_spi.c'),
-    'flags'   : [ '-DCONFIG_LINUX_GPIOD=1' ],
+    'flags'   : [ '-DCONFIG_LINUX_GPIO_SPI=1' ],
   },
   'linux_mtd' : {
     'systems' : [ 'linux' ],

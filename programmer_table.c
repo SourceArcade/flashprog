@@ -112,7 +112,7 @@ const struct programmer_entry *const programmer_table[] = {
     &programmer_satamv,
 #endif
 
-#if CONFIG_LINUX_GPIOD == 1
+#if CONFIG_LINUX_GPIO_SPI == 1
     &programmer_linux_gpio_spi,
 #endif
 
