@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +28,7 @@ struct spi100 {
 	uint8_t *spibar;
 	uint8_t *memory;
 	size_t mapped_len;
+	bool no_4ba_mmap;
 
 	unsigned int altspeed;
 };
@@ -129,10 +131,16 @@ static int spi100_send_command(const struct flashctx *const flash,
 static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	const struct spi100 *const spi100 = flash->mst->spi.data;
+	const chipsize_t chip_size = flashrom_flash_getsize(flash);
+
+	/* Don't consider memory mapping at all
+	   if 4BA chips are not mapped as expected. */
+	if (chip_size > 16*MiB && spi100->no_4ba_mmap)
+		return default_spi_read(flash, buf, start, len);
 
 	/* Where in the flash does the memory mapped part start?
 	   Can be negative if the mapping is bigger than the chip. */
-	const long long mapped_start = flashrom_flash_getsize(flash) - spi100->mapped_len;
+	const long long mapped_start = chip_size - spi100->mapped_len;
 
 	/* Use SPI100 engine for data outside the memory-mapped range. */
 	if ((long long)start < mapped_start) {
@@ -165,6 +173,7 @@ static int spi100_shutdown(void *data)
 }
 
 static struct spi_master spi100_master = {
+	.features	= SPI_MASTER_4BA | SPI_MASTER_NO_4BA_MODES,
 	.max_data_read	= SPI100_FIFO_SIZE - 4, /* Account for up to 4 address bytes. */
 	.max_data_write	= SPI100_FIFO_SIZE - 4,
 	.command	= spi100_send_command,
@@ -226,6 +235,35 @@ static void spi100_print(const struct spi100 *const spi100)
 	msg_pdbg("TpmSpeed:  %s\n", spispeeds[speed_cfg >>  0 & 0xf].speed);
 }
 
+static void spi100_check_4ba(struct spi100 *const spi100)
+{
+	const uint16_t rom2_addr_override = spi100_read16(spi100, 0x30);
+	const uint32_t addr32_ctrl0 = spi100_read32(spi100, 0x50);
+	const uint32_t addr32_ctrl3 = spi100_read32(spi100, 0x5c);
+
+	spi100->no_4ba_mmap = false;
+
+	/* Most bits are undocumented ("reserved"), so we play safe. */
+	if (rom2_addr_override != 0x14c0) {
+		msg_pdbg("ROM2 address override *not* in default configuration.\n");
+		spi100->no_4ba_mmap = true;
+	}
+
+	/* Check if the controller would use 4-byte addresses by itself. */
+	if (addr32_ctrl0 & 1) {
+		msg_pdbg("Memory-mapped access uses 32-bit addresses.\n");
+	} else {
+		msg_pdbg("Memory-mapped access uses 24-bit addresses.\n");
+		spi100->no_4ba_mmap = true;
+	}
+
+	/* Another override (xor'ed) for the most-significant address bits. */
+	if (addr32_ctrl3 & 0xff) {
+		msg_pdbg("SPI ROM page bits set: 0x%02x\n", addr32_ctrl3 & 0xff);
+		spi100->no_4ba_mmap = true;
+	}
+}
+
 static void spi100_set_altspeed(struct spi100 *const spi100)
 {
 	const uint16_t speed_cfg = spi100_read16(spi100, 0x22);
@@ -259,6 +297,8 @@ int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_
 	spi100_print(spi100);
 
 	spi100_set_altspeed(spi100);
+
+	spi100_check_4ba(spi100);
 
 	return register_spi_master(&spi100_master, spi100);
 }
