@@ -130,10 +130,13 @@ static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int 
 {
 	const struct spi100 *const spi100 = flash->mst->spi.data;
 
-	/* Use SPI100 engine for data outside the memory-mapped range */
-	const chipoff_t from_top = flashrom_flash_getsize(flash) - start;
-	if (from_top > spi100->mapped_len) {
-		const chipsize_t unmapped_len = MIN(len, from_top - spi100->mapped_len);
+	/* Where in the flash does the memory mapped part start?
+	   Can be negative if the mapping is bigger than the chip. */
+	const long long mapped_start = flashrom_flash_getsize(flash) - spi100->mapped_len;
+
+	/* Use SPI100 engine for data outside the memory-mapped range. */
+	if ((long long)start < mapped_start) {
+		const chipsize_t unmapped_len = MIN(len, mapped_start - start);
 		const int ret = default_spi_read(flash, buf, start, unmapped_len);
 		if (ret)
 			return ret;
@@ -141,6 +144,9 @@ static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int 
 		buf += unmapped_len;
 		len -= unmapped_len;
 	}
+
+	/* Translate `start` to memory-mapped offset. */
+	start -= mapped_start;
 
 	mmio_readn_aligned(spi100->memory + start, buf, len, 8);
 
