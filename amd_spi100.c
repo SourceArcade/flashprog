@@ -108,6 +108,15 @@ static int spi100_send_command(const struct flashctx *const flash,
 	if (writecnt > 1)
 		spi100_writen(spi100, 0x80, &writearr[1], writecnt - 1);
 
+	/* Check if the command/address is allowed */
+	const uint32_t spi_cntrl0 = spi100_read32(spi100, 0x00);
+	if (spi_cntrl0 & (1 << 21)) {
+		msg_perr("ERROR: Illegal access for opcode 0x%02x!", writearr[0]);
+		return SPI_INVALID_OPCODE;
+	} else {
+		msg_pspew("%s: executing opcode 0x%02x.\n", __func__, writearr[0]);
+	}
+
 	/* Trigger command */
 	spi100_write8(spi100, 0x47, BIT(7));
 
