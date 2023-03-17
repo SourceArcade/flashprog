@@ -45,13 +45,11 @@ git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 	[ $$(docker image ls -q mani/$*) ] \
 		|| $(MAKE) $*-build $(if $(QUIET_SETUP),>/dev/null 2>/dev/null)
 
-$(ALMALINUX_TAGS) $(filter centos%,$(MULTIARCH_TAGS)) anita\:7.1-sparc: CC=cc
+$(ALMALINUX_TAGS) $(filter centos%,$(MULTIARCH_TAGS)): CC=cc
 djgpp\:6.1.0: CC=ccache i586-pc-msdosdjgpp-gcc
 djgpp\:6.1.0: STRIP=i586-pc-msdosdjgpp-strip
 djgpp\:6.1.0: LIBS_BASE=../
 djgpp\:6.1.0: MAKEARGS+=strip CONFIG_JLINK_SPI=no
-$(ANITA_TAGS): MAKECMD=gmake
-$(ANITA_TAGS): MAKEARGS+=CONFIG_JLINK_SPI=no WARNERROR=no
 $(filter alpine% centos%,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter %-xenial %-stretch,$(MULTIARCH_TAGS)): MAKEARGS+=CONFIG_JLINK_SPI=no
 $(filter centos%,$(MULTIARCH_TAGS)): MAKEARGS+=WARNERROR=no
