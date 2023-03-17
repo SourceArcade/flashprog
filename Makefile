@@ -333,6 +333,11 @@ ifeq ($(HAS_LINUX_I2C), no)
 $(call mark_unsupported,$(DEPENDS_ON_LINUX_I2C))
 endif
 
+# libgpiod is most likely not available on anything but Linux and Android
+ifeq ($(filter $(TARGET_OS), Linux Android), )
+$(call mark_unsupported,$(DEPENDS_ON_LIBGPIOD))
+endif
+
 ifeq ($(TARGET_OS), Android)
 # Android on x86 (currently) does not provide raw PCI port I/O operations.
 $(call mark_unsupported,$(DEPENDS_ON_X86_PORT_IO))
