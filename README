@@ -130,7 +130,9 @@ To cross-compile on Linux for DOS:
 
  Enter the flashrom directory.
 
- make CC=i586-pc-msdosdjgpp-gcc STRIP=i586-pc-msdosdjgpp-strip LIBS_BASE=../libpci-libgetopt/ strip
+ make CC=i586-pc-msdosdjgpp-gcc STRIP=i586-pc-msdosdjgpp-strip \
+	LIBS_BASE=../libpci-libgetopt/ HAS_LIBPCI=yes CONFIG_LIBPCI_LDFLAGS=-lpci \
+	strip
 
  If you like, you can compress the resulting executable with UPX:
 
