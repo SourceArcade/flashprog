@@ -274,6 +274,9 @@ override CPPFLAGS += $(shell [ -f /usr/pkg/include/pciutils/pci.h ] && echo -DPC
 endif
 
 ifeq ($(TARGET_OS), DOS)
+$(call mark_unsupported,$(DEPENDS_ON_LIBFTDI1))
+$(call mark_unsupported,$(DEPENDS_ON_LIBUSB1))
+$(call mark_unsupported,CONFIG_JLINK_SPI)
 # DJGPP has odd uint*_t definitions which cause lots of format string warnings.
 override CFLAGS += -Wno-format
 override LDFLAGS += -lgetopt
