@@ -68,3 +68,11 @@ $(ANITA_TAGS): MAKEARGS+=CONFIG_JLINK_SPI=no
 
 # Compiler doesn't like simplified initializers, e.g. `= { 0 };`
 anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=WARNERROR=no
+
+# Missing pkg-config (container images can't be updated anymore)
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=HAS_LIBPCI=yes
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBPCI_LDFLAGS='-L/usr/pkg/lib -lpciutils -lpci'
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBPCI_CFLAGS=-I/usr/pkg/include/pciutils
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=HAS_LIBUSB1=yes
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBUSB1_LDFLAGS='-L/usr/pkg/lib -lusb-1.0'
+anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBUSB1_CFLAGS=-I/usr/pkg/include/libusb-1.0
