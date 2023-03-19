@@ -36,4 +36,10 @@ if [ "${MESONCMD=meson}" ]; then
 	eval ${MESONCMD} setup ${MESONARGS--D programmer=all --buildtype release} "${TEMP_DIR}/build"
 	ninja ${CPUS:+-j${CPUS}} -C "${TEMP_DIR}/build"
 	test_prog "${TEMP_DIR}/build/flashprog"
+
+	if [ "${MAKECMD}" -a ! "${CROSS_COMPILE}" ]; then
+		./flashprog -L >"${TEMP_DIR}/flashprog.supported"
+		"${TEMP_DIR}/build/flashprog" -L >"${TEMP_DIR}/mashprog.supported"
+		diff -u "${TEMP_DIR}/flashprog.supported" "${TEMP_DIR}/mashprog.supported"
+	fi
 fi
