@@ -293,7 +293,6 @@ programmer = {
     'groups'  : [ group_jlink, group_external ],
     'srcs'    : files('jlink_spi.c'),
     'flags'   : [ '-DCONFIG_JLINK_SPI=1' ],
-    'default' : false,
   },
   'linux_gpio_spi' : {
     'systems' : [ 'linux' ],
