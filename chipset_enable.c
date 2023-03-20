@@ -1807,7 +1807,7 @@ const struct penable chipset_enables[] = {
 	{0x1022, 0x790b, REV(0x51), B_FLS,  NT,  "AMD", "Renoir/Cezanne",		enable_flash_amd_spi100},
 	{0x1022, 0x790b, REV(0x59), B_FLS, DEP,  "AMD", "Pinnacle Ridge",		enable_flash_amd_spi100},
 	{0x1022, 0x790b, REV(0x61), B_FLS, DEP,  "AMD", "Raven Ridge/Matisse/Starship",	enable_flash_amd_spi100},
-	{0x1022, 0x790b, REV(0x71), B_FLS,  NT,  "AMD", "Mendocino",			enable_flash_amd_spi100},
+	{0x1022, 0x790b, REV(0x71), B_FLS, DEP,  "AMD", "Mendocino/Genoa",		enable_flash_amd_spi100},
 	{0x1039, 0x0406,   ANY_REV, B_PFL,  NT,  "SiS", "501/5101/5501",		enable_flash_sis501},
 	{0x1039, 0x0496,   ANY_REV, B_PFL,  NT,  "SiS", "85C496+497",			enable_flash_sis85c496},
 	{0x1039, 0x0530,   ANY_REV, B_PFL,  OK,  "SiS", "530",				enable_flash_sis530},
