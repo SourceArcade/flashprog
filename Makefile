@@ -348,6 +348,13 @@ ifeq ($(or $(filter $(ARCH), x86), $(filter $(TARGET_OS), Linux)), )
 $(call mark_unsupported,CONFIG_INTERNAL)
 endif
 
+# Try linux_mtd as internal programmer on all but x86
+ifeq ($(ARCH), x86)
+FEATURE_FLAGS += -D'LINUX_MTD_AS_INTERNAL=0'
+else
+FEATURE_FLAGS += -D'LINUX_MTD_AS_INTERNAL=1'
+endif
+
 ifeq ($(HAS_SERIAL), no)
 $(call mark_unsupported, $(DEPENDS_ON_SERIAL))
 endif

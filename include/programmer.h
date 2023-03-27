@@ -373,7 +373,7 @@ void exit_conf_mode_ite(uint16_t port);
 void probe_superio_ite(void);
 int init_superio_ite(void);
 
-#if CONFIG_LINUX_MTD == 1
+#if CONFIG_LINUX_MTD == 1 && LINUX_MTD_AS_INTERNAL == 1
 /* trivial wrapper to avoid cluttering internal_init() with #if */
 static inline int try_mtd(void) { return programmer_linux_mtd.init(); };
 #else

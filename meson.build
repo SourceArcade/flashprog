@@ -278,6 +278,7 @@ programmer = {
     'flags' : [
       '-DCONFIG_INTERNAL=1',
       '-DCONFIG_INTERNAL_DMI=' + (get_option('use_internal_dmi') ? '1' : '0'),
+      '-DLINUX_MTD_AS_INTERNAL=' + (host_machine.cpu_family() in ['x86', 'x86_64'] ? '0' : '1'),
     ]
   },
   'it8212' : {
