@@ -67,12 +67,32 @@ void start_logging(void)
 static const char *flashprog_progress_stage_to_string(enum flashprog_progress_stage stage)
 {
 	if (stage == FLASHPROG_PROGRESS_READ)
-		return "READ";
+		return "Reading";
 	if (stage == FLASHPROG_PROGRESS_WRITE)
-		return "WRITE";
+		return "Writing";
 	if (stage == FLASHPROG_PROGRESS_ERASE)
-		return "ERASE";
-	return "UNKNOWN";
+		return "Erasing";
+	return "Progress";
+}
+
+static void print_progress_bar(enum flashprog_progress_stage stage, unsigned int pc)
+{
+	char progress_line[73], *bar;
+	unsigned int i;
+
+	const int bar_start = snprintf(progress_line, sizeof(progress_line), "%s... [",
+				       flashprog_progress_stage_to_string(stage));
+
+	for (bar = progress_line + bar_start, i = 0; i < pc; i += 2)
+		*bar++ = '=';
+	if (i < 100)
+		*bar++ = '>', i += 2;
+	for (; i < 100; i += 2)
+		*bar++ = ' ';
+
+	snprintf(bar, sizeof(progress_line) - (bar - progress_line), "] %3u%% ", pc);
+
+	printf("\r%s", progress_line);
 }
 
 void flashprog_progress_cb(enum flashprog_progress_stage stage, size_t current, size_t total, void *user_data)
@@ -85,7 +105,10 @@ void flashprog_progress_cb(enum flashprog_progress_stage stage, size_t current, 
 	if (last_stage == stage && last_pc == pc)
 		return;
 
-	msg_ginfo("[%s] %u%% complete... ", flashprog_progress_stage_to_string(stage), pc);
+	if (last_stage != stage || pc == 0)
+		printf("\n");
+
+	print_progress_bar(stage, pc);
 	last_stage = stage;
 	last_pc = pc;
 }
