@@ -2130,7 +2130,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0xa146,   ANY_REV, B_S,    NT,  "Intel", "Q170",			enable_flash_pch100},
 	{0x8086, 0xa147,   ANY_REV, B_S,    NT,  "Intel", "Q150",			enable_flash_pch100},
 	{0x8086, 0xa148,   ANY_REV, B_S,    NT,  "Intel", "B150",			enable_flash_pch100},
-	{0x8086, 0xa149,   ANY_REV, B_S,    NT,  "Intel", "C236",			enable_flash_pch100},
+	{0x8086, 0xa149,   ANY_REV, B_S,   DEP,  "Intel", "C236",			enable_flash_pch100},
 	{0x8086, 0xa14a,   ANY_REV, B_S,    NT,  "Intel", "C232",			enable_flash_pch100},
 	{0x8086, 0xa14b,   ANY_REV, B_S,    NT,  "Intel", "Sunrise Point Server Sample",enable_flash_pch100},
 	{0x8086, 0xa14d,   ANY_REV, B_S,    NT,  "Intel", "QM170",			enable_flash_pch100},
