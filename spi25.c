@@ -640,8 +640,7 @@ static int spi_nbyte_program(struct flashctx *flash, unsigned int addr, const ui
 	return spi_write_cmd(flash, op, native_4ba, addr, bytes, len, 10);
 }
 
-int spi_nbyte_read(struct flashctx *flash, unsigned int address, uint8_t *bytes,
-		   unsigned int len)
+int spi_nbyte_read(struct flashctx *flash, uint8_t *dst, unsigned int address, unsigned int len)
 {
 	const bool native_4ba = flash->chip->feature_bits & FEATURE_4BA_READ && spi_master_4ba(flash);
 	uint8_t cmd[1 + JEDEC_MAX_ADDR_LEN] = { native_4ba ? JEDEC_READ_4BA : JEDEC_READ, };
@@ -651,7 +650,7 @@ int spi_nbyte_read(struct flashctx *flash, unsigned int address, uint8_t *bytes,
 		return 1;
 
 	/* Send Read */
-	return spi_send_command(flash, 1 + addr_len, len, cmd, bytes);
+	return spi_send_command(flash, 1 + addr_len, len, cmd, dst);
 }
 
 /*
@@ -665,7 +664,7 @@ int spi_read_chunked(struct flashctx *flash, uint8_t *buf, unsigned int start,
 	size_t to_read;
 	for (; len; len -= to_read, buf += to_read, start += to_read) {
 		to_read = min(chunksize, len);
-		ret = spi_nbyte_read(flash, start, buf, to_read);
+		ret = spi_nbyte_read(flash, buf, start, to_read);
 		if (ret)
 			return ret;
 		flashprog_progress_add(flash, to_read);

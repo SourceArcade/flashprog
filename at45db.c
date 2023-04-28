@@ -245,7 +245,7 @@ int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, uns
 	const unsigned int max_chunk = (max_data_read > 0) ? max_data_read : page_size;
 	while (len > 0) {
 		unsigned int chunk = min(max_chunk, len);
-		int ret = spi_nbyte_read(flash, at45db_convert_addr(addr, page_size), buf, chunk);
+		int ret = spi_nbyte_read(flash, buf, at45db_convert_addr(addr, page_size), chunk);
 		if (ret) {
 			msg_cerr("%s: error sending read command!\n", __func__);
 			return ret;
