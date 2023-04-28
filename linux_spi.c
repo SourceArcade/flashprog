@@ -54,19 +54,15 @@ static int linux_spi_send_command(const struct flashctx *flash, unsigned int wri
 				  unsigned int readcnt,
 				  const unsigned char *txbuf,
 				  unsigned char *rxbuf);
-static int linux_spi_read(struct flashctx *flash, uint8_t *buf,
-			  unsigned int start, unsigned int len);
-static int linux_spi_write_256(struct flashctx *flash, const uint8_t *buf,
-			       unsigned int start, unsigned int len);
 
 static const struct spi_master spi_master_linux = {
 	.features	= SPI_MASTER_4BA,
-	.max_data_read	= MAX_DATA_UNSPECIFIED, /* TODO? */
-	.max_data_write	= MAX_DATA_UNSPECIFIED, /* TODO? */
+	.max_data_read	= MAX_DATA_UNSPECIFIED,
+	.max_data_write	= MAX_DATA_UNSPECIFIED,
 	.command	= linux_spi_send_command,
 	.multicommand	= default_spi_send_multicommand,
-	.read		= linux_spi_read,
-	.write_256	= linux_spi_write_256,
+	.read		= default_spi_read,
+	.write_256	= default_spi_write_256,
 	.shutdown	= linux_spi_shutdown,
 	.probe_opcode	= default_spi_probe_opcode,
 };
@@ -123,6 +119,7 @@ static int linux_spi_init(struct flashprog_programmer *const prog)
 	int fd;
 	size_t max_kernel_buf_size;
 	struct linux_spi_data *spi_data;
+	struct spi_master spi_master = spi_master_linux;
 
 	p = extract_programmer_param("spispeed");
 	if (p && strlen(p)) {
@@ -178,6 +175,11 @@ static int linux_spi_init(struct flashprog_programmer *const prog)
 	max_kernel_buf_size = get_max_kernel_buf_size();
 	msg_pdbg("%s: max_kernel_buf_size: %zu\n", __func__, max_kernel_buf_size);
 
+	/* Older kernels use a single buffer for combined input and output
+	   data. So account for longest possible command + address, too. */
+	spi_master.max_data_read = max_kernel_buf_size - 5;
+	spi_master.max_data_write = max_kernel_buf_size - 5;
+
 	spi_data = calloc(1, sizeof(*spi_data));
 	if (!spi_data) {
 		msg_perr("Unable to allocated space for SPI master data\n");
@@ -186,7 +188,7 @@ static int linux_spi_init(struct flashprog_programmer *const prog)
 	spi_data->fd = fd;
 	spi_data->max_kernel_buf_size = max_kernel_buf_size;
 
-	return register_spi_master(&spi_master_linux, 0, spi_data);
+	return register_spi_master(&spi_master, 0, spi_data);
 
 init_err:
 	close(fd);
@@ -238,21 +240,6 @@ static int linux_spi_send_command(const struct flashctx *flash, unsigned int wri
 		return -1;
 	}
 	return 0;
-}
-
-static int linux_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
-{
-	struct linux_spi_data *spi_data = flash->mst.spi->data;
-	/* Older kernels use a single buffer for combined input and output
-	   data. So account for longest possible command + address, too. */
-	return spi_read_chunked(flash, buf, start, len, spi_data->max_kernel_buf_size - 5);
-}
-
-static int linux_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
-{
-	struct linux_spi_data *spi_data = flash->mst.spi->data;
-	/* 5 bytes must be reserved for longest possible command + address. */
-	return spi_write_chunked(flash, buf, start, len, spi_data->max_kernel_buf_size - 5);
 }
 
 const struct programmer_entry programmer_linux_spi = {
