@@ -178,6 +178,7 @@ enum test_state {
 struct flashprog_flashctx;
 #define flashctx flashprog_flashctx /* TODO: Agree on a name and convert all occurrences. */
 typedef int (erasefunc_t)(struct flashctx *flash, unsigned int addr, unsigned int blocklen);
+typedef int (readfunc_t)(struct flashctx *flash, uint8_t *dst, unsigned int start, unsigned int len);
 
 enum flash_reg {
 	INVALID_REG = 0,
@@ -418,6 +419,7 @@ int print_supported(void);
 void print_supported_wiki(void);
 
 /* helpers.c */
+int flashprog_read_chunked(struct flashctx *, uint8_t *dst, unsigned int start, unsigned int len, unsigned int chunksize, readfunc_t *);
 uint32_t address_to_bits(uint32_t addr);
 unsigned int bitcount(unsigned long a);
 #undef MIN

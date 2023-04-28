@@ -56,7 +56,6 @@ erasefunc_t *spi25_get_erasefn_from_opcode(uint8_t opcode);
 const uint8_t *spi_get_opcode_from_erasefn(erasefunc_t *func, bool *native_4ba);
 int spi_chip_write_1(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len);
 int spi_nbyte_read(struct flashctx *flash, uint8_t *dst, unsigned int addr, unsigned int len);
-int spi_read_chunked(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len, unsigned int chunksize);
 int spi_write_chunked(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len, unsigned int chunksize);
 int spi_enter_4ba(struct flashctx *flash);
 int spi_exit_4ba(struct flashctx *flash);

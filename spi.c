@@ -80,7 +80,7 @@ int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 			 "Please report a bug at flashprog@flashprog.org\n", __func__);
 		return 1;
 	}
-	return spi_read_chunked(flash, buf, start, len, max_data);
+	return flashprog_read_chunked(flash, buf, start, len, max_data, spi_nbyte_read);
 }
 
 int default_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)

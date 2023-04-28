@@ -20,6 +20,21 @@
 #include <string.h>
 #include "flash.h"
 
+int flashprog_read_chunked(struct flashctx *const flash, uint8_t *dst, unsigned int start, unsigned int len,
+			  const unsigned int chunksize, readfunc_t *const read)
+{
+	int ret;
+	size_t to_read;
+	for (; len; len -= to_read, dst += to_read, start += to_read) {
+		to_read = min(chunksize, len);
+		ret = read(flash, dst, start, to_read);
+		if (ret)
+			return ret;
+		flashprog_progress_add(flash, to_read);
+	}
+	return 0;
+}
+
 /* Returns the minimum number of bits needed to represent the given address.
  * FIXME: use mind-blowing implementation. */
 uint32_t address_to_bits(uint32_t addr)
