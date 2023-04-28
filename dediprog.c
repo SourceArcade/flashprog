@@ -701,7 +701,7 @@ static int dediprog_spi_write(struct flashctx *flash, const uint8_t *buf,
 		msg_pdbg("Slow write for partial block from 0x%x, length 0x%x\n",
 			 start, residue);
 		/* No idea about the real limit. Maybe 16 including command and address, maybe more. */
-		ret = spi_write_chunked(flash, buf, start, residue, 11);
+		ret = default_spi_write_256(flash, buf, start, residue);
 		if (ret) {
 			dediprog_set_leds(LED_ERROR, dp_data);
 			return ret;
@@ -720,8 +720,7 @@ static int dediprog_spi_write(struct flashctx *flash, const uint8_t *buf,
 	if (len) {
 		msg_pdbg("Slow write for partial block from 0x%x, length 0x%x\n",
 			 start, len);
-		ret = spi_write_chunked(flash, buf + residue + bulklen,
-				        start + residue + bulklen, len, 11);
+		ret = default_spi_write_256(flash, buf + residue + bulklen, start + residue + bulklen, len);
 		if (ret) {
 			dediprog_set_leds(LED_ERROR, dp_data);
 			return ret;
@@ -769,7 +768,7 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	msg_pspew("%s, writecnt=%i, readcnt=%i\n", __func__, writecnt, readcnt);
-	if (writecnt > flash->mst.spi->max_data_write) {
+	if (writecnt > flash->mst.spi->max_data_write + 5) {
 		msg_perr("Invalid writecnt=%i, aborting.\n", writecnt);
 		return 1;
 	}
@@ -1087,7 +1086,7 @@ static int dediprog_shutdown(void *data);
 static struct spi_master spi_master_dediprog = {
 	.features	= SPI_MASTER_NO_4BA_MODES,
 	.max_data_read	= 16, /* 18 seems to work fine as well, but 19 times out sometimes with FW 5.15. */
-	.max_data_write	= 16,
+	.max_data_write	= 16 - 5, /* Account for 5 bytes cmd/addr. */
 	.command	= dediprog_spi_send_command,
 	.multicommand	= default_spi_send_multicommand,
 	.read		= dediprog_spi_read,
