@@ -69,6 +69,13 @@ static void spi100_readn(const struct spi100 *spi100, unsigned int reg, uint8_t 
 	mmio_readn_aligned(spi100->spibar + reg, data, len, 4);
 }
 
+static int spi100_mmap_read(struct flashctx *flash, uint8_t *dst, unsigned int start, unsigned int len)
+{
+	const struct spi100 *const spi100 = flash->mst.spi->data;
+	mmio_readn_aligned(spi100->memory + start, dst, len, 8);
+	return 0;
+}
+
 static int spi100_check_readwritecnt(const unsigned int writecnt, const unsigned int readcnt)
 {
 	if (writecnt < 1) {
@@ -165,7 +172,7 @@ static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int 
 	/* Translate `start` to memory-mapped offset. */
 	start -= mapped_start;
 
-	mmio_readn_aligned(spi100->memory + start, buf, len, 8);
+	flashprog_read_chunked(flash, buf, start, len, MAX_DATA_READ_UNLIMITED, spi100_mmap_read);
 
 	return 0;
 }
