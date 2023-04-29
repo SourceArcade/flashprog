@@ -194,12 +194,14 @@ void programmer_delay(unsigned int usecs)
 	}
 }
 
-int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start,
-		   int unsigned len)
+static int read_memmapped_chunk(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	chip_readn(flash, buf, flash->virtual_memory + start, len);
-
 	return 0;
+}
+int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start, int unsigned len)
+{
+	return flashprog_read_chunked(flash, buf, start, len, MAX_DATA_READ_UNLIMITED, read_memmapped_chunk);
 }
 
 /* This is a somewhat hacked function similar in some ways to strtok().
