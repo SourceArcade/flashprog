@@ -19,6 +19,8 @@
 #include <stdint.h>
 
 struct flashprog_flashctx;
+struct master_common;
+struct bus_probe;
 
 /* spi.c */
 int spi_aai_write(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
@@ -26,9 +28,9 @@ int spi_chip_write_256(struct flashprog_flashctx *, const uint8_t *buf, unsigned
 int spi_chip_read(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, int unsigned len);
 
 /* spi25.c */
+struct found_id *probe_spi_rdid(const struct bus_probe *, const struct master_common *);
+
 int spi_simple_write_cmd(struct flashprog_flashctx *, uint8_t op, unsigned int poll_delay);
-int probe_spi_rdid(struct flashprog_flashctx *);
-int probe_spi_rdid4(struct flashprog_flashctx *);
 int probe_spi_rems(struct flashprog_flashctx *);
 int probe_spi_res1(struct flashprog_flashctx *);
 int probe_spi_res2(struct flashprog_flashctx *);

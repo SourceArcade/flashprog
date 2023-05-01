@@ -656,7 +656,6 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashp
 		[ID_OPAQUE]	= "OPAQUE",
 		[ID_SPI_AT25F]	= "SPI_AT25F",
 		[ID_SPI_RDID]	= "SPI_RDID",
-		[ID_SPI_RDID4]	= "SPI_RDID4",
 		[ID_SPI_REMS]	= "SPI_REMS",
 		[ID_SPI_RES1]	= "SPI_RES1",
 		[ID_SPI_RES2]	= "SPI_RES2",

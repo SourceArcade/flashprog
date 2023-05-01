@@ -23,6 +23,7 @@
 #include "flash.h"
 #include "flashchips.h"
 #include "chipdrivers/spi.h"
+#include "chipdrivers/probing.h"
 #include "programmer.h"
 #include "spi_command.h"
 #include "spi.h"
@@ -161,6 +162,28 @@ bool default_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 	return true;
 }
 
+static const struct bus_probe spi_probes[] = {
+       /* type		function		function argument */
+	{ ID_SPI_RDID,	probe_spi_rdid,		NULL },
+};
+
+static bool spi_probe_match(const struct flashchip *chip, const struct id_info_ext *found)
+{
+	if (memcmp(&chip->id, &found->id, sizeof(found->id)) == 0)
+		return true;
+
+	/* Test if this is a pure vendor match. */
+	if (found->id.manufacture == chip->id.manufacture && GENERIC_DEVICE_ID == chip->id.model)
+		return true;
+
+	/* Test if there is any vendor ID. */
+	if (GENERIC_MANUF_ID == chip->id.manufacture &&
+	    found->id.manufacture != 0xff && found->id.manufacture != 0x00)
+		return true;
+
+	return false;
+}
+
 int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, void *data)
 {
 	struct registered_master rmst = { 0 };
@@ -196,6 +219,9 @@ int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, voi
 	else
 		rmst.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
 	rmst.buses_supported = BUS_SPI;
+	rmst.probing.probe_count = ARRAY_SIZE(spi_probes);
+	rmst.probing.probes = spi_probes;
+	rmst.probing.match = spi_probe_match;
 	rmst.spi = *mst;
 	if (data)
 		rmst.spi.data = data;

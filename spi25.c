@@ -19,6 +19,7 @@
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "flash.h"
@@ -29,13 +30,13 @@
 #include "spi_command.h"
 #include "spi.h"
 
-static int spi_rdid(struct flashctx *flash, unsigned char *readarr, int bytes)
+static int spi_rdid(const struct spi_master *spi, unsigned char *readarr, int bytes)
 {
 	static const unsigned char cmd[JEDEC_RDID_OUTSIZE] = { JEDEC_RDID };
 	int ret;
 	int i;
 
-	ret = spi_send_command(flash, sizeof(cmd), bytes, cmd, readarr);
+	ret = spi->command(spi, sizeof(cmd), bytes, cmd, readarr);
 	if (ret)
 		return ret;
 	msg_cspew("RDID returned");
@@ -95,21 +96,34 @@ int spi_write_disable(struct flashctx *flash)
 	return spi_send_command(flash, sizeof(cmd), 0, cmd, NULL);
 }
 
-static int probe_spi_rdid_generic(struct flashctx *flash, int bytes)
+struct found_id *probe_spi_rdid(const struct bus_probe *probe, const struct master_common *mst)
 {
-	const struct flashchip *chip = flash->chip;
+	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char readarr[4];
-	uint32_t id1;
-	uint32_t id2;
+	size_t bytes;
+	int ret;
 
-	const int ret = spi_rdid(flash, readarr, bytes);
-	if (ret == SPI_INVALID_LENGTH)
-		msg_cinfo("%d byte RDID not supported on this SPI controller\n", bytes);
-	if (ret)
-		return 0;
+	for (bytes = 4; bytes >= 3; --bytes) {
+		ret = spi_rdid(spi, readarr, bytes);
+		if (ret == SPI_INVALID_LENGTH)
+			msg_cinfo("%zu byte RDID not supported on this SPI controller\n", bytes);
+		if (!ret)
+			break;
+	}
+	if (ret || flashprog_no_data(readarr, bytes))
+		return NULL;
 
 	if (!oddparity(readarr[0]))
 		msg_cdbg("RDID byte 0 parity violation. ");
+
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	struct id_info *const id = &found->info.id;
+	id->type = ID_SPI_RDID;
 
 	/* Check if this is a continuation vendor ID.
 	 * FIXME: Handle continuation device IDs.
@@ -117,41 +131,20 @@ static int probe_spi_rdid_generic(struct flashctx *flash, int bytes)
 	if (readarr[0] == 0x7f) {
 		if (!oddparity(readarr[1]))
 			msg_cdbg("RDID byte 1 parity violation. ");
-		id1 = (readarr[0] << 8) | readarr[1];
-		id2 = readarr[2];
+		id->manufacture = (readarr[0] << 8) | readarr[1];
+		id->model = readarr[2];
 		if (bytes > 3) {
-			id2 <<= 8;
-			id2 |= readarr[3];
+			id->model <<= 8;
+			id->model |= readarr[3];
 		}
 	} else {
-		id1 = readarr[0];
-		id2 = (readarr[1] << 8) | readarr[2];
+		id->manufacture = readarr[0];
+		id->model = (readarr[1] << 8) | readarr[2];
 	}
 
-	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
+	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id->id1, id->id2);
 
-	if (id1 == chip->id.manufacture && id2 == chip->id.model)
-		return 1;
-
-	/* Test if this is a pure vendor match. */
-	if (id1 == chip->id.manufacture && GENERIC_DEVICE_ID == chip->id.model)
-		return 1;
-
-	/* Test if there is any vendor ID. */
-	if (GENERIC_MANUF_ID == chip->id.manufacture && id1 != 0xff && id1 != 0x00)
-		return 1;
-
-	return 0;
-}
-
-int probe_spi_rdid(struct flashctx *flash)
-{
-	return probe_spi_rdid_generic(flash, 3);
-}
-
-int probe_spi_rdid4(struct flashctx *flash)
-{
-	return probe_spi_rdid_generic(flash, 4);
+	return found;
 }
 
 int probe_spi_rems(struct flashctx *flash)
@@ -195,7 +188,7 @@ int probe_spi_res1(struct flashctx *flash)
 	/* Check if RDID is usable and does not return 0xff 0xff 0xff or
 	 * 0x00 0x00 0x00. In that case, RES is pointless.
 	 */
-	if (!spi_rdid(flash, readarr, 3) && memcmp(readarr, allff, 3) &&
+	if (!spi_rdid(flash->mst.spi, readarr, 3) && memcmp(readarr, allff, 3) &&
 	    memcmp(readarr, all00, 3)) {
 		msg_cdbg("Ignoring RES in favour of RDID.\n");
 		return 0;
