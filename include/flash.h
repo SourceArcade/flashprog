@@ -243,7 +243,8 @@ enum preparation_steps {
 	PREPARE_FULL,
 };
 
-struct flashchip {
+#define flashchip flashprog_chip
+struct flashprog_chip {
 	const char *vendor;
 	const char *name;
 
@@ -505,6 +506,7 @@ int print_supported(void);
 void print_supported_wiki(void);
 
 /* helpers.c */
+bool flashprog_no_data(const void *raw_data, size_t);
 int flashprog_read_chunked(struct flashctx *, uint8_t *dst, unsigned int start, unsigned int len, unsigned int chunksize, readfunc_t *);
 uint32_t address_to_bits(uint32_t addr);
 unsigned int bitcount(unsigned long a);

@@ -17,6 +17,7 @@
 #ifndef __PROBING_H__
 #define __PROBING_H__ 1
 
+#include <stddef.h>
 #include <stdint.h>
 
 enum id_type {
@@ -47,9 +48,43 @@ enum id_type {
  * Identification code.
  */
 struct id_info {
-	uint32_t manufacture;
-	uint32_t model;
+	union {
+		uint32_t manufacture;
+		uint32_t id1;
+	};
+	union {
+		uint32_t model;
+		uint32_t id2;
+	};
 	enum id_type type;
 };
+
+struct id_info_ext {
+	struct id_info id;
+	void *ext;
+};
+
+struct found_id {
+	struct found_id *next;
+	struct id_info_ext info;
+};
+
+struct flashprog_chip;
+struct master_common;
+
+struct bus_probe {
+	enum id_type type;
+	struct found_id *(*run)(const struct bus_probe *, const struct master_common *);
+	void *arg;
+};
+
+struct bus_probing {
+	unsigned int probe_count;
+	const struct bus_probe *probes;
+	bool (*match)(const struct flashprog_chip *, const struct id_info_ext *);
+};
+
+struct flashprog_flashctx;
+int probe_buses(struct flashprog_flashctx *);
 
 #endif /* !__PROBING_H__ */

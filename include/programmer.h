@@ -474,6 +474,11 @@ void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipa
 struct registered_master {
 	size_t max_rom_decode;
 	enum chipbustype buses_supported;
+
+	struct bus_probing probing;
+	struct found_id *found_ids;
+	bool probed;
+
 	union {
 		struct master_common common;
 		struct par_master par;

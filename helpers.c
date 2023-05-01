@@ -20,6 +20,26 @@
 #include <string.h>
 #include "flash.h"
 
+/* Check if raw data is all 0 or all 1. */
+bool flashprog_no_data(const void *const raw_data, const size_t len)
+{
+	const uint8_t *const raw_end = (const uint8_t *)raw_data + len;
+	const uint8_t patterns[] = { 0x00, 0xff };
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(patterns); ++i) {
+		const uint8_t *raw_ptr;
+		for (raw_ptr = raw_data; raw_ptr < raw_end; ++raw_ptr) {
+			if (*raw_ptr != patterns[i])
+				break;
+		}
+		if (raw_ptr == raw_end)
+			return true;
+	}
+
+	return false;
+}
+
 int flashprog_read_chunked(struct flashctx *const flash, uint8_t *dst, unsigned int start, unsigned int len,
 			   unsigned int chunksize, readfunc_t *const read)
 {

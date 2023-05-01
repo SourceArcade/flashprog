@@ -163,7 +163,7 @@ bool default_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 
 int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, void *data)
 {
-	struct registered_master rmst;
+	struct registered_master rmst = { 0 };
 
 	if (mst->shutdown) {
 		if (register_shutdown(mst->shutdown, data)) {

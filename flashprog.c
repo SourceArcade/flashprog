@@ -180,6 +180,15 @@ int programmer_shutdown(struct flashprog_programmer *const prog)
 		int i = --shutdown_fn_count;
 		ret |= shutdown_fn[i].func(shutdown_fn[i].data);
 	}
+
+	int i;
+	for (i = 0; i < registered_master_count; ++i) {
+		struct found_id *found_id, *next;
+		for (found_id = registered_masters[i].found_ids; found_id; found_id = next) {
+			next = found_id->next;
+			free(found_id);
+		}
+	}
 	registered_master_count = 0;
 
 	return ret;
@@ -616,6 +625,88 @@ static int init_default_layout(struct flashctx *flash)
 			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
 	    flashprog_layout_include_region(flash->default_layout, "complete flash"))
 	        return -1;
+	return 0;
+}
+
+static void probe_bus(struct registered_master *const mst, const enum id_type type)
+{
+	struct found_id **next_ptr;
+	unsigned int i;
+
+	if (mst->probed)
+		return;
+
+	next_ptr = &mst->found_ids;
+	for (i = 0; i < mst->probing.probe_count; ++i) {
+		if (type && type != mst->probing.probes[i].type)
+			continue;
+
+		*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common);
+
+		/* walk to end in case multiple IDs were found in a single call */
+		while (*next_ptr)
+			next_ptr = &(*next_ptr)->next;
+	}
+
+	mst->probed = true;
+}
+
+static bool chip_on_bus(struct registered_master *const mst, const struct flashprog_chip *const chip)
+{
+	static const char *const id_names[] = {
+		[ID_82802AB]	= "82802AB",
+		[ID_EN29LV640B]	= "EN29LV640B",
+		[ID_JEDEC]	= "JEDEC",
+		[ID_JEDEC_29GL]	= "JEDEC_29GL",
+		[ID_OPAQUE]	= "OPAQUE",
+		[ID_SPI_AT25F]	= "SPI_AT25F",
+		[ID_SPI_RDID]	= "SPI_RDID",
+		[ID_SPI_RDID4]	= "SPI_RDID4",
+		[ID_SPI_REMS]	= "SPI_REMS",
+		[ID_SPI_RES1]	= "SPI_RES1",
+		[ID_SPI_RES2]	= "SPI_RES2",
+		[ID_SPI_RES3]	= "SPI_RES3",
+		[ID_SPI_SFDP]	= "SPI_SFDP",
+		[ID_SPI_ST95]	= "SPI_ST95",
+		[ID_W29EE011]	= "W29EE011",
+		[ID_EDI]	= "EDI",
+	};
+
+	if (chip_to_probe) {
+		/* If we are looking for a particular chip,
+		   limit the probing functions to its type. */
+		probe_bus(mst, chip->id.type);
+	} else {
+		probe_bus(mst, 0);
+	}
+
+	struct found_id *found_id;
+	for (found_id = mst->found_ids; found_id; found_id = found_id->next) {
+		if (found_id->info.id.type != chip->id.type)
+			continue;
+
+		if (found_id->info.id.type < ARRAY_SIZE(id_names))
+			msg_cdbg("%s: id1 0x%02x, id2 0x%02x ",
+				 id_names[found_id->info.id.type],
+				 found_id->info.id.id1, found_id->info.id.id2);
+
+		if (mst->probing.match(chip, &found_id->info))
+			break;
+	}
+
+	msg_cdbg("\n");
+	return !!found_id;
+}
+
+/* wrapper that's used until all probing functions are ported to per-bus probing */
+int probe_buses(struct flashctx *const flash)
+{
+	int i;
+	for (i = 0; i < registered_master_count; ++i) {
+		if (flash->mst.common == &registered_masters[i].common &&
+		    chip_on_bus(&registered_masters[i], flash->chip))
+			return 1;
+	}
 	return 0;
 }
 

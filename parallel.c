@@ -66,7 +66,7 @@ void chip_readn(const struct flashctx *flash, uint8_t *buf, chipaddr addr,
 int register_par_master(const struct par_master *mst, const enum chipbustype buses,
 			const size_t max_rom_decode, void *data)
 {
-	struct registered_master rmst;
+	struct registered_master rmst = { 0 };
 
 	if (mst->shutdown) {
 		if (register_shutdown(mst->shutdown, data)) {
