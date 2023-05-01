@@ -2810,7 +2810,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -2838,6 +2838,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -2852,7 +2853,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -2880,6 +2881,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -2894,7 +2896,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -2922,6 +2924,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600}, /* 2.5-3.6V & 2.7-3.6V models available */
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -2936,7 +2939,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -2964,6 +2967,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600}, /* 2.5-3.6V & 2.7-3.6V models available */
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -2978,7 +2982,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -3006,6 +3010,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600}, /* 2.5-3.6V & 2.7-3.6V models available */
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -3063,7 +3068,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -3091,6 +3096,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600}, /* 2.5-3.6V & 2.7-3.6V models available */
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -3105,7 +3111,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -3133,6 +3139,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2500, 3600}, /* 2.3-3.6V & 2.5-3.6V models available */
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{
@@ -3147,7 +3154,7 @@ const struct flashchip flashchips[] = {
 		/* OTP: 128B total, 64B pre-programmed; read 0x77; write 0x9B */
 		.feature_bits	= FEATURE_OTP,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_at45db,
+		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -3175,6 +3182,7 @@ const struct flashchip flashchips[] = {
 		.write		= spi_write_at45db,
 		.read		= spi_read_at45db, /* Fast read (0x0B) supported */
 		.voltage	= {2700, 3600},
+		.prepare_access	= spi_prepare_at45db,
 	},
 
 	{

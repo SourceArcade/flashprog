@@ -171,19 +171,23 @@ int spi_prettyprint_status_register_at45db(struct flashctx *flash)
 	return 0;
 }
 
-/* Probe function for AT45DB* chips that support multiple page sizes. */
-int probe_spi_at45db(struct flashctx *flash)
+/* Adapt chip entry for AT45DB* chips that support multiple page sizes. */
+int spi_prepare_at45db(struct flashctx *const flash, const enum preparation_steps prep)
 {
+	struct flashchip *const chip = flash->chip;
 	uint8_t status;
-	struct flashchip *chip = flash->chip;
 
-	if (!probe_spi_rdid(flash))
+	if (prep != PREPARE_POST_PROBE)
+		return 0;
+
+	/* Power-of-2 check */
+	if (chip->page_size & (chip->page_size - 1))
 		return 0;
 
 	/* Some AT45DB* chips support two different page sizes each (e.g. 264 and 256 B). In order to tell which
 	 * page size this chip has we need to read the status register. */
 	if (at45db_read_status_register(flash, &status) != 0)
-		return 0;
+		return 1;
 
 	/* We assume sane power-of-2 page sizes and adjust the chip attributes in case this is not the case. */
 	if ((status & AT45DB_POWEROF2) == 0) {
@@ -208,12 +212,12 @@ int probe_spi_at45db(struct flashctx *flash)
 	case 1056: chip->gran = write_gran_1056bytes; break;
 	default:
 		msg_cerr("%s: unknown page size %d.\n", __func__, chip->page_size);
-		return 0;
+		return 1;
 	}
 
 	msg_cdbg2("%s: total size %i kB, page size %i B\n", __func__, chip->total_size * 1024, chip->page_size);
 
-	return 1;
+	return 0;
 }
 
 /* In case of non-power-of-two page sizes we need to convert the address flashprog uses to the address the
