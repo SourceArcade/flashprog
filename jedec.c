@@ -159,7 +159,7 @@ int probe_jedec_29gl(struct flashctx *flash)
 		msg_cdbg(", dev_id seems to be normal flash content");
 
 	msg_cdbg("\n");
-	if (man_id != chip->manufacture_id || dev_id != chip->model_id)
+	if (man_id != chip->id.manufacture || dev_id != chip->id.model)
 		return 0;
 
 	return 1;
@@ -275,7 +275,7 @@ static int probe_jedec_common(struct flashctx *flash, unsigned int mask)
 		msg_cdbg(", id2 is normal flash content");
 
 	msg_cdbg("\n");
-	if (largeid1 != chip->manufacture_id || largeid2 != chip->model_id)
+	if (largeid1 != chip->id.manufacture || largeid2 != chip->id.model)
 		return 0;
 
 	return 1;

@@ -678,7 +678,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		 * one for this programmer interface (master) and thus no other chip has
 		 * been found on this interface.
 		 */
-		if (startchip == 0 && flash->chip->model_id == SFDP_DEVICE_ID) {
+		if (startchip == 0 && flash->chip->id.model == SFDP_DEVICE_ID) {
 			msg_cinfo("===\n"
 				  "SFDP has autodetected a flash chip which is "
 				  "not natively supported by flashprog yet.\n");
@@ -705,7 +705,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (startchip == 0)
 			break;
 		/* Not the first flash chip detected on this bus, but not a generic match either. */
-		if ((flash->chip->model_id != GENERIC_DEVICE_ID) && (flash->chip->model_id != SFDP_DEVICE_ID))
+		if ((flash->chip->id.model != GENERIC_DEVICE_ID) && (flash->chip->id.model != SFDP_DEVICE_ID))
 			break;
 		/* Not the first flash chip detected on this bus, and it's just a generic match. Ignore it. */
 notfound:
@@ -1509,7 +1509,8 @@ int selfcheck_chip(const struct flashchip *const chip, const int idx)
 	else
 		snprintf(label, sizeof(label), "%s", name);
 
-	if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE) {
+	if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE ||
+	    chip->id.type == ID_FIXME) {
 		ret = 1;
 		msg_gerr("ERROR: Some field of flash chip %s is misconfigured.\n"
 			 "Please report a bug at flashprog@flashprog.org\n", label);

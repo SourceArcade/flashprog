@@ -32,6 +32,7 @@
 #undef max
 #endif
 
+#include "chipdrivers/probing.h"
 #include "libflashprog.h"
 #include "layout.h"
 #include "writeprotect.h"
@@ -248,13 +249,7 @@ struct flashchip {
 
 	enum chipbustype bustype;
 
-	/*
-	 * With 32bit manufacture_id and model_id we can cover IDs up to
-	 * (including) the 4th bank of JEDEC JEP106W Standard Manufacturer's
-	 * Identification code.
-	 */
-	uint32_t manufacture_id;
-	uint32_t model_id;
+	struct id_info id;
 
 	/* Total chip size in kilobytes */
 	unsigned int total_size;

@@ -129,15 +129,15 @@ static int probe_spi_rdid_generic(struct flashctx *flash, int bytes)
 
 	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
 
-	if (id1 == chip->manufacture_id && id2 == chip->model_id)
+	if (id1 == chip->id.manufacture && id2 == chip->id.model)
 		return 1;
 
 	/* Test if this is a pure vendor match. */
-	if (id1 == chip->manufacture_id && GENERIC_DEVICE_ID == chip->model_id)
+	if (id1 == chip->id.manufacture && GENERIC_DEVICE_ID == chip->id.model)
 		return 1;
 
 	/* Test if there is any vendor ID. */
-	if (GENERIC_MANUF_ID == chip->manufacture_id && id1 != 0xff && id1 != 0x00)
+	if (GENERIC_MANUF_ID == chip->id.manufacture && id1 != 0xff && id1 != 0x00)
 		return 1;
 
 	return 0;
@@ -168,15 +168,15 @@ int probe_spi_rems(struct flashctx *flash)
 
 	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
 
-	if (id1 == chip->manufacture_id && id2 == chip->model_id)
+	if (id1 == chip->id.manufacture && id2 == chip->id.model)
 		return 1;
 
 	/* Test if this is a pure vendor match. */
-	if (id1 == chip->manufacture_id && GENERIC_DEVICE_ID == chip->model_id)
+	if (id1 == chip->id.manufacture && GENERIC_DEVICE_ID == chip->id.model)
 		return 1;
 
 	/* Test if there is any vendor ID. */
-	if (GENERIC_MANUF_ID == chip->manufacture_id && id1 != 0xff && id1 != 0x00)
+	if (GENERIC_MANUF_ID == chip->id.manufacture && id1 != 0xff && id1 != 0x00)
 		return 1;
 
 	return 0;
@@ -217,7 +217,7 @@ int probe_spi_res1(struct flashctx *flash)
 
 	msg_cdbg("%s: id 0x%x\n", __func__, id2);
 
-	if (id2 != flash->chip->model_id)
+	if (id2 != flash->chip->id.model)
 		return 0;
 
 	return 1;
@@ -237,7 +237,7 @@ int probe_spi_res2(struct flashctx *flash)
 
 	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
 
-	if (id1 != flash->chip->manufacture_id || id2 != flash->chip->model_id)
+	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
 		return 0;
 
 	return 1;
@@ -257,7 +257,7 @@ int probe_spi_res3(struct flashctx *flash)
 
 	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
 
-	if (id1 != flash->chip->manufacture_id || id2 != flash->chip->model_id)
+	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
 		return 0;
 
 	return 1;
@@ -279,7 +279,7 @@ int probe_spi_at25f(struct flashctx *flash)
 
 	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
 
-	if (id1 == flash->chip->manufacture_id && id2 == flash->chip->model_id)
+	if (id1 == flash->chip->id.manufacture && id2 == flash->chip->id.model)
 		return 1;
 
 	return 0;

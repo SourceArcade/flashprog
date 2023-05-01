@@ -49,7 +49,7 @@ int probe_spi_st95(struct flashctx *flash)
 
 	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
 
-	if (id1 == flash->chip->manufacture_id && id2 == flash->chip->model_id)
+	if (id1 == flash->chip->id.manufacture && id2 == flash->chip->id.model)
 		return 1;
 
 	return 0;

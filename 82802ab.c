@@ -77,7 +77,7 @@ int probe_82802ab(struct flashctx *flash)
 		msg_cdbg(", id2 is normal flash content");
 
 	msg_cdbg("\n");
-	if (id1 != flash->chip->manufacture_id || id2 != flash->chip->model_id)
+	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
 		return 0;
 
 	return 1;
