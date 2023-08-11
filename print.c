@@ -71,7 +71,7 @@ static void print_sysinfo(void)
 
 void print_buildinfo(void)
 {
-	msg_gdbg("flashrom was built with");
+	msg_gdbg("flashprog was built with");
 #ifdef __clang__
 	msg_gdbg(" LLVM Clang");
 #ifdef __clang_version__
@@ -89,9 +89,9 @@ void print_buildinfo(void)
 #else
 	msg_gdbg(" unknown compiler,");
 #endif
-#if defined (__FLASHROM_LITTLE_ENDIAN__)
+#if defined (__FLASHPROG_LITTLE_ENDIAN__)
 	msg_gdbg(" little endian");
-#elif defined (__FLASHROM_BIG_ENDIAN__)
+#elif defined (__FLASHPROG_BIG_ENDIAN__)
 	msg_gdbg(" big endian");
 #else
 #error Endianness could not be determined
@@ -101,15 +101,15 @@ void print_buildinfo(void)
 
 void print_version(void)
 {
-	msg_ginfo("flashrom-stable %s", flashrom_version);
+	msg_ginfo("flashprog %s", flashprog_version);
 	print_sysinfo();
 	msg_ginfo("\n");
 }
 
 void print_banner(void)
 {
-	msg_ginfo("flashrom is free software, get the source code at "
-		  "https://flashrom.org\n");
+	msg_ginfo("flashprog is free software, get the source code at "
+		  "https://flashprog.org\n");
 	msg_ginfo("\n");
 }
 
@@ -588,7 +588,7 @@ int print_supported(void)
 			break;
 		default:
 			msg_gerr("\n%s: %s: Uninitialized programmer type!\n"
-				 "Please report a bug at flashrom-stable@flashrom.org\n",
+				 "Please report a bug at flashprog@flashprog.org\n",
 				 __func__, prog->name);
 			break;
 		}

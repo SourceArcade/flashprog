@@ -40,11 +40,11 @@
 .    \}
 .  \}
 ..
-.TH FLASHROM 8 "@MAN_DATE@" "flashrom-stable-@VERSION@" "@MAN_DATE@"
+.TH FLASHPROG 8 "@MAN_DATE@" "flashprog-@VERSION@" "@MAN_DATE@"
 .SH NAME
-flashrom \- detect, read, write, verify and erase flash chips
+flashprog \- detect, read, write, verify and erase flash chips
 .SH SYNOPSIS
-.B flashrom \fR[\fB\-h\fR|\fB\-R\fR|\fB\-L\fR|\fB\-z\fR|
+.B flashprog \fR[\fB\-h\fR|\fB\-R\fR|\fB\-L\fR|\fB\-z\fR|
           \fB\-p\fR <programmername>[:<parameters>] [\fB\-c\fR <chipname>]
             (\fB\-\-flash\-name\fR|\fB\-\-flash\-size\fR|
              [\fB\-E\fR|\fB\-r\fR <file>|\fB\-w\fR <file>|\fB\-v\fR <file>]
@@ -53,7 +53,7 @@ flashrom \- detect, read, write, verify and erase flash chips
              [\fB\-n\fR] [\fB\-N\fR] [\fB\-f\fR])]
          [\fB\-V\fR[\fBV\fR[\fBV\fR]]] [\fB-o\fR <logfile>]
 .SH DESCRIPTION
-.B flashrom
+.B flashprog
 is a utility for detecting, reading, writing, verifying and erasing flash
 chips. It's often used to flash BIOS/EFI/coreboot/firmware images in-system
 using a supported mainboard. However, it also supports various external
@@ -68,8 +68,8 @@ parallel flash, or SPI.
 You can specify one of
 .BR \-h ", " \-R ", " \-L ", " \-z ", " \-E ", " \-r ", " \-w ", " \-v
 or no operation.
-If no operation is specified, flashrom will only probe for flash chips. It is
-recommended that if you try flashrom the first time on a system, you run it
+If no operation is specified, flashprog will only probe for flash chips. It is
+recommended that if you try flashprog the first time on a system, you run it
 in probe-only mode and check the output. Also you are advised to make a
 backup of your current ROM contents with
 .B \-r
@@ -106,7 +106,7 @@ recommended, you should only use it if you know what you are doing and if you
 feel that the time for verification takes too long.
 .sp
 Typical usage is:
-.B "flashrom \-p prog \-n \-w <file>"
+.B "flashprog \-p prog \-n \-w <file>"
 .sp
 This option is only useful in combination with
 .BR \-\-write .
@@ -117,7 +117,7 @@ Skip not included regions during automatic verification after writing (cf.
 You should only use this option if you are sure that communication with
 the flash chip is reliable (e.g. when using the
 .BR internal
-programmer). Even if flashrom is instructed not to touch parts of the
+programmer). Even if flashprog is instructed not to touch parts of the
 flash chip, their contents could be damaged (e.g. due to misunderstood
 erase commands).
 .sp
@@ -145,7 +145,7 @@ for even more debug output.
 .B "\-c, \-\-chip" <chipname>
 Probe only for the specified flash ROM chip. This option takes the chip name as
 printed by
-.B "flashrom \-L"
+.B "flashprog \-L"
 without the vendor name as parameter. Please note that the chip name is
 case sensitive.
 .TP
@@ -165,7 +165,7 @@ size for the flash bus.
 Read ROM layout from
 .BR <file> .
 .sp
-flashrom supports ROM layouts. This allows you to flash certain parts of
+flashprog supports ROM layouts. This allows you to flash certain parts of
 the flash chip only. A ROM layout file contains multiple lines with the
 following syntax:
 .sp
@@ -187,19 +187,19 @@ Example:
 If you only want to update the image named
 .BR "normal " "in a ROM based on the layout above, run"
 .sp
-.B "  flashrom \-p prog \-\-layout rom.layout \-\-image normal \-w some.rom"
+.B "  flashprog \-p prog \-\-layout rom.layout \-\-image normal \-w some.rom"
 .sp
 To update only the images named
 .BR "normal " "and " "fallback" ", run:"
 .sp
-.B "  flashrom \-p prog \-l rom.layout \-i normal -i fallback \-w some.rom"
+.B "  flashprog \-p prog \-l rom.layout \-i normal -i fallback \-w some.rom"
 .sp
 Overlapping sections are not supported.
 .TP
 .B "\-\-fmap"
 Read layout from fmap in flash chip.
 .sp
-flashrom supports the fmap binary format which is commonly used by coreboot
+flashprog supports the fmap binary format which is commonly used by coreboot
 for partitioning a flash chip. The on-chip fmap will be read and used to generate
 the layout.
 .sp
@@ -207,14 +207,14 @@ If you only want to update the
 .BR "COREBOOT"
 region defined in the fmap, run
 .sp
-.B " flashrom -p prog \-\-fmap \-\-image COREBOOT \-w some.rom"
+.B " flashprog -p prog \-\-fmap \-\-image COREBOOT \-w some.rom"
 .TP
 .B "\-\-fmap-file <file>"
 Read layout from a
 .BR <file>
 containing binary fmap (e.g. coreboot roms).
 .sp
-flashrom supports the fmap binary format which is commonly used by coreboot
+flashprog supports the fmap binary format which is commonly used by coreboot
 for partitioning a flash chip. The fmap in the specified file will be read and
 used to generate the layout.
 .sp
@@ -222,12 +222,12 @@ If you only want to update the
 .BR "COREBOOT"
 region defined in the binary fmap file, run
 .sp
-.B "  flashrom \-p prog \-\-fmap-file some.rom \-\-image COREBOOT \-w some.rom"
+.B "  flashprog \-p prog \-\-fmap-file some.rom \-\-image COREBOOT \-w some.rom"
 .TP
 .B "\-\-ifd"
 Read ROM layout from Intel Firmware Descriptor.
 .sp
-flashrom supports ROM layouts given by an Intel Firmware Descriptor
+flashprog supports ROM layouts given by an Intel Firmware Descriptor
 (IFD). The on-chip descriptor will be read and used to generate the
 layout. If you need to change the layout, you have to update the IFD
 only first.
@@ -261,10 +261,10 @@ data doesn't actually match the flash contents, results are undefined.
 .B "\-L, \-\-list\-supported"
 List the flash chips, chipsets, mainboards, and external programmers
 (including PCI, USB, parallel port, and serial port based devices)
-supported by flashrom.
+supported by flashprog.
 .sp
 There are many unlisted boards which will work out of the box, without
-special support in flashrom. Please let us know if you can verify that
+special support in flashprog. Please let us know if you can verify that
 other boards work or do not work out of the box.
 .sp
 .B IMPORTANT:
@@ -277,7 +277,7 @@ Same as
 .BR \-\-list\-supported ,
 but outputs the supported hardware in MediaWiki syntax, so that it can be
 easily pasted into the
-.URLB https://flashrom.org/Supported_hardware "supported hardware wiki page" .
+.URLB https://flashprog.org/Supported_hardware "supported hardware wiki page" .
 Please note that MediaWiki output is not compiled in by default.
 .TP
 .B "\-p, \-\-programmer <name>[:parameter[,parameter[,parameter]]]"
@@ -286,7 +286,7 @@ involving any chip access (probe/read/write/...). Currently supported are:
 .sp
 .BR "* internal" " (for in-system flashing in the mainboard)"
 .sp
-.BR "* dummy" " (virtual programmer for testing flashrom)"
+.BR "* dummy" " (virtual programmer for testing flashprog)"
 .sp
 .BR "* nic3com" " (for flash ROMs on 3COM network cards)"
 .sp
@@ -363,7 +363,7 @@ Some programmers have optional or mandatory parameters which are described
 in detail in the
 .B PROGRAMMER-SPECIFIC INFORMATION
 section. Support for some programmers can be disabled at compile time.
-.B "flashrom \-h"
+.B "flashprog \-h"
 lists all supported programmers.
 .TP
 .B "\-h, \-\-help"
@@ -373,7 +373,7 @@ Show a help text and exit.
 Save the full debug log to
 .BR <logfile> .
 If the file already exists, it will be overwritten. This is the recommended
-way to gather logs from flashrom because they will be verbose even if the
+way to gather logs from flashprog because they will be verbose even if the
 on-screen messages are not verbose and don't require output redirection.
 .TP
 .B "\-R, \-\-version"
@@ -399,33 +399,33 @@ and possibly DMI info. If PCI and DMI do not contain information to uniquely
 identify the mainboard (which is the exception), or if you want to override
 the detected mainboard model, you can specify the mainboard using the
 .sp
-.B "  flashrom \-p internal:mainboard=<vendor>:<board>"
+.B "  flashprog \-p internal:mainboard=<vendor>:<board>"
 syntax.
 .sp
 See the 'Known boards' or 'Known laptops' section in the output
-of 'flashrom \-L' for a list of boards which require the specification of
+of 'flashprog \-L' for a list of boards which require the specification of
 the board name, if no coreboot table is found.
 .sp
 Some of these board-specific flash enabling functions (called
 .BR "board enables" )
-in flashrom have not yet been tested. If your mainboard is detected needing
+in flashprog have not yet been tested. If your mainboard is detected needing
 an untested board enable function, a warning message is printed and the
 board enable is not executed, because a wrong board enable function might
 cause the system to behave erratically, as board enable functions touch the
 low-level internals of a mainboard. Not executing a board enable function
 (if one is needed) might cause detection or erasing failure. If your board
 protects only part of the flash (commonly the top end, called boot block),
-flashrom might encounter an error only after erasing the unprotected part,
+flashprog might encounter an error only after erasing the unprotected part,
 so running without the board-enable function might be dangerous for erase
 and write (which includes erase).
 .sp
 The suggested procedure for a mainboard with untested board specific code is
-to first try to probe the ROM (just invoke flashrom and check that it
+to first try to probe the ROM (just invoke flashprog and check that it
 detects your flash chip type) without running the board enable code (i.e.
 without any parameters). If it finds your chip, fine. Otherwise, retry
 probing your chip with the board-enable code running, using
 .sp
-.B "  flashrom \-p internal:boardenable=force"
+.B "  flashprog \-p internal:boardenable=force"
 .sp
 If your chip is still not detected, the board enable code seems to be broken
 or the flash chip unsupported. Otherwise, make a backup of your current ROM
@@ -438,17 +438,17 @@ If reading succeeds and the contents of the read file look legit you can try to 
 You should enable the board enable code in any case now, as it
 has been written because it is known that writing/erasing without the board
 enable is going to fail. In any case (success or failure), please report to
-the flashrom mailing list, see below.
+the flashprog mailing list, see below.
 .sp
 .TP
 .B Coreboot
 .sp
-On systems running coreboot, flashrom checks whether the desired image matches
+On systems running coreboot, flashprog checks whether the desired image matches
 your mainboard. This needs some special board ID to be present in the image.
-If flashrom detects that the image you want to write and the current board
+If flashprog detects that the image you want to write and the current board
 do not match, it will refuse to write the image unless you specify
 .sp
-.B "  flashrom \-p internal:boardmismatch=force"
+.B "  flashprog \-p internal:boardmismatch=force"
 .TP
 .B ITE IT87 Super I/O
 .sp
@@ -456,7 +456,7 @@ If your mainboard is manufactured by GIGABYTE and supports DualBIOS it is very l
 ITE IT87 series Super I/O to switch between the two flash chips. Only one of them can be accessed at a time
 and you can manually select which one to use with the
 .sp
-.B "  flashrom \-p internal:dualbiosindex=chip"
+.B "  flashprog \-p internal:dualbiosindex=chip"
 .sp
 syntax where
 .B chip
@@ -466,16 +466,16 @@ leaving out the
 parameter.
 .sp
 If your mainboard uses an ITE IT87 series Super I/O for LPC<->SPI flash bus
-translation, flashrom should autodetect that configuration. If you want to
+translation, flashprog should autodetect that configuration. If you want to
 set the I/O base port of the IT87 series SPI controller manually instead of
 using the value provided by the BIOS, use the
 .sp
-.B "  flashrom \-p internal:it87spiport=portnum"
+.B "  flashprog \-p internal:it87spiport=portnum"
 .sp
 syntax where
 .B portnum
 is the I/O port number (must be a multiple of 8). In the unlikely case
-flashrom doesn't detect an active IT87 LPC<->SPI bridge, please send a bug
+flashprog doesn't detect an active IT87 LPC<->SPI bridge, please send a bug
 report so we can diagnose the problem.
 .sp
 .TP
@@ -483,13 +483,13 @@ report so we can diagnose the problem.
 .sp
 Beginning with the SB700 chipset there is an integrated microcontroller (IMC) based on the 8051 embedded in
 every AMD southbridge. Its firmware resides in the same flash chip as the host's which makes writing to the
-flash risky if the IMC is active. Flashrom tries to temporarily disable the IMC but even then changing the
+flash risky if the IMC is active. Flashprog tries to temporarily disable the IMC but even then changing the
 contents of the flash can have unwanted effects: when the IMC continues (at the latest after a reboot) it will
 continue executing code from the flash. If the code was removed or changed in an unfortunate way it is
-unpredictable what the IMC will do. Therefore, if flashrom detects an active IMC it will disable write support
+unpredictable what the IMC will do. Therefore, if flashprog detects an active IMC it will disable write support
 unless the user forces it with the
 .sp
-.B "  flashrom \-p internal:amd_imc_force=yes"
+.B "  flashprog \-p internal:amd_imc_force=yes"
 .sp
 syntax. The user is responsible for supplying a suitable image or leaving out the IMC region with the help of
 a layout file. This limitation might be removed in the future when we understand the details better and have
@@ -501,7 +501,7 @@ parameter specifies the frequency of the SPI bus where applicable (i.e.\& SB600 
 directly attached to the chipset).
 Syntax is
 .sp
-.B "  flashrom \-p internal:spispeed=frequency"
+.B "  flashprog \-p internal:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -528,7 +528,7 @@ It is much simpler than the normal access method (called
 but does not allow the software to choose the SPI commands to be sent.
 You can use the
 .sp
-.B "  flashrom \-p internal:ich_spi_mode=value"
+.B "  flashprog \-p internal:ich_spi_mode=value"
 .sp
 syntax where
 .BR "value " "can be"
@@ -552,7 +552,7 @@ If you have an Intel chipset with an ICH2 or later southbridge and if you want
 to set specific IDSEL values for a non-default flash chip or an embedded
 controller (EC), you can use the
 .sp
-.B "  flashrom \-p internal:fwh_idsel=value"
+.B "  flashprog \-p internal:fwh_idsel=value"
 .sp
 syntax where
 .B value
@@ -565,28 +565,28 @@ ranges have a corresponding sister range 4 MB below with identical IDSEL
 settings. The default value for ICH7 is given in the example below.
 .sp
 Example:
-.B "flashrom \-p internal:fwh_idsel=0x001122334567"
+.B "flashprog \-p internal:fwh_idsel=0x001122334567"
 .TP
 .B Laptops
 .sp
-Using flashrom on older laptops that don't boot from the SPI bus is
+Using flashprog on older laptops that don't boot from the SPI bus is
 dangerous and may easily make your hardware unusable (see also the
 .B BUGS
 section). The embedded controller (EC) in some
 machines may interact badly with flashing.
 More information is
-.URLB https://flashrom.org/Laptops "in the wiki" .
+.URLB https://flashprog.org/Laptops "in the wiki" .
 Problems occur when the flash chip is shared between BIOS
-and EC firmware, and the latter does not expect flashrom
-to access the chip. While flashrom tries to change the contents of
+and EC firmware, and the latter does not expect flashprog
+to access the chip. While flashprog tries to change the contents of
 that memory the EC might need to fetch new instructions or data from it and
 could stop working correctly. Probing for and reading from the chip may also
 irritate your EC and cause fan failure, backlight failure, sudden poweroff, and
-other nasty effects. flashrom will attempt to detect if it is running on such a
+other nasty effects. flashprog will attempt to detect if it is running on such a
 laptop and limit probing to SPI buses. If you want to probe the LPC bus
 anyway at your own risk, use
 .sp
-.B "  flashrom \-p internal:laptop=force_I_want_a_brick"
+.B "  flashprog \-p internal:laptop=force_I_want_a_brick"
 .sp
 We will not help you if you force flashing on a laptop because this is a really
 dumb idea.
@@ -595,24 +595,24 @@ You have been warned.
 .sp
 Currently we rely on the chassis type encoded in the DMI/SMBIOS data to detect
 laptops. Some vendors did not implement those bits correctly or set them to
-generic and/or dummy values. flashrom will then issue a warning and restrict
+generic and/or dummy values. flashprog will then issue a warning and restrict
 buses like above. In this case you can use
 .sp
-.B "  flashrom \-p internal:laptop=this_is_not_a_laptop"
+.B "  flashprog \-p internal:laptop=this_is_not_a_laptop"
 .sp
-to tell flashrom (at your own risk) that it is not running on a laptop.
+to tell flashprog (at your own risk) that it is not running on a laptop.
 .SS
 .BR "dummy " programmer
 .IP
 The dummy programmer operates on a buffer in memory only. It provides a safe and fast way to test various
-aspects of flashrom and is mainly used in development and while debugging.
+aspects of flashprog and is mainly used in development and while debugging.
 It is able to emulate some chips to a certain degree (basic
 identify/read/erase/write operations work).
 .sp
 An optional parameter specifies the bus types it
 should support. For that you have to use the
 .sp
-.B "  flashrom \-p dummy:bus=[type[+type[+type]]]"
+.B "  flashprog \-p dummy:bus=[type[+type[+type]]]"
 .sp
 syntax where
 .B type
@@ -622,12 +622,12 @@ in any order. If you specify bus without type, all buses will be disabled.
 If you do not specify bus, all buses will be enabled.
 .sp
 Example:
-.B "flashrom \-p dummy:bus=lpc+fwh"
+.B "flashprog \-p dummy:bus=lpc+fwh"
 .sp
 The dummy programmer supports flash chip emulation for automated self-tests
 without hardware access. If you want to emulate a flash chip, use the
 .sp
-.B "  flashrom \-p dummy:emulate=chip"
+.B "  flashprog \-p dummy:emulate=chip"
 .sp
 syntax where
 .B chip
@@ -647,22 +647,22 @@ vendor):
 .RB "* Spansion " S25FL128L " SPI flash chip (16384 kB, RDID)"
 .sp
 Example:
-.B "flashrom -p dummy:emulate=SST25VF040.REMS"
+.B "flashprog -p dummy:emulate=SST25VF040.REMS"
 .TP
 .B Persistent images
 .sp
 If you use flash chip emulation, flash image persistence is available as well
 by using the
 .sp
-.B "  flashrom \-p dummy:emulate=chip,image=image.rom"
+.B "  flashprog \-p dummy:emulate=chip,image=image.rom"
 .sp
 syntax where
 .B image.rom
-is the file where the simulated chip contents are read on flashrom startup and
-where the chip contents on flashrom shutdown are written to.
+is the file where the simulated chip contents are read on flashprog startup and
+where the chip contents on flashprog shutdown are written to.
 .sp
 Example:
-.B "flashrom -p dummy:emulate=M25P10.RES,image=dummy.bin"
+.B "flashprog -p dummy:emulate=M25P10.RES,image=dummy.bin"
 .TP
 .B SPI write chunk size
 .sp
@@ -670,7 +670,7 @@ If you use SPI flash chip emulation for a chip which supports SPI page write
 with the default opcode, you can set the maximum allowed write chunk size with
 the
 .sp
-.B "  flashrom \-p dummy:emulate=chip,spi_write_256_chunksize=size"
+.B "  flashprog \-p dummy:emulate=chip,spi_write_256_chunksize=size"
 .sp
 syntax where
 .B size
@@ -678,22 +678,22 @@ is the number of bytes (min.\& 1, max.\& 256).
 .sp
 Example:
 .sp
-.B "  flashrom -p dummy:emulate=M25P10.RES,spi_write_256_chunksize=5"
+.B "  flashprog -p dummy:emulate=M25P10.RES,spi_write_256_chunksize=5"
 .TP
 .B SPI blacklist
 .sp
 To simulate a programmer which refuses to send certain SPI commands to the
 flash chip, you can specify a blacklist of SPI commands with the
 .sp
-.B "  flashrom -p dummy:spi_blacklist=commandlist"
+.B "  flashprog -p dummy:spi_blacklist=commandlist"
 .sp
 syntax where
 .B commandlist
 is a list of two-digit hexadecimal representations of
-SPI commands. If commandlist is e.g.\& 0302, flashrom will behave as if the SPI
+SPI commands. If commandlist is e.g.\& 0302, flashprog will behave as if the SPI
 controller refuses to run command 0x03 (READ) and command 0x02 (WRITE).
 commandlist may be up to 512 characters (256 commands) long.
-Implementation note: flashrom will detect an error during command execution.
+Implementation note: flashprog will detect an error during command execution.
 .sp
 .TP
 .B SPI ignorelist
@@ -701,7 +701,7 @@ Implementation note: flashrom will detect an error during command execution.
 To simulate a flash chip which ignores (doesn't support) certain SPI commands,
 you can specify an ignorelist of SPI commands with the
 .sp
-.B "  flashrom -p dummy:spi_ignorelist=commandlist"
+.B "  flashprog -p dummy:spi_ignorelist=commandlist"
 .sp
 syntax where
 .B commandlist
@@ -709,14 +709,14 @@ is a list of two-digit hexadecimal representations of
 SPI commands. If commandlist is e.g.\& 0302, the emulated flash chip will ignore
 command 0x03 (READ) and command 0x02 (WRITE).  commandlist may be up to 512
 characters (256 commands) long.
-Implementation note: flashrom won't detect an error during command execution.
+Implementation note: flashprog won't detect an error during command execution.
 .sp
 .TP
 .B SPI status register
 .sp
 You can specify the initial content of the chip's status register with the
 .sp
-.B "  flashrom -p dummy:spi_status=content"
+.B "  flashprog -p dummy:spi_status=content"
 .sp
 syntax where
 .B content
@@ -732,7 +732,7 @@ Chips with emulated WP: W25Q128FV, S25FL128L.
 .sp
 You can simulate state of hardware protection pin (WP) with the
 .sp
-.B "  flashrom -p dummy:hwwp=state"
+.B "  flashprog -p dummy:hwwp=state"
 .sp
 syntax where
 .B state
@@ -748,7 +748,7 @@ These programmers have an option to specify the PCI address of the card
 your want to use, which must be specified if more than one card supported
 by the selected programmer is installed in your system. The syntax is
 .sp
-.BR "  flashrom \-p xxxx:pci=bb:dd.f" ,
+.BR "  flashprog \-p xxxx:pci=bb:dd.f" ,
 .sp
 where
 .B xxxx
@@ -761,19 +761,19 @@ is the PCI device number, and
 is the PCI function number of the desired device.
 .sp
 Example:
-.B "flashrom \-p nic3com:pci=05:04.0"
+.B "flashprog \-p nic3com:pci=05:04.0"
 .SS
 .BR "atavia " programmer
 .IP
 Due to the mysterious address handling of the VIA VT6421A controller the user can specify an offset with the
 .sp
-.B "  flashrom \-p atavia:offset=addr"
+.B "  flashprog \-p atavia:offset=addr"
 .sp
 syntax where
 .B addr
 will be interpreted as usual (leading 0x (0) for hexadecimal (octal) values, or else decimal).
 For more information please see
-.URLB https://flashrom.org/VT6421A "its wiki page" .
+.URLB https://flashprog.org/VT6421A "its wiki page" .
 .SS
 .BR "atapromise " programmer
 .IP
@@ -784,10 +784,10 @@ size (padding to 32 kB is required).
 .SS
 .BR "nicintel_eeprom " programmer
 .IP
-This is the first programmer module in flashrom that does not provide access to NOR flash chips but EEPROMs
+This is the first programmer module in flashprog that does not provide access to NOR flash chips but EEPROMs
 mounted on gigabit Ethernet cards based on Intel's 82580 NIC. Because EEPROMs normally do not announce their
 size nor allow themselves to be identified, the controller relies on correct size values written to predefined
-addresses within the chip. Flashrom follows this scheme but assumes the minimum size of 16 kB (128 kb) if an
+addresses within the chip. Flashprog follows this scheme but assumes the minimum size of 16 kB (128 kb) if an
 unprogrammed EEPROM/card is detected. Intel specifies following EEPROMs to be compatible:
 Atmel AT25128, AT25256, Micron (ST) M95128, M95256 and OnSemi (Catalyst) CAT25CS128.
 .SS
@@ -802,7 +802,7 @@ Flyswatter/Flyswatter 2 and Kristech KT-LINK.
 An optional parameter specifies the controller
 type, channel/interface/port it should support. For that you have to use the
 .sp
-.B "  flashrom \-p ft2232_spi:type=model,port=interface"
+.B "  flashprog \-p ft2232_spi:type=model,port=interface"
 .sp
 syntax where
 .B model
@@ -823,7 +823,7 @@ and GPIO is not used by default.
 If there is more than one ft2232_spi-compatible device connected, you can select which one should be used by
 specifying its serial number with the
 .sp
-.B "  flashrom \-p ft2232_spi:serial=number"
+.B "  flashprog \-p ft2232_spi:serial=number"
 .sp
 syntax where
 .B number
@@ -838,7 +838,7 @@ divisor is set to 2, but you can use another one by specifying the optional
 .B divisor
 parameter with the
 .sp
-.B "  flashrom \-p ft2232_spi:divisor=div"
+.B "  flashprog \-p ft2232_spi:divisor=div"
 .sp
 syntax.
 .sp
@@ -847,7 +847,7 @@ Using the parameter
 an additional CS# pin can be chosen, where the value can be a number between 0 and 3, denoting GPIOL0-GPIOL3
 correspondingly. Example:
 .sp
-.B "  flashrom \-p ft2232_spi:csgpiol=3"
+.B "  flashprog \-p ft2232_spi:csgpiol=3"
 .sp
 The parameter
 .B gpiolX=[HLC]
@@ -875,7 +875,7 @@ and
 .sp
 .B Example:
 .sp
-.B "  flashrom \-p ft2232_spi:gpiol0=H"
+.B "  flashprog \-p ft2232_spi:gpiol0=H"
 .sp
 .B Note
 that not all GPIOL pins are freely usable with all programmers as some have special functionality.
@@ -892,12 +892,12 @@ The device/baud combination has to start with
 and separate the optional baud rate with a colon.
 For example
 .sp
-.B "  flashrom \-p serprog:dev=/dev/ttyS0:115200"
+.B "  flashprog \-p serprog:dev=/dev/ttyS0:115200"
 .sp
 If no baud rate is given the default values by the operating system/hardware will be used.
 For IP connections you have to use the
 .sp
-.B "  flashrom \-p serprog:ip=ipaddr:port"
+.B "  flashprog \-p serprog:ip=ipaddr:port"
 .sp
 syntax.
 In case the device supports it, you can set the SPI clock frequency with the optional
@@ -907,7 +907,7 @@ parameter. The frequency is parsed as hertz, unless an
 suffix is given, then megahertz or kilohertz are used respectively.
 Example that sets the frequency to 2 MHz:
 .sp
-.B "  flashrom \-p serprog:dev=/dev/device:baud,spispeed=2M"
+.B "  flashprog \-p serprog:dev=/dev/device:baud,spispeed=2M"
 .sp
 More information about serprog is available in
 .B serprog-protocol.txt
@@ -922,7 +922,7 @@ parameter specifies the Bus Pirate device node and an optional
 parameter specifies the frequency of the SPI bus. The parameter
 delimiter is a comma. Syntax is
 .sp
-.B "  flashrom \-p buspirate_spi:dev=/dev/device,spispeed=frequency"
+.B "  flashprog \-p buspirate_spi:dev=/dev/device,spispeed=frequency"
 .sp
 where
 .B frequency
@@ -934,7 +934,7 @@ The baud rate for communication between the host and the Bus Pirate can be speci
 .B serialspeed
 parameter. Syntax is
 .sp
-.B "  flashrom -p buspirate_spi:serialspeed=baud
+.B "  flashprog -p buspirate_spi:serialspeed=baud
 .sp
 where
 .B baud
@@ -945,7 +945,7 @@ The default is 2M baud for Bus Pirate hardware version 3.0 and greater, and 1152
 An optional pullups parameter specifies the use of the Bus Pirate internal pull-up resistors. This may be
 needed if you are working with a flash ROM chip that you have physically removed from the board. Syntax is
 .sp
-.B "  flashrom -p buspirate_spi:pullups=state"
+.B "  flashprog -p buspirate_spi:pullups=state"
 .sp
 where
 .B state
@@ -959,7 +959,7 @@ The state of the Bus Pirate power supply pins is controllable through an optiona
 .B psus
 parameter. Syntax is
 .sp
-.B "  flashrom -p buspirate_spi:psus=state"
+.B "  flashprog -p buspirate_spi:psus=state"
 .sp
 where
 .B state
@@ -979,7 +979,7 @@ You can use
 .BR mV ", " millivolt ", " V " or " Volt
 as unit specifier. Syntax is
 .sp
-.B "  flashrom \-p pickit2_spi:voltage=value"
+.B "  flashprog \-p pickit2_spi:voltage=value"
 .sp
 where
 .B value
@@ -991,7 +991,7 @@ An optional
 .B spispeed
 parameter specifies the frequency of the SPI bus. Syntax is
 .sp
-.B "  flashrom \-p pickit2_spi:spispeed=frequency"
+.B "  flashprog \-p pickit2_spi:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1008,7 +1008,7 @@ Volt if no unit is specified. You can use
 .BR mV ", " milliVolt ", " V " or " Volt
 as unit specifier. Syntax is
 .sp
-.B "  flashrom \-p dediprog:voltage=value"
+.B "  flashprog \-p dediprog:voltage=value"
 .sp
 where
 .B value
@@ -1023,14 +1023,14 @@ Please be aware that the order depends on libusb's usb_get_busses() function and
 at 0.
 Usage example to select the second device:
 .sp
-.B "  flashrom \-p dediprog:device=1"
+.B "  flashprog \-p dediprog:device=1"
 .sp
 An optional
 .B spispeed
 parameter specifies the frequency of the SPI bus. The firmware on the device needs to be 5.0.0 or newer.
 Syntax is
 .sp
-.B "  flashrom \-p dediprog:spispeed=frequency"
+.B "  flashprog \-p dediprog:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1042,7 +1042,7 @@ An optional
 .B target
 parameter specifies which target chip should be used. Syntax is
 .sp
-.B "  flashrom \-p dediprog:target=value"
+.B "  flashprog \-p dediprog:target=value"
 .sp
 where
 .B value
@@ -1057,7 +1057,7 @@ the optional
 .B iobase
 parameter to specify an alternate base I/O address with the
 .sp
-.B "  flashrom \-p rayer_spi:iobase=baseaddr"
+.B "  flashprog \-p rayer_spi:iobase=baseaddr"
 .sp
 syntax where
 .B baseaddr
@@ -1068,7 +1068,7 @@ The default cable type is the RayeR cable. You can use the optional
 .B type
 parameter to specify the cable type with the
 .sp
-.B "  flashrom \-p rayer_spi:type=model"
+.B "  flashprog \-p rayer_spi:type=model"
 .sp
 syntax where
 .B model
@@ -1101,9 +1101,9 @@ parameter accepts the values "si_prog" (default) or "serbang".
 Information about the SI-Prog adapter can be found at
 .URLB "http://www.lancos.com/siprogsch.html" "its website" .
 .sp
-An example call to flashrom is
+An example call to flashprog is
 .sp
-.B "  flashrom \-p pony_spi:dev=/dev/ttyS0,type=serbang"
+.B "  flashprog \-p pony_spi:dev=/dev/ttyS0,type=serbang"
 .sp
 Please note that while USB-to-serial adapters work under certain circumstances,
 this slows down operation considerably.
@@ -1114,7 +1114,7 @@ The flash ROM chip to access must be specified with the
 .B rom
 parameter.
 .sp
-.B "  flashrom \-p ogp_spi:rom=name"
+.B "  flashprog \-p ogp_spi:rom=name"
 .sp
 Where
 .B name
@@ -1139,11 +1139,11 @@ section above.
 Either the GPIO device node or the chip number as well as the GPIO numbers
 of the SPI lines must be specified like in the following examples:
 .sp
-.B "  flashrom \-p linux_gpio_spi:dev=/dev/gpiochip0,cs=8,sck=11,mosi=10,miso=9"
+.B "  flashprog \-p linux_gpio_spi:dev=/dev/gpiochip0,cs=8,sck=11,mosi=10,miso=9"
 .sp
 or
 .sp
-.B "  flashrom \-p linux_gpio_spi:gpiochip=0,cs=8,sck=11,mosi=10,miso=9"
+.B "  flashprog \-p linux_gpio_spi:gpiochip=0,cs=8,sck=11,mosi=10,miso=9"
 .sp
 Here,
 .B gpiochip=0
@@ -1166,7 +1166,7 @@ Please note that the linux_gpio_spi driver only works on Linux, and depends on l
 .IP
 You may specify the MTD device to use with the
 .sp
-.B "  flashrom \-p linux_mtd:dev=/dev/mtdX"
+.B "  flashprog \-p linux_mtd:dev=/dev/mtdX"
 .sp
 syntax where
 .B /dev/mtdX
@@ -1179,7 +1179,7 @@ Please note that the linux_mtd driver only works on Linux.
 .IP
 You have to specify the SPI controller to use with the
 .sp
-.B "  flashrom \-p linux_spi:dev=/dev/spidevX.Y"
+.B "  flashprog \-p linux_spi:dev=/dev/spidevX.Y"
 .sp
 syntax where
 .B /dev/spidevX.Y
@@ -1190,7 +1190,7 @@ In case the device supports it, you can set the SPI clock frequency with the opt
 parameter. The frequency is parsed as kilohertz.
 Example that sets the frequency to 8 MHz:
 .sp
-.B "  flashrom \-p linux_spi:dev=/dev/spidevX.Y,spispeed=8000"
+.B "  flashprog \-p linux_spi:dev=/dev/spidevX.Y,spispeed=8000"
 .sp
 Please note that the linux_spi driver only works on Linux.
 .SS
@@ -1201,19 +1201,19 @@ information between a computer and attached displays. Its most common uses are g
 through EDID (at I2C address 0x50) and sending commands to the display using the DDC/CI protocol (at address
 0x37). On displays driven by MSTAR SoCs, it is also possible to access the SoC firmware flash (connected to
 the Soc through another SPI bus) using an In-System Programming (ISP) port, usually at address 0x49.
-This flashrom module allows the latter via Linux's I2C driver.
+This flashprog module allows the latter via Linux's I2C driver.
 .sp
 .B IMPORTANT:
 Before using this programmer, the display
 .B MUST
-be in standby mode, and only connected to the computer that will run flashrom using a VGA cable, to an
+be in standby mode, and only connected to the computer that will run flashprog using a VGA cable, to an
 inactive VGA output. It absolutely
 .B MUST NOT
 be used as a display during the procedure!
 .sp
 You have to specify the DDC/I2C controller and I2C address to use with the
 .sp
-.B "  flashrom \-p mstarddc_spi:dev=/dev/i2c-X:YY"
+.B "  flashprog \-p mstarddc_spi:dev=/dev/i2c-X:YY"
 .sp
 syntax where
 .B /dev/i2c-X
@@ -1222,18 +1222,18 @@ is the Linux device node for your I2C controller connected to the display's DDC 
 is the (hexadecimal) address of the MSTAR ISP port (address 0x49 is usually used).
 Example that uses I2C controller /dev/i2c-1 and address 0x49:
 .sp
-.B "  flashrom \-p mstarddc_spi:dev=/dev/i2c-1:49
+.B "  flashprog \-p mstarddc_spi:dev=/dev/i2c-1:49
 .sp
-It is also possible to inhibit the reset command that is normally sent to the display once the flashrom
+It is also possible to inhibit the reset command that is normally sent to the display once the flashprog
 operation is completed using the optional
 .B noreset
-parameter. A value of 1 prevents flashrom from sending the reset command.
+parameter. A value of 1 prevents flashprog from sending the reset command.
 Example that does not reset the display at the end of the operation:
 .sp
-.B "  flashrom \-p mstarddc_spi:dev=/dev/i2c-1:49,noreset=1
+.B "  flashprog \-p mstarddc_spi:dev=/dev/i2c-1:49,noreset=1
 .sp
 Please note that sending the reset command is also inhibited if an error occurred during the operation.
-To send the reset command afterwards, you can simply run flashrom once more, in chip probe mode (not specifying
+To send the reset command afterwards, you can simply run flashprog once more, in chip probe mode (not specifying
 an operation), without the
 .B noreset
 parameter, once the flash read/write operation you intended to perform has completed successfully.
@@ -1253,7 +1253,7 @@ An optional
 parameter specifies the frequency of the SPI bus.
 Syntax is
 .sp
-.B "  flashrom \-p ch347_spi:spispeed=frequency"
+.B "  flashprog \-p ch347_spi:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1273,7 +1273,7 @@ The default unit is Volt if no unit is specified. You can use
 as unit specifier.
 Syntax is
 .sp
-.B "  flashrom \-p ni845x_spi:voltage=value"
+.B "  flashprog \-p ni845x_spi:voltage=value"
 .sp
 where
 .B value
@@ -1282,13 +1282,13 @@ can be
 or the equivalent in mV.
 .sp
 In the case if none of the programmer's supported IO voltage is within the supported voltage range of
-the detected flash chip the flashrom will abort the operation (to prevent damaging the flash chip).
+the detected flash chip the flashprog will abort the operation (to prevent damaging the flash chip).
 You can override this behaviour by passing "yes" to the
 .B ignore_io_voltage_limits
 parameter (for e.g. if you are using an external voltage translator circuit).
 Syntax is
 .sp
-.B "  flashrom \-p ni845x_spi:ignore_io_voltage_limits=yes"
+.B "  flashprog \-p ni845x_spi:ignore_io_voltage_limits=yes"
 .sp
 You can use the
 .B serial
@@ -1296,14 +1296,14 @@ parameter to explicitly specify which connected NI USB-845x device should be use
 You should use your device's 7 digit hexadecimal serial number.
 Usage example to select the device with 1230A12 serial number:
 .sp
-.B "  flashrom \-p ni845x_spi:serial=1230A12"
+.B "  flashprog \-p ni845x_spi:serial=1230A12"
 .sp
 An optional
 .B spispeed
 parameter specifies the frequency of the SPI bus.
 Syntax is
 .sp
-.B "  flashrom \-p ni845x_spi:spispeed=frequency"
+.B "  flashprog \-p ni845x_spi:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1317,7 +1317,7 @@ An optional
 .B cs
 parameter specifies which target chip select line should be used. Syntax is
 .sp
-.B "  flashrom \-p ni845x_spi:csnumber=value"
+.B "  flashprog \-p ni845x_spi:csnumber=value"
 .sp
 where
 .B value
@@ -1332,7 +1332,7 @@ An optional
 parameter specifies the frequency of the SPI bus.
 Syntax is
 .sp
-.B "  flashrom \-p digilent_spi:spispeed=frequency"
+.B "  flashprog \-p digilent_spi:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1347,7 +1347,7 @@ An optional
 parameter specifies the frequency of the SPI bus.
 Syntax is
 .sp
-.B "  flashrom \-p dirtyjtag_spi:spispeed=frequency"
+.B "  flashprog \-p dirtyjtag_spi:spispeed=frequency"
 .sp
 where
 .B frequency
@@ -1363,7 +1363,7 @@ the programmer, \fBMISO\fP to \fBTDO\fP and \fBSCK\fP to \fBTCK\fP.
 The chip select (\fBCS\fP) signal of the flash chip can be attached to
 different pins of the programmer which can be selected with the
 .sp
-.B "  flashrom \-p jlink_spi:cs=pin"
+.B "  flashprog \-p jlink_spi:cs=pin"
 .sp
 syntax where \fBpin\fP can be either \fBTRST\fP or \fBRESET\fP.
 The default pin for chip select is \fBRESET\fP.
@@ -1393,7 +1393,7 @@ Pinout for devices with 20-pin JTAG connector:
 If there is more than one compatible device connected, you can select which one
 should be used by specifying its serial number with the
 .sp
-.B "  flashrom \-p jlink_spi:serial=number"
+.B "  flashprog \-p jlink_spi:serial=number"
 .sp
 syntax where
 .B number
@@ -1402,7 +1402,7 @@ output of lsusb -v).
 .sp
 The SPI speed can be selected by using the
 .sp
-.B "  flashrom \-p jlink_spi:spispeed=frequency"
+.B "  flashprog \-p jlink_spi:spispeed=frequency"
 .sp
 syntax where \fBfrequency\fP is the SPI clock frequency in kHz.
 The maximum speed depends on the device in use.
@@ -1415,12 +1415,12 @@ of the J-Link during a flash operation.
 This module supports SPI flash programming through the STMicroelectronics
 STLINK V3 programmer/debugger's SPI bridge interface
 .sp
-.B "  flashrom \-p stlinkv3_spi"
+.B "  flashprog \-p stlinkv3_spi"
 .sp
 If there is more than one compatible device connected, you can select which one
 should be used by specifying its serial number with the
 .sp
-.B "  flashrom \-p stlinkv3_spi:serial=number"
+.B "  flashprog \-p stlinkv3_spi:serial=number"
 .sp
 syntax where
 .B number
@@ -1429,7 +1429,7 @@ output of lsusb -v).
 .sp
 The SPI speed can be selected by using the
 .sp
-.B "  flashrom \-p stlinkv3_spi:spispeed=frequency"
+.B "  flashprog \-p stlinkv3_spi:spispeed=frequency"
 .sp
 syntax where \fBfrequency\fP is the SPI clock frequency in kHz.
 If the passed frequency is not supported by the adapter the nearest lower
@@ -1439,26 +1439,26 @@ supported frequency will be used.
 .SH EXAMPLES
 To back up and update your BIOS, run
 .sp
-.B flashrom -p internal -r backup.rom -o backuplog.txt
+.B flashprog -p internal -r backup.rom -o backuplog.txt
 .br
-.B flashrom -p internal -w newbios.rom -o writelog.txt
+.B flashprog -p internal -w newbios.rom -o writelog.txt
 .sp
 Please make sure to copy backup.rom to some external media before you try
 to write. That makes offline recovery easier.
 .br
-If writing fails and flashrom complains about the chip being in an unknown
+If writing fails and flashprog complains about the chip being in an unknown
 state, you can try to restore the backup by running
 .sp
-.B flashrom -p internal -w backup.rom -o restorelog.txt
+.B flashprog -p internal -w backup.rom -o restorelog.txt
 .sp
 If you encounter any problems, please contact us and supply
 backuplog.txt, writelog.txt and restorelog.txt. See section
 .B BUGS
 for contact info.
 .SH EXIT STATUS
-flashrom exits with 0 on success, 1 on most failures but with 3 if a call to mmap() fails.
+flashprog exits with 0 on success, 1 on most failures but with 3 if a call to mmap() fails.
 .SH REQUIREMENTS
-flashrom needs different access permissions for different programmers.
+flashprog needs different access permissions for different programmers.
 .sp
 .B internal
 needs raw memory access, PCI configuration space access, raw I/O port
@@ -1521,7 +1521,7 @@ and rebooting, or rebooting into single user mode.
 .SH BUGS
 You can report bugs, ask us questions or send success reports
 via our communication channels listed here:
-.URLB "https://www.flashrom.org/Contact" "" .
+.URLB "https://www.flashprog.org/Contact" "" .
 .sp
 Also, we provide a
 .URLB https://paste.flashrom.org "pastebin service"
@@ -1529,23 +1529,23 @@ that is very useful to share logs without spamming the communication channels.
 .SS
 .B Laptops
 .sp
-Using flashrom on older laptops is dangerous and may easily make your hardware
-unusable. flashrom will attempt to detect if it is running on a susceptible
+Using flashprog on older laptops is dangerous and may easily make your hardware
+unusable. flashprog will attempt to detect if it is running on a susceptible
 laptop and restrict flash-chip probing for safety reasons. Please see the
-detailed discussion of this topic and associated flashrom options in the
+detailed discussion of this topic and associated flashprog options in the
 .B Laptops
 paragraph in the
 .B internal programmer
 subsection of the
 .B PROGRAMMER-SPECIFIC INFORMATION
 section and the information
-.URLB "https://flashrom.org/Laptops" "in our wiki" .
+.URLB "https://flashprog.org/Laptops" "in our wiki" .
 .SS
 One-time programmable (OTP) memory and unique IDs
 .sp
 Some flash chips contain OTP memory often denoted as "security registers".
 They usually have a capacity in the range of some bytes to a few hundred
-bytes and can be used to give devices unique IDs etc.  flashrom is not able
+bytes and can be used to give devices unique IDs etc.  flashprog is not able
 to read or write these memories and may therefore not be able to duplicate a
 chip completely. For chip types known to include OTP memories a warning is
 printed when they are detected.
@@ -1553,7 +1553,7 @@ printed when they are detected.
 Similar to OTP memories are unique, factory programmed, unforgeable IDs.
 They are not modifiable by the user at all.
 .SH LICENSE
-.B flashrom
+.B flashprog
 is covered by the GNU General Public License (GPL), version 2. Some files are
 additionally available under any later version of the GPL.
 .SH COPYRIGHT
@@ -1638,10 +1638,10 @@ Wang Qingpei
 .br
 Yinghai Lu
 .br
-some others, please see the flashrom git history for details.
+some others, please see the flashprog git history for details.
 .br
 Active maintainers can be reached via
-.MTOB "flashrom-stable@flashrom.org" "the mailing list" .
+.MTOB "flashprog@flashprog.org" "the mailing list" .
 .PP
 This manual page was written by
 .MTOB "uwe@hermann-uwe.de" "Uwe Hermann" ,

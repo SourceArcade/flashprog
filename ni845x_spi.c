@@ -163,7 +163,7 @@ static int ni845x_spi_open(const char *serial, uInt32 *return_handle)
 			// malformed resource string detected
 			msg_pwarn("Warning: Unable to parse the %s NI-845x resource string.\n",
 				  resource_name);
-			msg_pwarn("Please report a bug at flashrom-stable@flashrom.org\n");
+			msg_pwarn("Please report a bug at flashprog@flashprog.org\n");
 			continue;
 		}
 

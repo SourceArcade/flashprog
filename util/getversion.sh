@@ -33,8 +33,8 @@ version() {
 
 mandate() {
 	d='unknown'
-	if ${GETREVISION} -c flashrom.8.tmpl; then
-		tmp=$(${GETREVISION} --date flashrom.8.tmpl)
+	if ${GETREVISION} -c flashprog.8.tmpl; then
+		tmp=$(${GETREVISION} --date flashprog.8.tmpl)
 		if [ $? -eq 0 ]; then
 			d="${tmp}"
 		fi
@@ -55,7 +55,7 @@ Commands
     -h or --help
         this message
     -v or --version
-        return current/release flashrom version
+        return current/release flashprog version
     -m or --man-date
         return current/release date of the manual page
 "

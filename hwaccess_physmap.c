@@ -320,7 +320,7 @@ void physunmap_unaligned(void *virt_addr, size_t len)
 	/* No need to check for zero size, such mappings would have yielded ERROR_PTR. */
 	if (virt_addr == ERROR_PTR) {
 		msg_perr("Trying to unmap a nonexisting mapping!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n");
+			 "Please report a bug at flashprog@flashprog.org\n");
 		return;
 	}
 
@@ -334,7 +334,7 @@ void physunmap(void *virt_addr, size_t len)
 	/* No need to check for zero size, such mappings would have yielded ERROR_PTR. */
 	if (virt_addr == ERROR_PTR) {
 		msg_perr("Trying to unmap a nonexisting mapping!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n");
+			 "Please report a bug at flashprog@flashprog.org\n");
 		return;
 	}
 	tmp = (uintptr_t)virt_addr;

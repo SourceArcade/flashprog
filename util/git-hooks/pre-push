@@ -21,7 +21,7 @@ url="$2"
 
 zero=0000000000000000000000000000000000000000
 
-upstream_pattern="github\.com.flashrom/flashrom(\.git)?|flashrom\.org.git/flashrom(\.git)?"
+upstream_pattern="github\.com.flashprog/flashprog(\.git)?|flashprog\.org.git/flashprog(\.git)?"
 
 # Only care about the upstream repositories
 if echo "$url" | grep -q -v -E "$upstream_pattern" ; then

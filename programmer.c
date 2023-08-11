@@ -91,7 +91,7 @@ int register_master(const struct registered_master *mst)
 	if (registered_master_count >= MASTERS_MAX) {
 		msg_perr("Tried to register more than %i master "
 			 "interfaces.\n", MASTERS_MAX);
-		return ERROR_FLASHROM_LIMIT;
+		return ERROR_FLASHPROG_LIMIT;
 	}
 	registered_masters[registered_master_count] = *mst;
 	registered_master_count++;

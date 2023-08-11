@@ -11,21 +11,21 @@ RUN mkdir -p -m 1777 /ccache
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
-ARG ORIGIN=https://review.coreboot.org/flashrom-stable.git
+ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 RUN cd && \
 	mkdir .ccache && chown mani:users .ccache && \
-	git clone ${ORIGIN} flashrom && \
+	git clone ${ORIGIN} flashprog && \
 	git clone https://git.kernel.org/pub/scm/utils/pciutils/pciutils.git && \
 	cd pciutils && \
 		git checkout v3.5.6 && \
-		curl --insecure https://flashrom.org/images/6/6a/Pciutils-3.5.6.patch.gz | zcat | git apply && \
+		curl --insecure https://flashprog.org/images/6/6a/Pciutils-3.5.6.patch.gz | zcat | git apply && \
 		make ZLIB=no DNS=no HOST=i386-djgpp-djgpp \
 			CROSS_COMPILE=i586-pc-msdosdjgpp- \
 			PREFIX=/ DESTDIR=$PWD/../ \
 			STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" \
 			install install-lib && \
 		cd ../ && \
-	curl --insecure https://flashrom.org/images/3/3d/Libgetopt.tar.gz | zcat | tar x && \
+	curl --insecure https://flashprog.org/images/3/3d/Libgetopt.tar.gz | zcat | tar x && \
 	cd libgetopt && \
 		make && cp libgetopt.a ../lib/ && cp getopt.h ../include/
 

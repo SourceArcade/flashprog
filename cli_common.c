@@ -23,7 +23,7 @@
 void print_chip_support_status(const struct flashchip *chip)
 {
 	if (chip->feature_bits & FEATURE_OTP) {
-		msg_cdbg("This chip may contain one-time programmable memory. flashrom cannot read\n"
+		msg_cdbg("This chip may contain one-time programmable memory. flashprog cannot read\n"
 			 "and may never be able to write it, hence it may not be able to completely\n"
 			 "clone the contents of this chip (see man page for details).\n");
 	}
@@ -68,10 +68,10 @@ void print_chip_support_status(const struct flashchip *chip)
 			msg_cinfo("\n");
 		}
 		msg_cinfo("The test status of this chip may have been updated in the latest development\n"
-			  "version of flashrom. If you are running the latest development version,\n"
-			  "please email a report to flashrom-stable@flashrom.org if any of the above\n"
+			  "version of flashprog. If you are running the latest development version,\n"
+			  "please email a report to flashprog@flashprog.org if any of the above\n"
 			  "operations work correctly for you with this flash chip. Please include the\n"
-			  "flashrom log file for all operations you tested (see the man page for details),\n"
+			  "flashprog log file for all operations you tested (see the man page for details),\n"
 			  "and mention which mainboard or programmer you tested in the subject line.\n"
 			  "Thanks for your help!\n");
 	}

@@ -32,7 +32,7 @@
 #undef max
 #endif
 
-#include "libflashrom.h"
+#include "libflashprog.h"
 #include "layout.h"
 #include "writeprotect.h"
 
@@ -178,8 +178,8 @@ enum test_state {
 #define TEST_BAD_PREW	(struct tested){ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .wp = NT }
 #define TEST_BAD_PREWB	(struct tested){ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .wp = BAD }
 
-struct flashrom_flashctx;
-#define flashctx flashrom_flashctx /* TODO: Agree on a name and convert all occurrences. */
+struct flashprog_flashctx;
+#define flashctx flashprog_flashctx /* TODO: Agree on a name and convert all occurrences. */
 typedef int (erasefunc_t)(struct flashctx *flash, unsigned int addr, unsigned int blocklen);
 
 enum flash_reg {
@@ -230,7 +230,7 @@ struct flashchip {
 	unsigned int page_size;
 	int feature_bits;
 
-	/* Indicate how well flashrom supports different operations of this flash chip. */
+	/* Indicate how well flashprog supports different operations of this flash chip. */
 	struct tested {
 		enum test_state probe;
 		enum test_state read;
@@ -327,20 +327,20 @@ struct flashchip {
 
 typedef int (*chip_restore_fn_cb_t)(struct flashctx *flash, uint8_t status);
 
-struct flashrom_flashctx {
+struct flashprog_flashctx {
 	struct flashchip *chip;
 	/* FIXME: The memory mappings should be saved in a more structured way. */
 	/* The physical_* fields store the respective addresses in the physical address space of the CPU. */
 	uintptr_t physical_memory;
-	/* The virtual_* fields store where the respective physical address is mapped into flashrom's address
+	/* The virtual_* fields store where the respective physical address is mapped into flashprog's address
 	 * space. A value equivalent to (chipaddr)ERROR_PTR indicates an invalid mapping (or none at all). */
 	chipaddr virtual_memory;
 	/* Some flash devices have an additional register space; semantics are like above. */
 	uintptr_t physical_registers;
 	chipaddr virtual_registers;
 	struct registered_master *mst;
-	const struct flashrom_layout *layout;
-	struct flashrom_layout *default_layout;
+	const struct flashprog_layout *layout;
+	struct flashprog_layout *default_layout;
 	struct {
 		bool force;
 		bool force_boardmismatch;
@@ -412,8 +412,8 @@ char *strndup(const char *str, size_t size);
 size_t strnlen(const char *str, size_t n);
 #endif
 
-/* flashrom.c */
-extern const char flashrom_version[];
+/* flashprog.c */
+extern const char flashprog_version[];
 extern const char *chip_to_probe;
 char *flashbuses_to_text(enum chipbustype bustype);
 int map_flash(struct flashctx *flash);
@@ -436,26 +436,26 @@ int register_chip_restore(chip_restore_fn_cb_t func, struct flashctx *flash, uin
 
 /* Something happened that shouldn't happen, we'll abort. */
 #define ERROR_FATAL -0xee
-#define ERROR_FLASHROM_BUG -200
-/* We reached one of the hardcoded limits of flashrom. This can be fixed by
+#define ERROR_FLASHPROG_BUG -200
+/* We reached one of the hardcoded limits of flashprog. This can be fixed by
  * increasing the limit of a compile-time allocation or by switching to dynamic
  * allocation.
  * Note: If this warning is triggered, check first for runaway registrations.
  */
-#define ERROR_FLASHROM_LIMIT -201
+#define ERROR_FLASHPROG_LIMIT -201
 
 /* cli_common.c */
 void print_chip_support_status(const struct flashchip *chip);
 
 /* cli_output.c */
-extern enum flashrom_log_level verbose_screen;
-extern enum flashrom_log_level verbose_logfile;
+extern enum flashprog_log_level verbose_screen;
+extern enum flashprog_log_level verbose_logfile;
 int open_logfile(const char * const filename);
 int close_logfile(void);
 void start_logging(void);
-int flashrom_print_cb(enum flashrom_log_level level, const char *fmt, va_list ap);
+int flashprog_print_cb(enum flashprog_log_level level, const char *fmt, va_list ap);
 /* Let gcc and clang check for correct printf-style format strings. */
-int print(enum flashrom_log_level level, const char *fmt, ...)
+int print(enum flashprog_log_level level, const char *fmt, ...)
 #ifdef __MINGW32__
 #  ifndef __MINGW_PRINTF_FORMAT
 #    define __MINGW_PRINTF_FORMAT gnu_printf
@@ -464,24 +464,24 @@ __attribute__((format(__MINGW_PRINTF_FORMAT, 2, 3)));
 #else
 __attribute__((format(printf, 2, 3)));
 #endif
-#define msg_gerr(...)	print(FLASHROM_MSG_ERROR, __VA_ARGS__)	/* general errors */
-#define msg_perr(...)	print(FLASHROM_MSG_ERROR, __VA_ARGS__)	/* programmer errors */
-#define msg_cerr(...)	print(FLASHROM_MSG_ERROR, __VA_ARGS__)	/* chip errors */
-#define msg_gwarn(...)	print(FLASHROM_MSG_WARN, __VA_ARGS__)	/* general warnings */
-#define msg_pwarn(...)	print(FLASHROM_MSG_WARN, __VA_ARGS__)	/* programmer warnings */
-#define msg_cwarn(...)	print(FLASHROM_MSG_WARN, __VA_ARGS__)	/* chip warnings */
-#define msg_ginfo(...)	print(FLASHROM_MSG_INFO, __VA_ARGS__)	/* general info */
-#define msg_pinfo(...)	print(FLASHROM_MSG_INFO, __VA_ARGS__)	/* programmer info */
-#define msg_cinfo(...)	print(FLASHROM_MSG_INFO, __VA_ARGS__)	/* chip info */
-#define msg_gdbg(...)	print(FLASHROM_MSG_DEBUG, __VA_ARGS__)	/* general debug */
-#define msg_pdbg(...)	print(FLASHROM_MSG_DEBUG, __VA_ARGS__)	/* programmer debug */
-#define msg_cdbg(...)	print(FLASHROM_MSG_DEBUG, __VA_ARGS__)	/* chip debug */
-#define msg_gdbg2(...)	print(FLASHROM_MSG_DEBUG2, __VA_ARGS__)	/* general debug2 */
-#define msg_pdbg2(...)	print(FLASHROM_MSG_DEBUG2, __VA_ARGS__)	/* programmer debug2 */
-#define msg_cdbg2(...)	print(FLASHROM_MSG_DEBUG2, __VA_ARGS__)	/* chip debug2 */
-#define msg_gspew(...)	print(FLASHROM_MSG_SPEW, __VA_ARGS__)	/* general debug spew  */
-#define msg_pspew(...)	print(FLASHROM_MSG_SPEW, __VA_ARGS__)	/* programmer debug spew  */
-#define msg_cspew(...)	print(FLASHROM_MSG_SPEW, __VA_ARGS__)	/* chip debug spew  */
+#define msg_gerr(...)	print(FLASHPROG_MSG_ERROR, __VA_ARGS__)	/* general errors */
+#define msg_perr(...)	print(FLASHPROG_MSG_ERROR, __VA_ARGS__)	/* programmer errors */
+#define msg_cerr(...)	print(FLASHPROG_MSG_ERROR, __VA_ARGS__)	/* chip errors */
+#define msg_gwarn(...)	print(FLASHPROG_MSG_WARN, __VA_ARGS__)	/* general warnings */
+#define msg_pwarn(...)	print(FLASHPROG_MSG_WARN, __VA_ARGS__)	/* programmer warnings */
+#define msg_cwarn(...)	print(FLASHPROG_MSG_WARN, __VA_ARGS__)	/* chip warnings */
+#define msg_ginfo(...)	print(FLASHPROG_MSG_INFO, __VA_ARGS__)	/* general info */
+#define msg_pinfo(...)	print(FLASHPROG_MSG_INFO, __VA_ARGS__)	/* programmer info */
+#define msg_cinfo(...)	print(FLASHPROG_MSG_INFO, __VA_ARGS__)	/* chip info */
+#define msg_gdbg(...)	print(FLASHPROG_MSG_DEBUG, __VA_ARGS__)	/* general debug */
+#define msg_pdbg(...)	print(FLASHPROG_MSG_DEBUG, __VA_ARGS__)	/* programmer debug */
+#define msg_cdbg(...)	print(FLASHPROG_MSG_DEBUG, __VA_ARGS__)	/* chip debug */
+#define msg_gdbg2(...)	print(FLASHPROG_MSG_DEBUG2, __VA_ARGS__)	/* general debug2 */
+#define msg_pdbg2(...)	print(FLASHPROG_MSG_DEBUG2, __VA_ARGS__)	/* programmer debug2 */
+#define msg_cdbg2(...)	print(FLASHPROG_MSG_DEBUG2, __VA_ARGS__)	/* chip debug2 */
+#define msg_gspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* general debug spew  */
+#define msg_pspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* programmer debug spew  */
+#define msg_cspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* chip debug spew  */
 
 /* spi.c */
 struct spi_command {

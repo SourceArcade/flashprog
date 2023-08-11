@@ -282,10 +282,10 @@ static int internal_init(void)
 	if (is_laptop && !laptop_ok) {
 		msg_pinfo("========================================================================\n");
 		if (is_laptop == 1) {
-			msg_pinfo("You seem to be running flashrom on an unknown laptop. Some\n"
+			msg_pinfo("You seem to be running flashprog on an unknown laptop. Some\n"
 				  "internal buses have been disabled for safety reasons.\n\n");
 		} else {
-			msg_pinfo("You may be running flashrom on an unknown laptop. We could not\n"
+			msg_pinfo("You may be running flashprog on an unknown laptop. We could not\n"
 				  "detect this for sure because your vendor has not set up the SMBIOS\n"
 				  "tables correctly. Some internal buses have been disabled for\n"
 				  "safety reasons. You can enforce using all buses by adding\n"
@@ -296,7 +296,7 @@ static int internal_init(void)
 		msg_perr("Laptops, notebooks and netbooks are difficult to support and we\n"
 			 "recommend to use the vendor flashing utility. The embedded controller\n"
 			 "(EC) in these machines often interacts badly with flashing.\n"
-			 "See the manpage and https://flashrom.org/Laptops for details.\n\n"
+			 "See the manpage and https://flashprog.org/Laptops for details.\n\n"
 			 "If flash is shared with the EC, erase is guaranteed to brick your laptop\n"
 			 "and write may brick your laptop.\n"
 			 "Read and probe may irritate your EC and cause fan failure, backlight\n"

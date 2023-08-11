@@ -157,9 +157,9 @@ static int wbsio_spi_send_command(const struct flashctx *flash, unsigned int wri
 		}
 		mode = 0x60 | (writearr[1] & 0x0f);
 	} else if (5 == writecnt && 4 == readcnt) {
-		/* XXX: TODO not supported by flashrom infrastructure!
+		/* XXX: TODO not supported by flashprog infrastructure!
 		 * This mode, 7, discards the fifth byte in writecnt,
-		 * but since we can not express that in flashrom, fail
+		 * but since we can not express that in flashprog, fail
 		 * the operation for now.
 		 */
 		;

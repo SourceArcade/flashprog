@@ -28,7 +28,7 @@
 #include "flashchips.h"
 #include "fmap.h"
 #include "programmer.h"
-#include "libflashrom.h"
+#include "libflashprog.h"
 
 static void cli_classic_usage(const char *name)
 {
@@ -77,14 +77,14 @@ static void cli_classic_usage(const char *name)
 	         "-z, "
 #endif
 	         "-E, -r, -w, -v or no operation.\n"
-	       "If no operation is specified, flashrom will only probe for flash chips.\n");
+	       "If no operation is specified, flashprog will only probe for flash chips.\n");
 }
 
 static void cli_classic_abort_usage(const char *msg)
 {
 	if (msg)
 		fprintf(stderr, "%s", msg);
-	printf("Please run \"flashrom --help\" for usage info.\n");
+	printf("Please run \"flashprog --help\" for usage info.\n");
 	exit(1);
 }
 
@@ -121,14 +121,14 @@ static int do_read(struct flashctx *const flash, const char *const filename)
 {
 	int ret;
 
-	unsigned long size = flashrom_flash_getsize(flash);
+	unsigned long size = flashprog_flash_getsize(flash);
 	unsigned char *buf = calloc(size, sizeof(unsigned char));
 	if (!buf) {
 		msg_gerr("Memory allocation failed!\n");
 		return 1;
 	}
 
-	ret = flashrom_image_read(flash, buf, size);
+	ret = flashprog_image_read(flash, buf, size);
 	if (ret > 0)
 		goto free_out;
 
@@ -141,7 +141,7 @@ free_out:
 
 static int do_write(struct flashctx *const flash, const char *const filename, const char *const referencefile)
 {
-	const size_t flash_size = flashrom_flash_getsize(flash);
+	const size_t flash_size = flashprog_flash_getsize(flash);
 	int ret = 1;
 
 	uint8_t *const newcontents = malloc(flash_size);
@@ -160,7 +160,7 @@ static int do_write(struct flashctx *const flash, const char *const filename, co
 			goto _free_ret;
 	}
 
-	ret = flashrom_image_write(flash, newcontents, flash_size, refcontents);
+	ret = flashprog_image_write(flash, newcontents, flash_size, refcontents);
 
 _free_ret:
 	free(refcontents);
@@ -170,7 +170,7 @@ _free_ret:
 
 static int do_verify(struct flashctx *const flash, const char *const filename)
 {
-	const size_t flash_size = flashrom_flash_getsize(flash);
+	const size_t flash_size = flashprog_flash_getsize(flash);
 	int ret = 1;
 
 	uint8_t *const newcontents = malloc(flash_size);
@@ -182,7 +182,7 @@ static int do_verify(struct flashctx *const flash, const char *const filename)
 	if (read_buf_from_file(newcontents, flash_size, filename))
 		goto _free_ret;
 
-	ret = flashrom_image_verify(flash, newcontents, flash_size);
+	ret = flashprog_image_verify(flash, newcontents, flash_size);
 
 _free_ret:
 	free(newcontents);
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 	bool read_it = false, write_it = false, erase_it = false, verify_it = false;
 	bool dont_verify_it = false, dont_verify_all = false;
 	bool list_supported = false;
-	struct flashrom_layout *layout = NULL;
+	struct flashprog_layout *layout = NULL;
 	static const struct programmer_entry *prog = NULL;
 	enum {
 		OPTION_IFD = 0x0100,
@@ -304,20 +304,20 @@ int main(int argc, char *argv[])
 
 	/*
 	 * Safety-guard against a user who has (mistakenly) closed
-	 * stdout or stderr before exec'ing flashrom.  We disable
+	 * stdout or stderr before exec'ing flashprog.  We disable
 	 * logging in this case to prevent writing log data to a flash
 	 * chip when a flash device gets opened with fd 1 or 2.
 	 */
 	if (check_file(stdout) && check_file(stderr)) {
-		flashrom_set_log_callback(
-			(flashrom_log_callback *)&flashrom_print_cb);
+		flashprog_set_log_callback(
+			(flashprog_log_callback *)&flashprog_print_cb);
 	}
 
 	print_version();
 	print_banner();
 
 	/* FIXME: Delay calibration should happen in programmer code. */
-	if (flashrom_init(1))
+	if (flashprog_init(1))
 		exit(1);
 
 	setbuf(stdout, NULL);
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 			break;
 		case 'V':
 			verbose_screen++;
-			if (verbose_screen > FLASHROM_MSG_DEBUG2)
+			if (verbose_screen > FLASHPROG_MSG_DEBUG2)
 				verbose_logfile = verbose_screen;
 			break;
 		case 'E':
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
 				break;
 		if (!chip || !chip->name) {
 			msg_cerr("Error: Unknown chip '%s' specified.\n", chip_to_probe);
-			msg_gerr("Run flashrom -L to view the hardware supported in this flashrom version.\n");
+			msg_gerr("Run flashprog -L to view the hardware supported in this flashprog version.\n");
 			ret = 1;
 			goto out;
 		}
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 	} else if (!chipcount) {
 		msg_cinfo("No EEPROM/flash device found.\n");
 		if (!force || !chip_to_probe) {
-			msg_cinfo("Note: flashrom can never write if the flash chip isn't found "
+			msg_cinfo("Note: flashprog can never write if the flash chip isn't found "
 				  "automatically.\n");
 		}
 		if (force && read_it && chip_to_probe) {
@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
 				goto out_shutdown;
 			}
 			msg_cinfo("Please note that forced reads most likely contain garbage.\n");
-			flashrom_flag_set(&flashes[0], FLASHROM_FLAG_FORCE, force);
+			flashprog_flag_set(&flashes[0], FLASHPROG_FLAG_FORCE, force);
 			ret = do_read(&flashes[0], filename);
 			free(flashes[0].chip);
 			goto out_shutdown;
@@ -712,11 +712,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (flash_size) {
-		printf("%zu\n", flashrom_flash_getsize(fill_flash));
+		printf("%zu\n", flashprog_flash_getsize(fill_flash));
 		goto out_shutdown;
 	}
 
-	if (ifd && (flashrom_layout_read_from_ifd(&layout, fill_flash, NULL, 0) ||
+	if (ifd && (flashprog_layout_read_from_ifd(&layout, fill_flash, NULL, 0) ||
 			   process_include_args(layout, include_args))) {
 		ret = 1;
 		goto out_shutdown;
@@ -741,26 +741,26 @@ int main(int argc, char *argv[])
 			goto out_shutdown;
 		}
 
-		if (flashrom_layout_read_fmap_from_buffer(&layout, fill_flash, fmapfile_buffer, fmapfile_size) ||
+		if (flashprog_layout_read_fmap_from_buffer(&layout, fill_flash, fmapfile_buffer, fmapfile_size) ||
 		    process_include_args(layout, include_args)) {
 			ret = 1;
 			free(fmapfile_buffer);
 			goto out_shutdown;
 		}
 		free(fmapfile_buffer);
-	} else if (fmap && (flashrom_layout_read_fmap_from_rom(&layout, fill_flash, 0,
-				flashrom_flash_getsize(fill_flash)) || process_include_args(layout, include_args))) {
+	} else if (fmap && (flashprog_layout_read_fmap_from_rom(&layout, fill_flash, 0,
+				flashprog_flash_getsize(fill_flash)) || process_include_args(layout, include_args))) {
 		ret = 1;
 		goto out_shutdown;
 	}
 
-	flashrom_layout_set(fill_flash, layout);
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE, force);
+	flashprog_layout_set(fill_flash, layout);
+	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_FORCE, force);
 #if CONFIG_INTERNAL == 1
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_FORCE_BOARDMISMATCH, force_boardmismatch);
+	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_FORCE_BOARDMISMATCH, force_boardmismatch);
 #endif
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_VERIFY_AFTER_WRITE, !dont_verify_it);
-	flashrom_flag_set(fill_flash, FLASHROM_FLAG_VERIFY_WHOLE_CHIP, !dont_verify_all);
+	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_VERIFY_AFTER_WRITE, !dont_verify_it);
+	flashprog_flag_set(fill_flash, FLASHPROG_FLAG_VERIFY_WHOLE_CHIP, !dont_verify_all);
 
 	/* FIXME: We should issue an unconditional chip reset here. This can be
 	 * done once we have a .reset function in struct flashchip.
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
 	if (read_it)
 		ret = do_read(fill_flash, filename);
 	else if (erase_it) {
-		ret = flashrom_flash_erase(fill_flash);
+		ret = flashprog_flash_erase(fill_flash);
 		/*
 		 * FIXME: Do we really want the scary warning if erase failed?
 		 * After all, after erase the chip is either blank or partially
@@ -786,13 +786,13 @@ int main(int argc, char *argv[])
 	else if (verify_it)
 		ret = do_verify(fill_flash, filename);
 
-	flashrom_layout_release(layout);
+	flashprog_layout_release(layout);
 
 out_shutdown:
-	flashrom_programmer_shutdown(NULL);
+	flashprog_programmer_shutdown(NULL);
 out:
 	for (i = 0; i < chipcount; i++) {
-		flashrom_layout_release(flashes[i].default_layout);
+		flashprog_layout_release(flashes[i].default_layout);
 		free(flashes[i].chip);
 	}
 

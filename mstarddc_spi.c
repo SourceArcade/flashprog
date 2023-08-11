@@ -80,14 +80,14 @@ static int mstarddc_spi_init(void)
 		}
 		if (i2c_address == NULL || strlen(i2c_address) == 0) {
 			msg_perr("Error: no address specified.\n"
-				 "Use flashrom -p mstarddc_spi:dev=/dev/device:address.\n");
+				 "Use flashprog -p mstarddc_spi:dev=/dev/device:address.\n");
 			ret = -1;
 			goto out;
 		}
 		mstarddc_addr = strtol(i2c_address, NULL, 16); // FIXME: error handling
 	} else {
 		msg_perr("Error: no device specified.\n"
-			 "Use flashrom -p mstarddc_spi:dev=/dev/device:address.\n");
+			 "Use flashprog -p mstarddc_spi:dev=/dev/device:address.\n");
 		ret = -1;
 		goto out;
 	}

@@ -86,7 +86,7 @@ static int sfdp_add_uniform_eraser(struct flashchip *chip, uint8_t opcode, uint3
 	if (erasefn == NULL || total_size == 0 || block_size == 0 ||
 	    total_size % block_size != 0) {
 		msg_cdbg("%s: invalid input, please report to "
-			 "flashrom-stable@flashrom.org\n", __func__);
+			 "flashprog@flashprog.org\n", __func__);
 		return 1;
 	}
 
@@ -116,7 +116,7 @@ static int sfdp_add_uniform_eraser(struct flashchip *chip, uint8_t opcode, uint3
 		return 0;
 	}
 	msg_cinfo("%s: Not enough space to store another eraser (i=%d).\n"
-		  "Please report this at flashrom-stable@flashrom.org\n",
+		  "Please report this at flashprog@flashprog.org\n",
 		  __func__, i);
 	return 1;
 }
@@ -149,7 +149,7 @@ static int sfdp_fill_flash(struct flashchip *chip, uint8_t *buf, uint16_t len)
 		break;
 	case 0x2:
 		msg_cdbg("  4-Byte only addressing (not supported by "
-			 "flashrom).\n");
+			 "flashprog).\n");
 		return 1;
 	default:
 		msg_cdbg("  Required addressing mode (0x%x) not supported.\n",
@@ -236,7 +236,7 @@ static int sfdp_fill_flash(struct flashchip *chip, uint8_t *buf, uint16_t len)
 		}
 		if (tmp8 >= 31) {
 			msg_cdbg2("  Block size of erase Sector Type %d (2^%d) "
-				 "is too big for flashrom.\n", j, tmp8);
+				 "is too big for flashprog.\n", j, tmp8);
 			continue;
 		}
 		block_size = 1 << (tmp8); /* block_size = 2 ^ field */

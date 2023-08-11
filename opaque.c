@@ -59,9 +59,9 @@ int register_opaque_master(const struct opaque_master *mst, void *data)
 
 	if (!mst->probe || !mst->read || !mst->write || !mst->erase) {
 		msg_perr("%s called with incomplete master definition.\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
-		return ERROR_FLASHROM_BUG;
+		return ERROR_FLASHPROG_BUG;
 	}
 	rmst.buses_supported = BUS_PROG;
 	rmst.opaque = *mst;

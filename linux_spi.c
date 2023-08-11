@@ -141,7 +141,7 @@ static int linux_spi_init(void)
 
 	dev = extract_programmer_param("dev");
 	if (!dev || !strlen(dev)) {
-		msg_perr("No SPI device given. Use flashrom -p "
+		msg_perr("No SPI device given. Use flashprog -p "
 			 "linux_spi:dev=/dev/spidevX.Y\n");
 		free(dev);
 		return 1;

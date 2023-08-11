@@ -2,7 +2,7 @@
 # This file is part of the flashrom project.
 #
 # This Makefile works standalone, but it is usually called from the main
-# Makefile in the flashrom directory.
+# Makefile in the flashprog directory.
 
 include ../../Makefile.include
 
@@ -35,14 +35,14 @@ endif
 ifeq ($(TARGET_OS), DOS)
 EXEC_SUFFIX := .exe
 # DJGPP has odd uint*_t definitions which cause lots of format string warnings.
-FLASHROM_CFLAGS += -Wno-format
+FLASHPROG_CFLAGS += -Wno-format
 endif
 
 ifeq ($(TARGET_OS), MinGW)
 EXEC_SUFFIX := .exe
 # Some functions provided by Microsoft do not work as described in C99 specifications. This macro fixes that
 # for MinGW. See http://sourceforge.net/p/mingw-w64/wiki2/printf%20and%20scanf%20family/
-FLASHROM_CFLAGS += -D__USE_MINGW_ANSI_STDIO=1
+FLASHPROG_CFLAGS += -D__USE_MINGW_ANSI_STDIO=1
 endif
 
 ifeq ($(WARNERROR), yes)
@@ -50,10 +50,10 @@ CFLAGS += -Werror
 endif
 
 
-FLASHROM_CFLAGS += -MMD -MP -MF $(DEPPATH)/$(@F).d
+FLASHPROG_CFLAGS += -MMD -MP -MF $(DEPPATH)/$(@F).d
 # enables functions that populate the descriptor structs from plain binary dumps
-FLASHROM_CFLAGS += -D ICH_DESCRIPTORS_FROM_DUMP_ONLY
-FLASHROM_CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+FLASHPROG_CFLAGS += -D ICH_DESCRIPTORS_FROM_DUMP_ONLY
+FLASHPROG_CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 OBJ = $(OBJATH)/$(SRC:%.c=%.o)
 
@@ -62,12 +62,12 @@ SHAREDOBJ = $(OBJATH)/$(notdir $(SHAREDSRC:%.c=%.o))
 all:$(PROGRAM)$(EXEC_SUFFIX)
 
 $(OBJ): $(OBJATH)/%.o : %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(FLASHROM_CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(FLASHPROG_CFLAGS) -o $@ -c $<
 
 # this enables us to share source files without simultaneously sharing .o files
-# with flashrom, which would lead to unexpected results (w/o running make clean)
+# with flashprog, which would lead to unexpected results (w/o running make clean)
 $(SHAREDOBJ): $(OBJATH)/%.o : $(SHAREDSRCDIR)/%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(FLASHROM_CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(FLASHPROG_CFLAGS) -o $@ -c $<
 
 $(PROGRAM)$(EXEC_SUFFIX): $(OBJ) $(SHAREDOBJ)
 	$(CC) $(LDFLAGS) -o $(PROGRAM)$(EXEC_SUFFIX) $(OBJ) $(SHAREDOBJ)

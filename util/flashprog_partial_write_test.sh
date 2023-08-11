@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# This script attempts to test Flashrom partial write capability by writing
+# This script attempts to test Flashprog partial write capability by writing
 # patterns of 0xff and 0x00 bytes to the lowest 128kB of flash. 128kB is chosen
 # since 64kB is usually the largest possible block size, so we will try to
 # cover at least two blocks with this test.
@@ -21,18 +21,18 @@
 EXIT_SUCCESS=0
 EXIT_FAILURE=1
 
-# The copy of flashrom to test. If unset, we'll assume the user wants to test
-# a newly built flashrom binary in the parent directory (this script should
-# reside in flashrom/util).
-if [ -z "$FLASHROM" ] ; then
-	FLASHROM="../flashrom"
+# The copy of flashprog to test. If unset, we'll assume the user wants to test
+# a newly built flashprog binary in the parent directory (this script should
+# reside in flashprog/util).
+if [ -z "$FLASHPROG" ] ; then
+	FLASHPROG="../flashprog"
 fi
-echo "testing flashrom binary: ${FLASHROM}"
+echo "testing flashprog binary: ${FLASHPROG}"
 
 OLDDIR=$(pwd)
 
 # test data location
-TMPDIR=$(mktemp -d -t flashrom_test.XXXXXXXXXX)
+TMPDIR=$(mktemp -d -t flashprog_test.XXXXXXXXXX)
 if [ "$?" != "0" ] ; then
 	echo "Could not create temporary directory"
 	exit $EXIT_FAILURE
@@ -50,16 +50,16 @@ if [ "$?" != "0" ] ; then
 	exit $EXIT_FAILURE
 fi
 
-which flashrom > /dev/null
+which flashprog > /dev/null
 if [ "$?" != "0" ] ; then
-	echo "Please install a stable version of flashrom in your path."
-	echo "This will be used to compare the test flashrom binary and "
+	echo "Please install a stable version of flashprog in your path."
+	echo "This will be used to compare the test flashprog binary and "
 	echo "restore your firmware image at the end of the test."
 	exit $EXIT_FAILURE
 fi
 
-# Keep a copy of flashrom with the test data
-cp "$FLASHROM" "${TMPDIR}/"
+# Keep a copy of flashprog with the test data
+cp "$FLASHPROG" "${TMPDIR}/"
 cd "$TMPDIR"
 echo "Running test in ${TMPDIR}"
 
@@ -83,7 +83,7 @@ echo "00h pattern written in ${ZERO_4K}"
 
 echo "Reading BIOS image"
 BIOS="bios.bin"
-flashrom ${FLASHROM_PARAM} -r "$BIOS" > /dev/null
+flashprog ${FLASHPROG_PARAM} -r "$BIOS" > /dev/null
 echo "Original image saved as ${BIOS}"
 
 # $1: exit code
@@ -94,8 +94,8 @@ do_exit() {
 		echo "Result: PASSED"
 	fi
 
-	echo "restoring original bios image using system's flashrom"
-	flashrom ${FLASHROM_PARAM} -w "$BIOS"
+	echo "restoring original bios image using system's flashprog"
+	flashprog ${FLASHPROG_PARAM} -w "$BIOS"
 	echo "test files remain in ${TMPDIR}"
 	cd "$OLDDIR"
 	exit "$1"
@@ -166,15 +166,15 @@ while [ $i -lt $NUM_REGIONS ] ; do
 	dd if=${ZERO_4K} of=${TESTFILE} bs=1 conv=notrunc seek=${offset} 2> /dev/null
 	dd if=${FF_4K} of=${TESTFILE} bs=1 conv=notrunc seek=$((${offset} + 4096)) 2> /dev/null
 
-	./flashrom ${FLASHROM_PARAM} -l layout_4k_aligned.txt -i 00_${i} -i ff_${i} -w "$TESTFILE" > /dev/null
+	./flashprog ${FLASHPROG_PARAM} -l layout_4k_aligned.txt -i 00_${i} -i ff_${i} -w "$TESTFILE" > /dev/null
 	if [ "$?" != "0" ] ; then
 		echo "failed to flash region"
 		do_exit "$EXIT_FAILURE"
 	fi
 
 	# download the entire ROM image and use diff to compare to ensure
-	# flashrom logic does not violate user-specified regions
-	flashrom ${FLASHROM_PARAM} -r difftest.bin > /dev/null
+	# flashprog logic does not violate user-specified regions
+	flashprog ${FLASHPROG_PARAM} -r difftest.bin > /dev/null
 	diff -q difftest.bin "$TESTFILE"
 	if [ "$?" != "0" ] ; then
 		echo "failed diff test"
@@ -247,7 +247,7 @@ echo "
 " > layout_unaligned.txt
 
 # reset the test file and ROM to the original state
-flashrom ${FLASHROM_PARAM} -w "$BIOS" > /dev/null
+flashprog ${FLASHPROG_PARAM} -w "$BIOS" > /dev/null
 cp "$BIOS" "$TESTFILE"
 
 i=0
@@ -266,15 +266,15 @@ while [ $i -lt $NUM_REGIONS ] ; do
 	dd if=${ZERO_4K} of=${TESTFILE} bs=1 conv=notrunc seek=${offset} 2> /dev/null
 	dd if=${FF_4K} of=${TESTFILE} bs=1 conv=notrunc seek=$((${offset} + 4096)) count=writelen 2> /dev/null
 
-	./flashrom ${FLASHROM_PARAM} -l layout_unaligned.txt -i 00_${i} -i ff_${i} -w "$TESTFILE" > /dev/null
+	./flashprog ${FLASHPROG_PARAM} -l layout_unaligned.txt -i 00_${i} -i ff_${i} -w "$TESTFILE" > /dev/null
 	if [ "$?" != "0" ] ; then
 		echo "failed to flash region"
 		do_exit "$EXIT_FAILURE"
 	fi
 
 	# download the entire ROM image and use diff to compare to ensure
-	# flashrom logic does not violate user-specified regions
-	flashrom ${FLASHROM_PARAM} -r difftest.bin > /dev/null
+	# flashprog logic does not violate user-specified regions
+	flashprog ${FLASHPROG_PARAM} -r difftest.bin > /dev/null
 	diff -q difftest.bin "$TESTFILE"
 	if [ "$?" != "0" ] ; then
 		echo "failed diff test"

@@ -1,4 +1,4 @@
-project('flashromutils', 'c',
+project('flashprogutils', 'c',
   version : run_command('util/getversion.sh', '--version', check : true).stdout().strip(),
   license : 'GPL-2.0',
   meson_version : '>=0.53.0',
@@ -37,7 +37,7 @@ add_project_arguments('-D__BSD_VISIBLE', language : 'c') # required for u_char, 
 add_project_arguments('-D__XSI_VISIBLE', language : 'c') # required for gettimeofday() on FreeBSD
 add_project_arguments('-D_NETBSD_SOURCE', language : 'c') # required for indirect include of strings.h on NetBSD
 add_project_arguments('-D_DARWIN_C_SOURCE', language : 'c') # required for indirect include of strings.h on MacOS
-add_project_arguments('-DFLASHROM_VERSION="' + meson.project_version() + '"', language : 'c')
+add_project_arguments('-DFLASHPROG_VERSION="' + meson.project_version() + '"', language : 'c')
 
 # get defaults from configure
 config_print_wiki = get_option('classic_cli_print_wiki')
@@ -53,14 +53,14 @@ srcs = files(
   'edi.c',
   'en29lv640b.c',
   'flashchips.c',
-  'flashrom.c',
+  'flashprog.c',
   'fmap.c',
   'helpers.c',
   'helpers_fileio.c',
   'ich_descriptors.c',
   'jedec.c',
   'layout.c',
-  'libflashrom.c',
+  'libflashprog.c',
   'opaque.c',
   'parallel.c',
   'print.c',
@@ -522,20 +522,20 @@ endif
 cargs += '-DCONFIG_DEFAULT_PROGRAMMER_ARGS="' + config_default_programmer_args + '"'
 
 install_headers([
-    'include/libflashrom.h',
+    'include/libflashprog.h',
   ],
 )
 
 include_dir = include_directories('include')
 
-mapfile = 'libflashrom.map'
+mapfile = 'libflashprog.map'
 if host_machine.system() == 'darwin'
   vflag = ''
 else
   vflag = '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), mapfile)
 endif
-libflashrom = both_libraries(
-  'flashrom',
+libflashprog = both_libraries(
+  'flashprog',
   sources : [
     srcs,
   ],
@@ -564,19 +564,19 @@ endif
 
 pkgg = import('pkgconfig')
 pkgg.generate(
-  libraries : libflashrom,
+  libraries : libflashprog,
   version : version,
-  name : 'flashrom',
-  filebase : 'flashrom',
-  description : 'library to interact with flashrom',
+  name : 'flashprog',
+  filebase : 'flashprog',
+  description : 'library to interact with flashprog',
 )
 
 config_manfile = configuration_data()
 config_manfile.set('VERSION', version)
 config_manfile.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
 configure_file(
-  input : 'flashrom.8.tmpl',
-  output : 'flashrom.8',
+  input : 'flashprog.8.tmpl',
+  output : 'flashprog.8',
   configuration : config_manfile,
   install: true,
   install_dir: join_paths(get_option('mandir'), 'man8'),
@@ -584,7 +584,7 @@ configure_file(
 
 if get_option('classic_cli').auto() or get_option('classic_cli').enabled()
   executable(
-    'flashrom',
+    'flashprog',
     files(
       'cli_classic.c',
       'cli_common.c',
@@ -594,7 +594,7 @@ if get_option('classic_cli').auto() or get_option('classic_cli').enabled()
     include_directories : include_dir,
     install : true,
     install_dir : get_option('sbindir'),
-    link_with : libflashrom.get_static_lib(), # flashrom needs internal symbols of libflashrom
+    link_with : libflashprog.get_static_lib(), # flashprog needs internal symbols of libflashprog
   )
 endif
 

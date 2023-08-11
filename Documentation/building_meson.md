@@ -28,7 +28,7 @@
 ```
 meson builddir -D<your_options>
 ```
-- __builddir__ is the directory in which flashrom will be build
+- __builddir__ is the directory in which flashprog will be build
 - for all available options see `meson_options.txt`
 
 ## Compile
@@ -59,7 +59,7 @@ pacman -S --noconfirm gcc meson ninja pkg-config \
 
 ### NixOS / Nixpkgs
 ```
-nix-shell <flashrom_source>/util/shell.nix
+nix-shell <flashprog_source>/util/shell.nix
 ```
 or
 ```

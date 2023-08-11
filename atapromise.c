@@ -36,7 +36,7 @@
  * thus limiting the the programmer on this card to 32 kB. Without other controllers to test this programmer on,
  * this is currently a hard limit. Note that ROM files for these controllers are 16 kB only.
  *
- * Since flashrom does not support accessing flash chips larger than the size limit of the programmer (the
+ * Since flashprog does not support accessing flash chips larger than the size limit of the programmer (the
  * tested Ultra100 uses a 128 kB MX29F001T chip), the chip size is hackishly adjusted in atapromise_limit_chip.
  */
 

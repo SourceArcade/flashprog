@@ -48,7 +48,7 @@ git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 
 $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
 $(ALL_TAGS): export TEST_REMOTE?=$(if $(TEST_LOCAL),\
-					git://mani-git/flashrom.git,\
+					git://mani-git/flashprog.git,\
 					origin)
 $(ALL_TAGS): export TEST_REVISION?=$(if $(TEST_LOCAL),HEAD,main)
 $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
@@ -127,7 +127,7 @@ local-git: git-check-build mani-net
 	fi; \
 	docker run --rm --detach \
 		--name mani-git \
-		--volume=$(TEST_LOCAL_GIT):/git/flashrom.git:ro \
+		--volume=$(TEST_LOCAL_GIT):/git/flashprog.git:ro \
 		--network=manibuilder \
 		mani/git $(if $(QUIET_SETUP),>/dev/null)
 

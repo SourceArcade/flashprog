@@ -14,11 +14,11 @@ RUN mkdir -p -m 1777 /ccache
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
-ARG ORIGIN=https://review.coreboot.org/flashrom-stable.git
+ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 RUN \
 	cd && \
 	mkdir .ccache && chown mani:mani .ccache && \
-	git clone ${ORIGIN} flashrom
+	git clone ${ORIGIN} flashprog
 
 ARG IDENT=mani
 ARG CCACHE_MAX=32M

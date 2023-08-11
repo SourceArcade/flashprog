@@ -13,10 +13,10 @@ BIOS_CNTL register in the LPC interface.
 When enabled, the SPI flash can only be written when the system is operating in
 in System Management Mode (SMM). In other words, only certain code that was
 installed by the BIOS can write to the flash chip. Programs that run in OS
-context such as flashrom can still read the flash chip, but cannot write to the
+context such as flashprog can still read the flash chip, but cannot write to the
 flash chip.
 
-Flashrom will attempt to detect this and print a warning such as the following:
+Flashprog will attempt to detect this and print a warning such as the following:
 "Warning: BIOS region SMM protection is enabled!"
 
 Many vendor-supplied firmware update utilities do not actually write to the ROM;
@@ -31,7 +31,7 @@ written.
  the whole flash chip, but some boards ship with a different configuration.
  It seems that in descriptor mode all addresses outside the used regions can not
  be accessed whatsoever. This is not specified anywhere publicly as far as we
- could tell. flashrom does not handle this explicitly yet. It will just fail
+ could tell. flashprog does not handle this explicitly yet. It will just fail
  when trying to touch an address outside of any region.
  See also http://www.flashrom.org/pipermail/flashrom/2011-August/007606.html
 
@@ -85,7 +85,7 @@ written.
  datasheets. The actually communication is documented in a whitepaper [DCMI] and
  an outdated as well as a current Linux kernel implementation (currently in
  staging/ exist [KERNEL]. There exists a patch that re-implements this in user
- space (as part of flashrom).
+ space (as part of flashprog).
  
 == Problems ==
  The problem is that only very few higher level protocols are documented publicly,

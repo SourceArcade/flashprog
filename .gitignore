@@ -5,12 +5,12 @@
 /.dependencies
 /.libdeps
 /build_details.txt
-/flashrom
-/flashrom-*
-/flashrom.exe
-/flashrom.8
-/libflashrom.a
-/libflashrom-doc/
+/flashprog
+/flashprog-*
+/flashprog.exe
+/flashprog.8
+/libflashprog.a
+/libflashprog-doc/
 /versioninfo.inc
 
 /util/ich_descriptors_tool/ich_descriptors_tool

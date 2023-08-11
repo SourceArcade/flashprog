@@ -270,7 +270,7 @@ static int linux_mtd_erase(struct flashctx *flash,
 
 	if (data->no_erase) {
 		msg_perr("%s: device does not support erasing.\n"
-			 "Please file a bug report at flashrom-stable@flashrom.org\n",
+			 "Please file a bug report at flashprog@flashprog.org\n",
 			 __func__);
 		return 1;
 	}
@@ -387,7 +387,7 @@ static int linux_mtd_init(void)
 
 		dev_num = strtol(param, &endptr, 0);
 		if ((*endptr != '\0') || (dev_num < 0)) {
-			msg_perr("Invalid device number %s. Use flashrom -p "
+			msg_perr("Invalid device number %s. Use flashprog -p "
 				"linux_mtd:dev=N where N is a valid MTD\n"
 				"device number.\n", param);
 			goto linux_mtd_init_exit;

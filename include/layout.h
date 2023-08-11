@@ -44,23 +44,23 @@ struct romentry {
 	char *name;
 };
 
-struct flashrom_layout;
+struct flashprog_layout;
 
 struct layout_include_args;
 
-struct flashrom_flashctx;
-const struct flashrom_layout *get_default_layout(const struct flashrom_flashctx *);
-const struct flashrom_layout *get_layout(const struct flashrom_flashctx *);
+struct flashprog_flashctx;
+const struct flashprog_layout *get_default_layout(const struct flashprog_flashctx *);
+const struct flashprog_layout *get_layout(const struct flashprog_flashctx *);
 
-int layout_from_file(struct flashrom_layout **, const char *name);
+int layout_from_file(struct flashprog_layout **, const char *name);
 
 int register_include_arg(struct layout_include_args **, char *arg);
-int process_include_args(struct flashrom_layout *, const struct layout_include_args *);
+int process_include_args(struct flashprog_layout *, const struct layout_include_args *);
 void cleanup_include_args(struct layout_include_args **);
 
-const struct romentry *layout_next_included_region(const struct flashrom_layout *, chipoff_t);
-const struct romentry *layout_next_included(const struct flashrom_layout *, const struct romentry *);
-const struct romentry *layout_next(const struct flashrom_layout *, const struct romentry *);
-int layout_sanity_checks(const struct flashrom_flashctx *, bool write_it);
+const struct romentry *layout_next_included_region(const struct flashprog_layout *, chipoff_t);
+const struct romentry *layout_next_included(const struct flashprog_layout *, const struct romentry *);
+const struct romentry *layout_next(const struct flashprog_layout *, const struct romentry *);
+int layout_sanity_checks(const struct flashprog_flashctx *, bool write_it);
 
 #endif /* !__LAYOUT_H__ */

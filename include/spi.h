@@ -211,7 +211,7 @@
 #define SPI_INVALID_OPCODE	-2
 #define SPI_INVALID_ADDRESS	-3
 #define SPI_INVALID_LENGTH	-4
-#define SPI_FLASHROM_BUG	-5
+#define SPI_FLASHPROG_BUG	-5
 #define SPI_PROGRAMMER_ERROR	-6
 
 #endif		/* !__SPI_H__ */

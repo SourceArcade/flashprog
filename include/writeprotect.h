@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "libflashrom.h"
+#include "libflashprog.h"
 
 #define MAX_BP_BITS 4
 
@@ -32,13 +32,13 @@ struct wp_range {
 };
 
 /* Generic description of a chip's write protection configuration. */
-struct flashrom_wp_cfg {
-        enum flashrom_wp_mode mode;
+struct flashprog_wp_cfg {
+        enum flashprog_wp_mode mode;
         struct wp_range range;
 };
 
 /* Collection of multiple write protection ranges. */
-struct flashrom_wp_ranges {
+struct flashprog_wp_ranges {
 	struct wp_range *ranges;
 	size_t count;
 };
@@ -75,15 +75,15 @@ struct wp_bits  {
 	uint8_t bp[MAX_BP_BITS];
 };
 
-struct flashrom_flashctx;
+struct flashprog_flashctx;
 
 /* Write WP configuration to the chip */
-enum flashrom_wp_result wp_write_cfg(struct flashrom_flashctx *, const struct flashrom_wp_cfg *);
+enum flashprog_wp_result wp_write_cfg(struct flashprog_flashctx *, const struct flashprog_wp_cfg *);
 
 /* Read WP configuration from the chip */
-enum flashrom_wp_result wp_read_cfg(struct flashrom_wp_cfg *, struct flashrom_flashctx *);
+enum flashprog_wp_result wp_read_cfg(struct flashprog_wp_cfg *, struct flashprog_flashctx *);
 
 /* Get a list of protection ranges supported by the chip */
-enum flashrom_wp_result wp_get_available_ranges(struct flashrom_wp_ranges **, struct flashrom_flashctx *);
+enum flashprog_wp_result wp_get_available_ranges(struct flashprog_wp_ranges **, struct flashprog_flashctx *);
 
 #endif /* !__WRITEPROTECT_H__ */

@@ -80,9 +80,9 @@ int register_par_master(const struct par_master *mst,
 	    !mst->chip_writen || !mst->chip_readb || !mst->chip_readw ||
 	    !mst->chip_readl || !mst->chip_readn) {
 		msg_perr("%s called with incomplete master definition.\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
-		return ERROR_FLASHROM_BUG;
+		return ERROR_FLASHPROG_BUG;
 	}
 
 	rmst.buses_supported = buses;

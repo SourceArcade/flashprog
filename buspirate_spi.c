@@ -245,7 +245,7 @@ static int buspirate_spi_init(void)
 		dev = NULL;
 	}
 	if (!dev) {
-		msg_perr("No serial device given. Use flashrom -p buspirate_spi:dev=/dev/ttyUSB0\n");
+		msg_perr("No serial device given. Use flashprog -p buspirate_spi:dev=/dev/ttyUSB0\n");
 		return 1;
 	}
 
@@ -326,7 +326,7 @@ static int buspirate_spi_init(void)
 	bp_data->commbufsize = bp_commbufsize;
 
 	/* This is the brute force version, but it should work.
-	 * It is likely to fail if a previous flashrom run was aborted during a write with the new SPI commands
+	 * It is likely to fail if a previous flashprog run was aborted during a write with the new SPI commands
 	 * in firmware v5.5 because that firmware may wait for up to 4096 bytes of input before responding to
 	 * 0x00 again. The obvious workaround (sending 4096 bytes of \0) may cause significant startup delays.
 	 */

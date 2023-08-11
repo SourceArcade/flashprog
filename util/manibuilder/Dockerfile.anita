@@ -25,7 +25,7 @@ RUN cd && mkdir .ccache && chown mani:mani .ccache && \
 
 ARG EXTRA_PKG=""
 ARG RUNTIME_MEM=128M
-ARG ORIGIN=https://review.coreboot.org/flashrom-stable.git
+ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 ARG PKG_PATH=http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/7.1/All
 RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
 "echo 'dhcpcd'                                   >init && \
@@ -35,7 +35,7 @@ RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
          pciutils libusb1 libusb-compat libftdi \
          ${EXTRA_PKG} && \
  git config --global --add http.sslVerify false && \
- git clone ${ORIGIN} flashrom" \
+ git clone ${ORIGIN} flashprog" \
 		boot ${INST_IMG}
 
 RUN cd && dd if=/dev/zero bs=1M count=64 of=cache.img && \
@@ -56,7 +56,7 @@ RUN cd && dd if=/dev/zero bs=1M count=64 of=cache.img && \
  echo 'manitest() {'                            >>init && \
  echo '    fsck -y -t ffs /dev/'\${bdev}        >>init && \
  echo '    mount /dev/'\${bdev}' ~/.ccache'     >>init && \
- echo '    (cd ~/flashrom && eval \" \$*\")'    >>init && \
+ echo '    (cd ~/flashprog && eval \" \$*\")'    >>init && \
  echo '    ret=\$?'                             >>init && \
  echo '    umount ~/.ccache'                    >>init && \
  echo '    return \$ret'                        >>init && \

@@ -77,7 +77,7 @@ int default_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 	unsigned int max_data = flash->mst->spi.max_data_read;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
 		msg_perr("%s called, but SPI read chunk size not defined on this hardware.\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
+			 "Please report a bug at flashprog@flashprog.org\n", __func__);
 		return 1;
 	}
 	return spi_read_chunked(flash, buf, start, len, max_data);
@@ -88,7 +88,7 @@ int default_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned i
 	unsigned int max_data = flash->mst->spi.max_data_write;
 	if (max_data == MAX_DATA_UNSPECIFIED) {
 		msg_perr("%s called, but SPI write chunk size not defined on this hardware.\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
+			 "Please report a bug at flashprog@flashprog.org\n", __func__);
 		return 1;
 	}
 	return spi_write_chunked(flash, buf, start, len, max_data);
@@ -152,9 +152,9 @@ int register_spi_master(const struct spi_master *mst, void *data)
 	    ((mst->command == default_spi_send_command) &&
 	     (mst->multicommand == default_spi_send_multicommand))) {
 		msg_perr("%s called with incomplete master definition.\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
-		return ERROR_FLASHROM_BUG;
+		return ERROR_FLASHPROG_BUG;
 	}
 
 
@@ -206,6 +206,6 @@ const uint8_t *spi_get_opcode_from_erasefn(erasefunc_t *func)
 			return function_opcode_list[i].opcode;
 	}
 	msg_cinfo("%s: unknown erase function (0x%p). Please report "
-			"this at flashrom-stable@flashrom.org\n", __func__, func);
+			"this at flashprog@flashprog.org\n", __func__, func);
 	return NULL;
 }

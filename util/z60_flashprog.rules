@@ -25,8 +25,8 @@
 ## suitable for your respective distribution.
 ##
 
-ACTION!="add|change", GOTO="flashrom_rules_end"
-SUBSYSTEM!="usb|usb_device", GOTO="flashrom_rules_end"
+ACTION!="add|change", GOTO="flashprog_rules_end"
+SUBSYSTEM!="usb|usb_device", GOTO="flashprog_rules_end"
 
 # Amontec JTAGkey(2)
 # http://www.amontec.com/jtagkey.shtml
@@ -93,4 +93,4 @@ ATTRS{idVendor}=="0403", ATTRS{idProduct}=="8a99", MODE="664", GROUP="plugdev"
 # Winchiphead (WCH) CH341a based programmer
 ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", MODE="664", GROUP="plugdev"
 
-LABEL="flashrom_rules_end"
+LABEL="flashprog_rules_end"

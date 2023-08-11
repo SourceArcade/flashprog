@@ -1066,7 +1066,7 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			msg_pwarn("\nThe flash descriptor looks like a Skylake/Sunrise Point descriptor.\n"
 				  "However, the read frequency isn't set to 17MHz (the only valid value).\n"
 				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashrom-stable@flashrom.org\n\n");
+				  "your descriptor and the output of `lspci -nn` to flashprog@flashprog.org\n\n");
 		}
 		break;
 	default:
@@ -1074,7 +1074,7 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			msg_pwarn("\nThe flash descriptor has the read frequency set to 17MHz. However,\n"
 				  "it doesn't look like a Skylake/Sunrise Point compatible descriptor.\n"
 				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashrom-stable@flashrom.org\n\n");
+				  "your descriptor and the output of `lspci -nn` to flashprog@flashprog.org\n\n");
 		}
 	}
 	return guess;
@@ -1339,7 +1339,7 @@ int read_ich_descriptors_via_fdo(enum ich_chipset cs, void *spibar, struct ich_d
  *	   2 when out of memory.
  */
 int layout_from_ich_descriptors(
-		struct flashrom_layout **const layout,
+		struct flashprog_layout **const layout,
 		const void *const dump, const size_t len)
 {
 	static const char *const regions[] = {
@@ -1352,7 +1352,7 @@ int layout_from_ich_descriptors(
 	if (read_ich_descriptors_from_dump(dump, len, &cs, &desc))
 		return 1;
 
-	if (flashrom_layout_new(layout))
+	if (flashprog_layout_new(layout))
 		return 2;
 
 	ssize_t i;
@@ -1362,8 +1362,8 @@ int layout_from_ich_descriptors(
 		const chipoff_t limit = ICH_FREG_LIMIT(desc.region.FLREGs[i]);
 		if (limit <= base)
 			continue;
-		if (flashrom_layout_add_region(*layout, base, limit, regions[i])) {
-			flashrom_layout_release(*layout);
+		if (flashprog_layout_add_region(*layout, base, limit, regions[i])) {
+			flashprog_layout_release(*layout);
 			*layout = NULL;
 			return 2;
 		}

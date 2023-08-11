@@ -26,10 +26,10 @@
  * List of supported flash chips.
  *
  * Temporarily, this file is sorted alphabetically by vendor and name to
- * assist with merging the Chromium fork of flashrom.
+ * assist with merging the Chromium fork of flashprog.
  *
  * The usual intention is that that this list is sorted by vendor, then chip
- * family and chip density, which is useful for the output of 'flashrom -L'.
+ * family and chip density, which is useful for the output of 'flashprog -L'.
  */
 const struct flashchip flashchips[] = {
 
@@ -1103,7 +1103,7 @@ const struct flashchip flashchips[] = {
 	/* The A25L40P{T,U} chips are distinguished by their
 	 * erase block layouts, but without any distinction in RDID.
 	 * This inexplicable quirk was verified by Rudolf Marek
-	 * and discussed on the flashrom mailing list on 2010-07-12.
+	 * and discussed on the flashprog mailing list on 2010-07-12.
 	 */
 	{
 		.vendor		= "AMIC",

@@ -1905,9 +1905,9 @@ int ich_init_spi(void *spibar, enum ich_chipset ich_gen)
 			for (i = 0; i < num_freg; i++)
 				ich_spi_rw_restricted |= ich9_handle_frap(tmp, i);
 			if (ich_spi_rw_restricted)
-				msg_pinfo("Not all flash regions are freely accessible by flashrom. This is "
+				msg_pinfo("Not all flash regions are freely accessible by flashprog. This is "
 					  "most likely\ndue to an active ME. Please see "
-					  "https://flashrom.org/ME for details.\n");
+					  "https://flashprog.org/ME for details.\n");
 		}
 
 		/* Handle PR registers */
@@ -1975,17 +1975,17 @@ int ich_init_spi(void *spibar, enum ich_chipset ich_gen)
 				tmp = mmio_readl(ich_spibar + ICH8_REG_VSCC);
 				msg_pdbg("0x%x: 0x%08x (VSCC)\n", ICH8_REG_VSCC, tmp);
 				msg_pdbg("VSCC: ");
-				prettyprint_ich_reg_vscc(tmp, FLASHROM_MSG_DEBUG, true);
+				prettyprint_ich_reg_vscc(tmp, FLASHPROG_MSG_DEBUG, true);
 			} else {
 				tmp = mmio_readl(ich_spibar + ICH9_REG_LVSCC);
 				msg_pdbg("0x%x: 0x%08x (LVSCC)\n", ICH9_REG_LVSCC, tmp);
 				msg_pdbg("LVSCC: ");
-				prettyprint_ich_reg_vscc(tmp, FLASHROM_MSG_DEBUG, true);
+				prettyprint_ich_reg_vscc(tmp, FLASHPROG_MSG_DEBUG, true);
 
 				tmp = mmio_readl(ich_spibar + ICH9_REG_UVSCC);
 				msg_pdbg("0x%x: 0x%08x (UVSCC)\n", ICH9_REG_UVSCC, tmp);
 				msg_pdbg("UVSCC: ");
-				prettyprint_ich_reg_vscc(tmp, FLASHROM_MSG_DEBUG, false);
+				prettyprint_ich_reg_vscc(tmp, FLASHPROG_MSG_DEBUG, false);
 			}
 
 			switch (ich_gen) {

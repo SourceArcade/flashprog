@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /home/mani/flashrom/
+cd /home/mani/flashprog/
 
 if [ $# -eq 0 ]; then
 	exec "${DEVSHELL}"

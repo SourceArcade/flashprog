@@ -136,7 +136,7 @@ enum dediprog_standalone_mode {
 };
 
 /*
- * These are not official designations; they are for use in flashrom only.
+ * These are not official designations; they are for use in flashprog only.
  * Order must be preserved so that comparison operators work.
  */
 enum protocol {
@@ -374,7 +374,7 @@ static int prepare_rw_cmd(
 
 	if (count >= 1 << 16) {
 		msg_perr("%s: Unsupported transfer length of %u blocks!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, count);
 		return 1;
 	}
@@ -458,7 +458,7 @@ static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned
 
 	if ((start % chunksize) || (len % chunksize)) {
 		msg_perr("%s: Unaligned start=%i, len=%i!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, start, len);
 		return 1;
 	}
@@ -608,14 +608,14 @@ static int dediprog_spi_bulk_write(struct flashctx *flash, const uint8_t *buf, u
 	 */
 	if (chunksize != 256) {
 		msg_perr("%s: Chunk sizes other than 256 bytes are unsupported, chunksize=%u!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, chunksize);
 		return 1;
 	}
 
 	if ((start % chunksize) || (len % chunksize)) {
 		msg_perr("%s: Unaligned start=%i, len=%i!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, start, len);
 		return 1;
 	}
@@ -1231,7 +1231,7 @@ static int dediprog_init(void)
 			 * libusb_set_configuration() and
 			 * libusb_claim_interface(). When searching by id and
 			 * either configuration or claim fails (usually the
-			 * device is in use by another instance of flashrom),
+			 * device is in use by another instance of flashprog),
 			 * the device is skipped and the next device is tried.
 			 */
 			found_id = dediprog_read_id(dp_data->handle);

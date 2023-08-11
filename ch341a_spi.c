@@ -388,7 +388,7 @@ static int ch341a_spi_shutdown(void *data);
 
 static const struct spi_master spi_master_ch341a_spi = {
 	.features	= SPI_MASTER_4BA,
-	/* flashrom's current maximum is 256 B. CH341A was tested on Linux and Windows to accept at least
+	/* flashprog's current maximum is 256 B. CH341A was tested on Linux and Windows to accept at least
 	 * 128 kB. Basically there should be no hard limit because transfers are broken up into USB packets
 	 * sent to the device and most of their payload streamed via SPI. */
 	.max_data_read	= 4 * 1024,
@@ -424,7 +424,7 @@ static int ch341a_spi_shutdown(void *data)
 static int ch341a_spi_init(void)
 {
 	if (handle != NULL) {
-		msg_cerr("%s: handle already set! Please report a bug at flashrom-stable@flashrom.org\n",
+		msg_cerr("%s: handle already set! Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
 		return -1;
 	}

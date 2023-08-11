@@ -324,7 +324,7 @@ int fmap_read_from_rom(struct fmap **fmap_out,
 	 * speed benefit of using bsearch at which point we need to use brute-
 	 * force instead.
 	 *
-	 * TODO: Since flashrom is often used with high-latency external
+	 * TODO: Since flashprog is often used with high-latency external
 	 * programmers we should not be overly aggressive with bsearch.
 	 */
 	ret = fmap_bsearch_rom(fmap_out, flashctx, rom_offset, len, 256);

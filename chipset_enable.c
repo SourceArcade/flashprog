@@ -282,7 +282,7 @@ static int enable_flash_ich_bios_cntl_common(enum ich_chipset ich_generation, vo
 	 * what other SPI-capable chipsets have at DCh. Others like Bay Trail use a memmapped register.
 	 * The Tunnel Creek datasheet contains a lot of details about the SPI controller, among other things it
 	 * mentions that the prefetching and caching does only happen for direct memory reads.
-	 * Therefore - at least for Tunnel Creek - it should not matter to flashrom because we use the
+	 * Therefore - at least for Tunnel Creek - it should not matter to flashprog because we use the
 	 * programmed access only and not memory mapping. */
 	case CHIPSET_TUNNEL_CREEK:
 	case CHIPSET_POULSBO:
@@ -1187,7 +1187,7 @@ static int enable_flash_cs5530(struct pci_dev *dev, const char *name)
 	internal_buses_supported &= BUS_PARALLEL;
 	/* Decode 0x000E0000-0x000FFFFF (128 kB), not just 64 kB, and
 	 * decode 0xFF000000-0xFFFFFFFF (16 MB), not just 256 kB.
-	 * FIXME: Should we really touch the low mapping below 1 MB? Flashrom
+	 * FIXME: Should we really touch the low mapping below 1 MB? Flashprog
 	 * ignores that region completely.
 	 * Make the configured ROM areas writable.
 	 */
@@ -1685,8 +1685,8 @@ static int enable_flash_mcp6x_7x(struct pci_dev *dev, const char *name)
 		/* Should not happen. */
 		internal_buses_supported = BUS_NONE;
 		msg_pwarn("Flash bus type is unknown (none)\n");
-		msg_pinfo("Please send the log files created by \"flashrom -p internal -o logfile\" to\n"
-			  "flashrom-stable@flashrom.org with \"your board name: flashrom -V\" as the subject\n"
+		msg_pinfo("Please send the log files created by \"flashprog -p internal -o logfile\" to\n"
+			  "flashprog@flashprog.org with \"your board name: flashprog -V\" as the subject\n"
 			  "to help us finish support for your chipset. Thanks.\n");
 		return ERROR_NONFATAL;
 	}
@@ -1855,7 +1855,7 @@ const struct penable chipset_enables[] = {
 	/* 10de:0361 is present in Tyan S2915 OEM systems, but not connected to
 	 * the flash chip. Instead, 10de:0364 is connected to the flash chip.
 	 * Until we have PCI device class matching or some fallback mechanism,
-	 * this is needed to get flashrom working on Tyan S2915 and maybe other
+	 * this is needed to get flashprog working on Tyan S2915 and maybe other
 	 * dual-MCP55 boards.
 	 */
 #if 0
@@ -2242,7 +2242,7 @@ int chipset_flash_enable(void)
 			msg_pwarn("Warning: unexpected second chipset match: "
 				    "\"%s %s\"\n"
 				  "ignoring, please report lspci and board URL "
-				    "to flashrom-stable@flashrom.org\n"
+				    "to flashprog@flashprog.org\n"
 				  "with \'CHIPSET: your board name\' in the "
 				    "subject line.\n",
 				chipset_enables[i].vendor_name,
@@ -2264,10 +2264,10 @@ int chipset_flash_enable(void)
 		if (chipset_enables[i].status == NT) {
 			msg_pinfo("This chipset is marked as untested. If "
 				  "you are using an up-to-date version\nof "
-				  "flashrom *and* were (not) able to "
+				  "flashprog *and* were (not) able to "
 				  "successfully update your firmware with it,\n"
 				  "then please email a report to "
-				  "flashrom-stable@flashrom.org including a\n"
+				  "flashprog@flashprog.org including a\n"
 				  "verbose (-V) log.\nThank you!\n");
 		}
 		if (!(chipset_enables[i].buses & (internal_buses_supported | BUS_SPI))) {

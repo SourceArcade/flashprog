@@ -121,13 +121,13 @@ uintptr_t pcidev_readbar(struct pci_dev *dev, int bar)
 		break;
 	case TYPE_IOBAR:
 		msg_pdbg("I/O\n");
-#if __FLASHROM_HAVE_OUTB__
+#if __FLASHPROG_HAVE_OUTB__
 		if (!(supported_cycles & PCI_COMMAND_IO)) {
 			msg_perr("I/O BAR access requested, but device has I/O space accesses disabled.\n");
 			/* TODO: Abort here? */
 		}
 #else
-		msg_perr("I/O BAR access requested, but flashrom does not support I/O BAR access on this "
+		msg_perr("I/O BAR access requested, but flashprog does not support I/O BAR access on this "
 			 "platform (yet).\n");
 #endif
 		addr &= PCI_BASE_ADDRESS_IO_MASK;
@@ -142,7 +142,7 @@ uintptr_t pcidev_readbar(struct pci_dev *dev, int bar)
 		addr &= PCI_ROM_ADDRESS_MASK;
 		break;
 	case TYPE_UNKNOWN:
-		msg_perr("BAR type unknown, please report a bug at flashrom-stable@flashrom.org\n");
+		msg_perr("BAR type unknown, please report a bug at flashprog@flashprog.org\n");
 	}
 
 	return (uintptr_t)addr;
@@ -213,7 +213,7 @@ static int pcidev_shutdown(void *data)
 {
 	if (pacc == NULL) {
 		msg_perr("%s: Tried to cleanup an invalid PCI context!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
 		return 1;
 	}
@@ -226,7 +226,7 @@ int pci_init_common(void)
 {
 	if (pacc != NULL) {
 		msg_perr("%s: Tried to allocate a new PCI context, but there is still an old one!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n", __func__);
+			 "Please report a bug at flashprog@flashprog.org\n", __func__);
 		return 1;
 	}
 	pacc = pci_alloc();     /* Get the pci_access structure */
@@ -282,9 +282,9 @@ struct pci_dev *pcidev_init(const struct dev_entry *devs, int bar)
 				 devs[i].device_name, dev->vendor_id, dev->device_id, dev->bus, dev->dev,
 				 dev->func);
 			if (devs[i].status == NT)
-				msg_pinfo("===\nThis PCI device is UNTESTED. Please report the 'flashrom -p "
+				msg_pinfo("===\nThis PCI device is UNTESTED. Please report the 'flashprog -p "
 					  "xxxx' output\n"
-					  "to flashrom-stable@flashrom.org if it works for you. Please add "
+					  "to flashprog@flashprog.org if it works for you. Please add "
 					  "the name of your\n"
 					  "PCI device to the subject. Thank you for your help!\n===\n");
 
@@ -303,7 +303,7 @@ struct pci_dev *pcidev_init(const struct dev_entry *devs, int bar)
 		msg_perr("Error: No supported PCI device found.\n");
 		return NULL;
 	} else if (found > 1) {
-		msg_perr("Error: Multiple supported PCI devices found. Use 'flashrom -p xxxx:pci=bb:dd.f'\n"
+		msg_perr("Error: Multiple supported PCI devices found. Use 'flashprog -p xxxx:pci=bb:dd.f'\n"
 			 "to explicitly select the card with the given BDF (PCI bus, device, function).\n");
 		return NULL;
 	}
@@ -333,7 +333,7 @@ static int undo_pci_write(void *p)
 	struct undo_pci_write_data *data = p;
 	if (pacc == NULL || data->dev == NULL) {
 		msg_perr("%s: Tried to undo PCI writes without a valid PCI %s!\n"
-			"Please report a bug at flashrom-stable@flashrom.org\n",
+			"Please report a bug at flashprog@flashprog.org\n",
 			__func__, data->dev == NULL ? "device" : "context");
 		return 1;
 	}

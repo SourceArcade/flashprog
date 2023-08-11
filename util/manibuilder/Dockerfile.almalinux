@@ -19,10 +19,10 @@ RUN mkdir -p -m 1777 /ccache
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
-ARG ORIGIN=https://review.coreboot.org/flashrom-stable.git
+ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 RUN \
 	cd && \
-	git clone ${ORIGIN} flashrom
+	git clone ${ORIGIN} flashprog
 
 ENV DEVSHELL /bin/bash
 COPY mani-wrapper.sh /home/mani/

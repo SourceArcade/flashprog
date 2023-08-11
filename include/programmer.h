@@ -277,7 +277,7 @@ extern enum chipbustype internal_buses_supported;
 int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *spi_data);
 
 
-/* flashrom.c */
+/* flashprog.c */
 struct decode_sizes {
 	uint32_t parallel;
 	uint32_t lpc;

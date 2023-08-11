@@ -215,7 +215,7 @@ int probe_spi_at45db(struct flashctx *flash)
 	return 1;
 }
 
-/* In case of non-power-of-two page sizes we need to convert the address flashrom uses to the address the
+/* In case of non-power-of-two page sizes we need to convert the address flashprog uses to the address the
  * DataFlash chips use. The latter uses a segmented address space where the page address is encoded in the
  * more significant bits and the offset within the page is encoded in the less significant bits. The exact
  * partition depends on the page size.

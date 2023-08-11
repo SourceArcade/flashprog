@@ -101,7 +101,7 @@ static int ogp_spi_init(void)
 	type = extract_programmer_param("rom");
 
 	if (!type) {
-		msg_perr("Please use flashrom -p ogp_spi:rom=... to specify "
+		msg_perr("Please use flashprog -p ogp_spi:rom=... to specify "
 			 "which flashchip you want to access.\n");
 		return 1;
 	} else if (!strcasecmp(type, "bprom") || !strcasecmp(type, "bios")) {

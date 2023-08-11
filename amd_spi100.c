@@ -140,7 +140,7 @@ static int spi100_send_command(const struct flashctx *const flash,
 static int spi100_read(struct flashctx *const flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	const struct spi100 *const spi100 = flash->mst->spi.data;
-	const chipsize_t chip_size = flashrom_flash_getsize(flash);
+	const chipsize_t chip_size = flashprog_flash_getsize(flash);
 
 	/* Don't consider memory mapping at all
 	   if 4BA chips are not mapped as expected. */

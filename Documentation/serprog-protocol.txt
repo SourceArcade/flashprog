@@ -16,7 +16,7 @@ COMMAND	Description			Parameters			Return Value
 0x02	Query supported commands bitmap	none				ACK + 32 bytes (256 bits) of supported cmds flags
 0x03	Query programmer name		none				ACK + 16 bytes string (null padding) / NAK
 0x04	Query serial buffer size	none				ACK + 16bit size / NAK
-0x05	Query supported bustypes	none				ACK + 8-bit flags (as per flashrom) / NAK
+0x05	Query supported bustypes	none				ACK + 8-bit flags / NAK
 0x06	Query connected address lines	none				ACK + 8bit line count / NAK
 0x07	Query operation buffer size	none				ACK + 16bit size / NAK
 0x08	Query maximum write-n length	none				ACK + 24bit length (0==2^24) / NAK
@@ -92,7 +92,7 @@ Additional information of the above commands:
 	About mandatory commands:
 		The only truly mandatory commands for any device are 0x00, 0x01, 0x02 and 0x10,
 		but one can't really do anything with these commands.
-		Support for the following commands is necessary for flashrom to operate properly:
+		Support for the following commands is necessary for flashprog to operate properly:
 		S_CMD_Q_SERBUF, S_CMD_Q_OPBUF, S_CMD_Q_WRNMAXLEN, S_CMD_R_BYTE,
 		S_CMD_R_NBYTES, S_CMD_O_INIT, S_CMD_O_WRITEB, S_CMD_O_WRITEN,
 		S_CMD_O_DELAY, S_CMD_O_EXEC.

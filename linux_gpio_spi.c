@@ -23,7 +23,7 @@
 #include "spi.h"
 #include "flash.h"
 
-#define CONSUMER "flashrom"
+#define CONSUMER "flashprog"
 
 struct linux_gpio_spi {
 	struct gpiod_chip *chip;

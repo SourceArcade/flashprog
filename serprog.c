@@ -395,7 +395,7 @@ static int serprog_init(void)
 #if !IS_WINDOWS
 	if (device && !strlen(device)) {
 		msg_perr("Error: No device specified.\n"
-			 "Use flashrom -p serprog:dev=/dev/device[:baud]\n");
+			 "Use flashprog -p serprog:dev=/dev/device[:baud]\n");
 		free(device);
 		return 1;
 	}
@@ -417,7 +417,7 @@ static int serprog_init(void)
 		}
 		if (!port || !strlen(port)) {
 			msg_perr("Error: No port specified.\n"
-				 "Use flashrom -p serprog:ip=ipaddr:port\n");
+				 "Use flashprog -p serprog:ip=ipaddr:port\n");
 			free(device);
 			return 1;
 		}
@@ -432,7 +432,7 @@ static int serprog_init(void)
 	}
 	if (device && !strlen(device)) {
 		msg_perr("Error: No host specified.\n"
-			 "Use flashrom -p serprog:ip=ipaddr:port\n");
+			 "Use flashprog -p serprog:ip=ipaddr:port\n");
 		free(device);
 		return 1;
 	}
@@ -442,11 +442,11 @@ static int serprog_init(void)
 	if (!have_device) {
 #if IS_WINDOWS
 		msg_perr("Error: No device specified.\n"
-			 "Use flashrom -p serprog:dev=comN[:baud]\n");
+			 "Use flashprog -p serprog:dev=comN[:baud]\n");
 #else
 		msg_perr("Error: Neither host nor device specified.\n"
-			 "Use flashrom -p serprog:dev=/dev/device:baud or "
-			 "flashrom -p serprog:ip=ipaddr:port\n");
+			 "Use flashprog -p serprog:dev=/dev/device:baud or "
+			 "flashprog -p serprog:ip=ipaddr:port\n");
 #endif
 		return 1;
 	}
@@ -480,7 +480,7 @@ static int serprog_init(void)
 	sp_check_avail_automatic = 1;
 
 	/* FIXME: This assumes that serprog device bustypes are always
-	 * identical with flashrom bustype enums and that they all fit
+	 * identical with flashprog bustype enums and that they all fit
 	 * in a single byte.
 	 */
 	if (sp_docommand(S_CMD_Q_BUSTYPE, 0, NULL, 1, &c)) {
@@ -712,7 +712,7 @@ init_err_cleanup_exit:
 	return 1;
 }
 
-/* Move an in flashrom buffer existing write-n operation to the on-device operation buffer. */
+/* Move an in flashprog buffer existing write-n operation to the on-device operation buffer. */
 static int sp_pass_writen(void)
 {
 	unsigned char header[7];
@@ -965,7 +965,7 @@ static void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len)
 	/* Serprog transmits 24 bits only and assumes the underlying implementation handles any remaining bits
 	 * correctly (usually setting them to one either in software (for FWH/LPC) or relying on the fact that
 	 * the hardware observes a subset of the address bits only). Combined with the standard mapping of
-	 * flashrom this creates a 16 MB-wide window just below the 4 GB boundary where serprog can operate (as
+	 * flashprog this creates a 16 MB-wide window just below the 4 GB boundary where serprog can operate (as
 	 * needed for non-SPI chips). Below we make sure that the requested range is within this window. */
 	if ((phys_addr & 0xFF000000) == 0xFF000000) {
 		return (void*)phys_addr;

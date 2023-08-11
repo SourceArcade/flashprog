@@ -15,7 +15,7 @@ For each supported target OS/version/architecture exists a *tag*
 target, for instance `alpine:amd64-v3.7`. These targets will
 automatically check for existence of their respective *Docker*
 images (sub target <tag>-check-build), and build them if necessary
-(<tag>-build). Finally, flashrom revision `$(TEST_REVISION)` is
+(<tag>-build). Finally, flashprog revision `$(TEST_REVISION)` is
 fetched and build tested.
 
 The results will be kept by *Docker* as stopped containers and
@@ -62,12 +62,12 @@ investigated individually with the <tag>-shell target, e.g.:
 
     $ make debian-debootstrap:mips-sid-shell
     [...]
-    mani@63536fc102a5:~/flashrom$ make
+    mani@63536fc102a5:~/flashprog$ make
     [...]
-    cc -MMD -Os -Wall -Wshadow -Werror -I/usr/include/libusb-1.0  -D'CONFIG_DEFAULT_PROGRAMMER=PROGRAMMER_INVALID' -D'CONFIG_DEFAULT_PROGRAMMER_ARGS="''"' -D'CONFIG_SERPROG=1' -D'CONFIG_PONY_SPI=1' -D'CONFIG_BITBANG_SPI=1' -D'CONFIG_GFXNVIDIA=1' -D'CONFIG_SATASII=1' -D'CONFIG_ATAVIA=1' -D'CONFIG_IT8212=1' -D'CONFIG_FT2232_SPI=1' -D'CONFIG_USBBLASTER_SPI=1' -D'CONFIG_PICKIT2_SPI=1' -D'HAVE_FT232H=1'  -D'CONFIG_DUMMY=1' -D'CONFIG_DRKAISER=1' -D'CONFIG_NICINTEL=1' -D'CONFIG_NICINTEL_SPI=1' -D'CONFIG_NICINTEL_EEPROM=1' -D'CONFIG_OGP_SPI=1' -D'CONFIG_BUSPIRATE_SPI=1' -D'CONFIG_DEDIPROG=1' -D'CONFIG_DEVELOPERBOX_SPI=1' -D'CONFIG_LINUX_MTD=1' -D'CONFIG_LINUX_SPI=1' -D'CONFIG_CH341A_SPI=1' -D'CONFIG_DIGILENT_SPI=1' -D'NEED_PCI=1'  -D'NEED_RAW_ACCESS=1' -D'NEED_LIBUSB0=1' -D'NEED_LIBUSB1=1' -D'HAVE_UTSNAME=1' -D'HAVE_CLOCK_GETTIME=1' -D'FLASHROM_VERSION="p1.0-141-g9cecc7e"' -o libflashrom.o -c libflashrom.c
-    libflashrom.c:386:12: error: 'flashrom_layout_parse_fmap' defined but not used [-Werror=unused-function]
-     static int flashrom_layout_parse_fmap(struct flashrom_layout **layout,
+    cc -MMD -Os -Wall -Wshadow -Werror -I/usr/include/libusb-1.0  -D'CONFIG_DEFAULT_PROGRAMMER=PROGRAMMER_INVALID' -D'CONFIG_DEFAULT_PROGRAMMER_ARGS="''"' -D'CONFIG_SERPROG=1' -D'CONFIG_PONY_SPI=1' -D'CONFIG_BITBANG_SPI=1' -D'CONFIG_GFXNVIDIA=1' -D'CONFIG_SATASII=1' -D'CONFIG_ATAVIA=1' -D'CONFIG_IT8212=1' -D'CONFIG_FT2232_SPI=1' -D'CONFIG_USBBLASTER_SPI=1' -D'CONFIG_PICKIT2_SPI=1' -D'HAVE_FT232H=1'  -D'CONFIG_DUMMY=1' -D'CONFIG_DRKAISER=1' -D'CONFIG_NICINTEL=1' -D'CONFIG_NICINTEL_SPI=1' -D'CONFIG_NICINTEL_EEPROM=1' -D'CONFIG_OGP_SPI=1' -D'CONFIG_BUSPIRATE_SPI=1' -D'CONFIG_DEDIPROG=1' -D'CONFIG_DEVELOPERBOX_SPI=1' -D'CONFIG_LINUX_MTD=1' -D'CONFIG_LINUX_SPI=1' -D'CONFIG_CH341A_SPI=1' -D'CONFIG_DIGILENT_SPI=1' -D'NEED_PCI=1'  -D'NEED_RAW_ACCESS=1' -D'NEED_LIBUSB0=1' -D'NEED_LIBUSB1=1' -D'HAVE_UTSNAME=1' -D'HAVE_CLOCK_GETTIME=1' -D'FLASHPROG_VERSION="p1.0-141-g9cecc7e"' -o libflashprog.o -c libflashprog.c
+    libflashprog.c:386:12: error: 'flashprog_layout_parse_fmap' defined but not used [-Werror=unused-function]
+     static int flashprog_layout_parse_fmap(struct flashprog_layout **layout,
             ^~~~~~~~~~~~~~~~~~~~~~~~~~
     cc1: all warnings being treated as errors
-    make: *** [Makefile:1075: libflashrom.o] Error 1
+    make: *** [Makefile:1075: libflashprog.o] Error 1
     $ # uh-huh, might be a problem with big-endian #if foo

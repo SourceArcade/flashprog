@@ -649,7 +649,7 @@ static int changelock_regspace2_block(const struct flashctx *flash, chipaddr loc
 	/* Only allow changes to known read/write/lockdown bits */
 	if (((cur ^ new) & ~REG2_MASK) != 0) {
 		msg_cerr("Invalid lock change from 0x%02x to 0x%02x requested at 0x%0*" PRIxPTR "!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n",
+			 "Please report a bug at flashprog@flashprog.org\n",
 			 cur, new, PRIxPTR_WIDTH, lockreg);
 		return -1;
 	}

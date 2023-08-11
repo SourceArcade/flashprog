@@ -2,5 +2,5 @@ FROM alpine/git
 
 RUN	apk add git-daemon
 EXPOSE	9418
-VOLUME	["/git/flashrom.git"]
-CMD	["daemon", "--reuseaddr", "--export-all", "--base-path=/git", "/git/flashrom.git"]
+VOLUME	["/git/flashprog.git"]
+CMD	["daemon", "--reuseaddr", "--export-all", "--base-path=/git", "/git/flashprog.git"]

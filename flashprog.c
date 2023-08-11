@@ -34,7 +34,7 @@
 #include "hwaccess_physmap.h"
 #include "chipdrivers.h"
 
-const char flashrom_version[] = FLASHROM_VERSION;
+const char flashprog_version[] = FLASHPROG_VERSION;
 const char *chip_to_probe = NULL;
 
 static const struct programmer_entry *programmer = NULL;
@@ -261,7 +261,7 @@ static char *extract_param(char *const *haystack, const char *needle, const char
 	needlelen = strlen(needle);
 	if (!needlelen) {
 		msg_gerr("%s: empty needle! Please report a bug at "
-			 "flashrom-stable@flashrom.org\n", __func__);
+			 "flashprog@flashprog.org\n", __func__);
 		return NULL;
 	}
 	/* No programmer parameters given. */
@@ -478,7 +478,7 @@ static int need_erase(const uint8_t *have, const uint8_t *want, unsigned int len
 			return need_erase_gran_bytes(have, want, len, stride, erased_value);
 		}
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
-			 "flashrom-stable@flashrom.org\n", __func__);
+			 "flashprog@flashprog.org\n", __func__);
 		return 0;
 	}
 }
@@ -516,7 +516,7 @@ static unsigned int get_next_write(const uint8_t *have, const uint8_t *want, chi
 	const size_t stride = gran_to_bytes(gran);
 	if (!stride) {
 		msg_cerr("%s: Unsupported granularity! Please report a bug at "
-			 "flashrom-stable@flashrom.org\n", __func__);
+			 "flashprog@flashprog.org\n", __func__);
 		/* Claim that no write was needed. A write with unknown
 		 * granularity is too dangerous to try.
 		 */
@@ -637,10 +637,10 @@ char *flashbuses_to_text(enum chipbustype bustype)
 static int init_default_layout(struct flashctx *flash)
 {
 	/* Fill default layout covering the whole chip. */
-	if (flashrom_layout_new(&flash->default_layout) ||
-	    flashrom_layout_add_region(flash->default_layout,
+	if (flashprog_layout_new(&flash->default_layout) ||
+	    flashprog_layout_add_region(flash->default_layout,
 			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
-	    flashrom_layout_include_region(flash->default_layout, "complete flash"))
+	    flashprog_layout_include_region(flash->default_layout, "complete flash"))
 	        return -1;
 	return 0;
 }
@@ -662,7 +662,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 			continue;
 		msg_gdbg("Probing for %s %s, %d kB: ", chip->vendor, chip->name, chip->total_size);
 		if (!chip->probe && !force) {
-			msg_gdbg("failed! flashrom has no probe function for this flash chip.\n");
+			msg_gdbg("failed! flashprog has no probe function for this flash chip.\n");
 			continue;
 		}
 
@@ -697,7 +697,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (startchip == 0 && flash->chip->model_id == SFDP_DEVICE_ID) {
 			msg_cinfo("===\n"
 				  "SFDP has autodetected a flash chip which is "
-				  "not natively supported by flashrom yet.\n");
+				  "not natively supported by flashprog yet.\n");
 			if (count_usable_erasers(flash) == 0)
 				msg_cinfo("The standard operations read and "
 					  "verify should work, but to support "
@@ -711,8 +711,8 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 
 			msg_cinfo(" we need to add them manually.\n"
 				  "You can help us by mailing us the output of the following command to "
-				  "flashrom-stable@flashrom.org:\n"
-				  "'flashrom -VV [plus the -p/--programmer parameter]'\n"
+				  "flashprog@flashprog.org:\n"
+				  "'flashprog -VV [plus the -p/--programmer parameter]'\n"
 				  "Thanks for your help!\n"
 				  "===\n");
 		}
@@ -778,7 +778,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			if (eraser.eraseblocks[i].count &&
 			    !eraser.eraseblocks[i].size) {
 				msg_gerr("ERROR: Flash chip %s erase function %i region %i has size 0.\n"
-					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 "Please report a bug at flashprog@flashprog.org\n",
 					 chip->name, k, i);
 				ret = 1;
 			}
@@ -786,7 +786,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			if (!eraser.eraseblocks[i].count &&
 			    eraser.eraseblocks[i].size) {
 				msg_gerr("ERROR: Flash chip %s erase function %i region %i has count 0.\n"
-					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 "Please report a bug at flashprog@flashprog.org\n",
 					 chip->name, k, i);
 				ret = 1;
 			}
@@ -804,7 +804,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			msg_gerr("ERROR: Flash chip %s erase function %i "
 				"region walking resulted in 0x%06x bytes total,"
 				" expected 0x%06x bytes.\n"
-				"Please report a bug at flashrom-stable@flashrom.org\n",
+				"Please report a bug at flashprog@flashprog.org\n",
 				chip->name, k, done, chip->total_size * 1024);
 			ret = 1;
 		}
@@ -818,7 +818,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			if (eraser.block_erase ==
 			    chip->block_erasers[j].block_erase) {
 				msg_gerr("ERROR: Flash chip %s erase function %i and %i are identical.\n"
-					 "Please report a bug at flashrom-stable@flashrom.org\n",
+					 "Please report a bug at flashprog@flashprog.org\n",
 					 chip->name, k, j);
 				ret = 1;
 			}
@@ -826,7 +826,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 		if(curr_eraseblock_count > prev_eraseblock_count)
 		{
 			msg_gerr("ERROR: Flash chip %s erase function %i is not in order.\n"
-				 "Please report a bug at flashrom-stable@flashrom.org\n",
+				 "Please report a bug at flashprog@flashprog.org\n",
 				 chip->name, k);
 			ret = 1;
 		}
@@ -886,7 +886,7 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
  */
 static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer)
 {
-	const struct flashrom_layout *const layout = get_layout(flashctx);
+	const struct flashprog_layout *const layout = get_layout(flashctx);
 	const struct romentry *entry = NULL;
 
 	while ((entry = layout_next_included(layout, entry))) {
@@ -1194,7 +1194,7 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 			  const per_blockfn_t per_blockfn)
 {
 	const bool do_erase = explicit_erase(info) || !(flashctx->chip->feature_bits & FEATURE_NO_ERASE);
-	const struct flashrom_layout *const layout = get_layout(flashctx);
+	const struct flashprog_layout *const layout = get_layout(flashctx);
 	struct erase_layout *erase_layouts = NULL;
 	const struct romentry *entry = NULL;
 	int ret = 0, layout_count = 0;
@@ -1374,7 +1374,7 @@ static int write_by_layout(struct flashctx *const flashctx,
  */
 static int verify_by_layout(
 		struct flashctx *const flashctx,
-		const struct flashrom_layout *const layout,
+		const struct flashprog_layout *const layout,
 		void *const curcontents, const uint8_t *const newcontents)
 {
 	const struct romentry *entry = NULL;
@@ -1398,16 +1398,16 @@ static void nonfatal_help_message(void)
 #if CONFIG_INTERNAL == 1
 	if (programmer == &programmer_internal)
 		msg_gerr("This means we have to add special support for your board, programmer or flash\n"
-			 "chip. Please report this to the mailing list at flashrom-stable@flashrom.org or\n"
-			 "on IRC (see https://www.flashrom.org/Contact for details), thanks!\n"
+			 "chip. Please report this to the mailing list at flashprog@flashprog.org or\n"
+			 "on IRC (see https://www.flashprog.org/Contact for details), thanks!\n"
 			 "-------------------------------------------------------------------------------\n"
 			 "You may now reboot or simply leave the machine running.\n");
 	else
 #endif
 		msg_gerr("Please check the connections (especially those to write protection pins) between\n"
-			 "the programmer and the flash chip. If you think the error is caused by flashrom\n"
-			 "please report this to the mailing list at flashrom-stable@flashrom.org or on IRC\n"
-			 "(see https://www.flashrom.org/Contact for details), thanks!\n");
+			 "the programmer and the flash chip. If you think the error is caused by flashprog\n"
+			 "please report this to the mailing list at flashprog@flashprog.org or on IRC\n"
+			 "(see https://www.flashprog.org/Contact for details), thanks!\n");
 }
 
 void emergency_help_message(void)
@@ -1415,14 +1415,14 @@ void emergency_help_message(void)
 	msg_gerr("Your flash chip is in an unknown state.\n");
 #if CONFIG_INTERNAL == 1
 	if (programmer == &programmer_internal)
-		msg_gerr("Get help on IRC (see https://www.flashrom.org/Contact) or mail\n"
-			"flashrom-stable@flashrom.org with the subject \"FAILED: <your board name>\"!\n"
+		msg_gerr("Get help on IRC (see https://www.flashprog.org/Contact) or mail\n"
+			"flashprog@flashprog.org with the subject \"FAILED: <your board name>\"!\n"
 			"-------------------------------------------------------------------------------\n"
 			"DO NOT REBOOT OR POWEROFF!\n");
 	else
 #endif
-		msg_gerr("Please report this to the mailing list at flashrom-stable@flashrom.org\n"
-			 "or on IRC (see https://www.flashrom.org/Contact for details), thanks!\n");
+		msg_gerr("Please report this to the mailing list at flashprog@flashprog.org\n"
+			 "or on IRC (see https://www.flashprog.org/Contact for details), thanks!\n");
 }
 
 void list_programmers_linebreak(int startcol, int cols, int paren)
@@ -1521,7 +1521,7 @@ int selfcheck(void)
 			if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE) {
 				ret = 1;
 				msg_gerr("ERROR: Some field of flash chip #%d (%s) is misconfigured.\n"
-					 "Please report a bug at flashrom-stable@flashrom.org\n", i,
+					 "Please report a bug at flashprog@flashprog.org\n", i,
 					 chip->name == NULL ? "unnamed" : chip->name);
 			}
 			if (selfcheck_eraseblocks(chip)) {
@@ -1566,7 +1566,7 @@ static int chip_safety_check(const struct flashctx *flash, int force,
 			msg_cerr("Continuing anyway.\n");
 		}
 		if (!chip->read) {
-			msg_cerr("flashrom has no read function for this "
+			msg_cerr("flashprog has no read function for this "
 				 "flash chip.\n");
 			return 1;
 		}
@@ -1584,7 +1584,7 @@ static int chip_safety_check(const struct flashctx *flash, int force,
 			msg_cerr("Continuing anyway.\n");
 		}
 		if(count_usable_erasers(flash) == 0) {
-			msg_cerr("flashrom has no erase function for this "
+			msg_cerr("flashprog has no erase function for this "
 				 "flash chip.\n");
 			return 1;
 		}
@@ -1601,7 +1601,7 @@ static int chip_safety_check(const struct flashctx *flash, int force,
 			msg_cerr("Continuing anyway.\n");
 		}
 		if (!chip->write) {
-			msg_cerr("flashrom has no write function for this "
+			msg_cerr("flashprog has no write function for this "
 				 "flash chip.\n");
 			return 1;
 		}
@@ -1670,7 +1670,7 @@ void finalize_flash_access(struct flashctx *const flash)
 }
 
 /**
- * @addtogroup flashrom-flash
+ * @addtogroup flashprog-flash
  * @{
  */
 
@@ -1683,7 +1683,7 @@ void finalize_flash_access(struct flashctx *const flash)
  * @param flashctx The context of the flash chip to erase.
  * @return 0 on success.
  */
-int flashrom_flash_erase(struct flashctx *const flashctx)
+int flashprog_flash_erase(struct flashctx *const flashctx)
 {
 	if (prepare_flash_access(flashctx, false, false, true, false))
 		return 1;
@@ -1695,10 +1695,10 @@ int flashrom_flash_erase(struct flashctx *const flashctx)
 	return ret;
 }
 
-/** @} */ /* end flashrom-flash */
+/** @} */ /* end flashprog-flash */
 
 /**
- * @defgroup flashrom-ops Operations
+ * @defgroup flashprog-ops Operations
  * @{
  */
 
@@ -1715,7 +1715,7 @@ int flashrom_flash_erase(struct flashctx *const flashctx)
  *         2 if buffer_len is too short for the flash chip's contents,
  *         or 1 on any other failure.
  */
-int flashrom_image_read(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len)
+int flashprog_image_read(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len)
 {
 	const size_t flash_size = flashctx->chip->total_size * 1024;
 
@@ -1744,7 +1744,7 @@ _finalize_ret:
 static void combine_image_by_layout(const struct flashctx *const flashctx,
 				    uint8_t *const newcontents, const uint8_t *const oldcontents)
 {
-	const struct flashrom_layout *const layout = get_layout(flashctx);
+	const struct flashprog_layout *const layout = get_layout(flashctx);
 	const struct romentry *included;
 	chipoff_t start = 0;
 
@@ -1780,13 +1780,13 @@ static void combine_image_by_layout(const struct flashctx *const flashctx,
  *         2 if write failed and flash contents changed,
  *         or 1 on any other failure.
  */
-int flashrom_image_write(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len,
+int flashprog_image_write(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len,
                          const void *const refbuffer)
 {
 	const size_t flash_size = flashctx->chip->total_size * 1024;
 	const bool verify_all = flashctx->flags.verify_whole_chip;
 	const bool verify = flashctx->flags.verify_after_write;
-	const struct flashrom_layout *const verify_layout =
+	const struct flashprog_layout *const verify_layout =
 		verify_all ? get_default_layout(flashctx) : get_layout(flashctx);
 
 	if (buffer_len != flash_size)
@@ -1917,9 +1917,9 @@ _free_ret:
  *         2 if buffer_len doesn't match the size of the flash chip,
  *         or 1 on any other failure.
  */
-int flashrom_image_verify(struct flashctx *const flashctx, const void *const buffer, const size_t buffer_len)
+int flashprog_image_verify(struct flashctx *const flashctx, const void *const buffer, const size_t buffer_len)
 {
-	const struct flashrom_layout *const layout = get_layout(flashctx);
+	const struct flashprog_layout *const layout = get_layout(flashctx);
 	const size_t flash_size = flashctx->chip->total_size * 1024;
 
 	if (buffer_len != flash_size)
@@ -1948,4 +1948,4 @@ _free_ret:
 	return ret;
 }
 
-/** @} */ /* end flashrom-ops */
+/** @} */ /* end flashprog-ops */

@@ -105,8 +105,8 @@ int register_spi_bitbang_master(const struct bitbang_spi_master *master, void *s
 	    (master->request_bus && !master->release_bus) ||
 	    (!master->request_bus && master->release_bus)) {
 		msg_perr("Incomplete SPI bitbang master setting!\n"
-			 "Please report a bug at flashrom-stable@flashrom.org\n");
-		return ERROR_FLASHROM_BUG;
+			 "Please report a bug at flashprog@flashprog.org\n");
+		return ERROR_FLASHPROG_BUG;
 	}
 
 	struct bitbang_spi_master_data *data = calloc(1, sizeof(struct bitbang_spi_master_data));

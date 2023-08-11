@@ -24,7 +24,7 @@
 #include "programmer.h"
 #include "layout.h"
 
-struct flashrom_layout {
+struct flashprog_layout {
 	struct romentry *head;
 };
 
@@ -33,12 +33,12 @@ struct layout_include_args {
 	struct layout_include_args *next;
 };
 
-const struct flashrom_layout *get_default_layout(const struct flashrom_flashctx *const flashctx)
+const struct flashprog_layout *get_default_layout(const struct flashprog_flashctx *const flashctx)
 {
 	return flashctx->default_layout;
 }
 
-const struct flashrom_layout *get_layout(const struct flashrom_flashctx *const flashctx)
+const struct flashprog_layout *get_layout(const struct flashprog_flashctx *const flashctx)
 {
 	if (flashctx->layout)
 		return flashctx->layout;
@@ -47,19 +47,19 @@ const struct flashrom_layout *get_layout(const struct flashrom_flashctx *const f
 }
 
 static struct romentry *mutable_layout_next(
-		const struct flashrom_layout *const layout, struct romentry *iterator)
+		const struct flashprog_layout *const layout, struct romentry *iterator)
 {
 	return iterator ? iterator->next : layout->head;
 }
 
 #ifndef __LIBPAYLOAD__
-int layout_from_file(struct flashrom_layout **layout, const char *name)
+int layout_from_file(struct flashprog_layout **layout, const char *name)
 {
 	FILE *romlayout;
 	char tempstr[256], tempname[256];
 	int ret = 1;
 
-	if (flashrom_layout_new(layout))
+	if (flashprog_layout_new(layout))
 		return 1;
 
 	romlayout = fopen(name, "r");
@@ -87,7 +87,7 @@ int layout_from_file(struct flashrom_layout **layout, const char *name)
 			msg_gerr("Error parsing layout file. Offending string: \"%s\"\n", tempstr);
 			goto _close_ret;
 		}
-		if (flashrom_layout_add_region(*layout,
+		if (flashprog_layout_add_region(*layout,
 				strtol(tstr1, NULL, 16), strtol(tstr2, NULL, 16), tempname))
 			goto _close_ret;
 	}
@@ -131,13 +131,13 @@ int register_include_arg(struct layout_include_args **args, char *name)
 }
 
 /* returns -1 if an entry is not found, 0 if found. */
-static int find_romentry(struct flashrom_layout *const l, char *name)
+static int find_romentry(struct flashprog_layout *const l, char *name)
 {
 	if (!l->head)
 		return -1;
 
 	msg_gspew("Looking for region \"%s\"... ", name);
-	if (flashrom_layout_include_region(l, name)) {
+	if (flashprog_layout_include_region(l, name)) {
 		msg_gspew("not found.\n");
 		return -1;
 	}
@@ -148,7 +148,7 @@ static int find_romentry(struct flashrom_layout *const l, char *name)
 /* process -i arguments
  * returns 0 to indicate success, >0 to indicate failure
  */
-int process_include_args(struct flashrom_layout *l, const struct layout_include_args *const args)
+int process_include_args(struct flashprog_layout *l, const struct layout_include_args *const args)
 {
 	unsigned int found = 0;
 	const struct layout_include_args *tmp;
@@ -197,9 +197,9 @@ void cleanup_include_args(struct layout_include_args **args)
 	}
 }
 
-int layout_sanity_checks(const struct flashrom_flashctx *const flash, const bool write_it)
+int layout_sanity_checks(const struct flashprog_flashctx *const flash, const bool write_it)
 {
-	const struct flashrom_layout *const layout = get_layout(flash);
+	const struct flashprog_layout *const layout = get_layout(flash);
 	const chipsize_t total_size = flash->chip->total_size * 1024;
 	const size_t gran = gran_to_bytes(flash->chip->gran);
 	int ret = 0;
@@ -228,7 +228,7 @@ int layout_sanity_checks(const struct flashrom_flashctx *const flash, const bool
 }
 
 const struct romentry *layout_next_included_region(
-		const struct flashrom_layout *const l, const chipoff_t where)
+		const struct flashprog_layout *const l, const chipoff_t where)
 {
 	const struct romentry *entry = NULL, *lowest = NULL;
 
@@ -245,7 +245,7 @@ const struct romentry *layout_next_included_region(
 }
 
 const struct romentry *layout_next_included(
-		const struct flashrom_layout *const layout, const struct romentry *iterator)
+		const struct flashprog_layout *const layout, const struct romentry *iterator)
 {
 	while ((iterator = layout_next(layout, iterator))) {
 		if (iterator->included)
@@ -255,13 +255,13 @@ const struct romentry *layout_next_included(
 }
 
 const struct romentry *layout_next(
-		const struct flashrom_layout *const layout, const struct romentry *iterator)
+		const struct flashprog_layout *const layout, const struct romentry *iterator)
 {
 	return iterator ? iterator->next : layout->head;
 }
 
 /**
- * @addtogroup flashrom-layout
+ * @addtogroup flashprog-layout
  * @{
  */
 
@@ -273,7 +273,7 @@ const struct romentry *layout_next(
  * @return 0 on success,
  *         1 if out of memory.
  */
-int flashrom_layout_new(struct flashrom_layout **const layout)
+int flashprog_layout_new(struct flashprog_layout **const layout)
 {
 	*layout = malloc(sizeof(**layout));
 	if (!*layout) {
@@ -281,7 +281,7 @@ int flashrom_layout_new(struct flashrom_layout **const layout)
 		return 1;
 	}
 
-	const struct flashrom_layout tmp = { 0 };
+	const struct flashprog_layout tmp = { 0 };
 	**layout = tmp;
 	return 0;
 }
@@ -297,8 +297,8 @@ int flashrom_layout_new(struct flashrom_layout **const layout)
  * @return 0 on success,
  *         1 if out of memory.
  */
-int flashrom_layout_add_region(
-		struct flashrom_layout *const layout,
+int flashprog_layout_add_region(
+		struct flashprog_layout *const layout,
 		const size_t start, const size_t end, const char *const name)
 {
 	struct romentry *const entry = malloc(sizeof(*entry));
@@ -335,7 +335,7 @@ _err_ret:
  * @return 0 on success,
  *         1 if the given name can't be found.
  */
-int flashrom_layout_include_region(struct flashrom_layout *const layout, const char *name)
+int flashprog_layout_include_region(struct flashprog_layout *const layout, const char *name)
 {
 	struct romentry *entry = NULL;
 	while ((entry = mutable_layout_next(layout, entry))) {
@@ -352,7 +352,7 @@ int flashrom_layout_include_region(struct flashrom_layout *const layout, const c
  *
  * @param layout Layout to free.
  */
-void flashrom_layout_release(struct flashrom_layout *const layout)
+void flashprog_layout_release(struct flashprog_layout *const layout)
 {
 	if (!layout)
 		return;
@@ -366,4 +366,4 @@ void flashrom_layout_release(struct flashrom_layout *const layout)
 	free(layout);
 }
 
-/** @} */ /* end flashrom-layout */
+/** @} */ /* end flashprog-layout */

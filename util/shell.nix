@@ -1,7 +1,7 @@
 with import <nixpkgs> {};
 
 stdenv.mkDerivation {
-	name = "flashrom";
+	name = "flashprog";
 
 	buildInputs = [
 		gcc
