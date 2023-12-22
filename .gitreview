@@ -1,0 +1,5 @@
+[gerrit]
+host=review.sourcearcade.org
+port=29418
+project=flashprog
+defaultbranch=main
