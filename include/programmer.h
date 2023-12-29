@@ -71,6 +71,7 @@ extern const struct programmer_entry programmer_digilent_spi;
 extern const struct programmer_entry programmer_drkaiser;
 extern const struct programmer_entry programmer_dummy;
 extern const struct programmer_entry programmer_ft2232_spi;
+extern const struct programmer_entry programmer_ft4222_spi;
 extern const struct programmer_entry programmer_gfxnvidia;
 extern const struct programmer_entry programmer_internal;
 extern const struct programmer_entry programmer_it8212;

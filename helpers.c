@@ -21,10 +21,14 @@
 #include "flash.h"
 
 int flashprog_read_chunked(struct flashctx *const flash, uint8_t *dst, unsigned int start, unsigned int len,
-			  const unsigned int chunksize, readfunc_t *const read)
+			   unsigned int chunksize, readfunc_t *const read)
 {
 	int ret;
 	size_t to_read;
+
+	if (chunksize > 256 && chunksize & 3)
+		chunksize &= ~3;
+
 	for (; len; len -= to_read, dst += to_read, start += to_read) {
 		to_read = min(chunksize, len);
 		ret = read(flash, dst, start, to_read);

@@ -68,6 +68,10 @@ const struct programmer_entry *const programmer_table[] = {
     &programmer_ft2232_spi,
 #endif
 
+#if CONFIG_FT4222_SPI == 1
+    &programmer_ft4222_spi,
+#endif
+
 #if CONFIG_SERPROG == 1
     &programmer_serprog,
 #endif

@@ -160,6 +160,7 @@ DEPENDS_ON_LIBUSB1 := \
 	CONFIG_DEDIPROG \
 	CONFIG_DEVELOPERBOX_SPI \
 	CONFIG_DIGILENT_SPI \
+	CONFIG_FT4222_SPI \
 	CONFIG_PICKIT2_SPI \
 	CONFIG_RAIDEN_DEBUG_SPI \
 	CONFIG_STLINKV3_SPI \
@@ -317,7 +318,7 @@ endif
 $(call mark_unsupported,CONFIG_DUMMY)
 # libpayload does not provide the romsize field in struct pci_dev that the atapromise code requires.
 $(call mark_unsupported,CONFIG_ATAPROMISE)
-# Dediprog, Developerbox, USB-Blaster, PICkit2, CH341A and FT2232 are not supported with libpayload (missing libusb support).
+# Dediprog, Developerbox, USB-Blaster, PICkit2, CH341A, FT2232 and FT4222 are not supported with libpayload (missing libusb support).
 $(call mark_unsupported,$(DEPENDS_ON_LIBUSB1) $(DEPENDS_ON_LIBFTDI1) $(DEPENDS_ON_LIBJAYLINK))
 endif
 
@@ -451,6 +452,9 @@ CONFIG_ATAPROMISE ?= no
 
 # Always enable FT2232 SPI dongles for now.
 CONFIG_FT2232_SPI ?= yes
+
+# Always enable FT4222 SPI dongles for now.
+CONFIG_FT4222_SPI ?= yes
 
 # Always enable Altera USB-Blaster dongles for now.
 CONFIG_USBBLASTER_SPI ?= yes
@@ -677,6 +681,11 @@ endif
 ifeq ($(CONFIG_FT2232_SPI), yes)
 FEATURE_FLAGS += -D'CONFIG_FT2232_SPI=1'
 PROGRAMMER_OBJS += ft2232_spi.o
+endif
+
+ifeq ($(CONFIG_FT4222_SPI), yes)
+FEATURE_FLAGS += -D'CONFIG_FT4222_SPI=1'
+PROGRAMMER_OBJS += ft4222_spi.o
 endif
 
 ifeq ($(CONFIG_USBBLASTER_SPI), yes)

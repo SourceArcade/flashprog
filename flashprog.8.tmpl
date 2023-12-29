@@ -316,6 +316,8 @@ cards)"
 .sp
 .BR "* ft2232_spi" " (for SPI flash ROMs attached to an FT2232/FT4232H/FT232H family based USB SPI programmer).
 .sp
+.BR "* ft4222_spi" " (for SPI and QPI flash ROMs attached to an FT4222H based USB programmer).
+.sp
 .BR "* serprog" " (for flash ROMs attached to a programmer speaking serprog, \
 including some Arduino-based devices)."
 .sp
@@ -883,6 +885,50 @@ and
 .sp
 .B Note
 that not all GPIOL pins are freely usable with all programmers as some have special functionality.
+.SS
+.BR "ft4222_spi " programmer
+.IP
+This driver supports programmers based on the FTDI FT4222H chip.
+.sp
+An optional
+.B cs
+parameter can be used to select the USB interface and respective CS#
+output
+.BR 0 .. 3 ", e.g."
+.sp
+.B "  flashprog \-p ft4222_spi:cs=3"
+.sp
+The ft4222_spi driver supports setting the SPI clock rate in kHz with
+the
+.B spispeed
+parameter. The actual clock rate will be rounded down to a supported
+value (power-of-2 fractions of 80MHz, 60MHz and 48MHz base clocks).
+Hence the highest supported SPI clock rates are 40MHz, 30MHz, 24Mhz,
+20MHz, 15MHz, 12MHz, and so forth. As this also affects the base clock
+of the controller and thereby the overall bandwidth, there is a wrinkle:
+Quad-i/o reads can actually be faster at 20MHz (80MHz base clock) than
+they are at 30MHz or 24MHz with a lower base clock.
+.sp
+.B "  flashprog \-p ft4222_spi:spispeed=20000"
+.sp
+The default is 10MHz.
+.sp
+As the FT4222H supports dual and quad i/o, there is an additional
+.B iomode
+parameter to specify how many lines can be used for bidirectional i/o.
+Valid values are
+.BR single ", " dual ", or " quad .
+The default is
+.B dual
+as at least two lines are always connected (MOSI and MISO). Quad i/o
+is most useful to get high transfer rates when the hardware setup is
+not reliable enough for high clock rates, e.g.
+.sp
+.B "  flashprog \-p ft4222_spi:spispeed=15000,iomode=quad"
+.sp
+Note that the overall bandwidth of the FT4222H is limited to
+52.8Mb/s (with the 80MHz base clock). This is almost saturated
+at 20MHz x4.
 .SS
 .BR "serprog " programmer
 .IP
