@@ -24,6 +24,7 @@
 #include "flashchips.h"
 #include "chipdrivers.h"
 #include "programmer.h"
+#include "spi_command.h"
 #include "spi.h"
 
 int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
@@ -46,16 +47,15 @@ int default_spi_send_command(const struct flashctx *flash, unsigned int writecnt
 {
 	struct spi_command cmd[] = {
 	{
-		.writecnt = writecnt,
-		.readcnt = readcnt,
+		.io_mode = SINGLE_IO_1_1_1,
+		.opcode_len = 1,
+		.address_len = writecnt - 1,
+		.read_len = readcnt,
 		.writearr = writearr,
 		.readarr = readarr,
-	}, {
-		.writecnt = 0,
-		.writearr = NULL,
-		.readcnt = 0,
-		.readarr = NULL,
-	}};
+	},
+		NULL_SPI_CMD
+	};
 
 	return spi_send_multicommand(flash, cmd);
 }
@@ -64,9 +64,12 @@ int default_spi_send_multicommand(const struct flashctx *flash,
 				  struct spi_command *cmds)
 {
 	int result = 0;
-	for (; (cmds->writecnt || cmds->readcnt) && !result; cmds++) {
-		result = spi_send_command(flash, cmds->writecnt, cmds->readcnt,
-					  cmds->writearr, cmds->readarr);
+	for (; !spi_is_empty(cmds) && !result; cmds++) {
+		if (cmds->io_mode != SINGLE_IO_1_1_1)
+			return SPI_FLASHPROG_BUG;
+		result = spi_send_command(flash,
+				spi_write_len(cmds), spi_read_len(cmds),
+				cmds->writearr, cmds->readarr);
 	}
 	return result;
 }

@@ -25,6 +25,7 @@
 #include "flashchips.h"
 #include "chipdrivers.h"
 #include "programmer.h"
+#include "spi_command.h"
 #include "spi.h"
 
 static int spi_rdid(struct flashctx *flash, unsigned char *readarr, int bytes)
@@ -312,11 +313,11 @@ static int spi_simple_write_cmd(struct flashctx *const flash, const uint8_t op, 
 	struct spi_command cmds[] = {
 	{
 		.readarr = 0,
-		.writecnt = 1,
+		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
 		.readarr = 0,
-		.writecnt = 1,
+		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ op },
 	},
 		NULL_SPI_CMD,
@@ -346,11 +347,12 @@ static int spi_write_extended_address_register(struct flashctx *const flash, con
 	struct spi_command cmds[] = {
 	{
 		.readarr = 0,
-		.writecnt = 1,
+		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
 		.readarr = 0,
-		.writecnt = 2,
+		.opcode_len = 1,
+		.write_len = 1,
 		.writearr = (const unsigned char[]){ op, regdata },
 	},
 		NULL_SPI_CMD,
@@ -423,7 +425,7 @@ static int spi_write_cmd(struct flashctx *const flash, const uint8_t op,
 	struct spi_command cmds[] = {
 	{
 		.readarr = 0,
-		.writecnt = 1,
+		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
 		.readarr = 0,
@@ -445,7 +447,9 @@ static int spi_write_cmd(struct flashctx *const flash, const uint8_t op,
 		return 1;
 
 	memcpy(cmd + 1 + addr_len, out_bytes, out_len);
-	cmds[1].writecnt = 1 + addr_len + out_len;
+	cmds[1].opcode_len  = 1;
+	cmds[1].address_len = addr_len;
+	cmds[1].write_len   = out_len;
 
 	const int result = spi_send_multicommand(flash, cmds);
 	if (result)

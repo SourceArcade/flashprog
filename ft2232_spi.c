@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include "flash.h"
 #include "programmer.h"
+#include "spi_command.h"
 #include "spi.h"
 #include <ftdi.h>
 
@@ -206,9 +207,9 @@ static bool ft2232_spi_command_fits(const struct spi_command *cmd, size_t buffer
 		/* commands for CS# assertion and de-assertion: */
 		cmd_len + cmd_len
 		/* commands for either a write, a read or both: */
-		+ (cmd->writecnt && cmd->readcnt ? cmd_len + cmd_len : cmd_len)
+		+ (spi_write_len(cmd) && spi_read_len(cmd) ? cmd_len + cmd_len : cmd_len)
 		/* payload (only writecnt; readcnt concerns another buffer): */
-		+ cmd->writecnt
+		+ spi_write_len(cmd)
 		<= buffer_size;
 }
 
@@ -224,9 +225,11 @@ static int ft2232_spi_send_multicommand(const struct flashctx *flash, struct spi
 	/*
 	 * Minimize FTDI-calls by packing as many commands as possible together.
 	 */
-	for (; cmds->writecnt || cmds->readcnt; cmds++) {
+	for (; !spi_is_empty(cmds); cmds++) {
+		const size_t writecnt = spi_write_len(cmds);
+		const size_t readcnt = spi_read_len(cmds);
 
-		if (cmds->writecnt > 65536 || cmds->readcnt > 65536)
+		if (writecnt > 65536 || readcnt > 65536)
 			return SPI_INVALID_LENGTH;
 
 		if (!ft2232_spi_command_fits(cmds, FTDI_HW_BUFFER_SIZE - i)) {
@@ -241,19 +244,19 @@ static int ft2232_spi_send_multicommand(const struct flashctx *flash, struct spi
 		buf[i++] = spi_data->pindir;
 
 		/* WREN, OP(PROGRAM, ERASE), ADDR, DATA */
-		if (cmds->writecnt) {
+		if (writecnt) {
 			buf[i++] = MPSSE_DO_WRITE | MPSSE_WRITE_NEG;
-			buf[i++] = (cmds->writecnt - 1) & 0xff;
-			buf[i++] = ((cmds->writecnt - 1) >> 8) & 0xff;
-			memcpy(buf + i, cmds->writearr, cmds->writecnt);
-			i += cmds->writecnt;
+			buf[i++] = (writecnt - 1) & 0xff;
+			buf[i++] = ((writecnt - 1) >> 8) & 0xff;
+			memcpy(buf + i, cmds->writearr, writecnt);
+			i += writecnt;
 		}
 
 		/* An optional read command */
-		if (cmds->readcnt) {
+		if (readcnt) {
 			buf[i++] = MPSSE_DO_READ;
-			buf[i++] = (cmds->readcnt - 1) & 0xff;
-			buf[i++] = ((cmds->readcnt - 1) >> 8) & 0xff;
+			buf[i++] = (readcnt - 1) & 0xff;
+			buf[i++] = ((readcnt - 1) >> 8) & 0xff;
 		}
 
 		/* Add final de-assert CS# */
@@ -263,8 +266,7 @@ static int ft2232_spi_send_multicommand(const struct flashctx *flash, struct spi
 		buf[i++] = spi_data->pindir;
 
 		/* continue if there is no read-cmd and further cmds exist */
-		if (!cmds->readcnt &&
-				((cmds + 1)->writecnt || (cmds + 1)->readcnt) &&
+		if (!readcnt && !spi_is_empty(cmds + 1) &&
 				ft2232_spi_command_fits((cmds + 1), FTDI_HW_BUFFER_SIZE - i)) {
 			continue;
 		}
@@ -276,8 +278,8 @@ static int ft2232_spi_send_multicommand(const struct flashctx *flash, struct spi
 			break;
 		}
 
-		if (cmds->readcnt) {
-			ret = get_buf(ftdic, cmds->readarr, cmds->readcnt);
+		if (readcnt) {
+			ret = get_buf(ftdic, cmds->readarr, readcnt);
 			if (ret) {
 				msg_perr("get_buf failed: %i\n", ret);
 				break;

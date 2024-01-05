@@ -25,6 +25,7 @@
 #include "flash.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
+#include "spi_command.h"
 #include "spi.h"
 #include "ich_descriptors.h"
 
@@ -1520,8 +1521,8 @@ static int ich_spi_send_multicommand(const struct flashctx *flash,
 	int ret = 0;
 	int i;
 	int oppos, preoppos;
-	for (; (cmds->writecnt || cmds->readcnt) && !ret; cmds++) {
-		if ((cmds + 1)->writecnt || (cmds + 1)->readcnt) {
+	for (; !spi_is_empty(cmds) && !ret; cmds++) {
+		if (!spi_is_empty(cmds + 1)) {
 			/* Next command is valid. */
 			preoppos = find_preop(curopcodes, cmds->writearr[0]);
 			oppos = find_opcode(curopcodes, (cmds + 1)->writearr[0]);
@@ -1546,7 +1547,8 @@ static int ich_spi_send_multicommand(const struct flashctx *flash,
 				 * No need to bother with fixups.
 				 */
 				if (!ichspi_lock) {
-					oppos = reprogram_opcode_on_the_fly((cmds + 1)->writearr[0], (cmds + 1)->writecnt, (cmds + 1)->readcnt);
+					oppos = reprogram_opcode_on_the_fly((cmds + 1)->writearr[0],
+							spi_write_len(cmds + 1), spi_read_len(cmds + 1));
 					if (oppos == -1)
 						continue;
 					curopcodes->opcode[oppos].atomic = preoppos + 1;
@@ -1565,7 +1567,7 @@ static int ich_spi_send_multicommand(const struct flashctx *flash,
 			 * preoppos matched, this is a normal opcode.
 			 */
 		}
-		ret = ich_spi_send_command(flash, cmds->writecnt, cmds->readcnt,
+		ret = ich_spi_send_command(flash, spi_write_len(cmds), spi_read_len(cmds),
 					   cmds->writearr, cmds->readarr);
 		/* Reset the type of all opcodes to non-atomic. */
 		for (i = 0; i < 8; i++)

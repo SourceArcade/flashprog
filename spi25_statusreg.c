@@ -19,6 +19,7 @@
 
 #include "flash.h"
 #include "chipdrivers.h"
+#include "spi_command.h"
 #include "spi.h"
 
 /* === Generic functions === */
@@ -138,21 +139,15 @@ int spi_write_register(const struct flashctx *flash, enum flash_reg reg, uint8_t
 
 	struct spi_command cmds[] = {
 	{
-		.writecnt	= JEDEC_WREN_OUTSIZE,
+		.opcode_len	= JEDEC_WREN_OUTSIZE,
 		.writearr	= &enable_cmd,
-		.readcnt	= 0,
-		.readarr	= NULL,
 	}, {
-		.writecnt	= write_cmd_len,
+		.opcode_len	= 1,
+		.write_len	= write_cmd_len - 1,
 		.writearr	= write_cmd,
-		.readcnt	= 0,
-		.readarr	= NULL,
-	}, {
-		.writecnt	= 0,
-		.writearr	= NULL,
-		.readcnt	= 0,
-		.readarr	= NULL,
-	}};
+	},
+		NULL_SPI_CMD
+	};
 
 	int result = spi_send_multicommand(flash, cmds);
 	if (result) {

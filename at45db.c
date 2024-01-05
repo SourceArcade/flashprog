@@ -19,6 +19,7 @@
 #include "flash.h"
 #include "chipdrivers.h"
 #include "programmer.h"
+#include "spi_command.h"
 #include "spi.h"
 
 /* Status register bits */

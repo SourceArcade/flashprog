@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include "flashchips.h"
 #include "chipdrivers.h"
+#include "spi_command.h"
 #include "spi.h"
 
 /* For ST95XXX chips which have RDID */

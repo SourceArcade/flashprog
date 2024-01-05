@@ -517,16 +517,5 @@ __attribute__((format(printf, 2, 3)));
 #define msg_cspew(...)	print(FLASHPROG_MSG_SPEW, __VA_ARGS__)	/* chip debug spew  */
 void flashprog_progress_add(struct flashprog_flashctx *, size_t progress);
 
-/* spi.c */
-struct spi_command {
-	unsigned int writecnt;
-	unsigned int readcnt;
-	const unsigned char *writearr;
-	unsigned char *readarr;
-};
-#define NULL_SPI_CMD { 0, 0, NULL, NULL, }
-int spi_send_command(const struct flashctx *flash, unsigned int writecnt, unsigned int readcnt, const unsigned char *writearr, unsigned char *readarr);
-int spi_send_multicommand(const struct flashctx *flash, struct spi_command *cmds);
-
 enum chipbustype get_buses_supported(void);
 #endif				/* !__FLASH_H__ */

@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "flash.h"
+#include "spi_command.h"
 #include "spi.h"
 #include "chipdrivers.h"
 

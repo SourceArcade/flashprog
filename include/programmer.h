@@ -299,7 +299,23 @@ char *extract_programmer_param(const char *param_name);
 #define SPI_MASTER_4BA			(1U << 0)  /**< Can handle 4-byte addresses */
 #define SPI_MASTER_NO_4BA_MODES		(1U << 1)  /**< Compatibility modes (i.e. extended address
 						        register, 4BA mode switch) don't work */
+#define SPI_MASTER_DUAL_IN		(1U << 2)  /**< Can read two bits at once (bidirectional
+							MOSI and MISO) */
+#define SPI_MASTER_DUAL_IO		(1U << 3)  /**< Can transfer two bits at once (bidirectional
+							MOSI and MISO) */
+#define SPI_MASTER_QUAD_IN		(1U << 4)  /**< Can read four bits at once (bidirectional
+						        MOSI and MISO + IO2 + IO3) */
+#define SPI_MASTER_QUAD_IO		(1U << 5)  /**< Can transfer four bits at once (bidirectional
+						        MOSI and MISO + IO2 + IO3) */
+#define SPI_MASTER_QPI			(1U << 6)  /**< Can send commands with quad i/o */
+#define SPI_MASTER_DTR_IN		(1U << 7)  /**< Double Transfer Rate: Can read two bits
+							per clock cycle per line */
 
+/* Shorthands: */
+#define SPI_MASTER_DUAL			(SPI_MASTER_DUAL_IN | SPI_MASTER_DUAL_IO)
+#define SPI_MASTER_QUAD			(SPI_MASTER_QUAD_IN | SPI_MASTER_QUAD_IO)
+
+struct spi_command;
 struct spi_master {
 	uint32_t features;
 	unsigned int max_data_read; // (Ideally,) maximum data read size in one go (excluding opcode+address).
