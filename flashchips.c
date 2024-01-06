@@ -17907,7 +17907,8 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+		/* QPI: only FV & JV..M versions */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO |
 				  FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3,
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
@@ -17939,6 +17940,7 @@ const struct flashchip flashchips[] = {
 		/* FIXME: Older versions (e.g. 25Q128BV) use WRSR_EXT and have no WPS. */
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
 			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -17992,6 +17994,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18046,6 +18049,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1650, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18098,6 +18102,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1650, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18121,7 +18126,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18143,6 +18148,10 @@ const struct flashchip flashchips[] = {
 				.eraseblocks = { {2 * 1024 * 1024, 1} },
 				.block_erase = spi_block_erase_c7,
 			}
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
 		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
@@ -18184,6 +18193,10 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
@@ -18200,7 +18213,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 256,
 		.page_size	= 256,
 		/* OTP: 256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		/* W25Q20EW: FEATURE_WRSR2 */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18223,11 +18237,15 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1700, 1950},
 	},
 
 	{
@@ -18240,9 +18258,11 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA_ENTER_WREN |
-				  FEATURE_4BA_EAR_C5C8 | FEATURE_4BA_READ | FEATURE_4BA_FAST_READ |
-				  FEATURE_WRSR2,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP |
+				  FEATURE_4BA_ENTER_WREN | FEATURE_4BA_EAR_C5C8 |
+				  FEATURE_4BA_READ | FEATURE_4BA_FAST_READ |
+				  FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18272,6 +18292,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
@@ -18295,7 +18316,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_WRSR2,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP | FEATURE_4BA | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18331,6 +18352,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
@@ -18354,7 +18376,9 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_WRSR2,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP |
+				  FEATURE_4BA | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18390,6 +18414,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
@@ -18413,7 +18438,8 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18442,6 +18468,10 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
@@ -18460,8 +18490,17 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA | FEATURE_WRSR2
-				  | FEATURE_WRSR3,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QPI_SRP,
+		.dummy_cycles	=
+		{
+			.qpi_read_params = {
+				2, /* Datasheet Rev.K says 4 is the default, though.
+				      Will assume that the text is wrong, if not,
+				      we'll know why it doesn't work. */
+				4, 6, 8
+			},
+		},
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18497,6 +18536,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
 			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
@@ -18521,7 +18561,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_WRSR_EXT2,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18551,6 +18591,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18606,6 +18647,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18630,7 +18672,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO |
 				  FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -18661,6 +18703,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18716,6 +18759,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18770,6 +18814,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18824,6 +18869,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18848,7 +18894,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* OTP: 768B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* QPI enable 0x38, disable 0xFF */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO |
 				  FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -18876,7 +18922,7 @@ const struct flashchip flashchips[] = {
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
 			.srp    = {STATUS1, 7, RW},
@@ -18903,8 +18949,9 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* OTP: 768B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* QPI enable 0x38, disable 0xFF */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI_SRP |
 				  FEATURE_WRSR2 | FEATURE_WRSR3 | FEATURE_WRSR_EXT2,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18934,6 +18981,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -18958,7 +19006,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 756B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -18981,10 +19029,14 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256, /* Multi I/O supported */
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -18997,7 +19049,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 512,
 		.page_size	= 256,
 		/* OTP: 256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19020,11 +19072,15 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1700, 1950},
 	},
 
 	{
@@ -19036,7 +19092,9 @@ const struct flashchip flashchips[] = {
 		.total_size	= 512,
 		.page_size	= 256,
 		/* OTP: 3*256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19059,11 +19117,15 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1650, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1650, 1950},
 	},
 
 	{
@@ -19074,7 +19136,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= WINBOND_NEX_W25Q512JV,
 		.total_size	= 64 * 1024,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19103,6 +19166,10 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
@@ -19119,8 +19186,13 @@ const struct flashchip flashchips[] = {
 		.model_id       = WINBOND_NEX_W25Q512NW_IM,
 		.total_size     = 64 * 1024,
 		.page_size      = 256,
-		.feature_bits   = FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA  | FEATURE_WRSR2
-				  | FEATURE_WRSR3,
+		.feature_bits   = FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QPI_SRP,
+		.dummy_cycles	=
+		{
+			/* Actually has 3 parameter bits, but higher values only help with DTR. */
+			.qpi_read_params = { 2, 4, 6, 8 },
+		},
 		.tested         = TEST_OK_PREWB,
 		.probe          = probe_spi_rdid,
 		.probe_timing   = TIMING_ZERO,
@@ -19155,6 +19227,7 @@ const struct flashchip flashchips[] = {
 		.voltage        = {1650, 1950},
 		.reg_bits       =
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
 			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
@@ -19179,7 +19252,8 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_WRSR2,
+		/* QPI: only FV version */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19209,6 +19283,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
 			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -19232,7 +19307,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO |
 				  FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -19263,6 +19338,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
 			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -19286,7 +19362,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 8192,
 		.page_size	= 256,
 		/* supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QPI_SRP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -19309,6 +19386,10 @@ const struct flashchip flashchips[] = {
 				.eraseblocks = { {8 * 1024 * 1024, 1} },
 				.block_erase = spi_block_erase_c7,
 			}
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
 		},
 		.printlock	= spi_prettyprint_status_register_bp2_tb_bpl,
 		.unlock		= spi_disable_blockprotect_bp2_srwd,
@@ -19411,6 +19492,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -19466,6 +19548,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -19490,7 +19573,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19512,6 +19595,10 @@ const struct flashchip flashchips[] = {
 				.eraseblocks = { {1024 * 1024, 1} },
 				.block_erase = spi_block_erase_c7,
 			}
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
 		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
@@ -19529,7 +19616,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 1024,
 		.page_size	= 256,
 		/* OTP: 256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19552,11 +19639,15 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1700, 1950},
 	},
 
 	{
@@ -19568,7 +19659,9 @@ const struct flashchip flashchips[] = {
 		.total_size	= 1024,
 		.page_size	= 256,
 		/* OTP: 3*256B total; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -19591,11 +19684,15 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1650, 1950}, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {1650, 1950},
 	},
 
 	{
