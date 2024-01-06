@@ -194,9 +194,11 @@
 #define JEDEC_READ		0x03
 #define JEDEC_READ_OUTSIZE	0x04
 /*      JEDEC_READ_INSIZE : any length */
-
-/* Read the memory (with delay after sending address) */
-#define JEDEC_READ_FAST		0x0b
+#define JEDEC_FAST_READ		0x0b /* with 8 cycles delay after sending address */
+#define JEDEC_FAST_READ_DOUT	0x3b /* with 8 cycles delay and dual output */
+#define JEDEC_FAST_READ_DIO	0xbb /* with 4 cycles delay and dual i/o */
+#define JEDEC_FAST_READ_QOUT	0x6b /* with 8 cycles delay and quad output */
+#define JEDEC_FAST_READ_QIO	0xeb /* with 6 cycles delay and quad i/o */
 
 /* Write memory byte */
 #define JEDEC_BYTE_PROGRAM		0x02
@@ -211,11 +213,12 @@
 
 /* Read the memory with 4-byte address
    From ANY mode (3-bytes or 4-bytes) it works with 4-byte address */
-#define JEDEC_READ_4BA		0x13
-
-/* Read the memory with 4-byte address (and delay after sending address)
-   From ANY mode (3-bytes or 4-bytes) it works with 4-byte address */
-#define JEDEC_READ_4BA_FAST	0x0c
+#define JEDEC_READ_4BA			0x13
+#define JEDEC_FAST_READ_4BA		0x0c /* with 8 cycles delay after sending address */
+#define JEDEC_FAST_READ_DOUT_4BA	0x3c /* with 8 cycles delay and dual output */
+#define JEDEC_FAST_READ_DIO_4BA		0xbc /* with 4 cycles delay and dual i/o */
+#define JEDEC_FAST_READ_QOUT_4BA	0x6c /* with 8 cycles delay and quad output */
+#define JEDEC_FAST_READ_QIO_4BA		0xec /* with 6 cycles delay and quad i/o */
 
 /* Write memory byte with 4-byte address
    From ANY mode (3-bytes or 4-bytes) it works with 4-byte address */

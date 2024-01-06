@@ -68,6 +68,15 @@ enum io_mode {
 	QPI_4_4_4,
 };
 
+/* describes properties of a read operation */
+struct spi_read_op {
+	enum io_mode io_mode;
+	bool native_4ba;
+	uint8_t opcode;
+	uint8_t mode_byte;	/* optional byte to send after the address, if != 0 */
+	uint8_t dummy_len;	/* dummy bytes (including optional mode byte) */
+};
+
 struct spi_command {
 	enum io_mode io_mode;
 	size_t opcode_len;	/* bytes to write in opcode i/o phase */

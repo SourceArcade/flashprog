@@ -428,6 +428,8 @@ struct flashprog_progress {
 	void *user_data;
 };
 
+struct spi_read_op;
+
 struct flashprog_flashctx {
 	struct flashchip *chip;
 	/* FIXME: The memory mappings should be saved in a more structured way. */
@@ -458,6 +460,8 @@ struct flashprog_flashctx {
            of the extended address register. */
 	int address_high_byte;
 	bool in_4ba_mode;
+	/* For SPI flash chips, we dynamically select the fast-read operation. */
+	const struct spi_read_op *spi_fast_read;
 
 	int chip_restore_fn_count;
 	struct chip_restore_func_data {

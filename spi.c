@@ -173,6 +173,15 @@ int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, voi
 		return ERROR_FLASHPROG_BUG;
 	}
 
+	if ((mst->features & (SPI_MASTER_DUAL | SPI_MASTER_QUAD | SPI_MASTER_DTR_IN)) &&
+	    mst->read == default_spi_read && mst->multicommand == default_spi_send_multicommand) {
+		msg_perr("%s called with incomplete master definition.\n"
+			 "Dual/quad I/O and DTR require multicommand or custom read function.\n"
+			 "Please report a bug at flashprog@flashprog.org\n",
+			 __func__);
+		return ERROR_FLASHPROG_BUG;
+	}
+
 	if (max_rom_decode)
 		rmst.max_rom_decode = max_rom_decode;
 	else

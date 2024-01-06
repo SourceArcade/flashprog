@@ -102,6 +102,42 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 	return 0;
 }
 
+static const struct spi_read_op *select_spi_fast_read(const struct flashctx *flash)
+{
+	static const struct {
+		unsigned int feature_check;
+		unsigned int master_check;
+		struct spi_read_op op;
+	#define MIO_CHECKS(flash_feature, master_feature) \
+		FEATURE_FAST_READ_##flash_feature, SPI_MASTER_##master_feature
+	} mio[] = { /*       flash  master                     4BA                              mode  dummies */
+		{ MIO_CHECKS(QIO,  QUAD_IO), { QUAD_IO_1_4_4,  true,  JEDEC_FAST_READ_QIO_4BA,  0xff, 3 } },
+		{ MIO_CHECKS(QOUT, QUAD_IN), { QUAD_OUT_1_1_4, true,  JEDEC_FAST_READ_QOUT_4BA, 0x00, 4 } },
+		{ MIO_CHECKS(DIO,  DUAL_IO), { DUAL_IO_1_2_2,  true,  JEDEC_FAST_READ_DIO_4BA,  0xff, 1 } },
+		{ MIO_CHECKS(DOUT, DUAL_IN), { DUAL_OUT_1_1_2, true,  JEDEC_FAST_READ_DOUT_4BA, 0x00, 2 } },
+		{ MIO_CHECKS(QIO,  QUAD_IO), { QUAD_IO_1_4_4,  false, JEDEC_FAST_READ_QIO,      0xff, 3 } },
+		{ MIO_CHECKS(QOUT, QUAD_IN), { QUAD_OUT_1_1_4, false, JEDEC_FAST_READ_QOUT,     0x00, 4 } },
+		{ MIO_CHECKS(DIO,  DUAL_IO), { DUAL_IO_1_2_2,  false, JEDEC_FAST_READ_DIO,      0xff, 1 } },
+		{ MIO_CHECKS(DOUT, DUAL_IN), { DUAL_OUT_1_1_2, false, JEDEC_FAST_READ_DOUT,     0x00, 2 } },
+	};
+
+	unsigned int i;
+	for (i = 0; i < ARRAY_SIZE(mio); ++i) {
+		if (mio[i].op.native_4ba && !(flash->chip->feature_bits & FEATURE_4BA_FAST_READ))
+			continue;
+		if ((flash->chip->feature_bits & mio[i].feature_check) != mio[i].feature_check)
+			continue;
+		if ((flash->mst.spi->features & mio[i].master_check) != mio[i].master_check)
+			continue;
+		if (mio[i].op.native_4ba && !spi_master_4ba(flash))
+			continue;
+		if (flash->mst.spi->probe_opcode(flash, mio[i].op.opcode))
+			return &mio[i].op;
+	}
+
+	return NULL;
+}
+
 int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps prep)
 {
 	if (prep != PREPARE_FULL)
@@ -114,6 +150,8 @@ int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps pr
 	ret = spi_prepare_quad_io(flash);
 	if (ret)
 		return ret;
+
+	flash->spi_fast_read = select_spi_fast_read(flash);
 
 	return 0;
 }

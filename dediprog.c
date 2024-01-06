@@ -398,7 +398,7 @@ static int prepare_rw_cmd(
 	if (protocol(dp_data) >= PROTOCOL_V2) {
 		if (is_read && flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
 			data_packet[3] = READ_MODE_4B_ADDR_FAST_0x0C;
-			data_packet[4] = JEDEC_READ_4BA_FAST;
+			data_packet[4] = JEDEC_FAST_READ_4BA;
 		} else if (dedi_spi_cmd == WRITE_MODE_PAGE_PGM
 			   && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
 			if (protocol(dp_data) >= PROTOCOL_V3)

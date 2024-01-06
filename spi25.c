@@ -644,17 +644,48 @@ static int spi_nbyte_program(struct flashctx *flash, unsigned int addr, const ui
 	return spi_write_cmd(flash, op, native_4ba, addr, bytes, len, 10);
 }
 
+static const struct spi_read_op *get_spi_read_op(const struct flashctx *flash)
+{
+	static const struct spi_read_op sio_read = { SINGLE_IO_1_1_1, false, JEDEC_READ, 0x00, 0 };
+	static const struct spi_read_op sio_read_4ba = { SINGLE_IO_1_1_1, true, JEDEC_READ_4BA, 0x00, 0 };
+
+	if (flash->spi_fast_read)
+		return flash->spi_fast_read;
+
+	if (flash->chip->feature_bits & FEATURE_4BA_READ && spi_master_4ba(flash))
+		return &sio_read_4ba;
+
+	return &sio_read;
+}
+
 int spi_nbyte_read(struct flashctx *flash, uint8_t *dst, unsigned int address, unsigned int len)
 {
-	const bool native_4ba = flash->chip->feature_bits & FEATURE_4BA_READ && spi_master_4ba(flash);
-	uint8_t cmd[1 + JEDEC_MAX_ADDR_LEN] = { native_4ba ? JEDEC_READ_4BA : JEDEC_READ, };
+	const struct spi_read_op *const read_op = get_spi_read_op(flash);
+	const size_t mode_len = read_op->mode_byte ? 1 : 0;
+	uint8_t cmd_buf[1 + JEDEC_MAX_ADDR_LEN + 1];
 
-	const int addr_len = spi_prepare_address(flash, cmd, native_4ba, address);
+	const int addr_len = spi_prepare_address(flash, cmd_buf, read_op->native_4ba, address);
 	if (addr_len < 0)
 		return 1;
 
-	/* Send Read */
-	return spi_send_command(flash, 1 + addr_len, len, cmd, dst);
+	cmd_buf[0] = read_op->opcode;
+	cmd_buf[addr_len + 1] = read_op->mode_byte;
+
+	struct spi_command cmd[] = {
+	{
+		.io_mode	= read_op->io_mode,
+		.opcode_len	= 1,
+		.address_len	= addr_len,
+		.write_len	= mode_len,
+		.high_z_len	= read_op->dummy_len - mode_len,
+		.read_len	= len,
+		.writearr	= cmd_buf,
+		.readarr	= dst,
+	},
+		NULL_SPI_CMD
+	};
+
+	return spi_send_multicommand(flash, cmd);
 }
 
 /*
