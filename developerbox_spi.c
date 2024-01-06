@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <libusb.h>
 #include "programmer.h"
+#include "bitbang_spi.h"
 #include "spi.h"
 
 /* Bit positions for each pin. */

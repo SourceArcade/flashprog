@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include "flash.h"
 #include "programmer.h"
+#include "bitbang_spi.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
 

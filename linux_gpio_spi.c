@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <gpiod.h>
 #include "programmer.h"
+#include "bitbang_spi.h"
 #include "spi.h"
 #include "flash.h"
 

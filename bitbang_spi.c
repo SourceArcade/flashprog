@@ -20,6 +20,7 @@
 #include "flash.h"
 #include "programmer.h"
 #include "spi.h"
+#include "bitbang_spi.h"
 
 struct bitbang_spi_master_data {
 	const struct bitbang_spi_master *mst;

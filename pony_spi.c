@@ -42,6 +42,7 @@
 
 #include "flash.h"
 #include "programmer.h"
+#include "bitbang_spi.h"
 
 enum pony_type {
 	TYPE_SI_PROG,

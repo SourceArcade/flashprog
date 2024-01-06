@@ -28,6 +28,7 @@
 #include <string.h>
 #include "flash.h"
 #include "programmer.h"
+#include "bitbang_spi.h"
 #include "hwaccess_x86_io.h"
 
 /* We have two sets of pins, out and in. The numbers for both sets are
