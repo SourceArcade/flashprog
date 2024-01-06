@@ -122,7 +122,7 @@ size_t gran_to_bytes(enum write_granularity);
 #define FEATURE_WRSR_WREN	(1 << 7)
 #define FEATURE_WRSR_EITHER	(FEATURE_WRSR_EWSR | FEATURE_WRSR_WREN)
 #define FEATURE_OTP		(1 << 8)
-#define FEATURE_QPI		(1 << 9)
+#define FEATURE_FAST_READ	(1 << 9)  /**< Supports fast-read instruction 0x0b, 8 dummy cycles */
 #define FEATURE_4BA_ENTER	(1 << 10) /**< Can enter/exit 4BA mode with instructions 0xb7/0xe9 w/o WREN */
 #define FEATURE_4BA_ENTER_WREN	(1 << 11) /**< Can enter/exit 4BA mode with instructions 0xb7/0xe9 after WREN */
 #define FEATURE_4BA_ENTER_EAR7	(1 << 12) /**< Can enter/exit 4BA mode by setting bit7 of the ext addr reg */
@@ -150,6 +150,26 @@ size_t gran_to_bytes(enum write_granularity);
 #define FEATURE_WRSR2		(1 << 21)
 #define FEATURE_WRSR_EXT3	((1 << 22) | FEATURE_WRSR_EXT2)
 #define FEATURE_WRSR3		(1 << 23)
+
+#define FEATURE_FAST_READ_DOUT	(1 << 24) /**< Supports fast-read dual-output 0x3b, 8 dummy cycles */
+#define FEATURE_FAST_READ_DIO	(1 << 25) /**< Supports fast-read dual-in/out 0xbb, 4 dummy cycles */
+#define FEATURE_FAST_READ_QOUT	(1 << 26) /**< Supports fast-read quad-output 0x6b, 8 dummy cycles */
+#define FEATURE_FAST_READ_QIO	(1 << 27) /**< Supports fast-read quad-in/out 0xeb, 6 dummy cycles */
+
+#define FEATURE_FAST_READ_QPI4B	(1 << 28) /**< Supports native 4BA fast-read quad-i/o 0xec in QPI mode */
+
+#define FEATURE_QPI_35_F5	(1 << 29) /**< Can enter/exit QPI mode with instructions 0x35/0xf5 */
+#define FEATURE_QPI_38_FF	(1 << 30) /**< Can enter/exit QPI mode with instructions 0x38/0xff */
+
+#define FEATURE_SET_READ_PARAMS	(1u << 31) /**< SRP instruction 0xc0 for dummy cycles and burst length */
+
+/* Multi-I/O Shorthands */
+#define FEATURE_QIO		(FEATURE_FAST_READ | \
+				 FEATURE_FAST_READ_DOUT | FEATURE_FAST_READ_DIO | \
+				 FEATURE_FAST_READ_QOUT | FEATURE_FAST_READ_QIO)
+#define FEATURE_QPI_35		(FEATURE_QIO | FEATURE_QPI_35_F5)
+#define FEATURE_QPI_38		(FEATURE_QIO | FEATURE_QPI_38_FF)
+#define FEATURE_QPI_SRP		(FEATURE_QPI_38 | FEATURE_SET_READ_PARAMS)
 
 #define ERASED_VALUE(flash)	(((flash)->chip->feature_bits & FEATURE_ERASED_ZERO) ? 0x00 : 0xff)
 
@@ -324,7 +344,57 @@ struct flashchip {
 
 		/* Write Protect Selection (per sector protection when set) */
 		struct reg_bit_info wps;
+
+		/*
+		 * Dummy cycles config (DC)
+		 *
+		 * These can control the amount of dummy cycles for various
+		 * SPI and QPI commands. We assume that the bits default to
+		 * `0' after reset,  and that the defaults for SPI commands
+		 * match the values that non-configurable chips use (cf.
+		 * comment on `union dummy_cycles' below).
+		 */
+		struct reg_bit_info dc[2];
 	} reg_bits;
+
+	/*
+	 * SPI modes are assumed to use standard dummy cycles as follows:
+	 *   o fast read: 8
+	 *   o fast read dual-output: 8
+	 *   o fast read dual-in/out: 4
+	 *   o fast read quad-output: 8
+	 *   o fast read quad-in/out: 6
+	 *
+	 * In QPI mode, ...
+	 */
+	union {
+		/* ... use either fixed values per instruction: */
+		struct {
+			uint16_t qpi_fast_read:4;	/* 0x0b instruction */
+			uint16_t qpi_fast_read_qio:4;	/* 0xeb instruction */
+		};
+		/*
+		 * or configurable ones where 2 bits in a status/parameter
+		 * register encode the number of cycles (00 entry is assumed
+		 * as default after reset; used with FEATURE_SET_READ_PARAMS
+		 * or DC register bits):
+		 */
+		struct {
+			uint16_t clks00:4;
+			uint16_t clks01:4;
+			uint16_t clks10:4;
+			uint16_t clks11:4;
+		} qpi_read_params;
+
+		/*
+		 * Whenever FEATURE_SET_READ_PARAMS is set or DC bits
+		 * are specified, `.qpi_read_params` will be used with
+		 * the fast read quad-i/o (0xeb) instruction.
+		 * When not, fast read (0x0b) and fast read quad-i/o (0xeb)
+		 * instructions will be enabled when `.qpi_fast_read` and
+		 * `.qpi_fast_read_qio` are not `0`, respectively.
+		 */
+	} dummy_cycles;
 
 	/* Write WP configuration to the chip */
 	enum flashprog_wp_result (*wp_write_cfg)(struct flashctx *, const struct flashprog_wp_cfg *);
