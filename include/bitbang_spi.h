@@ -26,6 +26,12 @@ struct bitbang_spi_master {
 	/* optional functions to optimize xfers */
 	void (*set_sck_set_mosi) (int sck, int mosi, void *data);
 	int (*set_sck_get_miso) (int sck, void *data);
+	/* optional functions for dual/quad i/o */
+	void (*set_sck_set_dual_io) (int sck, int io, void *data);
+	void (*set_sck_set_quad_io) (int sck, int io, void *data);
+	void (*set_idle_io) (void *data);
+	int (*set_sck_get_dual_io) (int sck, void *data);
+	int (*set_sck_get_quad_io) (int sck, void *data);
 	/* Length of half a clock period in usecs. */
 	unsigned int half_period;
 };
