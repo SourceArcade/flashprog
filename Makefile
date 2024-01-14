@@ -766,7 +766,11 @@ endif
 
 ifeq ($(CONFIG_LINUX_GPIO_SPI), yes)
 FEATURE_FLAGS += -D'CONFIG_LINUX_GPIO_SPI=1'
+ifneq ($(filter 1.%,$(CONFIG_LIBGPIOD_VERSION)), )
 PROGRAMMER_OBJS += linux_gpio_spi.o
+else
+PROGRAMMER_OBJS += linux_gpio2_spi.o
+endif
 endif
 
 ifeq ($(CONFIG_MSTARDDC_SPI), yes)

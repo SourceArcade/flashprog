@@ -298,7 +298,9 @@ programmer = {
     'systems' : [ 'linux' ],
     'deps'    : [ libgpiod ],
     'groups'  : [ group_gpiod, group_external ],
-    'srcs'    : files('linux_gpio_spi.c'),
+    'srcs'    : libgpiod.version() < '2.0.0'
+                  ? files('linux_gpio_spi.c')
+                  : files('linux_gpio2_spi.c'),
     'flags'   : [ '-DCONFIG_LINUX_GPIO_SPI=1' ],
   },
   'linux_mtd' : {
