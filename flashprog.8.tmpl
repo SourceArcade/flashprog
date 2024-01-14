@@ -1159,10 +1159,17 @@ Here,
 .B gpiochip=0
 selects the GPIO chip 0, accessible through Linux device node /dev/gpiochip0, and the
 .B cs, sck, mosi, miso
-arguments select the GPIO numbers used as SPI lines connected to the flash ROM chip. In this example
-the GPIO numbers of the hardware SPI lines of of a Raspberry Pi single board computer are specified.
-All programmer arguments are mandatory.
-Note that this is a bitbanged driver, and if your device has a hardware SPI controller, use the
+arguments select the GPIO numbers used as SPI lines connected to the flash ROM chip.
+If libgpiod 2.0 or later is available, dual-i/o is enabled by default with bidirectional
+MOSI and MISO lines, and if a quad-i/o capable chip is connect with four lines, the
+additional GPIOs can be specified via
+.BR io2 " and " io3
+parameters.
+
+In the example above, the GPIO numbers of the hardware SPI lines of a Raspberry Pi
+single board computer are specified. The first four GPIO parameters are mandatory.
+Note that this is a bitbanged driver, and if your device has a hardware SPI
+controller, use the
 .B linux_spi
 programmer driver instead for better performance.
 .sp

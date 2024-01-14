@@ -34,14 +34,37 @@ enum {
 	SCK	= 1,
 	MOSI	= 2,
 	MISO	= 3,
+	IO0	= 2,
+	IO1	= 3,
+	IO2	= 4,
+	IO3	= 5,
 	MAX_LINES
 };
 
 struct linux_gpio_spi {
 	struct gpiod_chip *chip;
 	struct gpiod_line_request *lines;
+	struct gpiod_line_config *single;
+	struct gpiod_line_config *multi_in;
+	struct gpiod_line_config *multi_out;
+	struct gpiod_line_config *current_config;
 	unsigned int offsets[MAX_LINES];
+	unsigned int io_lines;
 };
+
+static int ensure_spi_mode(struct linux_gpio_spi *gpio_spi, struct gpiod_line_config *config)
+{
+	if (gpio_spi->current_config == config)
+		return 0;
+
+	const int ret = gpiod_line_request_reconfigure_lines(gpio_spi->lines, config);
+	if (ret < 0)
+		msg_perr("Switching line config failed: %s\n", strerror(errno));
+	else
+		gpio_spi->current_config = config;
+
+	return ret;
+}
 
 static void linux_gpio_spi_bitbang_set_cs(int val, void *data)
 {
@@ -63,6 +86,9 @@ static void linux_gpio_spi_bitbang_set_mosi(int val, void *data)
 {
 	struct linux_gpio_spi *const gpio_spi = data;
 
+	if (ensure_spi_mode(gpio_spi, gpio_spi->single) < 0)
+		return;
+
 	if (gpiod_line_request_set_value(gpio_spi->lines, gpio_spi->offsets[MOSI], val) < 0)
 		msg_perr("Setting mosi line failed: %s\n", strerror(errno));
 }
@@ -70,6 +96,9 @@ static void linux_gpio_spi_bitbang_set_mosi(int val, void *data)
 static int linux_gpio_spi_bitbang_get_miso(void *data)
 {
 	struct linux_gpio_spi *const gpio_spi = data;
+
+	if (ensure_spi_mode(gpio_spi, gpio_spi->single) < 0)
+		return -1;
 
 	const enum gpiod_line_value ret =
 		gpiod_line_request_get_value(gpio_spi->lines, gpio_spi->offsets[MISO]);
@@ -82,9 +111,52 @@ static void linux_gpio_spi_bitbang_set_sck_set_mosi(int sck, int mosi, void *dat
 {
 	struct linux_gpio_spi *const gpio_spi = data;
 
+	if (ensure_spi_mode(gpio_spi, gpio_spi->single) < 0)
+		return;
+
 	enum gpiod_line_value vals[] = { sck, mosi };
 	if (gpiod_line_request_set_values_subset(gpio_spi->lines, 2, &gpio_spi->offsets[SCK], vals) < 0)
 		msg_perr("Setting sck/mosi lines failed: %s\n", strerror(errno));
+}
+
+static void linux_gpio_spi_bitbang_set_sck_set_multi_io(int sck, int io, void *data)
+{
+	struct linux_gpio_spi *const gpio_spi = data;
+
+	if (ensure_spi_mode(gpio_spi, gpio_spi->multi_out) < 0)
+		return;
+
+	enum gpiod_line_value vals[] = { sck, io & 1, io >> 1 & 1, io >> 2 & 1, io >> 3 & 1 };
+	if (gpiod_line_request_set_values_subset(gpio_spi->lines,
+				gpio_spi->io_lines + 1, &gpio_spi->offsets[SCK], vals) < 0)
+		msg_perr("Setting sck/io lines failed: %s\n", strerror(errno));
+}
+
+static int linux_gpio_spi_bitbang_set_sck_get_multi_io(int sck, void *data)
+{
+	struct linux_gpio_spi *const gpio_spi = data;
+
+	if (ensure_spi_mode(gpio_spi, gpio_spi->multi_in) < 0)
+		return -1;
+
+	linux_gpio_spi_bitbang_set_sck(sck, data);
+
+	enum gpiod_line_value vals[4] = { 0, };
+	const int ret = gpiod_line_request_get_values_subset(gpio_spi->lines,
+				gpio_spi->io_lines, &gpio_spi->offsets[IO0], vals);
+	if (ret < 0) {
+		msg_perr("Getting io lines failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return vals[0] | vals[1] << 1 | vals[2] << 2 | vals[3] << 3;
+}
+
+static void linux_gpio_spi_bitbang_set_idle_io(void *data)
+{
+	struct linux_gpio_spi *const gpio_spi = data;
+
+	(void)ensure_spi_mode(gpio_spi, gpio_spi->multi_in);
 }
 
 static struct bitbang_spi_master bitbang_spi_master_gpiod = {
@@ -93,12 +165,21 @@ static struct bitbang_spi_master bitbang_spi_master_gpiod = {
 	.set_mosi		= linux_gpio_spi_bitbang_set_mosi,
 	.get_miso		= linux_gpio_spi_bitbang_get_miso,
 	.set_sck_set_mosi	= linux_gpio_spi_bitbang_set_sck_set_mosi,
+	.set_sck_set_dual_io	= linux_gpio_spi_bitbang_set_sck_set_multi_io,
+	.set_sck_get_dual_io	= linux_gpio_spi_bitbang_set_sck_get_multi_io,
+	.set_idle_io		= linux_gpio_spi_bitbang_set_idle_io,
 };
 
 static int linux_gpio_spi_shutdown(void *data)
 {
 	struct linux_gpio_spi *gpio_spi = data;
 
+	if (gpio_spi->multi_out)
+		gpiod_line_config_free(gpio_spi->multi_out);
+	if (gpio_spi->multi_in)
+		gpiod_line_config_free(gpio_spi->multi_in);
+	if (gpio_spi->single)
+		gpiod_line_config_free(gpio_spi->single);
 	if (gpio_spi->lines)
 		gpiod_line_request_release(gpio_spi->lines);
 	if (gpio_spi->chip)
@@ -111,11 +192,23 @@ static int linux_gpio_spi_shutdown(void *data)
 
 static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 {
+	struct param {
+		const char *names[2];
+		bool required;
+	};
+	static const struct param int_params[] = {
+		{ .names = { "cs", },		.required = true, },
+		{ .names = { "sck", },		.required = true, },
+		{ .names = { "mosi", "io0", }, 	.required = true, },
+		{ .names = { "miso", "io1", }, 	.required = true, },
+		{ .names = { "io2", }, 		.required = false, },
+		{ .names = { "io3", }, 		.required = false, },
+		{ .names = { "gpiochip", },	.required = false, },
+	};
+
 	struct linux_gpio_spi *gpio_spi = NULL;
-	const char *param_str[] = { "cs", "sck", "mosi", "miso", "gpiochip" };
-	const bool param_required[] = { true, true, true, true, false };
-	unsigned int param_int[ARRAY_SIZE(param_str)];
-	unsigned int i;
+	unsigned int param_int[ARRAY_SIZE(int_params)];
+	unsigned int i, j;
 	int r;
 
 	gpio_spi = calloc(1, sizeof(*gpio_spi));
@@ -124,9 +217,25 @@ static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 		return SPI_GENERIC_ERROR;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(param_str); i++) {
-		char *param = extract_programmer_param(param_str[i]);
-		char *endptr;
+	for (i = 0; i < ARRAY_SIZE(int_params); i++) {
+		const char *param_name = int_params[i].names[0];
+		char *param = NULL, *endptr;
+
+		for (j = 0; j < 2 && int_params[i].names[j]; ++j) {
+			char *const p = extract_programmer_param(int_params[i].names[j]);
+			if (param && p) {
+				msg_perr("Parameters `%s' and `%s' are mutually exclusive.\n",
+					 int_params[i].names[0], int_params[i].names[1]);
+				free(param);
+				free(p);
+				goto err_exit;
+			}
+			if (p) {
+				param_name = int_params[i].names[j];
+				param = p;
+			}
+		}
+
 		r = 1;
 
 		if (param) {
@@ -138,9 +247,9 @@ static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 			param_int[i] = UINT_MAX;
 		}
 
-		if ((param_required[i] || param) && r) {
-			msg_perr("Missing or invalid required programmer "
-				 "parameter %s=<n>\n", param_str[i]);
+		if ((int_params[i].required || param) && r) {
+			msg_perr("Invalid or missing required programmer parameter "
+				 "%s=<n>\n", param_name);
 			goto err_exit;
 		}
 	}
@@ -154,6 +263,11 @@ static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 	}
 	if (dev && gpiochip != UINT_MAX) {
 		msg_perr("Only one of `dev' or `gpiochip' parameters can be specified.\n");
+		goto free_dev_exit;
+	}
+
+	if ((param_int[IO2] == UINT_MAX) ^ (param_int[IO3] == UINT_MAX)) {
+		msg_perr("Both `io2' and `io3' are required for quad i/o.\n");
 		goto free_dev_exit;
 	}
 
@@ -176,13 +290,21 @@ static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 	}
 	free(dev);
 
+	if (param_int[IO2] != UINT_MAX) {
+		bitbang_spi_master_gpiod.set_sck_set_quad_io = linux_gpio_spi_bitbang_set_sck_set_multi_io;
+		bitbang_spi_master_gpiod.set_sck_get_quad_io = linux_gpio_spi_bitbang_set_sck_get_multi_io;
+		gpio_spi->io_lines = 4;
+	} else {
+		gpio_spi->io_lines = 2;
+	}
+
 	struct gpiod_line_settings *const in = gpiod_line_settings_new();
 	struct gpiod_line_settings *const out = gpiod_line_settings_new();
-	struct gpiod_line_config *const cfg = gpiod_line_config_new();
-	if (!in || !out || !cfg) {
+	gpio_spi->multi_out = gpiod_line_config_new();
+	gpio_spi->multi_in = gpiod_line_config_new();
+	gpio_spi->single = gpiod_line_config_new();
+	if (!in || !out || !gpio_spi->multi_out || !gpio_spi->multi_in || !gpio_spi->single) {
 		msg_perr("Unable to allocate space for GPIO line config\n");
-		if (cfg)
-			gpiod_line_config_free(cfg);
 		if (out)
 			gpiod_line_settings_free(out);
 		if (in)
@@ -193,19 +315,23 @@ static int linux_gpio_spi_init(struct flashprog_programmer *const prog)
 	gpiod_line_settings_set_direction(in, GPIOD_LINE_DIRECTION_INPUT);
 	gpiod_line_settings_set_direction(out, GPIOD_LINE_DIRECTION_OUTPUT);
 
-	gpiod_line_config_add_line_settings(cfg, &param_int[CS], 3, out);
-	gpiod_line_config_add_line_settings(cfg, &param_int[MISO], 1, in);
+	gpiod_line_config_add_line_settings(gpio_spi->single, &param_int[CS], 3, out);
+	gpiod_line_config_add_line_settings(gpio_spi->single, &param_int[MISO], gpio_spi->io_lines - 1, in);
+
+	gpiod_line_config_add_line_settings(gpio_spi->multi_in, &param_int[CS], 2, out);
+	gpiod_line_config_add_line_settings(gpio_spi->multi_in, &param_int[IO0], gpio_spi->io_lines, in);
+
+	gpiod_line_config_add_line_settings(gpio_spi->multi_out, &param_int[CS], 2 + gpio_spi->io_lines, out);
 
 	gpiod_line_settings_free(out);
 	gpiod_line_settings_free(in);
 
-	gpio_spi->lines = gpiod_chip_request_lines(gpio_spi->chip, NULL, cfg);
+	gpio_spi->lines = gpiod_chip_request_lines(gpio_spi->chip, NULL, gpio_spi->single);
 	if (!gpio_spi->lines) {
 		msg_perr("Failed to acquire GPIO lines\n");
 		goto err_exit;
 	}
-
-	gpiod_line_config_free(cfg);
+	gpio_spi->current_config = gpio_spi->single;
 
 	memcpy(gpio_spi->offsets, param_int, sizeof(gpio_spi->offsets));
 
