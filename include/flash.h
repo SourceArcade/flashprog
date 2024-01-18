@@ -345,6 +345,9 @@ struct flashchip {
 		/* Write Protect Selection (per sector protection when set) */
 		struct reg_bit_info wps;
 
+		/* Quad Enable bit (QE) */
+		struct reg_bit_info qe;
+
 		/*
 		 * Dummy cycles config (DC)
 		 *
