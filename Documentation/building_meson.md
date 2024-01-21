@@ -51,10 +51,9 @@ apt-get install -y gcc meson ninja-build pkg-config \
 ```
 
 ### ArchLinux / Manjaro
-  * __libjaylink__ is not available through the package manager
 ```
 pacman -S --noconfirm gcc meson ninja pkg-config \
-	pciutils libusb libftdi libgpiod
+	pciutils libusb libftdi libgpiod libjaylink
 ```
 
 ### NixOS / Nixpkgs
