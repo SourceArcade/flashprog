@@ -909,6 +909,12 @@ Example that sets the frequency to 2 MHz:
 .sp
 .B "  flashprog \-p serprog:dev=/dev/device:baud,spispeed=2M"
 .sp
+In case the device supports it, you can set which SPI Chip Select to use with the optional
+.B cs
+parameter. Example that tells the programmer to use chip select number 0:
+.sp
+.B "  flashprog \-p serprog:dev=/dev/ttyACM0:cs=0"
+.sp
 More information about serprog is available in
 .B serprog-protocol.txt
 in the source distribution.
