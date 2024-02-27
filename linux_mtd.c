@@ -432,9 +432,18 @@ linux_mtd_init_exit:
 	return ret;
 }
 
+static void linux_mtd_nop_delay(unsigned int usecs)
+{
+	/*
+	 * Ignore delay requests. The Linux MTD framework brokers all flash
+	 * protocol, including timing, resets, etc.
+	 */
+}
+
 const struct programmer_entry programmer_linux_mtd = {
 	.name			= "linux_mtd",
 	.type			= OTHER,
 	.devs.note		= "Device files /dev/mtd*\n",
 	.init			= linux_mtd_init,
+	.delay			= linux_mtd_nop_delay,
 };
