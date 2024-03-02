@@ -836,10 +836,10 @@ static int dediprog_check_devicestring(struct dediprog_data *dp_data)
 		return 1;
 	}
 
-	int sfnum;
-	int fw[3];
-	if (sscanf(buf, "SF%d V:%d.%d.%d ", &sfnum, &fw[0], &fw[1], &fw[2]) != 4 ||
-	    sfnum != (int)dp_data->devicetype) {
+	unsigned int sfnum;
+	unsigned int fw[3];
+	if (sscanf(buf, "SF%u V:%u.%u.%u ", &sfnum, &fw[0], &fw[1], &fw[2]) != 4 ||
+	    sfnum != dp_data->devicetype) {
 		msg_perr("Unexpected firmware version string '%s'\n", buf);
 		return 1;
 	}
