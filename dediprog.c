@@ -813,17 +813,17 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 
 static int dediprog_check_devicestring(struct dediprog_data *dp_data)
 {
-	const int devstr_len = 16;
+	const int devstr_len = 32, old_devstr_len = 16;
 	char buf[devstr_len + 1];
 	int ret;
 
 	/* Command Receive Device String. */
 	ret = dediprog_read(dp_data->handle, CMD_READ_PROG_INFO, 0, 0, (uint8_t *)buf, devstr_len);
-	if (ret != devstr_len) {
+	if (ret < old_devstr_len || ret > devstr_len) {
 		msg_perr("Incomplete/failed Command Receive Device String!\n");
 		return 1;
 	}
-	buf[devstr_len] = '\0';
+	buf[ret] = '\0';
 	msg_pdbg("Found a %s\n", buf);
 	if (memcmp(buf, "SF100", 5) == 0)
 		dp_data->devicetype = DEV_SF100;
