@@ -48,6 +48,8 @@ enum dediprog_devtype {
 	DEV_SF100		= 100,
 	DEV_SF200		= 200,
 	DEV_SF600		= 600,
+	DEV_SF600PG2		= 600+2,
+	DEV_SF700		= 700,
 };
 
 enum dediprog_leds {
@@ -195,6 +197,9 @@ static enum protocol protocol(const struct dediprog_data *dp_data)
 			return PROTOCOL_V2;
 		else
 			return PROTOCOL_V3;
+	case DEV_SF700:
+	case DEV_SF600PG2:
+		return PROTOCOL_V3;
 	default:
 		return PROTOCOL_UNKNOWN;
 	}
@@ -351,7 +356,7 @@ static const struct dediprog_spispeeds spispeeds[] = {
 
 static int dediprog_set_spi_speed(unsigned int spispeed_idx, const struct dediprog_data *dp_data)
 {
-	if (dp_data->firmwareversion < FIRMWARE_VERSION(5, 0, 0)) {
+	if (dp_data->devicetype < DEV_SF600PG2 && dp_data->firmwareversion < FIRMWARE_VERSION(5, 0, 0)) {
 		msg_pwarn("Skipping to set SPI speed because firmware is too old.\n");
 		return 0;
 	}
@@ -832,23 +837,30 @@ static int dediprog_check_devicestring(struct dediprog_data *dp_data)
 		dp_data->devicetype = DEV_SF100;
 	else if (memcmp(buf, "SF200", 5) == 0)
 		dp_data->devicetype = DEV_SF200;
+	else if (memcmp(buf, "SF600PG2", 8) == 0) /* match first, before shorter, generic SF600 */
+		dp_data->devicetype = DEV_SF600PG2;
 	else if (memcmp(buf, "SF600", 5) == 0)
 		dp_data->devicetype = DEV_SF600;
+	else if (memcmp(buf, "SF700", 5) == 0)
+		dp_data->devicetype = DEV_SF700;
 	else {
-		msg_perr("Device not a SF100, SF200, or SF600!\n");
+		msg_perr("Device not a SF100, SF200, SF600(Plus(-G2)), or SF700!\n");
 		return 1;
 	}
 
 	unsigned int sfnum;
 	unsigned int fw[3];
 	if (sscanf(buf, "SF%u", &sfnum) != 1 ||
-	    sfnum != dp_data->devicetype ||
+	    sfnum != dp_data->devicetype / 100 * 100 ||
 	    sscanf(buf, "SF%*s V:%u.%u.%u ", &fw[0], &fw[1], &fw[2]) != 3) {
 		msg_perr("Unexpected firmware version string '%s'\n", buf);
 		return 1;
 	}
-	/* Only these major versions were tested. */
-	if (fw[0] < 2 || fw[0] > 7) {
+
+	/* Only allow major versions that were tested. */
+	if ((dp_data->devicetype == DEV_SF600PG2 && fw[0] > 1) ||
+	    (dp_data->devicetype == DEV_SF700    && fw[0] != 4) ||
+	    (dp_data->devicetype <= DEV_SF600    && (fw[0] < 2 || fw[0] > 7))) {
 		msg_perr("Unexpected firmware version %d.%d.%d!\n", fw[0], fw[1], fw[2]);
 		return 1;
 	}
