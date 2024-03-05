@@ -858,10 +858,13 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 	}
 
 	if (flash->chip->bustype == BUS_SPI) {
-		const uint8_t *opcode = spi_get_opcode_from_erasefn(eraser.block_erase);
+		bool native_4ba;
 		int i;
+
+		const uint8_t *opcode = spi_get_opcode_from_erasefn(eraser.block_erase, &native_4ba);
 		for (i = 0; opcode[i]; i++) {
-			if (!flash->mst->spi.probe_opcode(flash, opcode[i])) {
+			if ((native_4ba && !spi_master_4ba(flash)) ||
+			    !flash->mst->spi.probe_opcode(flash, opcode[i])) {
 				if (log)
 					msg_cdbg("block erase function and layout found "
 						 "but SPI master doesn't support the function. ");
