@@ -36,6 +36,7 @@
 
 #define FIRMWARE_VERSION(x,y,z) ((x << 16) | (y << 8) | z)
 #define DEFAULT_TIMEOUT 3000
+#define MAX_BLOCK_COUNT 65535
 #define DEDIPROG_ASYNC_TRANSFERS 8 /* at most 8 asynchronous transfers */
 #define REQTYPE_OTHER_OUT (LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0x43 */
 #define REQTYPE_OTHER_IN (LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0xC3 */
@@ -372,7 +373,7 @@ static int prepare_rw_cmd(
 {
 	const struct dediprog_data *dp_data = flash->mst->spi.data;
 
-	if (count >= 1 << 16) {
+	if (count > MAX_BLOCK_COUNT) {
 		msg_perr("%s: Unsupported transfer length of %u blocks!\n"
 			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, count);
@@ -719,14 +720,31 @@ static int dediprog_spi_write(struct flashctx *flash, const uint8_t *buf,
 	return 0;
 }
 
+static int dediprog_spi_write_chunked(struct flashctx *flash, const uint8_t *buf,
+				      unsigned int start, unsigned int len, uint8_t dedi_spi_cmd)
+{
+	/* We can write only up to 65535 pages at once: */
+	while (len) {
+		const size_t len_here = MIN(len, flash->chip->page_size * MAX_BLOCK_COUNT);
+		const int ret = dediprog_spi_write(flash, buf, start, len_here, dedi_spi_cmd);
+		if (ret)
+			return ret;
+
+		start += len_here;
+		buf += len_here;
+		len -= len_here;
+	}
+	return 0;
+}
+
 static int dediprog_spi_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return dediprog_spi_write(flash, buf, start, len, WRITE_MODE_PAGE_PGM);
+	return dediprog_spi_write_chunked(flash, buf, start, len, WRITE_MODE_PAGE_PGM);
 }
 
 static int dediprog_spi_write_aai(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return dediprog_spi_write(flash, buf, start, len, WRITE_MODE_2B_AAI);
+	return dediprog_spi_write_chunked(flash, buf, start, len, WRITE_MODE_2B_AAI);
 }
 
 static int dediprog_spi_send_command(const struct flashctx *flash,
