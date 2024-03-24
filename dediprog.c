@@ -1181,7 +1181,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	char *voltage, *id_str, *device, *spispeed, *target_str;
 	int spispeed_idx = 1;
 	int millivolt = 3500;
-	int id = -1; /* -1 defaults to enumeration order */
+	long id = -1; /* -1 defaults to enumeration order */
 	int found_id;
 	long usedevice = 0;
 	long target = FLASH_TYPE_APPLICATION_FLASH_1;
@@ -1214,20 +1214,30 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 
 	id_str = extract_programmer_param("id");
 	if (id_str) {
-		char prefix0, prefix1;
-		if (sscanf(id_str, "%c%c%d", &prefix0, &prefix1, &id) != 3) {
-			msg_perr("Error: Could not parse dediprog 'id'.\n");
-			msg_perr("Expected a string like SF012345 or DP012345.\n");
+		const char prefixes[][4] = { "SF", "DP", "S6B", };
+		for (i = 0; i < (int)ARRAY_SIZE(prefixes); ++i) {
+			if (!strncmp(id_str, prefixes[i], strlen(prefixes[i])))
+				break;
+		}
+		if (i >= (int)ARRAY_SIZE(prefixes)) {
+			msg_perr("Error: Could not parse dediprog `id'.\n");
+			msg_perr("Expected a string prefixed with any of ");
+			for (i = 0; i < (int)ARRAY_SIZE(prefixes); ++i)
+				msg_perr("%s`%s'", i > 0 ? ", " : "", prefixes[i]);
+			msg_perr(".\n");
+			free(id_str);
+			return 1;
+		}
+		char *endptr;
+		id = strtol(id_str + strlen(prefixes[i]), &endptr, 10);
+		if (strlen(id_str) <= strlen(prefixes[i]) || *endptr) {
+			msg_perr("Error: Could not parse dediprog `id'.\n");
+			msg_perr("Expected a number after string prefix.\n");
 			free(id_str);
 			return 1;
 		}
 		if (id < 0 || id >= 0x1000000) {
-			msg_perr("Error: id %s is out of range!\n", id_str);
-			free(id_str);
-			return 1;
-		}
-		if (!(prefix0 == 'S' && prefix1 == 'F') && !(prefix0 == 'D' && prefix1 == 'P')) {
-			msg_perr("Error: %s is an invalid id!\n", id_str);
+			msg_perr("Error: id `%s' is out of range!\n", id_str);
 			free(id_str);
 			return 1;
 		}
