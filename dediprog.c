@@ -822,7 +822,7 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 	return 0;
 }
 
-static int dediprog_read_devicestring(struct dediprog_data *dp_data)
+static int dediprog_read_devicestring(struct dediprog_data *dp_data, bool warn)
 {
 	const int devstr_len = sizeof(dp_data->devicestring) - 1, old_devstr_len = 16;
 	char *const buf = dp_data->devicestring;
@@ -831,7 +831,8 @@ static int dediprog_read_devicestring(struct dediprog_data *dp_data)
 	/* Command Receive Device String. */
 	ret = dediprog_read(dp_data->handle, CMD_READ_PROG_INFO, 0, 0, (uint8_t *)buf, devstr_len);
 	if (ret < old_devstr_len || ret > devstr_len) {
-		msg_perr("Incomplete/failed Command Receive Device String!\n");
+		if (warn)
+			msg_perr("Incomplete/failed Command Receive Device String!\n");
 		return 1;
 	}
 	buf[ret] = '\0';
@@ -1131,10 +1132,10 @@ static int dediprog_open(int index, struct dediprog_data *dp_data)
 	/* Try reading the devicestring. If that fails and the device is old
 	   (FW < 6.0.0, which we cannot know),  then we need to try the "set
 	   voltage" command and then attempt to read the devicestring again. */
-	if (dediprog_read_devicestring(dp_data)) {
+	if (dediprog_read_devicestring(dp_data, /* warn => */false)) {
 		if (dediprog_set_voltage(dp_data->handle))
 			goto unknown_dev;
-		if (dediprog_read_devicestring(dp_data))
+		if (dediprog_read_devicestring(dp_data, /* warn => */true))
 			goto unknown_dev;
 	}
 
