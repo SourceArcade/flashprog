@@ -161,6 +161,7 @@ struct dediprog_data {
 	int in_endpoint;
 	int out_endpoint;
 	int firmwareversion;
+	char devicestring[32+1];
 	enum dediprog_devtype devicetype;
 };
 
@@ -819,10 +820,10 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 	return 0;
 }
 
-static int dediprog_check_devicestring(struct dediprog_data *dp_data)
+static int dediprog_read_devicestring(struct dediprog_data *dp_data)
 {
-	const int devstr_len = 32, old_devstr_len = 16;
-	char buf[devstr_len + 1];
+	const int devstr_len = sizeof(dp_data->devicestring) - 1, old_devstr_len = 16;
+	char *const buf = dp_data->devicestring;
 	int ret;
 
 	/* Command Receive Device String. */
@@ -843,13 +844,18 @@ static int dediprog_check_devicestring(struct dediprog_data *dp_data)
 		dp_data->devicetype = DEV_SF600;
 	else if (memcmp(buf, "SF700", 5) == 0)
 		dp_data->devicetype = DEV_SF700;
-	else {
-		msg_perr("Device not a SF100, SF200, SF600(Plus(-G2)), or SF700!\n");
+	else
 		return 1;
-	}
 
+	return 0;
+}
+
+static int dediprog_check_devicestring(struct dediprog_data *dp_data)
+{
+	char *const buf = dp_data->devicestring;
 	unsigned int sfnum;
 	unsigned int fw[3];
+
 	if (sscanf(buf, "SF%u", &sfnum) != 1 ||
 	    sfnum != dp_data->devicetype / 100 * 100 ||
 	    sscanf(buf, "SF%*s V:%u.%u.%u ", &fw[0], &fw[1], &fw[2]) != 3) {
@@ -1061,7 +1067,7 @@ static struct spi_master spi_master_dediprog = {
 /*
  * Open a dediprog_handle with the USB device at the given index.
  * @index   index of the USB device
- * @return  0 for success, -1 for error, -2 for busy device
+ * @return  0 for success, -1 for error, -2 for busy device, -3 for unknown device
  */
 static int dediprog_open(int index, struct dediprog_data *dp_data)
 {
@@ -1089,7 +1095,23 @@ static int dediprog_open(int index, struct dediprog_data *dp_data)
 		libusb_close(dp_data->handle);
 		return -2;
 	}
+
+	/* Try reading the devicestring. If that fails and the device is old
+	   (FW < 6.0.0, which we cannot know),  then we need to try the "set
+	   voltage" command and then attempt to read the devicestring again. */
+	if (dediprog_read_devicestring(dp_data)) {
+		if (dediprog_set_voltage(dp_data->handle))
+			goto unknown_dev;
+		if (dediprog_read_devicestring(dp_data))
+			goto unknown_dev;
+	}
 	return 0;
+
+unknown_dev:
+	msg_pwarn("Ignoring unknown Dediprog device. Not a SF100, SF200, SF600(Plus(G2)), or SF700!\n");
+	libusb_release_interface(dp_data->handle, 0);
+	libusb_close(dp_data->handle);
+	return -3;
 }
 
 static int dediprog_shutdown(void *data)
@@ -1257,8 +1279,8 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 			if (ret == -1) {
 				/* no dev */
 				goto init_err_exit;
-			} else if (ret == -2) {
-				/* busy dev */
+			} else if (ret < 0) {
+				/* busy or unknown dev */
 				continue;
 			}
 
@@ -1295,14 +1317,8 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 		msg_pinfo("Using dediprog id SF%06d.\n", found_id);
 	}
 
-	/* Try reading the devicestring. If that fails and the device is old (FW < 6.0.0, which we can not know)
-	 * then we need to try the "set voltage" command and then attempt to read the devicestring again. */
-	if (dediprog_check_devicestring(dp_data)) {
-		if (dediprog_set_voltage(dp_data->handle))
-			goto init_err_cleanup_exit;
-		if (dediprog_check_devicestring(dp_data))
-			goto init_err_cleanup_exit;
-	}
+	if (dediprog_check_devicestring(dp_data))
+		goto init_err_cleanup_exit;
 
 	/* SF100/SF200 uses one in/out endpoint, SF600 uses separate in/out endpoints */
 	dp_data->in_endpoint = 2;
