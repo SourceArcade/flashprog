@@ -1331,19 +1331,13 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 			 * the device is skipped and the next device is tried.
 			 */
 			found_id = dediprog_read_id(dp_data);
-			if (found_id < 0) {
-				msg_perr("Could not read id.\n");
-				libusb_release_interface(dp_data->handle, 0);
-				libusb_close(dp_data->handle);
-				continue;
-			}
-			msg_pinfo("Found dediprog id SF%06d.\n", found_id);
-			if (found_id != id) {
-				libusb_release_interface(dp_data->handle, 0);
-				libusb_close(dp_data->handle);
-				continue;
-			}
-			break;
+			if (found_id >= 0)
+				msg_pinfo("Found dediprog id SF%06d.\n", found_id);
+			if (found_id == id)
+				break;
+
+			libusb_release_interface(dp_data->handle, 0);
+			libusb_close(dp_data->handle);
 		}
 	} else {
 		if (dediprog_open(usedevice, dp_data)) {
