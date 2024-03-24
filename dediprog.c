@@ -521,7 +521,7 @@ static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned
 		       (status.queued_idx - status.finished_idx) < DEDIPROG_ASYNC_TRANSFERS)
 		{
 			transfer = transfers[status.queued_idx % DEDIPROG_ASYNC_TRANSFERS];
-			libusb_fill_bulk_transfer(transfer, dp_data->handle, 0x80 | dp_data->in_endpoint,
+			libusb_fill_bulk_transfer(transfer, dp_data->handle, dp_data->in_endpoint,
 					(unsigned char *)buf + status.queued_idx * chunksize, chunksize,
 					dediprog_bulk_read_cb, &status, DEFAULT_TIMEOUT);
 			transfer->flags |= LIBUSB_TRANSFER_SHORT_NOT_OK;
@@ -883,28 +883,58 @@ static int dediprog_check_devicestring(struct dediprog_data *dp_data)
 /*
  * Read the id from the dediprog. This should return the numeric part of the
  * serial number found on a sticker on the back of the dediprog. Note this
- * number is stored in writable eeprom, so it could get out of sync. Also note,
- * this function only supports SF100 at this time, but SF600 support is not too
- * much different.
+ * number is stored in writable eeprom, so it could get out of sync.
  * @return  the id on success, -1 on failure
  */
-static int dediprog_read_id(libusb_device_handle *dediprog_handle)
+static int dediprog_read_id(struct dediprog_data *const dp)
 {
+	const int min_len = 3;
 	int ret;
-	uint8_t buf[3];
 
-	ret = libusb_control_transfer(dediprog_handle, REQTYPE_OTHER_IN,
-				      0x7,    /* request */
-				      0,      /* value */
-				      0xEF00, /* index */
-				      buf, sizeof(buf),
-				      DEFAULT_TIMEOUT);
-	if (ret != sizeof(buf)) {
-		msg_perr("Failed to read dediprog id, error %d!\n", ret);
-		return -1;
+	if (dp->devicetype >= DEV_SF600PG2) {
+		const uint8_t out[6] = { 0x00, 0x00, 0x00, 0x02, 0x00, 0x00 };
+		const uint8_t cmd = 0x71;
+		uint8_t buf[512];
+		int transferred;
+		int try;
+
+		/* Always query the id twice as the endpoint
+		   can lock up in mysterious ways otherwise. */
+		for (try = 0; try < 2; ++try) {
+			ret = dediprog_write(dp->handle, cmd, 0, 0, out, sizeof(out));
+			if (ret != (int)sizeof(out))
+				goto failed_ret;
+
+			ret = libusb_bulk_transfer(dp->handle, dp->in_endpoint,
+					buf, sizeof(buf), &transferred, DEFAULT_TIMEOUT);
+		}
+
+		if (ret == 0 && transferred >= min_len)
+			return buf[2] << 16 | buf[1] << 8 | buf[0];
+	} else {
+		uint8_t buf[16];
+
+		if (dp->devicetype >= DEV_SF600) {
+			ret = dediprog_read(dp->handle, CMD_READ_EEPROM, 0, 0, buf, sizeof(buf));
+		} else {
+			ret = libusb_control_transfer(dp->handle, REQTYPE_OTHER_IN,
+						      0x7,    /* request */
+						      0,      /* value */
+						      0xEF00, /* index */
+						      buf, min_len, DEFAULT_TIMEOUT);
+		}
+
+		if (ret >= min_len)
+			return buf[0] << 16 | buf[1] << 8 | buf[2];
 	}
 
-	return buf[0] << 16 | buf[1] << 8 | buf[2];
+failed_ret:
+	msg_perr("Failed to read dediprog id: ");
+	if (ret < 0)
+		msg_perr("%s (%d)\n", libusb_strerror(ret), ret);
+	else
+		msg_perr("short read!\n");
+	return -1;
 }
 
 /*
@@ -1105,6 +1135,13 @@ static int dediprog_open(int index, struct dediprog_data *dp_data)
 		if (dediprog_read_devicestring(dp_data))
 			goto unknown_dev;
 	}
+
+	dp_data->in_endpoint = LIBUSB_ENDPOINT_IN | 2;
+	if (dp_data->devicetype <= DEV_SF200)
+		dp_data->out_endpoint = 2;
+	else
+		dp_data->out_endpoint = 1;
+
 	return 0;
 
 unknown_dev:
@@ -1291,7 +1328,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 			 * device is in use by another instance of flashprog),
 			 * the device is skipped and the next device is tried.
 			 */
-			found_id = dediprog_read_id(dp_data->handle);
+			found_id = dediprog_read_id(dp_data);
 			if (found_id < 0) {
 				msg_perr("Could not read id.\n");
 				libusb_release_interface(dp_data->handle, 0);
@@ -1310,7 +1347,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 		if (dediprog_open(usedevice, dp_data)) {
 			goto init_err_exit;
 		}
-		found_id = dediprog_read_id(dp_data->handle);
+		found_id = dediprog_read_id(dp_data);
 	}
 
 	if (found_id >= 0) {
@@ -1319,18 +1356,6 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 
 	if (dediprog_check_devicestring(dp_data))
 		goto init_err_cleanup_exit;
-
-	/* SF100/SF200 uses one in/out endpoint, SF600 uses separate in/out endpoints */
-	dp_data->in_endpoint = 2;
-	switch (dp_data->devicetype) {
-	case DEV_SF100:
-	case DEV_SF200:
-		dp_data->out_endpoint = 2;
-		break;
-	default:
-		dp_data->out_endpoint = 1;
-		break;
-	}
 
 	/* Set all possible LEDs as soon as possible to indicate activity.
 	 * Because knowing the firmware version is required to set the LEDs correctly we need to this after
