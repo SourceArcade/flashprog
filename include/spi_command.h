@@ -77,6 +77,15 @@ struct spi_read_op {
 	uint8_t dummy_len;	/* dummy bytes (including optional mode byte) */
 };
 
+const struct spi_read_op *get_spi_read_op(const struct flashctx *);
+
+static inline unsigned int spi_dummy_cycles(const struct spi_read_op *const op)
+{
+	return op->dummy_len * 8
+		/ (op->io_mode == SINGLE_IO_1_1_1 ? 1
+			: (op->io_mode <= DUAL_IO_1_2_2 ? 2 : 4));
+}
+
 struct spi_command {
 	enum io_mode io_mode;
 	size_t opcode_len;	/* bytes to write in opcode i/o phase */

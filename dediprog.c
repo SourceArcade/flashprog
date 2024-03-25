@@ -26,6 +26,7 @@
 #include "chipdrivers.h"
 #include "programmer.h"
 #include "spi.h"
+#include "spi_command.h"
 
 /* LIBUSB_CALL ensures the right calling conventions on libusb callbacks.
  * However, the macro is not defined everywhere. m(
@@ -117,6 +118,7 @@ enum dediprog_readmode {
 	READ_MODE_ATMEL45		= 3,
 	READ_MODE_4B_ADDR_FAST		= 4,
 	READ_MODE_4B_ADDR_FAST_0x0C	= 5, /* New protocol only */
+	READ_MODE_CONFIGURABLE		= 9, /* Not seen documented so far */
 };
 
 enum dediprog_writemode {
@@ -167,6 +169,7 @@ struct dediprog_data {
 	int (*prepare_rw_cmd)(
 		struct flashctx *, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
 		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count);
+	enum io_mode io_mode;
 };
 
 #if defined(LIBUSB_MAJOR) && defined(LIBUSB_MINOR) && defined(LIBUSB_MICRO) && \
@@ -379,6 +382,40 @@ static int dediprog_set_spi_speed(unsigned int spispeed_idx, const struct dedipr
 	return 0;
 }
 
+static int dediprog_set_io_mode(struct dediprog_data *const dp, const enum io_mode io_mode)
+{
+	const unsigned char dp_io_mode[] = {
+		[SINGLE_IO_1_1_1] = 0,
+		[DUAL_OUT_1_1_2]  = 1,
+		[DUAL_IO_1_2_2]	  = 2,
+		[QUAD_OUT_1_1_4]  = 3,
+		[QUAD_IO_1_4_4]   = 4,
+		[QPI_4_4_4]       = 5,
+	};
+
+	if (dp->devicetype < DEV_SF600)
+		return 0;
+
+	if (dp->io_mode == io_mode)
+		return 0;
+
+	if (io_mode >= ARRAY_SIZE(dp_io_mode)) {
+		msg_perr("%s: Unsupported I/O mode %d! "
+			 "Please report a bug at flashprog@flashprog.org\n",
+			 __func__, io_mode);
+		return 1;
+	}
+
+	const int ret = dediprog_write(dp->handle, CMD_IO_MODE, dp_io_mode[io_mode], 0, NULL, 0);
+	if (ret) {
+		msg_perr("Command I/O Mode 0x%x failed!\n", dp_io_mode[io_mode]);
+		return 1;
+	}
+
+	dp->io_mode = io_mode;
+	return 0;
+}
+
 static int prepare_rw_cmd_common(uint8_t cmd_buf[MAX_CMD_SIZE], uint8_t dp_spi_cmd, unsigned int count)
 {
 	if (count > MAX_BLOCK_COUNT) {
@@ -427,22 +464,42 @@ static int prepare_rw_cmd_v2(
 		struct flashctx *flash, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
 		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count)
 {
+	struct dediprog_data *const dp = flash->mst.spi->data;
+
 	if (prepare_rw_cmd_common(cmd_buf, dp_spi_cmd, block_count) < 0)
 		return -1;
 
-	if (is_read && flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
-		cmd_buf[3] = READ_MODE_4B_ADDR_FAST_0x0C;
-		cmd_buf[4] = JEDEC_FAST_READ_4BA;
-	} else if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
-		   && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
-		cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
-		cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
+	if (is_read) {
+		const struct spi_read_op *const read_op = get_spi_read_op(flash);
+		if (dediprog_set_io_mode(dp, read_op->io_mode))
+			return -1;
+
+		if (read_op->native_4ba)
+			cmd_buf[3] = READ_MODE_4B_ADDR_FAST_0x0C;
+		else if (read_op->opcode != JEDEC_READ)
+			cmd_buf[3] = READ_MODE_FAST;
+
+		if (read_op->opcode == JEDEC_READ_4BA)
+			cmd_buf[4] = JEDEC_FAST_READ_4BA;
+		else
+			cmd_buf[4] = read_op->opcode;
+	} else {
+		if (dediprog_set_io_mode(dp, SINGLE_IO_1_1_1))
+			return -1;
+
+		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
+		    && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
+			cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
+			cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
+		}
 	}
+
 	cmd_buf[5] = 0; /* RFU */
 	cmd_buf[6] = (start >>  0) & 0xff;
 	cmd_buf[7] = (start >>  8) & 0xff;
 	cmd_buf[8] = (start >> 16) & 0xff;
 	cmd_buf[9] = (start >> 24) & 0xff;
+
 	return 10;
 }
 
@@ -450,6 +507,8 @@ static int prepare_rw_cmd_v3(
 		struct flashctx *flash, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
 		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count)
 {
+	struct dediprog_data *const dp = flash->mst.spi->data;
+
 	if (prepare_rw_cmd_common(cmd_buf, dp_spi_cmd, block_count) < 0)
 		return -1;
 
@@ -460,14 +519,19 @@ static int prepare_rw_cmd_v3(
 	cmd_buf[9] = (start >> 24) & 0xff;
 
 	if (is_read) {
-		if (flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
-			cmd_buf[3] = READ_MODE_4B_ADDR_FAST_0x0C;
-			cmd_buf[4] = JEDEC_FAST_READ_4BA;
-		}
-		cmd_buf[10] = 0x00;	/* address length (3 or 4) */
-		cmd_buf[11] = 0x00;	/* dummy cycle / 2 */
+		const struct spi_read_op *const read_op = get_spi_read_op(flash);
+		if (dediprog_set_io_mode(dp, read_op->io_mode))
+			return -1;
+
+		cmd_buf[3] = READ_MODE_CONFIGURABLE;
+		cmd_buf[4] = read_op->opcode;
+		cmd_buf[10] = read_op->native_4ba || flash->in_4ba_mode ? 4 : 3;
+		cmd_buf[11] = spi_dummy_cycles(read_op) / 2;
 		return 12;
 	} else {
+		if (dediprog_set_io_mode(dp, SINGLE_IO_1_1_1))
+			return -1;
+
 		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
 		    && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
 			cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
@@ -577,6 +641,20 @@ err_free:
 	return err;
 }
 
+static int dediprog_slow_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
+{
+	msg_pdbg("Slow read for partial block from 0x%x, length 0x%x\n", start, len);
+
+	/* Override fast-read function for a moment: */
+	const struct spi_read_op *const backup = flash->spi_fast_read;
+	flash->spi_fast_read = NULL;
+
+	const int ret = default_spi_read(flash, buf, start, len);
+
+	flash->spi_fast_read = backup;
+	return ret;
+}
+
 static int dediprog_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	int ret;
@@ -589,9 +667,7 @@ static int dediprog_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int 
 	dediprog_set_leds(LED_BUSY, dp_data);
 
 	if (residue) {
-		msg_pdbg("Slow read for partial block from 0x%x, length 0x%x\n",
-			 start, residue);
-		ret = default_spi_read(flash, buf, start, residue);
+		ret = dediprog_slow_read(flash, buf, start, residue);
 		if (ret)
 			goto err;
 	}
@@ -604,10 +680,8 @@ static int dediprog_spi_read(struct flashctx *flash, uint8_t *buf, unsigned int 
 
 	len -= residue + bulklen;
 	if (len != 0) {
-		msg_pdbg("Slow read for partial block from 0x%x, length 0x%x\n",
-			 start, len);
-		ret = default_spi_read(flash, buf + residue + bulklen,
-				       start + residue + bulklen, len);
+		ret = dediprog_slow_read(flash, buf + residue + bulklen,
+					 start + residue + bulklen, len);
 		if (ret)
 			goto err;
 	}
@@ -775,8 +849,8 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 				     const unsigned char *writearr,
 				     unsigned char *readarr)
 {
+	struct dediprog_data *const dp_data = flash->mst.spi->data;
 	int ret;
-	const struct dediprog_data *dp_data = flash->mst.spi->data;
 
 	msg_pspew("%s, writecnt=%i, readcnt=%i\n", __func__, writecnt, readcnt);
 	if (writecnt > flash->mst.spi->max_data_write + 5) {
@@ -787,6 +861,9 @@ static int dediprog_spi_send_command(const struct flashctx *flash,
 		msg_perr("Invalid readcnt=%i, aborting.\n", readcnt);
 		return 1;
 	}
+
+	if (dediprog_set_io_mode(dp_data, SINGLE_IO_1_1_1))
+		return 1;
 
 	unsigned int idx, value;
 	/* New protocol has options and timeout combined as value while the old one used the value field for
@@ -1170,6 +1247,8 @@ static int dediprog_shutdown(void *data)
 	int ret = 0;
 	struct dediprog_data *dp_data = data;
 
+	dediprog_set_io_mode(dp_data, SINGLE_IO_1_1_1);
+
 	/* URB 28. Command Set SPI Voltage to 0. */
 	if (dediprog_set_spi_voltage(dp_data->handle, 0x0)) {
 		ret = 1;
@@ -1191,6 +1270,12 @@ out:
 static int dediprog_init(struct flashprog_programmer *const prog)
 {
 	char *voltage, *id_str, *device, *spispeed, *target_str;
+	enum {
+		DEFAULT,
+		SINGLE,
+		DUAL,
+		QUAD,
+	} io_mode = DEFAULT;
 	int spispeed_idx = 1;
 	int millivolt = 3500;
 	long id = -1; /* -1 defaults to enumeration order */
@@ -1198,6 +1283,21 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	long usedevice = 0;
 	long target = FLASH_TYPE_APPLICATION_FLASH_1;
 	int i, ret;
+
+	char *const io_mode_str = extract_programmer_param("iomode");
+	if (io_mode_str) {
+		if (strcmp(io_mode_str, "single") == 0) {
+			io_mode = SINGLE;
+		} else if (strcmp(io_mode_str, "dual") == 0) {
+			io_mode = DUAL;
+		} else if (strcmp(io_mode_str, "quad") == 0) {
+			io_mode = QUAD;
+		} else {
+			msg_perr("Invalid iomode setting: %s\n", io_mode_str);
+			return SPI_GENERIC_ERROR;
+		}
+	}
+	free(io_mode_str);
 
 	spispeed = extract_programmer_param("spispeed");
 	if (spispeed) {
@@ -1326,6 +1426,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	}
 	dp_data->firmwareversion = FIRMWARE_VERSION(0, 0, 0);
 	dp_data->devicetype = DEV_UNKNOWN;
+	dp_data->io_mode = -1;
 
 	/* Here comes the USB stuff. */
 	ret = libusb_init(&dp_data->usb_ctx);
@@ -1396,6 +1497,29 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 		case PROTOCOL_V2: dp_data->prepare_rw_cmd = prepare_rw_cmd_v2; break;
 		default:          dp_data->prepare_rw_cmd = prepare_rw_cmd_v1; break;
 	}
+
+	if (io_mode == DEFAULT) {
+		if (protocol(dp_data) < PROTOCOL_V3) {
+			msg_pdbg("Multi i/o is only tested with protocol v3, not enabling by default.\n");
+		} else {
+			io_mode = DUAL;
+		}
+	} else if (io_mode > SINGLE &&
+		   (dp_data->devicetype < DEV_SF600 || protocol(dp_data) < PROTOCOL_V2)) {
+		msg_pinfo("Multi i/o is only supported for SF600 and SF700 models w/ protocol v2 or later.\n");
+		io_mode = SINGLE;
+	}
+
+	switch (io_mode) {
+		case DUAL: spi_master_dediprog.features |= SPI_MASTER_DUAL; break;
+		case QUAD: spi_master_dediprog.features |= SPI_MASTER_DUAL | SPI_MASTER_QUAD; break;
+		default: break;
+	}
+
+	/* The v2, fixed-op JEDEC_FAST_READ_DUAL_DIO command
+	   seems to use the wrong number of dummy cycles. */
+	if (protocol(dp_data) < PROTOCOL_V3)
+		spi_master_dediprog.features &= ~SPI_MASTER_DUAL_IO;
 
 	if ((dp_data->devicetype == DEV_SF100) ||
 	    (dp_data->devicetype == DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))

@@ -644,7 +644,7 @@ static int spi_nbyte_program(struct flashctx *flash, unsigned int addr, const ui
 	return spi_write_cmd(flash, op, native_4ba, addr, bytes, len, 10);
 }
 
-static const struct spi_read_op *get_spi_read_op(const struct flashctx *flash)
+const struct spi_read_op *get_spi_read_op(const struct flashctx *flash)
 {
 	static const struct spi_read_op sio_read = { SINGLE_IO_1_1_1, false, JEDEC_READ, 0x00, 0 };
 	static const struct spi_read_op sio_read_4ba = { SINGLE_IO_1_1_1, true, JEDEC_READ_4BA, 0x00, 0 };

@@ -323,7 +323,7 @@ including some Arduino-based devices)."
 .sp
 .BR "* buspirate_spi" " (for SPI flash ROMs attached to a Bus Pirate)"
 .sp
-.BR "* dediprog" " (for SPI flash ROMs attached to a Dediprog SF100)"
+.BR "* dediprog" " (for SPI flash ROMs attached to a Dediprog SF100/SF200/SF600/SF700)"
 .sp
 .BR "* rayer_spi" " (for SPI flash ROMs attached to a parallel port by one of various cable types)"
 .sp
@@ -1105,6 +1105,16 @@ where
 can be
 .BR 1 " or " 2
 to select target chip 1 or 2 respectively. The default is target chip 1.
+.sp
+Dediprog SF600 and SF700 programmer models support dual and quad i/o.
+The default is dual i/o on newer models with protocol v3 and single i/o
+otherwise. The mode can be set with the
+.B iomode
+parameter. Valid values are
+.BR single ", " dual ", or " quad .
+For instance, to enable quad i/o
+.sp
+.B "  flashprog \-p dediprog:iomode=quad"
 .SS
 .BR "rayer_spi " programmer
 .IP
