@@ -393,7 +393,10 @@ static int prepare_rw_cmd(
 			data_packet[4] = JEDEC_READ_4BA_FAST;
 		} else if (dedi_spi_cmd == WRITE_MODE_PAGE_PGM
 			   && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
-			data_packet[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
+			if (protocol(dp_data) >= PROTOCOL_V3)
+				data_packet[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
+			else
+				data_packet[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
 			data_packet[4] = JEDEC_BYTE_PROGRAM_4BA;
 		}
 
