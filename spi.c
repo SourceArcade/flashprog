@@ -103,6 +103,7 @@ int spi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 		/* Do not cross 16MiB boundaries in a single transfer.
 		   This helps with
 		   o multi-die 4-byte-addressing chips,
+		   o 4-byte-addressing chips that use an extended address reg,
 		   o dediprog that has a protocol limit of 32MiB-512B. */
 		to_read = min(ALIGN_DOWN(start + 16*MiB, 16*MiB) - start, len);
 		ret = flash->mst.spi->read(flash, buf, start, to_read);
@@ -121,7 +122,19 @@ int spi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start,
 /* real chunksize is up to 256, logical chunksize is 256 */
 int spi_chip_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	return flash->mst.spi->write_256(flash, buf, start, len);
+	int ret;
+	size_t to_write;
+	for (; len; len -= to_write, buf += to_write, start += to_write) {
+		/* Do not cross 16MiB boundaries in a single transfer.
+		   This helps with 4-byte-addressing chips using an
+		   extended-address register that has to match the
+		   current 16MiB area. */
+		to_write = min(ALIGN_DOWN(start + 16*MiB, 16*MiB) - start, len);
+		ret = flash->mst.spi->write_256(flash, buf, start, to_write);
+		if (ret)
+			return ret;
+	}
+	return 0;
 }
 
 int spi_aai_write(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
