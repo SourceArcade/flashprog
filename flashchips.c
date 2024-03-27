@@ -9857,7 +9857,11 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read,
@@ -9903,7 +9907,11 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
@@ -9956,9 +9964,10 @@ const struct flashchip flashchips[] = {
 		/* TODO: security register */
 		.reg_bits	=
 		{
+			.qe	= {STATUS1, 6, RW},
 			.dc	= {{CONFIG, 6, RW}, {CONFIG, 7, RW}},
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read,
@@ -10006,7 +10015,11 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
@@ -10059,9 +10072,10 @@ const struct flashchip flashchips[] = {
 		/* TODO: security register */
 		.reg_bits	=
 		{
+			.qe	= {STATUS1, 6, RW},
 			.dc	= {{CONFIG, 6, RW}, {CONFIG, 7, RW}},
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256, /* Multi I/O supported */
 		.read		= spi_chip_read,
@@ -10109,7 +10123,11 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
@@ -10125,7 +10143,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 1024,
 		.page_size	= 256,
 		/* OTP: 512B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -10149,10 +10168,14 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {1650, 2000},
 	},
 
