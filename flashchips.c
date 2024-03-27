@@ -8784,7 +8784,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 128,
 		.page_size	= 256,
 		/* MX25L1006E supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_FAST_READ_DOUT: MX25L1006E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8807,7 +8808,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp1_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported, MX25L1006E supports dual I/O */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -8820,7 +8821,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 16384,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8843,7 +8844,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -8856,7 +8857,9 @@ const struct flashchip flashchips[] = {
 		.total_size	= 16384,
 		.page_size	= 256,
 		/* OTP: MX25L12833F has 1KB total, others have 512B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		/* *F versions: FEATURE_QPI_35 + DC bits (6, 4, 8, 10) in configuration register */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8880,10 +8883,14 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register and SBLK/SBULK; MX25L12835F: configuration register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -8895,7 +8902,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L1605,
 		.total_size	= 2048,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8918,7 +8925,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp2_srwd, /* bit6: error flag */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -8931,7 +8938,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 2048,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 (MX25L1606E and MX25L1608E only) */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		/* FEATURE_FAST_READ_DOUT: MX25L1606E & MX25L1608E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8957,7 +8965,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* MX25L1605A bp2 only */
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported (MX25L1608E supports dual-I/O read) */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -8969,7 +8977,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L1605,
 		.total_size	= 2048,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_QIO: MX25L1673E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ | FEATURE_FAST_READ_DIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -8992,7 +9001,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6: Continuously Program (CP) mode, for 73E is quad enable */
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B), dual I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9005,7 +9014,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 2048,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9025,10 +9035,14 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9041,7 +9055,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 2048,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9061,10 +9076,14 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9076,7 +9095,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L2005,
 		.total_size	= 256,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_FAST_READ_DOUT: MX25L2006E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9102,7 +9122,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp1_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9115,7 +9135,9 @@ const struct flashchip flashchips[] = {
 		.total_size	= 32768,
 		.page_size	= 256,
 		/* OTP: 512B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP |
+				  FEATURE_4BA | FEATURE_QPI_35 | FEATURE_FAST_READ_QPI4B,
+		.dummy_cycles	= { .qpi_read_params = { 6, 4, 8, 10 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9148,10 +9170,14 @@ const struct flashchip flashchips[] = {
 			}
 		},
 		/* TODO: security register and SBLK/SBULK; MX25L12835F: configuration register */
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits = {
+			.qe	= {STATUS1, 6, RW},
+			.dc	= {{CONFIG, 6, RW}, {CONFIG, 7, RW}},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 		.prepare_access	= spi_prepare_4ba,
 	},
@@ -9164,7 +9190,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L3205,
 		.total_size	= 4096,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9187,7 +9213,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp2_srwd, /* bit6: error flag */
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9200,7 +9226,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 4096,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ | FEATURE_FAST_READ_DIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9223,7 +9249,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6: continuously program mode */
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and dual I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9236,7 +9262,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 4096,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ | FEATURE_FAST_READ_DOUT,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9262,7 +9288,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and dual I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9275,7 +9301,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 4096,
 		.page_size	= 256,
 		/* OTP: 256B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9295,7 +9322,11 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
@@ -9311,7 +9342,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 4096,
 		.page_size	= 256,
 		/* OTP: 512B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9334,10 +9365,14 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			},
 		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and dual I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600}, /* 33F 2.65V..3.6V */
 	},
 
@@ -9349,7 +9384,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L4005,
 		.total_size	= 512,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_FAST_READ_DOUT: MX25L4006E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9375,7 +9411,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp2_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9388,7 +9424,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 64,
 		.page_size	= 256,
 		/* MX25L512E supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_FAST_READ_DOUT: MX25L512E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9414,7 +9451,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp1_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported, MX25L512E supports dual I/O */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600}, /* 2.35-3.6V for MX25V512(C) */
 	},
 
@@ -9426,7 +9463,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= MACRONIX_MX25L5121E,
 		.total_size	= 64,
 		.page_size	= 32,
-		.feature_bits	= FEATURE_WRSR_WREN,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9452,7 +9489,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp1_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9501,7 +9538,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 8192,
 		.page_size	= 256,
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ | FEATURE_FAST_READ_DIO,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9524,7 +9561,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6: continuously program mode */
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B), dual I/O read (0xBB) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9538,7 +9575,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* MX25L6406E supports SFDP */
 		/* OTP: 06E 64B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ | FEATURE_FAST_READ_DOUT,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9564,7 +9601,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B), dual I/O read supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9578,7 +9615,10 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* supports SFDP */
 		/* OTP: 512B total; enter 0xB1, exit 0xC1 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		/* FEATURE_QIO: MX25L6473E, MX25L6473F */
+		/* FEATURE_FAST_READ_DOUT, _QOUT: MX25L6436E */
+		/* FEATURE_FAST_READ_DIO, _QIO: MX25L6445E, MX25L6465E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9601,10 +9641,14 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.printlock	= spi_prettyprint_status_register_bp3_srwd, /* bit6 is quad enable */
+		.reg_bits	=
+		{
+			.qe	= {STATUS1, 6, RW},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 	},
 
@@ -9656,7 +9700,8 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* MX25L8006E, MX25L8008E support SFDP */
 		/* OTP: 64B total; enter 0xB1, exit 0xC1 (MX25L8006E, MX25L8008E only) */
-		.feature_bits	= FEATURE_WRSR_WREN,
+		/* FEATURE_FAST_READ_DOUT: MX25L8006E, MX25L8008E */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_FAST_READ,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -9682,7 +9727,7 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp2_srwd,
 		.unlock		= spi_disable_blockprotect,
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) supported */
+		.read		= spi_chip_read,
 		.voltage	= {2700, 3600}, /* 2.35-3.6V for MX25V8005 */
 	},
 
