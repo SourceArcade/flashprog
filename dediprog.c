@@ -37,6 +37,7 @@
 #define FIRMWARE_VERSION(x,y,z) ((x << 16) | (y << 8) | z)
 #define DEFAULT_TIMEOUT 3000
 #define MAX_BLOCK_COUNT 65535
+#define MAX_CMD_SIZE 15
 #define DEDIPROG_ASYNC_TRANSFERS 8 /* at most 8 asynchronous transfers */
 #define REQTYPE_OTHER_OUT (LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0x43 */
 #define REQTYPE_OTHER_IN (LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0xC3 */
@@ -163,6 +164,9 @@ struct dediprog_data {
 	int firmwareversion;
 	char devicestring[32+1];
 	enum dediprog_devtype devicetype;
+	int (*prepare_rw_cmd)(
+		struct flashctx *, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
+		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count);
 };
 
 #if defined(LIBUSB_MAJOR) && defined(LIBUSB_MINOR) && defined(LIBUSB_MICRO) && \
@@ -375,76 +379,108 @@ static int dediprog_set_spi_speed(unsigned int spispeed_idx, const struct dedipr
 	return 0;
 }
 
-static int prepare_rw_cmd(
-		struct flashctx *const flash, uint8_t *data_packet, unsigned int count,
-		uint8_t dedi_spi_cmd, unsigned int *value, unsigned int *idx, unsigned int start, int is_read)
+static int prepare_rw_cmd_common(uint8_t cmd_buf[MAX_CMD_SIZE], uint8_t dp_spi_cmd, unsigned int count)
 {
-	const struct dediprog_data *dp_data = flash->mst.spi->data;
-
 	if (count > MAX_BLOCK_COUNT) {
 		msg_perr("%s: Unsupported transfer length of %u blocks!\n"
 			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__, count);
-		return 1;
+		return -1;
 	}
 
-	/* First 5 bytes are common in both generations. */
-	data_packet[0] = count & 0xff;
-	data_packet[1] = (count >> 8) & 0xff;
-	data_packet[2] = 0; /* RFU */
-	data_packet[3] = dedi_spi_cmd; /* Read/Write Mode (currently READ_MODE_STD, WRITE_MODE_PAGE_PGM or WRITE_MODE_2B_AAI) */
-	data_packet[4] = 0; /* "Opcode". Specs imply necessity only for READ_MODE_4B_ADDR_FAST and WRITE_MODE_4B_ADDR_256B_PAGE_PGM */
+	/* First 5 bytes are common in all generations. */
+	cmd_buf[0] = count & 0xff;
+	cmd_buf[1] = (count >> 8) & 0xff;
+	cmd_buf[2] = 0;			/* RFU */
+	cmd_buf[3] = dp_spi_cmd;	/* Read/Write Mode (see enums dediprog_readmode / dediprog_writemode) */
+	cmd_buf[4] = 0;			/* "Opcode". Specs imply necessity only for READ_MODE_4B_ADDR_FAST and
+					   WRITE_MODE_4B_ADDR_256B_PAGE_PGM. */
+	return 5;
+}
 
-	if (protocol(dp_data) >= PROTOCOL_V2) {
-		if (is_read && flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
-			data_packet[3] = READ_MODE_4B_ADDR_FAST_0x0C;
-			data_packet[4] = JEDEC_FAST_READ_4BA;
-		} else if (dedi_spi_cmd == WRITE_MODE_PAGE_PGM
-			   && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
-			if (protocol(dp_data) >= PROTOCOL_V3)
-				data_packet[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
-			else
-				data_packet[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
-			data_packet[4] = JEDEC_BYTE_PROGRAM_4BA;
-		}
+static int prepare_rw_cmd_v1(
+		struct flashctx *flash, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
+		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count)
+{
+	const int cmd_len = prepare_rw_cmd_common(cmd_buf, dp_spi_cmd, block_count);
+	if (cmd_len < 0)
+		return -1;
 
-		*value = *idx = 0;
-		data_packet[5] = 0; /* RFU */
-		data_packet[6] = (start >>  0) & 0xff;
-		data_packet[7] = (start >>  8) & 0xff;
-		data_packet[8] = (start >> 16) & 0xff;
-		data_packet[9] = (start >> 24) & 0xff;
-		if (protocol(dp_data) >= PROTOCOL_V3) {
-			if (is_read) {
-				data_packet[10] = 0x00;	/* address length (3 or 4) */
-				data_packet[11] = 0x00;	/* dummy cycle / 2 */
-			} else {
-				/* 16 LSBs and 16 HSBs of page size */
-				/* FIXME: This assumes page size of 256. */
-				data_packet[10] = 0x00;
-				data_packet[11] = 0x01;
-				data_packet[12] = 0x00;
-				data_packet[13] = 0x00;
-			}
+	if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
+		if (spi_set_extended_address(flash, start >> 24))
+			return -1;
+	} else if (start >> 24) {
+		msg_cerr("Can't handle 4-byte address with dediprog.\n");
+		return -1;
+	}
+	/*
+	 * We don't know how the dediprog firmware handles 4-byte
+	 * addresses. So let's not tell it what we are doing and
+	 * only send the lower 3 bytes.
+	 */
+	*value = start & 0xffff;
+	*idx = (start >> 16) & 0xff;
+	return cmd_len;
+}
+
+static int prepare_rw_cmd_v2(
+		struct flashctx *flash, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
+		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count)
+{
+	if (prepare_rw_cmd_common(cmd_buf, dp_spi_cmd, block_count) < 0)
+		return -1;
+
+	if (is_read && flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
+		cmd_buf[3] = READ_MODE_4B_ADDR_FAST_0x0C;
+		cmd_buf[4] = JEDEC_FAST_READ_4BA;
+	} else if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
+		   && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
+		cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
+		cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
+	}
+	cmd_buf[5] = 0; /* RFU */
+	cmd_buf[6] = (start >>  0) & 0xff;
+	cmd_buf[7] = (start >>  8) & 0xff;
+	cmd_buf[8] = (start >> 16) & 0xff;
+	cmd_buf[9] = (start >> 24) & 0xff;
+	return 10;
+}
+
+static int prepare_rw_cmd_v3(
+		struct flashctx *flash, uint8_t cmd_buf[MAX_CMD_SIZE], uint16_t *value, uint16_t *idx,
+		bool is_read, uint8_t dp_spi_cmd, unsigned int start, unsigned int block_count)
+{
+	if (prepare_rw_cmd_common(cmd_buf, dp_spi_cmd, block_count) < 0)
+		return -1;
+
+	cmd_buf[5] = 0; /* RFU */
+	cmd_buf[6] = (start >>  0) & 0xff;
+	cmd_buf[7] = (start >>  8) & 0xff;
+	cmd_buf[8] = (start >> 16) & 0xff;
+	cmd_buf[9] = (start >> 24) & 0xff;
+
+	if (is_read) {
+		if (flash->chip->feature_bits & FEATURE_4BA_FAST_READ) {
+			cmd_buf[3] = READ_MODE_4B_ADDR_FAST_0x0C;
+			cmd_buf[4] = JEDEC_FAST_READ_4BA;
 		}
+		cmd_buf[10] = 0x00;	/* address length (3 or 4) */
+		cmd_buf[11] = 0x00;	/* dummy cycle / 2 */
+		return 12;
 	} else {
-		if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
-			if (spi_set_extended_address(flash, start >> 24))
-				return 1;
-		} else if (start >> 24) {
-			msg_cerr("Can't handle 4-byte address with dediprog.\n");
-			return 1;
+		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
+		    && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
+			cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
+			cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
 		}
-		/*
-		 * We don't know how the dediprog firmware handles 4-byte
-		 * addresses. So let's not tell it what we are doing and
-		 * only send the lower 3 bytes.
-		 */
-		*value = start & 0xffff;
-		*idx = (start >> 16) & 0xff;
+		/* 16 LSBs and 16 HSBs of page size */
+		/* FIXME: This assumes page size of 256. */
+		cmd_buf[10] = 0x00;
+		cmd_buf[11] = 0x01;
+		cmd_buf[12] = 0x00;
+		cmd_buf[13] = 0x00;
+		return 14;
 	}
-
-	return 0;
 }
 
 /* Bulk read interface, will read multiple 512 byte chunks aligned to 512 bytes.
@@ -475,28 +511,15 @@ static int dediprog_spi_bulk_read(struct flashctx *flash, uint8_t *buf, unsigned
 		return 1;
 	}
 
-	int command_packet_size;
-	switch (protocol(dp_data)) {
-	case PROTOCOL_V1:
-		command_packet_size = 5;
-		break;
-	case PROTOCOL_V2:
-		command_packet_size = 10;
-		break;
-	case PROTOCOL_V3:
-		command_packet_size = 12;
-		break;
-	default:
-		return 1;
-	}
-
-	uint8_t data_packet[command_packet_size];
-	unsigned int value, idx;
-	if (prepare_rw_cmd(flash, data_packet, count, READ_MODE_STD, &value, &idx, start, 1))
+	uint16_t value = 0, idx = 0;
+	uint8_t data_packet[MAX_CMD_SIZE];
+	const int command_packet_size = dp_data->prepare_rw_cmd(
+			flash, data_packet, &value, &idx, /* is_read => */true, READ_MODE_STD, start, count);
+	if (command_packet_size < 0)
 		return 1;
 
-	int ret = dediprog_write(dp_data->handle, CMD_READ, value, idx, data_packet, sizeof(data_packet));
-	if (ret != (int)sizeof(data_packet)) {
+	int ret = dediprog_write(dp_data->handle, CMD_READ, value, idx, data_packet, command_packet_size);
+	if (ret != command_packet_size) {
 		msg_perr("Command Read SPI Bulk failed, %i %s!\n", ret, libusb_error_name(ret));
 		return 1;
 	}
@@ -636,27 +659,15 @@ static int dediprog_spi_bulk_write(struct flashctx *flash, const uint8_t *buf, u
 	if (len == 0)
 		return 0;
 
-	int command_packet_size;
-	switch (protocol(dp_data)) {
-	case PROTOCOL_V1:
-		command_packet_size = 5;
-		break;
-	case PROTOCOL_V2:
-		command_packet_size = 10;
-		break;
-	case PROTOCOL_V3:
-		command_packet_size = 14;
-		break;
-	default:
+	uint16_t value = 0, idx = 0;
+	uint8_t data_packet[MAX_CMD_SIZE];
+	const int command_packet_size = dp_data->prepare_rw_cmd(
+			flash, data_packet, &value, &idx, /* is_read => */false, dedi_spi_cmd, start, count);
+	if (command_packet_size < 0)
 		return 1;
-	}
 
-	uint8_t data_packet[command_packet_size];
-	unsigned int value, idx;
-	if (prepare_rw_cmd(flash, data_packet, count, dedi_spi_cmd, &value, &idx, start, 0))
-		return 1;
-	int ret = dediprog_write(dp_data->handle, CMD_WRITE, value, idx, data_packet, sizeof(data_packet));
-	if (ret != (int)sizeof(data_packet)) {
+	int ret = dediprog_write(dp_data->handle, CMD_WRITE, value, idx, data_packet, command_packet_size);
+	if (ret != command_packet_size) {
 		msg_perr("Command Write SPI Bulk failed, %s!\n", libusb_error_name(ret));
 		return 1;
 	}
@@ -1379,6 +1390,12 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 
 	if (dediprog_standalone_mode(dp_data))
 		goto init_err_cleanup_exit;
+
+	switch (protocol(dp_data)) {
+		case PROTOCOL_V3: dp_data->prepare_rw_cmd = prepare_rw_cmd_v3; break;
+		case PROTOCOL_V2: dp_data->prepare_rw_cmd = prepare_rw_cmd_v2; break;
+		default:          dp_data->prepare_rw_cmd = prepare_rw_cmd_v1; break;
+	}
 
 	if ((dp_data->devicetype == DEV_SF100) ||
 	    (dp_data->devicetype == DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))
