@@ -68,6 +68,8 @@ enum io_mode {
 	QPI_4_4_4,
 };
 
+enum io_mode spi_current_io_mode(const struct flashctx *);
+
 /* describes properties of a read operation */
 struct spi_read_op {
 	enum io_mode io_mode;

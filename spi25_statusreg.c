@@ -139,9 +139,11 @@ int spi_write_register(const struct flashctx *flash, enum flash_reg reg, uint8_t
 
 	struct spi_command cmds[] = {
 	{
+		.io_mode	= spi_current_io_mode(flash),
 		.opcode_len	= JEDEC_WREN_OUTSIZE,
 		.writearr	= &enable_cmd,
 	}, {
+		.io_mode	= spi_current_io_mode(flash),
 		.opcode_len	= 1,
 		.write_len	= write_cmd_len - 1,
 		.writearr	= write_cmd,

@@ -460,8 +460,9 @@ struct flashprog_flashctx {
            of the extended address register. */
 	int address_high_byte;
 	bool in_4ba_mode;
+	bool in_qpi_mode;
 	/* For SPI flash chips, we dynamically select the fast-read operation. */
-	const struct spi_read_op *spi_fast_read;
+	struct spi_read_op *spi_fast_read;
 
 	int chip_restore_fn_count;
 	struct chip_restore_func_data {

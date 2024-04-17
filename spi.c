@@ -31,6 +31,9 @@ int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
 		     unsigned int readcnt, const unsigned char *writearr,
 		     unsigned char *readarr)
 {
+	if (spi_current_io_mode(flash) != SINGLE_IO_1_1_1)
+		return default_spi_send_command(flash, writecnt, readcnt, writearr, readarr);
+
 	return flash->mst.spi->command(flash, writecnt, readcnt, writearr,
 				       readarr);
 }
@@ -47,7 +50,7 @@ int default_spi_send_command(const struct flashctx *flash, unsigned int writecnt
 {
 	struct spi_command cmd[] = {
 	{
-		.io_mode = SINGLE_IO_1_1_1,
+		.io_mode = spi_current_io_mode(flash),
 		.opcode_len = 1,
 		.address_len = writecnt - 1,
 		.read_len = readcnt,

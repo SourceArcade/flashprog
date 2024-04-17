@@ -312,10 +312,12 @@ int spi_simple_write_cmd(struct flashctx *const flash, const uint8_t op, const u
 {
 	struct spi_command cmds[] = {
 	{
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ op },
@@ -346,10 +348,12 @@ static int spi_write_extended_address_register(struct flashctx *const flash, con
 
 	struct spi_command cmds[] = {
 	{
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.opcode_len = 1,
 		.write_len = 1,
@@ -424,10 +428,12 @@ static int spi_write_cmd(struct flashctx *const flash, const uint8_t op,
 	uint8_t cmd[1 + JEDEC_MAX_ADDR_LEN + 256];
 	struct spi_command cmds[] = {
 	{
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.opcode_len = 1,
 		.writearr = (const unsigned char[]){ JEDEC_WREN },
 	}, {
+		.io_mode = spi_current_io_mode(flash),
 		.readarr = 0,
 		.writearr = cmd,
 	},

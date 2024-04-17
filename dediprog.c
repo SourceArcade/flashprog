@@ -646,7 +646,7 @@ static int dediprog_slow_read(struct flashctx *flash, uint8_t *buf, unsigned int
 	msg_pdbg("Slow read for partial block from 0x%x, length 0x%x\n", start, len);
 
 	/* Override fast-read function for a moment: */
-	const struct spi_read_op *const backup = flash->spi_fast_read;
+	struct spi_read_op *const backup = flash->spi_fast_read;
 	flash->spi_fast_read = NULL;
 
 	const int ret = default_spi_read(flash, buf, start, len);

@@ -506,6 +506,10 @@ static inline bool spi_master_quad(const struct flashctx *const flash)
 {
 	return flash->mst.spi->features & SPI_MASTER_QUAD;
 }
+static inline bool spi_master_qpi(const struct flashctx *const flash)
+{
+	return flash->mst.spi->features & SPI_MASTER_QPI;
+}
 
 /* usbdev.c */
 struct libusb_device_handle;

@@ -77,9 +77,36 @@ static int spi_prepare_4ba(struct flashctx *const flash)
 	return 0;
 }
 
+static int spi_enter_qpi(struct flashctx *const flash)
+{
+	const unsigned char cmd = flash->chip->feature_bits & FEATURE_QPI_35_F5 ? 0x35 : 0x38;
+	const int ret = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
+	if (!ret) {
+		msg_cdbg("Entered QPI mode.\n");
+		flash->in_qpi_mode = true;
+	}
+	return ret;
+}
+
+static int spi_exit_qpi(struct flashctx *const flash)
+{
+	const unsigned char cmd = flash->chip->feature_bits & FEATURE_QPI_35_F5 ? 0xf5 : 0xff;
+	const int ret = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
+	if (!ret) {
+		msg_cdbg("Left QPI mode.\n");
+		flash->in_qpi_mode = false;
+	}
+	return ret;
+}
+
+enum io_mode spi_current_io_mode(const struct flashctx *const flash)
+{
+	return flash->in_qpi_mode ? QPI_4_4_4 : SINGLE_IO_1_1_1;
+}
+
 static int spi_prepare_quad_io(struct flashctx *const flash)
 {
-	if (!spi_master_quad(flash))
+	if (!spi_master_quad(flash) && !spi_master_qpi(flash))
 		return 0;
 
 	/* Check QE bit if present */
@@ -99,10 +126,58 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 		}
 	}
 
+	flash->in_qpi_mode = false;
+
+	if (!(flash->chip->feature_bits & (FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF)) || !spi_master_qpi(flash))
+		return 0;
+
+	if (spi_enter_qpi(flash))
+		msg_cwarn("Failed to switch to QPI mode!\n");
+
 	return 0;
 }
 
-static const struct spi_read_op *select_spi_fast_read(const struct flashctx *flash)
+static bool qpi_use_fast_read_qio(const struct flashctx *flash)
+{
+	return flash->chip->feature_bits & FEATURE_SET_READ_PARAMS ||
+		flash->chip->reg_bits.dc[0].reg != INVALID_REG ||
+		(flash->chip->dummy_cycles.qpi_fast_read_qio != 0 &&
+		 (flash->chip->dummy_cycles.qpi_fast_read == 0 ||
+		  flash->chip->dummy_cycles.qpi_fast_read_qio <=
+			flash->chip->dummy_cycles.qpi_fast_read));
+}
+
+static int qpi_dummy_cycles(const struct flashctx *flash)
+{
+	if (flash->chip->feature_bits & FEATURE_SET_READ_PARAMS ||
+	    flash->chip->reg_bits.dc[0].reg != INVALID_REG)
+		/* TODO: Index 00 is assumed to be the default.
+		         Could switch to potentially faster params. */
+		return flash->chip->dummy_cycles.qpi_read_params.clks00;
+	else if (qpi_use_fast_read_qio(flash))
+		return flash->chip->dummy_cycles.qpi_fast_read_qio;
+	else
+		return flash->chip->dummy_cycles.qpi_fast_read;
+}
+
+static const struct spi_read_op *select_qpi_fast_read(const struct flashctx *flash)
+{
+	static const struct spi_read_op fast_read = { QPI_4_4_4, false, JEDEC_FAST_READ, 0x00, 0 };
+	static const struct spi_read_op fast_read_qio = { QPI_4_4_4, false, JEDEC_FAST_READ_QIO, 0xff, 0 };
+	static const struct spi_read_op fast_read_qio_4ba = { QPI_4_4_4, true, JEDEC_FAST_READ_QIO_4BA, 0xff, 0 };
+
+	if (qpi_use_fast_read_qio(flash)) {
+		if (flash->chip->feature_bits & FEATURE_FAST_READ_QPI4B &&
+		    spi_master_4ba(flash) && flash->mst.spi->probe_opcode(flash, fast_read_qio_4ba.opcode))
+			return &fast_read_qio_4ba;
+		else
+			return &fast_read_qio;
+	} else {
+		return &fast_read;
+	}
+}
+
+static const struct spi_read_op *select_multi_io_fast_read(const struct flashctx *flash)
 {
 	static const struct {
 		unsigned int feature_check;
@@ -138,6 +213,26 @@ static const struct spi_read_op *select_spi_fast_read(const struct flashctx *fla
 	return NULL;
 }
 
+static struct spi_read_op *select_spi_fast_read(const struct flashctx *flash)
+{
+	const struct spi_read_op *const fast_read =
+		flash->in_qpi_mode
+		? select_qpi_fast_read(flash)
+		: select_multi_io_fast_read(flash);
+	if (!fast_read)
+		return NULL;
+
+	struct spi_read_op *const fast_read_copy = malloc(sizeof(*flash->spi_fast_read));
+	if (!fast_read_copy)
+		return NULL;
+
+	*fast_read_copy = *fast_read;
+	if (flash->in_qpi_mode)
+		fast_read_copy->dummy_len = qpi_dummy_cycles(flash) / 2;
+
+	return fast_read_copy;
+}
+
 int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps prep)
 {
 	if (prep != PREPARE_FULL)
@@ -153,9 +248,24 @@ int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps pr
 
 	flash->spi_fast_read = select_spi_fast_read(flash);
 
+	if (!flash->spi_fast_read && flash->in_qpi_mode) {
+		msg_cwarn("No compatible fast-read operation! Leaving QPI mode.\n");
+		if (spi_exit_qpi(flash)) {
+			msg_cerr("Failed to exit QPI mode!\n");
+			return 1;
+		}
+		/* Try again w/o QPI */
+		flash->spi_fast_read = select_spi_fast_read(flash);
+	}
+
 	return 0;
 }
 
 void spi_finish_io(struct flashctx *const flash)
 {
+	if (flash->in_qpi_mode) {
+		if (spi_exit_qpi(flash))
+			msg_cwarn("Failed to exit QPI mode!\n");
+	}
+	free(flash->spi_fast_read);
 }
