@@ -14,6 +14,8 @@ RUN \
 	{ dnf install -y libgpiod-devel || true; } && \
 	dnf clean -y all
 
+RUN dnf install -y diffutils && dnf clean -y all
+
 RUN mkdir -p -m 1777 /ccache
 
 ENV GIT_SSL_NO_VERIFY=1
