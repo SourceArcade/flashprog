@@ -5,6 +5,8 @@ include Makefile.targets
 CC := ccache cc
 MAKECMD := make
 MAKEARGS := CONFIG_EVERYTHING=yes
+MESONCMD := meson
+MESONARGS := -D programmer=all -D classic_cli_print_wiki=enabled --auto-features enabled
 
 spc :=
 spc := $(spc) $(spc)
@@ -62,11 +64,11 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 		--name mani_$(call ident,$*) mani/$* \
 		"git fetch $(TEST_REMOTE) $(TEST_REVISION) && \
 		 git checkout FETCH_HEAD && \
-		 export $(ENV_VARS) && \
-		 $(MAKECMD) clean && $(MAKECMD) -j$${CPUS:-1} CC='$(CC)' \
-		 $(if $(STRIP),STRIP='$(STRIP)') \
-		 $(if $(LIBS_BASE),LIBS_BASE='$(LIBS_BASE)') \
-		 $(MAKEARGS)" \
+		 export CC='$(CC)' STRIP='$(STRIP)' LIBS_BASE='$(LIBS_BASE)' && \
+		 export MAKECMD='$(MAKECMD)' MAKEARGS='$(subst ',\\\",$(MAKEARGS))' && \
+		 export MESONCMD='$(MESONCMD)' MESONARGS='$(subst ',\\\",$(MESONARGS))' && \
+		 export CPUS=$${CPUS:-1} $(ENV_VARS) && \
+		 ./test_build.sh" \
 		$(if $(QUIET_TEST),>/dev/null 2>&1) \
 			|| { RET=$$?; echo $*: $${RET}; exit $${RET}; }
 
