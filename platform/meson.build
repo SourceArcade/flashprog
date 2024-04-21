@@ -21,11 +21,11 @@ if host_machine.system() == 'openbsd'
   endif
 endif
 
-# NetBSD requires libx86 or libx86_64 for I/O port handling
+# NetBSD requires libi386 or libx86_64 for I/O port handling
 if host_machine.system() == 'netbsd'
   if host_machine.cpu_family() == 'x86'
-    libx86 = cc.find_library('x86')
-    deps += libx86
+    libi386 = cc.find_library('i386')
+    deps += libi386
   elif host_machine.cpu_family() == 'x86_64'
     libx86_64 = cc.find_library('x86_64')
     deps += libx86_64
