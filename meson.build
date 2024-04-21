@@ -111,6 +111,7 @@ systems_hwaccess   = [ 'linux', 'openbsd', 'freebsd', 'dragonfly', 'netbsd' ]
 systems_serial     = [ 'linux', 'openbsd', 'freebsd', 'dragonfly', 'netbsd', 'darwin' ]
 
 cpus_port_io = [ 'x86', 'x86_64' ]
+cpus_raw_mem = [ 'x86', 'x86_64', 'mips', 'mips64', 'ppc', 'ppc64', 'arm', 'aarch64', 'sparc', 'sparc64', 'arc', 'e2k' ]
 
 group_ftdi   = get_option('programmer').contains('group_ftdi')
 group_pci    = get_option('programmer').contains('group_pci')
@@ -157,7 +158,7 @@ linux_headers = \
 programmer = {
   'atahpt' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('atahpt.c', 'pcidev.c'),
@@ -166,7 +167,7 @@ programmer = {
   },
   'atapromise' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io, cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('atapromise.c', 'pcidev.c'),
@@ -224,6 +225,7 @@ programmer = {
   },
   'drkaiser' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('drkaiser.c', 'pcidev.c'),
@@ -241,6 +243,7 @@ programmer = {
   },
   'gfxnvidia' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('gfxnvidia.c', 'pcidev.c'),
@@ -248,7 +251,7 @@ programmer = {
   },
   'internal' : {
     'systems' : systems_hwaccess + ['linux'],
-    'cpu_families' : (host_machine.system() == 'linux' ? [host_machine.cpu_family()] : ['x86', 'x86_64']),
+    'cpu_families' : (host_machine.system() == 'linux' ? [ cpus_raw_mem ] : [ ['x86', 'x86_64'] ]),
     'deps'    : [ libpci ],
     'groups'  : [ group_internal ],
     'srcs'    : (host_machine.cpu_family() in ['x86', 'x86_64'] ? files(
@@ -284,6 +287,7 @@ programmer = {
   },
   'it8212' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('it8212.c', 'pcidev.c'),
@@ -328,7 +332,7 @@ programmer = {
   },
   'nic3com' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nic3com.c', 'pcidev.c'),
@@ -336,6 +340,7 @@ programmer = {
   },
   'nicintel' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nicintel.c', 'pcidev.c'),
@@ -343,6 +348,7 @@ programmer = {
   },
   'nicintel_eeprom' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nicintel_eeprom.c', 'pcidev.c'),
@@ -350,6 +356,7 @@ programmer = {
   },
   'nicintel_spi' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nicintel_spi.c', 'pcidev.c'),
@@ -357,7 +364,7 @@ programmer = {
   },
   'nicnatsemi' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nicnatsemi.c', 'pcidev.c'),
@@ -366,7 +373,7 @@ programmer = {
   },
   'nicrealtek' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('nicrealtek.c', 'pcidev.c'),
@@ -374,6 +381,7 @@ programmer = {
   },
   'ogp_spi' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('ogp_spi.c', 'pcidev.c'),
@@ -393,14 +401,14 @@ programmer = {
   },
   'rayer_spi' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io ],
     'groups'  : [ group_internal ],
     'srcs'    : files('rayer_spi.c'),
     'flags'   : [ '-DCONFIG_RAYER_SPI=1' ],
   },
   'satamv' : {
     'systems' : systems_hwaccess,
-    'cpu_families' : cpus_port_io,
+    'cpu_families' : [ cpus_port_io, cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('satamv.c', 'pcidev.c'),
@@ -408,6 +416,7 @@ programmer = {
   },
   'satasii' : {
     'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
     'deps'    : [ libpci ],
     'groups'  : [ group_pci, group_internal ],
     'srcs'    : files('satasii.c', 'pcidev.c'),
@@ -453,8 +462,13 @@ foreach p_name, p_data : programmer
   selected_soft = p_data.get('groups').contains(true) or \
                   'all' in get_option('programmer') or \
                   'auto' in get_option('programmer') and p_data.get('default')
-  available     = (p_data.get('systems').contains('all') or p_data.get('systems').contains(host_machine.system())) \
-                  and (p_data.get('cpu_families').contains('all') or p_data.get('cpu_families').contains(host_machine.cpu_family()))
+
+  available = (p_data.get('systems') == ['all'] or p_data.get('systems').contains(host_machine.system()))
+  if p_data.get('cpu_families') != ['all']
+    foreach families_list : p_data.get('cpu_families')
+      available = available and families_list.contains(host_machine.cpu_family())
+    endforeach
+  endif
 
   foreach dep : p_data.get('deps')
     if not dep.found()
