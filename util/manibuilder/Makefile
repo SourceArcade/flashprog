@@ -62,6 +62,7 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 		--name mani_$(call ident,$*) mani/$* \
 		"git fetch $(TEST_REMOTE) $(TEST_REVISION) && \
 		 git checkout FETCH_HEAD && \
+		 export $(ENV_VARS) && \
 		 $(MAKECMD) clean && $(MAKECMD) -j$${CPUS:-1} CC='$(CC)' \
 		 $(if $(STRIP),STRIP='$(STRIP)') \
 		 $(if $(LIBS_BASE),LIBS_BASE='$(LIBS_BASE)') \

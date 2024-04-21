@@ -79,3 +79,4 @@ anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBPCI_CFLAGS=-I/usr/pkg/incl
 anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=HAS_LIBUSB1=yes
 anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBUSB1_LDFLAGS='-L/usr/pkg/lib -lusb-1.0'
 anita\:7.1-i386 anita\:7.1-amd64: MAKEARGS+=CONFIG_LIBUSB1_CFLAGS=-I/usr/pkg/include/libusb-1.0
+anita\:7.1-i386 anita\:7.1-amd64: ENV_VARS+=LD_LIBRARY_PATH=/usr/pkg/lib
