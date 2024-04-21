@@ -51,7 +51,7 @@ OFFICIAL_TAGS := \
 	  $(foreach v,noble, \
 	    $(a)/ubuntu\:$(v))) \
 	$(foreach a,ppc64le s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
-	  $(foreach v,3.17 3.16 3.15, \
+	  $(foreach v,3.19 3.18 3.17 3.16 3.15, \
 	    $(a)/alpine\:$(v))) \
 	$(ALMALINUX_TAGS)
 
