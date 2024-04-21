@@ -1,3 +1,5 @@
+fs = import('fs')
+
 srcs += files(
   ('endian_' + host_machine.endian() + '.c'),
   'memaccess.c',
@@ -21,14 +23,18 @@ if host_machine.system() == 'openbsd'
   endif
 endif
 
-# NetBSD requires libi386 or libx86_64 for I/O port handling
 if host_machine.system() == 'netbsd'
+  # NetBSD requires libi386 or libx86_64 for I/O port handling
   if host_machine.cpu_family() == 'x86'
     libi386 = cc.find_library('i386')
     deps += libi386
   elif host_machine.cpu_family() == 'x86_64'
     libx86_64 = cc.find_library('x86_64')
     deps += libx86_64
+  endif
+  # and special handling for `pci.h` not being inside `pci/`
+  if fs.exists('/usr/pkg/include/pciutils/pci.h')
+    add_project_arguments('-DPCIUTILS_PCI_H', language : 'c')
   endif
 endif
 
