@@ -42,7 +42,7 @@ ALMALINUX_TAGS := \
 
 OFFICIAL_TAGS := \
 	$(foreach a,ppc64le s390x arm64v8 amd64, \
-	  $(foreach v,37 36 35, \
+	  $(foreach v,40 39 38 37 36 35, \
 	    $(a)/fedora\:$(v))) \
 	$(foreach a,ppc64le mips64le s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
 	  $(foreach v,bookworm, \
