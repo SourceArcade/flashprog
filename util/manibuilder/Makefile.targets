@@ -1,4 +1,5 @@
 ANITA_TAGS := \
+	anita\:10.0-amd64 anita\:10.0-i386 \
 	anita\:9.3-amd64 anita\:9.3-i386 anita\:9.3-sparc64 \
 	anita\:8.2-amd64 anita\:8.2-i386 \
 	anita\:7.1-amd64 anita\:7.1-i386 \

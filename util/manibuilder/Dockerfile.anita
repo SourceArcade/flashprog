@@ -28,7 +28,7 @@ ARG RUNTIME_MEM=128M
 ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 ARG PKG_PATH=http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/7.1/All
 RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
-"echo 'dhcpcd'                                   >init && \
+"echo 'dhcpcd --waitip'                          >init && \
  echo 'export PKG_PATH=${PKG_PATH}'             >>init && \
  . ./init && \
  pkg_add gmake git-base ccache pkg-config meson \

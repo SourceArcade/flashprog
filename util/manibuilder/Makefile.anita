@@ -1,6 +1,18 @@
 PKGSRC_MIRROR = http://cdn.netbsd.org/
 NETBSD_MIRROR = http://ftp.de.netbsd.org/
 
+anita\:10.0-amd64-build: PKGSRC_PATH=pub/pkgsrc/packages/NetBSD/amd64/10.0/All
+anita\:10.0-amd64-build: NETBSD_IMAGE=pub/NetBSD/NetBSD-10.0/amd64/
+anita\:10.0-amd64-build: QEMU_DISK_SIZE=2G
+anita\:10.0-amd64-build: QEMU_INSTALL_MEM=192M
+anita\:10.0-amd64-build: QEMU_RUNTIME_MEM=512M
+
+anita\:10.0-i386-build: PKGSRC_PATH=pub/pkgsrc/packages/NetBSD/i386/10.0/All
+anita\:10.0-i386-build: NETBSD_IMAGE=pub/NetBSD/NetBSD-10.0/i386/
+anita\:10.0-i386-build: QEMU_DISK_SIZE=2G
+anita\:10.0-i386-build: QEMU_INSTALL_MEM=128M
+anita\:10.0-i386-build: QEMU_RUNTIME_MEM=256M
+
 anita\:9.3-sparc64-build: PKGSRC_PATH=pub/pkgsrc/packages/NetBSD/sparc64/9.3/All
 anita\:9.3-sparc64-build: NETBSD_IMAGE=pub/NetBSD/iso/9.3/NetBSD-9.3-sparc64.iso
 anita\:9.3-sparc64-build: QEMU_DISK_SIZE=2G
