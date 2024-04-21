@@ -22,10 +22,14 @@ test_prog() {
 	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -v "${TEMP_DIR}/empty"
 }
 
-${MAKECMD:-make} clean
-${MAKECMD:-make} -j${CPUS:-$(nproc)} CC="${CC:-ccache cc}" CONFIG_EVERYTHING=yes
-test_prog ./flashprog
+if [ "${MAKECMD=make}" ]; then
+	${MAKECMD} clean
+	eval ${MAKECMD} -j${CPUS:-$(nproc)} CC="\"${CC:-ccache cc}\"" ${MAKEARGS-CONFIG_EVERYTHING=yes}
+	test_prog ./flashprog
+fi
 
-${MESONCMD:-meson} setup --buildtype release "${TEMP_DIR}/build"
-ninja ${CPUS:+-j${CPUS}} -C "${TEMP_DIR}/build"
-test_prog "${TEMP_DIR}/build/flashprog"
+if [ "${MESONCMD=meson}" ]; then
+	eval ${MESONCMD} setup ${MESONARGS--D programmer=all --buildtype release} "${TEMP_DIR}/build"
+	ninja ${CPUS:+-j${CPUS}} -C "${TEMP_DIR}/build"
+	test_prog "${TEMP_DIR}/build/flashprog"
+fi
