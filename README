@@ -179,6 +179,16 @@ If you have insufficient permissions for the destination directory, use sudo
 by adding sudo in front of the commands above.
 
 
+Branching and release policy
+----------------------------
+
+- Feature development happens on the `main` branch
+- Branch-off points for releases are tagged with tags that start with `p`, such as `p1.0`
+- Release branches have a `.x` suffix, for example `1.0.x`
+- Release tags start with `v`, for example `v1.0` or `v1.0.1`
+- Release candidate tags additionally end with `-rcN`, for example `v1.0-rc1`
+
+
 Contact
 -------
 
