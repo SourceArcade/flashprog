@@ -1,6 +1,5 @@
--------------------------------------------------------------------------------
-flashprog README
--------------------------------------------------------------------------------
+flashprog
+=========
 
 flashprog is a utility for detecting, reading, writing, verifying and erasing
 flash chips. It is often used to flash BIOS/EFI/coreboot/firmware images
@@ -98,10 +97,12 @@ To cross-compile on Linux for DOS:
 
  Get packages of the DJGPP cross compiler and install them:
  djgpp-filesystem djgpp-gcc djgpp-cpp djgpp-runtime djgpp-binutils
+
  As an alternative, the DJGPP web site offers packages for download as well:
  djcross-binutils-2.29.1-1ap.x86_64.rpm
  djcross-gcc-7.2.0-1ap.x86_64.rpm
  djcrx-2.05-5.x86_64.rpm
+
  The cross toolchain packages for your distribution may have slightly different
  names (look for packages named *djgpp*).
 
@@ -119,9 +120,9 @@ To cross-compile on Linux for DOS:
  Download pciutils 3.5.6 and apply http://flashprog.org/File:Pciutils-3.5.6.patch.gz
  Compile pciutils, using following command line:
 
- make ZLIB=no DNS=no HOST=i386-djgpp-djgpp CROSS_COMPILE=i586-pc-msdosdjgpp- \
-     PREFIX=/ DESTDIR=$PWD/../libpci-libgetopt  \
-     STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" install install-lib
+    make ZLIB=no DNS=no HOST=i386-djgpp-djgpp CROSS_COMPILE=i586-pc-msdosdjgpp- \
+      PREFIX=/ DESTDIR=$PWD/../libpci-libgetopt  \
+      STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" install install-lib
 
  Download and compile with 'make' http://flashprog.org/File:Libgetopt.tar.gz
 
@@ -130,9 +131,9 @@ To cross-compile on Linux for DOS:
 
  Enter the flashprog directory.
 
- make CC=i586-pc-msdosdjgpp-gcc STRIP=i586-pc-msdosdjgpp-strip \
-	LIBS_BASE=../libpci-libgetopt/ HAS_LIBPCI=yes CONFIG_LIBPCI_LDFLAGS=-lpci \
-	strip
+   make CC=i586-pc-msdosdjgpp-gcc STRIP=i586-pc-msdosdjgpp-strip \
+     LIBS_BASE=../libpci-libgetopt/ HAS_LIBPCI=yes CONFIG_LIBPCI_LDFLAGS=-lpci \
+     strip
 
  If you like, you can compress the resulting executable with UPX:
 
@@ -143,14 +144,16 @@ To cross-compile on Linux for DOS:
 
 To cross-compile on Linux for Windows:
 
- Get packages of the MinGW cross compiler and install them:
+ * Get packages of the MinGW cross compiler and install them:
  mingw32-filesystem mingw32-cross-cpp mingw32-cross-binutils mingw32-cross-gcc
  mingw32-runtime mingw32-headers
- The cross toolchain packages for your distribution may have slightly different
+
+ * The cross toolchain packages for your distribution may have slightly different
  names (look for packages named *mingw*).
  PCI-based programmers (internal etc.) are not supported on Windows.
- Run (change CC= and STRIP= settings where appropriate)
- make CC=i686-w64-mingw32-gcc STRIP=i686-w64-mingw32-strip
+
+ * Run (change CC= and STRIP= settings where appropriate)
+ `make CC=i686-w64-mingw32-gcc STRIP=i686-w64-mingw32-strip`
 
 Processor architecture dependent features:
 
