@@ -12,7 +12,7 @@ RUN \
 		ln -sf /etc/ssl/cert.pem /etc/ssl/certs/ca-certificates.crt; \
 	fi
 
-RUN apk add libgpiod-dev meson || true
+RUN apk add libjaylink-dev libgpiod-dev meson || true
 
 # fix weird permissions in armhf-v3.11
 RUN [ -d /usr/share/git-core/templates ] && \
