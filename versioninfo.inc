@@ -1,2 +1,2 @@
-VERSION = 1.1.x
+VERSION = v1.1-rc1
 MAN_DATE = 2024-03-27
