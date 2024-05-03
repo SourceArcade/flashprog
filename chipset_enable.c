@@ -748,6 +748,13 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	if (ich_generation != CHIPSET_TUNNEL_CREEK && ich_generation != CHIPSET_CENTERTON)
 		msg_pdbg("Top Swap: %s\n", (top_swap) ? "enabled (A16(+) inverted)" : "not enabled");
 
+	/* We can't probe legacy chips if their bus isn't memory mapped. */
+	internal_buses_supported &= boot_straps[bbs].bus;
+
+	/* Suppress unknown laptop warning if we booted from SPI. */
+	if (boot_straps[bbs].bus == BUS_SPI)
+		laptop_ok = true;
+
 	return boot_straps[bbs].bus;
 }
 
@@ -809,10 +816,6 @@ static int enable_flash_ich_spi(struct flashprog_programmer *prog, struct pci_de
 
 	if (((boot_buses & BUS_FWH) && ret_fwh) || ((boot_buses & BUS_SPI) && ret_spi))
 		return ERROR_NONFATAL;
-
-	/* Suppress unknown laptop warning if we booted from SPI. */
-	if (boot_buses & BUS_SPI)
-		laptop_ok = true;
 
 	return 0;
 }
@@ -906,7 +909,7 @@ static int enable_flash_pch_spidev(
 		struct pci_dev *const spi_dev, const char *const name,
 		const enum ich_chipset pch_generation)
 {
-	const enum chipbustype boot_buses = enable_flash_ich_report_gcs(spi_dev, pch_generation, NULL);
+	enable_flash_ich_report_gcs(spi_dev, pch_generation, NULL);
 
 	const int ret_bc = enable_flash_ich_bios_cntl_config_space(spi_dev, pch_generation, 0xdc);
 	if (ret_bc == ERROR_FATAL)
@@ -925,10 +928,6 @@ static int enable_flash_pch_spidev(
 
 	if (ret_bc || ret_spi)
 		return ERROR_NONFATAL;
-
-	/* Suppress unknown laptop warning if we booted from SPI. */
-	if (boot_buses & BUS_SPI)
-		laptop_ok = true;
 
 	return 0;
 }
@@ -1105,10 +1104,6 @@ static int enable_flash_silvermont(struct flashprog_programmer *prog, struct pci
 
 	if (((boot_buses & BUS_FWH) && ret_fwh) || ((boot_buses & BUS_SPI) && ret_spi))
 		return ERROR_NONFATAL;
-
-	/* Suppress unknown laptop warning if we booted from SPI. */
-	if (boot_buses & BUS_SPI)
-		laptop_ok = true;
 
 	return 0;
 }
