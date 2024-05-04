@@ -46,11 +46,8 @@ static int spi_exit_4ba(struct flashctx *flash)
 	return spi_enter_exit_4ba(flash, false);
 }
 
-int spi_prepare_4ba(struct flashctx *const flash, const enum preparation_steps prep)
+static int spi_prepare_4ba(struct flashctx *const flash)
 {
-	if (prep != PREPARE_FULL)
-		return 0;
-
 	flash->address_high_byte = -1;
 	flash->in_4ba_mode = false;
 
@@ -78,4 +75,20 @@ int spi_prepare_4ba(struct flashctx *const flash, const enum preparation_steps p
 	}
 
 	return 0;
+}
+
+int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps prep)
+{
+	if (prep != PREPARE_FULL)
+		return 0;
+
+	int ret = spi_prepare_4ba(flash);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+void spi_finish_io(struct flashctx *const flash)
+{
 }

@@ -61,7 +61,8 @@ int spi_write_chunked(struct flashctx *flash, const uint8_t *buf, unsigned int s
 int spi_set_extended_address(struct flashctx *, uint8_t addr_high);
 
 /* spi25_prepare.c */
-int spi_prepare_4ba(struct flashctx *, enum preparation_steps);
+int spi_prepare_io(struct flashctx *, enum preparation_steps);
+void spi_finish_io(struct flashctx *);
 
 
 /* spi25_statusreg.c */

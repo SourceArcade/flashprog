@@ -1539,6 +1539,16 @@ int selfcheck(void)
 					 "Please report a bug at flashprog@flashprog.org\n", i,
 					 chip->name == NULL ? "unnamed" : chip->name);
 			}
+			if (chip->feature_bits &
+			    (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN | FEATURE_4BA_ENTER_EAR7 |
+			     FEATURE_ANY_DUAL | FEATURE_ANY_QUAD)
+			    && !chip->prepare_access) {
+				msg_gerr("ERROR: Flash chip #%d (%s) misses chip\n"
+					 "preparation function for 4BA and multi-i/o modes.\n"
+					 "Please report a bug at flashprog@flashprog.org\n", i,
+					 chip->name == NULL ? "unnamed" : chip->name);
+				ret = 1;
+			}
 			if (selfcheck_eraseblocks(chip)) {
 				ret = 1;
 			}

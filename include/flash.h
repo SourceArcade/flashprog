@@ -171,6 +171,11 @@ size_t gran_to_bytes(enum write_granularity);
 #define FEATURE_QPI_38		(FEATURE_QIO | FEATURE_QPI_38_FF)
 #define FEATURE_QPI_SRP		(FEATURE_QPI_38 | FEATURE_SET_READ_PARAMS)
 
+/* Catch all dual/quad features to be able to mask them */
+#define FEATURE_ANY_DUAL	(FEATURE_FAST_READ_DOUT | FEATURE_FAST_READ_DIO)
+#define FEATURE_ANY_QUAD	(FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF | \
+				 FEATURE_FAST_READ_QOUT | FEATURE_FAST_READ_QIO | FEATURE_FAST_READ_QPI4B)
+
 #define ERASED_VALUE(flash)	(((flash)->chip->feature_bits & FEATURE_ERASED_ZERO) ? 0x00 : 0xff)
 
 enum test_state {
