@@ -69,6 +69,7 @@ srcs = files(
   'programmer_table.c',
   'sfdp.c',
   'spi25.c',
+  'spi25_prepare.c',
   'spi25_statusreg.c',
   'spi95.c',
   'spi.c',

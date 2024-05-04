@@ -28,6 +28,7 @@ int spi_chip_write_256(struct flashctx *flash, const uint8_t *buf, unsigned int 
 int spi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, int unsigned len);
 
 /* spi25.c */
+int spi_simple_write_cmd(struct flashctx *flash, uint8_t op, unsigned int poll_delay);
 int probe_spi_rdid(struct flashctx *flash);
 int probe_spi_rdid4(struct flashctx *flash);
 int probe_spi_rems(struct flashctx *flash);
@@ -57,9 +58,9 @@ const uint8_t *spi_get_opcode_from_erasefn(erasefunc_t *func, bool *native_4ba);
 int spi_chip_write_1(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len);
 int spi_nbyte_read(struct flashctx *flash, uint8_t *dst, unsigned int addr, unsigned int len);
 int spi_write_chunked(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len, unsigned int chunksize);
-int spi_enter_4ba(struct flashctx *flash);
-int spi_exit_4ba(struct flashctx *flash);
 int spi_set_extended_address(struct flashctx *, uint8_t addr_high);
+
+/* spi25_prepare.c */
 int spi_prepare_4ba(struct flashctx *, enum preparation_steps);
 
 
