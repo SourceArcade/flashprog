@@ -502,6 +502,10 @@ static inline bool spi_master_no_4ba_modes(const struct flashctx *const flash)
 {
 	return flash->mst.spi->features & SPI_MASTER_NO_4BA_MODES;
 }
+static inline bool spi_master_quad(const struct flashctx *const flash)
+{
+	return flash->mst.spi->features & SPI_MASTER_QUAD;
+}
 
 /* usbdev.c */
 struct libusb_device_handle;

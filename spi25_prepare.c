@@ -77,12 +77,41 @@ static int spi_prepare_4ba(struct flashctx *const flash)
 	return 0;
 }
 
+static int spi_prepare_quad_io(struct flashctx *const flash)
+{
+	if (!spi_master_quad(flash))
+		return 0;
+
+	/* Check QE bit if present */
+	if (flash->chip->reg_bits.qe.reg != INVALID_REG) {
+		const struct reg_bit_info qe = flash->chip->reg_bits.qe;
+		uint8_t reg_val;
+
+		if (spi_read_register(flash, qe.reg, &reg_val)) {
+			msg_cwarn("Failed read chip register!\n");
+			reg_val = 0;
+		}
+		if (!(reg_val & 1 << qe.bit_index)) {
+			msg_cinfo("Quad-enable (QE) bit is unknown or unset, disabling quad i/o.\n");
+			flash->chip->feature_bits &= ~FEATURE_ANY_QUAD;
+		} else {
+			msg_cdbg("Quad-enable (QE) bit is set.\n");
+		}
+	}
+
+	return 0;
+}
+
 int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps prep)
 {
 	if (prep != PREPARE_FULL)
 		return 0;
 
 	int ret = spi_prepare_4ba(flash);
+	if (ret)
+		return ret;
+
+	ret = spi_prepare_quad_io(flash);
 	if (ret)
 		return ret;
 
