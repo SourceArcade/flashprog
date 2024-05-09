@@ -1040,6 +1040,19 @@ static int create_erase_layout(struct flashctx *const flashctx, struct erase_lay
 	return layout_idx;
 }
 
+static void deselect_erase_block_rec(const struct erase_layout *layout, size_t findex, size_t block_num)
+{
+	struct eraseblock_data *const ed = &layout[findex].layout_list[block_num];
+	size_t i;
+
+	if (ed->selected) {
+		ed->selected = false;
+	} else if (findex > 0) {
+		for (i = ed->first_sub_block_index; i <= ed->last_sub_block_index; ++i)
+			deselect_erase_block_rec(layout, findex - 1, i);
+	}
+}
+
 /*
  * @brief	Function to select the list of sectors that need erasing
  *
@@ -1083,8 +1096,7 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 
 		if (bytes > eraseblock_size / 2) {
 			if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
-				for (j = sub_block_start; j <= sub_block_end; j++)
-					layout[findex - 1].layout_list[j].selected = false;
+				deselect_erase_block_rec(layout, findex, block_num);
 				ll->selected = true;
 				bytes = eraseblock_size;
 			}
