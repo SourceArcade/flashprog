@@ -1576,7 +1576,7 @@ static int ich_spi_send_multicommand(const struct flashctx *flash,
 
 static bool ich_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 {
-	return find_opcode(curopcodes, opcode) >= 0;
+	return !ichspi_lock || find_opcode(curopcodes, opcode) >= 0;
 }
 
 #define ICH_BMWAG(x) ((x >> 24) & 0xff)
