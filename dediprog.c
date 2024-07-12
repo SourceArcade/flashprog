@@ -1521,7 +1521,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	if (protocol(dp_data) < PROTOCOL_V3)
 		spi_master_dediprog.features &= ~SPI_MASTER_DUAL_IO;
 
-	if ((dp_data->devicetype == DEV_SF100) ||
+	if ((dp_data->devicetype == DEV_SF100 && protocol(dp_data) == PROTOCOL_V1) ||
 	    (dp_data->devicetype == DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))
 		spi_master_dediprog.features &= ~SPI_MASTER_NO_4BA_MODES;
 
