@@ -1380,8 +1380,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	if (dediprog_standalone_mode(dp_data))
 		goto init_err_cleanup_exit;
 
-	if ((dp_data->devicetype == DEV_SF100) ||
-	    (dp_data->devicetype == DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))
+	if (dp_data->devicetype == DEV_SF100 && protocol(dp_data) == PROTOCOL_V1)
 		spi_master_dediprog.features &= ~SPI_MASTER_NO_4BA_MODES;
 
 	if (protocol(dp_data) >= PROTOCOL_V2)
