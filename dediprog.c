@@ -532,10 +532,17 @@ static int prepare_rw_cmd_v3(
 		if (dediprog_set_io_mode(dp, SINGLE_IO_1_1_1))
 			return -1;
 
-		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
-		    && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
-			cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
-			cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
+		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM) {
+			if (flash->chip->feature_bits & FEATURE_4BA_WRITE) {
+				cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
+				cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
+			} else if (flash->in_4ba_mode) {
+				cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
+				cmd_buf[4] = JEDEC_BYTE_PROGRAM;
+			} else if (flashprog_flash_getsize(flash) > 16*MiB) {
+				msg_cerr("Can't handle 4-byte address with dediprog.\n");
+				return -1;
+			}
 		}
 		/* 16 LSBs and 16 HSBs of page size */
 		/* FIXME: This assumes page size of 256. */
@@ -1522,7 +1529,7 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 		spi_master_dediprog.features &= ~SPI_MASTER_DUAL_IO;
 
 	if ((dp_data->devicetype == DEV_SF100 && protocol(dp_data) == PROTOCOL_V1) ||
-	    (dp_data->devicetype == DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))
+	    (dp_data->devicetype >= DEV_SF600 && protocol(dp_data) == PROTOCOL_V3))
 		spi_master_dediprog.features &= ~SPI_MASTER_NO_4BA_MODES;
 
 	if (protocol(dp_data) >= PROTOCOL_V2)
