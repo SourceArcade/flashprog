@@ -335,22 +335,7 @@ static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 
 void prettyprint_ich_descriptor_component(enum ich_chipset cs, const struct ich_descriptors *desc)
 {
-	bool has_flill1;
-
-	switch (cs) {
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
-		has_flill1 = true;
-		break;
-	default:
-		has_flill1 = false;
-		break;
-	}
+	const bool has_flill1 = cs >= SPI_ENGINE_PCH100;
 
 	msg_pdbg2("=== Component Section ===\n");
 	msg_pdbg2("FLCOMP   0x%08x\n", desc->component.FLCOMP);
@@ -1257,17 +1242,11 @@ static uint32_t read_descriptor_reg(enum ich_chipset cs, uint8_t section, uint16
 	uint32_t control = 0;
 	control |= (section << FDOC_FDSS_OFF) & FDOC_FDSS;
 	control |= (offset << FDOC_FDSI_OFF) & FDOC_FDSI;
-	switch (cs) {
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
+
+	if (cs >= SPI_ENGINE_PCH100) {
 		mmio_le_writel(control, spibar + PCH100_REG_FDOC);
 		return mmio_le_readl(spibar + PCH100_REG_FDOD);
-	default:
+	} else {
 		mmio_le_writel(control, spibar + ICH9_REG_FDOC);
 		return mmio_le_readl(spibar + ICH9_REG_FDOD);
 	}
