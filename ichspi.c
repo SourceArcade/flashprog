@@ -1784,14 +1784,7 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 	ich_spibar = spibar;
 
 	/* Moving registers / bits */
-	switch (ich_generation) {
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
+	if (ich_generation >= SPI_ENGINE_PCH100) {
 		num_pr			= 6;	/* Includes GPR0 */
 		reg_pr0			= PCH100_REG_FPR0;
 		swseq_data.reg_ssfsc	= PCH100_REG_SSFSC;
@@ -1801,8 +1794,7 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 		hwseq_data.addr_mask	= PCH100_FADDR_FLA;
 		hwseq_data.only_4k	= true;
 		hwseq_data.hsfc_fcycle	= PCH100_HSFC_FCYCLE;
-		break;
-	default:
+	} else {
 		num_pr			= 5;
 		reg_pr0			= ICH9_REG_PR0;
 		swseq_data.reg_ssfsc	= ICH9_REG_SSFS;
@@ -1812,7 +1804,6 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 		hwseq_data.addr_mask	= ICH9_FADDR_FLA;
 		hwseq_data.only_4k	= false;
 		hwseq_data.hsfc_fcycle	= HSFC_FCYCLE;
-		break;
 	}
 	switch (ich_generation) {
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
@@ -1879,20 +1870,10 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 	tmp = mmio_readl(ich_spibar + ICH9_REG_FADDR);
 	msg_pdbg2("0x08: 0x%08x (FADDR)\n", tmp);
 
-	switch (ich_gen) {
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
+	if (ich_gen >= SPI_ENGINE_PCH100) {
 		tmp = mmio_readl(ich_spibar + PCH100_REG_DLOCK);
 		msg_pdbg("0x0c: 0x%08x (DLOCK)\n", tmp);
 		prettyprint_pch100_reg_dlock(tmp);
-		break;
-	default:
-		break;
 	}
 
 	if (desc_valid) {
@@ -1955,22 +1936,12 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 		 swseq_data.reg_opmenu + 4, mmio_readl(ich_spibar + swseq_data.reg_opmenu + 4));
 
 	if (desc_valid) {
-		switch (ich_gen) {
-		case CHIPSET_ICH8:
-		case CHIPSET_100_SERIES_SUNRISE_POINT:
-		case CHIPSET_C620_SERIES_LEWISBURG:
-		case CHIPSET_300_SERIES_CANNON_POINT:
-		case CHIPSET_500_SERIES_TIGER_POINT:
-		case CHIPSET_APOLLO_LAKE:
-		case CHIPSET_GEMINI_LAKE:
-		case CHIPSET_ELKHART_LAKE:
-		case CHIPSET_BAYTRAIL:
-			break;
-		default:
+		if (ich_gen < SPI_ENGINE_PCH100 &&
+		    ich_gen != CHIPSET_ICH8 &&
+		    ich_gen != CHIPSET_BAYTRAIL) {
 			ichspi_bbar = mmio_readl(ich_spibar + ICH9_REG_BBAR);
 			msg_pdbg("0x%x: 0x%08x (BBAR)\n", ICH9_REG_BBAR, ichspi_bbar);
 			ich_set_bbar(0);
-			break;
 		}
 
 		if (ich_gen == CHIPSET_ICH8) {
@@ -1990,20 +1961,9 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 			prettyprint_ich_reg_vscc(tmp, FLASHPROG_MSG_DEBUG, false);
 		}
 
-		switch (ich_gen) {
-		case CHIPSET_ICH8:
-		case CHIPSET_100_SERIES_SUNRISE_POINT:
-		case CHIPSET_C620_SERIES_LEWISBURG:
-		case CHIPSET_300_SERIES_CANNON_POINT:
-		case CHIPSET_500_SERIES_TIGER_POINT:
-		case CHIPSET_APOLLO_LAKE:
-		case CHIPSET_GEMINI_LAKE:
-		case CHIPSET_ELKHART_LAKE:
-			break;
-		default:
+		if (ich_gen < SPI_ENGINE_PCH100 && ich_gen != CHIPSET_ICH8) {
 			tmp = mmio_readl(ich_spibar + ICH9_REG_FPB);
 			msg_pdbg("0x%x: 0x%08x (FPB)\n", ICH9_REG_FPB, tmp);
-			break;
 		}
 
 		if (read_ich_descriptors_via_fdo(ich_gen, ich_spibar, &desc) == ICH_RET_OK)
