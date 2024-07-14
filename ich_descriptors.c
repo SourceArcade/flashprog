@@ -374,9 +374,23 @@ void prettyprint_ich_descriptor_component(enum ich_chipset cs, const struct ich_
 	if (desc->component.modes.fastread)
 		msg_pdbg2("Fast Read Clock Frequency:      %s\n",
 			  pprint_freq(cs, desc->component.modes.freq_fastread));
-	if (cs > CHIPSET_6_SERIES_COUGAR_POINT)
+	switch (cs) {
+	case CHIPSET_7_SERIES_PANTHER_POINT:
+	case CHIPSET_8_SERIES_LYNX_POINT:
+	case CHIPSET_BAYTRAIL:
+	case CHIPSET_8_SERIES_LYNX_POINT_LP:
+	case CHIPSET_8_SERIES_WELLSBURG:
+	case CHIPSET_9_SERIES_WILDCAT_POINT:
+	case CHIPSET_9_SERIES_WILDCAT_POINT_LP:
+	case CHIPSET_100_SERIES_SUNRISE_POINT:
+	case CHIPSET_APOLLO_LAKE:
+	case CHIPSET_C620_SERIES_LEWISBURG:
 		msg_pdbg2("Dual Output Fast Read Support:  %sabled\n",
 			  desc->component.modes.dual_output ? "en" : "dis");
+		break;
+	default:
+		break;
+	}
 
 	bool has_forbidden_opcode = false;
 	if (desc->component.FLILL != 0) {
