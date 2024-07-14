@@ -558,17 +558,10 @@ static int generate_opcodes(OPCODES * op)
 		return -1;
 	}
 
-	if (ich_generation < SPI_ENGINE_ICH9) {
-		preop = REGREAD16(ICH7_REG_PREOP);
-		optype = REGREAD16(ICH7_REG_OPTYPE);
-		opmenu[0] = REGREAD32(ICH7_REG_OPMENU);
-		opmenu[1] = REGREAD32(ICH7_REG_OPMENU + 4);
-	} else {
-		preop = REGREAD16(swseq_data.reg_preop);
-		optype = REGREAD16(swseq_data.reg_optype);
-		opmenu[0] = REGREAD32(swseq_data.reg_opmenu);
-		opmenu[1] = REGREAD32(swseq_data.reg_opmenu + 4);
-	}
+	preop = REGREAD16(swseq_data.reg_preop);
+	optype = REGREAD16(swseq_data.reg_optype);
+	opmenu[0] = REGREAD32(swseq_data.reg_opmenu);
+	opmenu[1] = REGREAD32(swseq_data.reg_opmenu + 4);
 
 	op->preop[0] = (uint8_t) preop;
 	op->preop[1] = (uint8_t) (preop >> 8);
@@ -626,31 +619,18 @@ static int program_opcodes(OPCODES *op, int enable_undo)
 	}
 
 	msg_pdbg2("\n%s: preop=%04x optype=%04x opmenu=%08x%08x\n", __func__, preop, optype, opmenu[0], opmenu[1]);
-	if (ich_generation < SPI_ENGINE_ICH9) {
-		/* Register undo only for enable_undo=1, i.e. first call. */
-		if (enable_undo) {
-			rmmio_valw(ich_spibar + ICH7_REG_PREOP);
-			rmmio_valw(ich_spibar + ICH7_REG_OPTYPE);
-			rmmio_vall(ich_spibar + ICH7_REG_OPMENU);
-			rmmio_vall(ich_spibar + ICH7_REG_OPMENU + 4);
-		}
-		mmio_writew(preop, ich_spibar + ICH7_REG_PREOP);
-		mmio_writew(optype, ich_spibar + ICH7_REG_OPTYPE);
-		mmio_writel(opmenu[0], ich_spibar + ICH7_REG_OPMENU);
-		mmio_writel(opmenu[1], ich_spibar + ICH7_REG_OPMENU + 4);
-	} else {
-		/* Register undo only for enable_undo=1, i.e. first call. */
-		if (enable_undo) {
-			rmmio_valw(ich_spibar + swseq_data.reg_preop);
-			rmmio_valw(ich_spibar + swseq_data.reg_optype);
-			rmmio_vall(ich_spibar + swseq_data.reg_opmenu);
-			rmmio_vall(ich_spibar + swseq_data.reg_opmenu + 4);
-		}
-		mmio_writew(preop, ich_spibar + swseq_data.reg_preop);
-		mmio_writew(optype, ich_spibar + swseq_data.reg_optype);
-		mmio_writel(opmenu[0], ich_spibar + swseq_data.reg_opmenu);
-		mmio_writel(opmenu[1], ich_spibar + swseq_data.reg_opmenu + 4);
+
+	/* Register undo only for enable_undo=1, i.e. first call. */
+	if (enable_undo) {
+		rmmio_valw(ich_spibar + swseq_data.reg_preop);
+		rmmio_valw(ich_spibar + swseq_data.reg_optype);
+		rmmio_vall(ich_spibar + swseq_data.reg_opmenu);
+		rmmio_vall(ich_spibar + swseq_data.reg_opmenu + 4);
 	}
+	mmio_writew(preop, ich_spibar + swseq_data.reg_preop);
+	mmio_writew(optype, ich_spibar + swseq_data.reg_optype);
+	mmio_writel(opmenu[0], ich_spibar + swseq_data.reg_opmenu);
+	mmio_writel(opmenu[1], ich_spibar + swseq_data.reg_opmenu + 4);
 
 	return 0;
 }
@@ -836,8 +816,8 @@ static int ich7_run_opcode(OPCODE op, uint32_t offset,
 	}
 
 	/* Select opcode */
-	opmenu = REGREAD32(ICH7_REG_OPMENU);
-	opmenu |= ((uint64_t)REGREAD32(ICH7_REG_OPMENU + 4)) << 32;
+	opmenu = REGREAD32(swseq_data.reg_opmenu);
+	opmenu |= ((uint64_t)REGREAD32(swseq_data.reg_opmenu + 4)) << 32;
 
 	for (opcode_index = 0; opcode_index < 8; opcode_index++) {
 		if ((opmenu & 0xff) == op.opcode) {
@@ -1660,6 +1640,10 @@ int ich7_init_spi(void *spibar, enum ich_chipset ich_gen)
 
 	ich_generation = ich_gen;
 	ich_spibar = spibar;
+
+	swseq_data.reg_preop	= ICH7_REG_PREOP;
+	swseq_data.reg_optype	= ICH7_REG_OPTYPE;
+	swseq_data.reg_opmenu	= ICH7_REG_OPMENU;
 
 	msg_pdbg("0x00: 0x%04x     (SPIS)\n",	mmio_readw(ich_spibar + 0));
 	msg_pdbg("0x02: 0x%04x     (SPIC)\n",	mmio_readw(ich_spibar + 2));
