@@ -729,10 +729,6 @@ static void ich_set_bbar(uint32_t min_addr)
 	case CHIPSET_CENTERTON:
 		bbar_off = 0x50;
 		break;
-	case CHIPSET_ICH8:
-	case CHIPSET_BAYTRAIL:
-		msg_pdbg("BBAR offset is unknown!\n");
-		return;
 	case CHIPSET_ICH9:
 	default:		/* Future version might behave the same */
 		bbar_off = ICH9_REG_BBAR;
