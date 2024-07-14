@@ -334,7 +334,10 @@ enum ich_chipset {
 	CHIPSET_TUNNEL_CREEK, /* Atom E6xx */
 	CHIPSET_CENTERTON, /* Atom S1220 S1240 S1260 */
 	CHIPSET_ICH7,
-	CHIPSET_ICH8,
+
+	SPI_ENGINE_ICH9,	/******** ICH9 compatible from here on ********/
+
+	CHIPSET_ICH8 = SPI_ENGINE_ICH9,
 	CHIPSET_ICH9,
 	CHIPSET_ICH10,
 	CHIPSET_5_SERIES_IBEX_PEAK,
@@ -357,7 +360,8 @@ enum ich_chipset {
 
 /* ichspi.c */
 #if CONFIG_INTERNAL == 1
-int ich_init_spi(void *spibar, enum ich_chipset ich_generation);
+int ich7_init_spi(void *spibar, enum ich_chipset);
+int ich9_init_spi(void *spibar, enum ich_chipset);
 int via_init_spi(uint32_t mmio_base);
 
 /* amd_imc.c */
