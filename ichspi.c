@@ -1987,19 +1987,8 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 		ich_spi_mode = ich_hwseq;
 	}
 
-	if (ich_spi_mode == ich_auto &&
-	    (ich_gen == CHIPSET_100_SERIES_SUNRISE_POINT ||
-	     ich_gen == CHIPSET_300_SERIES_CANNON_POINT ||
-	     ich_gen == CHIPSET_500_SERIES_TIGER_POINT)) {
-		msg_pdbg("Enabling hardware sequencing by default for 100+ series PCH.\n");
-		ich_spi_mode = ich_hwseq;
-	}
-
-	if (ich_spi_mode == ich_auto &&
-	    (ich_gen == CHIPSET_APOLLO_LAKE ||
-	     ich_gen == CHIPSET_GEMINI_LAKE ||
-	     ich_gen == CHIPSET_ELKHART_LAKE)) {
-		msg_pdbg("Enabling hardware sequencing by default for Apollo/Gemini/Elkhart Lake.\n");
+	if (ich_spi_mode == ich_auto && ich_gen >= SPI_ENGINE_PCH100) {
+		msg_pdbg("Enabling hardware sequencing by default for 100+ series SPI.\n");
 		ich_spi_mode = ich_hwseq;
 	}
 
