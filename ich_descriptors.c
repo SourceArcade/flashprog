@@ -108,7 +108,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 	static const char *const chipset_names[] = {
 		"Unknown ICH", "ICH8", "ICH9", "ICH10",
 		"5 series Ibex Peak", "6 series Cougar Point", "7 series Panther Point",
-		"8 series Lynx Point", "Baytrail", "8 series Lynx Point LP", "8 series Wellsburg",
+		"Baytrail", "8 series Lynx Point", "8 series Lynx Point LP", "8 series Wellsburg",
 		"9 series Wildcat Point", "9 series Wildcat Point LP", "100 series Sunrise Point",
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
@@ -157,12 +157,30 @@ void prettyprint_ich_descriptor_content(enum ich_chipset cs, const struct ich_de
 	msg_pdbg2("\n");
 }
 
+static unsigned int get_density_index(
+		enum ich_chipset cs, const struct ich_descriptors *desc, unsigned int component)
+{
+	if (cs < CHIPSET_HAS_NEW_COMPONENT_DENSITY) {
+		if (component == 0)
+			return desc->component.dens_old.comp1_density;
+		else
+			return desc->component.dens_old.comp2_density;
+	} else {
+		if (component == 0)
+			return desc->component.dens_new.comp1_density;
+		else
+			return desc->component.dens_new.comp2_density;
+	}
+}
+
 static const char *pprint_density(enum ich_chipset cs, const struct ich_descriptors *desc, uint8_t idx)
 {
 	if (idx > 1) {
 		msg_perr("Only ICH SPI component index 0 or 1 are supported yet.\n");
-		return NULL;
+		return "unknown";
 	}
+	if (cs == CHIPSET_ICH_UNKNOWN)
+		return "unknown";
 
 	if (desc->content.NC == 0 && idx > 0)
 		return "unused";
@@ -177,51 +195,13 @@ static const char *pprint_density(enum ich_chipset cs, const struct ich_descript
 		"32 MB",	/* 0110 */
 		"64 MB",	/* 0111 */
 	};
+	const unsigned int max_idx = cs < CHIPSET_HAS_NEW_COMPONENT_DENSITY ? 5 : 7;
+	const unsigned int size_idx = get_density_index(cs, desc, idx);
 
-	switch (cs) {
-	case CHIPSET_ICH8:
-	case CHIPSET_ICH9:
-	case CHIPSET_ICH10:
-	case CHIPSET_5_SERIES_IBEX_PEAK:
-	case CHIPSET_6_SERIES_COUGAR_POINT:
-	case CHIPSET_7_SERIES_PANTHER_POINT:
-	case CHIPSET_BAYTRAIL: {
-		uint8_t size_enc;
-		if (idx == 0) {
-			size_enc = desc->component.dens_old.comp1_density;
-		} else {
-			size_enc = desc->component.dens_old.comp2_density;
-		}
-		if (size_enc > 5)
-			return "reserved";
-		return size_str[size_enc];
-	}
-	case CHIPSET_8_SERIES_LYNX_POINT:
-	case CHIPSET_8_SERIES_LYNX_POINT_LP:
-	case CHIPSET_8_SERIES_WELLSBURG:
-	case CHIPSET_9_SERIES_WILDCAT_POINT:
-	case CHIPSET_9_SERIES_WILDCAT_POINT_LP:
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE: {
-		uint8_t size_enc;
-		if (idx == 0) {
-			size_enc = desc->component.dens_new.comp1_density;
-		} else {
-			size_enc = desc->component.dens_new.comp2_density;
-		}
-		if (size_enc > 7)
-			return "reserved";
-		return size_str[size_enc];
-	}
-	case CHIPSET_ICH_UNKNOWN:
-	default:
-		return "unknown";
-	}
+	if (size_idx > max_idx)
+		return "reserved";
+
+	return size_str[size_idx];
 }
 
 static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
@@ -1178,61 +1158,25 @@ int getFCBA_component_density(enum ich_chipset cs, const struct ich_descriptors 
 		msg_perr("Only ICH SPI component index 0 or 1 are supported yet.\n");
 		return -1;
 	}
-
-	if (desc->content.NC == 0 && idx > 0)
-		return 0;
-
-	uint8_t size_enc;
-	uint8_t size_max;
-
-	switch (cs) {
-	case CHIPSET_ICH8:
-	case CHIPSET_ICH9:
-	case CHIPSET_ICH10:
-	case CHIPSET_5_SERIES_IBEX_PEAK:
-	case CHIPSET_6_SERIES_COUGAR_POINT:
-	case CHIPSET_7_SERIES_PANTHER_POINT:
-	case CHIPSET_BAYTRAIL:
-		if (idx == 0) {
-			size_enc = desc->component.dens_old.comp1_density;
-		} else {
-			size_enc = desc->component.dens_old.comp2_density;
-		}
-		size_max = 5;
-		break;
-	case CHIPSET_8_SERIES_LYNX_POINT:
-	case CHIPSET_8_SERIES_LYNX_POINT_LP:
-	case CHIPSET_8_SERIES_WELLSBURG:
-	case CHIPSET_9_SERIES_WILDCAT_POINT:
-	case CHIPSET_9_SERIES_WILDCAT_POINT_LP:
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
-		if (idx == 0) {
-			size_enc = desc->component.dens_new.comp1_density;
-		} else {
-			size_enc = desc->component.dens_new.comp2_density;
-		}
-		size_max = 7;
-		break;
-	case CHIPSET_ICH_UNKNOWN:
-	default:
+	if (cs == CHIPSET_ICH_UNKNOWN) {
 		msg_pwarn("Density encoding is unknown on this chipset.\n");
 		return -1;
 	}
 
-	if (size_enc > size_max) {
+	if (desc->content.NC == 0 && idx > 0)
+		return 0;
+
+	const unsigned int max_idx = cs < CHIPSET_HAS_NEW_COMPONENT_DENSITY ? 5 : 7;
+	const unsigned int size_idx = get_density_index(cs, desc, idx);
+
+	if (size_idx > max_idx) {
 		msg_perr("Density of ICH SPI component with index %d is invalid.\n"
 			 "Encoded density is 0x%x while maximum allowed is 0x%x.\n",
-			 idx, size_enc, size_max);
+			 idx, size_idx, max_idx);
 		return -1;
 	}
 
-	return (1 << (19 + size_enc));
+	return 1 << (19 + size_idx);
 }
 
 /* Only used by ichspi.c */
