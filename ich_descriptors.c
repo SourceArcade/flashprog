@@ -427,6 +427,45 @@ void prettyprint_ich_descriptor_region(const enum ich_chipset cs, const struct i
 	msg_pdbg2("\n");
 }
 
+static char prettify_flag(const unsigned int mask, const unsigned int bit, const char flag)
+{
+	return mask & (1 << bit) ? flag : ' ';
+}
+
+/* Takes NULL-terminated lists of names, assumes max. 5 chars per name. */
+static void prettyprint_pch100_masters(
+		const struct ich_descriptors *const desc,
+		const unsigned int number_masters, const char *const masters[],
+		const unsigned int number_regions, const char *const regions[])
+{
+	unsigned int m, r;
+
+	msg_pdbg2("     ");
+	for (r = 0; r < number_regions && regions[r] != NULL; ++r)
+		msg_pdbg2(" %-5s", regions[r]);
+	msg_pdbg2("\n");
+
+	for (m = 0; m < number_masters; ++m) {
+		const unsigned int ext_start = 12;
+
+		if (masters[m] == NULL)
+			break;
+
+		const struct ich_desc_master_region_access master = desc->master.mstr[m];
+
+		msg_pdbg2("%-5s", masters[m]);
+		for (r = 0; r < ext_start && r < number_regions && regions[r] != NULL; ++r)
+			msg_pdbg2("  %c%c  ",
+				  prettify_flag(master.read, r, 'r'),
+				  prettify_flag(master.write, r, 'w'));
+		for (; r < number_regions && regions[r] != NULL; ++r)
+			msg_pdbg2("  %c%c  ",
+				  prettify_flag(master.ext_read, r - ext_start, 'r'),
+				  prettify_flag(master.ext_write, r - ext_start, 'w'));
+		msg_pdbg2("\n");
+	}
+}
+
 void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct ich_descriptors *const desc)
 {
 	ssize_t i;
@@ -442,83 +481,43 @@ void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct i
 	msg_pdbg2("\n");
 
 	msg_pdbg2("--- Details ---\n");
-	if (cs == CHIPSET_100_SERIES_SUNRISE_POINT ||
-	    cs == CHIPSET_300_SERIES_CANNON_POINT ||
-	    cs == CHIPSET_500_SERIES_TIGER_POINT) {
-		const char *const master_names[] = {
-			"BIOS", "ME", "GbE", "unknown", "EC",
-		};
-		if (nm >= (ssize_t)ARRAY_SIZE(master_names)) {
-			msg_pdbg2("%s: number of masters too high (%d).\n", __func__,
-				  desc->content.NM + 1);
+	if (cs >= SPI_ENGINE_PCH100) {
+		const ssize_t nr = ich_number_of_regions(cs, &desc->content);
+		if (nr < 0)
 			return;
-		}
 
-		size_t num_regions;
-		msg_pdbg2("      FD  BIOS  ME  GbE  Pltf Reg5 Reg6 Reg7  EC  Reg9");
-		if (cs == CHIPSET_100_SERIES_SUNRISE_POINT) {
-			num_regions = 10;
-			msg_pdbg2("\n");
-		} else {
-			num_regions = 16;
-			msg_pdbg2(" RegA RegB RegC RegD RegE RegF\n");
-		}
-		for (i = 0; i < nm; i++) {
-			const unsigned int ext_region_start = 12;
-			size_t j;
-			msg_pdbg2("%-4s", master_names[i]);
-			for (j = 0; j < (size_t)min(num_regions, ext_region_start); j++)
-				msg_pdbg2("  %c%c ",
-					  desc->master.mstr[i].read & (1 << j) ? 'r' : ' ',
-					  desc->master.mstr[i].write & (1 << j) ? 'w' : ' ');
-			for (j = ext_region_start; j < num_regions; j++)
-				msg_pdbg2("  %c%c ",
-					  desc->master.mstr[i].ext_read & (1 << (j - ext_region_start)) ? 'r' : ' ',
-					  desc->master.mstr[i].ext_write & (1 << (j - ext_region_start)) ? 'w' : ' ');
-			msg_pdbg2("\n");
-		}
-	} else if (cs == CHIPSET_C620_SERIES_LEWISBURG) {
-		const char *const master_names[] = {
-			"BIOS", "ME", "GbE", "DE", "BMC", "IE",
-		};
-		/* NM starts at 1 instead of 0 for LBG */
-		if (nm > (ssize_t)ARRAY_SIZE(master_names)) {
-			msg_pdbg2("%s: number of masters too high (%d).\n", __func__,
-				  desc->content.NM);
-			return;
-		}
-
-		msg_pdbg2("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
-				"    ", /* width of master name (4 chars minimum) */
-				" FD  ", " BIOS", " ME  ", " GbE ", " Pltf",
+		if (cs == CHIPSET_APOLLO_LAKE ||
+		    cs == CHIPSET_GEMINI_LAKE ||
+		    cs == CHIPSET_ELKHART_LAKE) {
+			const char *const masters[] = {
+				"BIOS", "TXE", NULL
+			};
+			const char *const regions[] = {
+				" FD", "IFWI", " TXE", " n/a", "Pltf.", "DevExp", NULL
+			};
+			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
+		} else if (cs == CHIPSET_C620_SERIES_LEWISBURG) {
+			const char *const masters[] = {
+				"BIOS", "ME", "GbE", "DE", "BMC", "IE", NULL
+			};
+			const char *const regions[] = {
+				" FD  ", " BIOS", " ME  ", " GbE ", "Pltf.",
 				" DE  ", "BIOS2", " Reg7", " BMC ", " DE2 ",
 				" IE  ", "10GbE", "OpROM", "Reg13", "Reg14",
-				"Reg15");
-		for (i = 0; i < nm; i++) {
-			size_t j;
-			msg_pdbg2("%-4s", master_names[i]);
-			for (j = 0; j < 16; j++)
-				msg_pdbg2("  %c%c  ",
-					  desc->master.mstr[i].read & (1 << j) ? 'r' : ' ',
-					  desc->master.mstr[i].write & (1 << j) ? 'w' : ' ');
-			msg_pdbg2("\n");
-		}
-	} else if (cs == CHIPSET_APOLLO_LAKE || cs == CHIPSET_GEMINI_LAKE || cs == CHIPSET_ELKHART_LAKE) {
-		const char *const master_names[] = { "BIOS", "TXE", };
-		if (nm > (ssize_t)ARRAY_SIZE(master_names)) {
-			msg_pdbg2("%s: number of masters too high (%d).\n", __func__, desc->content.NM);
-			return;
-		}
-
-		msg_pdbg2("       FD   IFWI  TXE   n/a  Platf DevExp\n");
-		for (i = 0; i < nm; i++) {
-			ssize_t j;
-			msg_pdbg2("%-4s", master_names[i]);
-			for (j = 0; j < ich_number_of_regions(cs, &desc->content); j++)
-				msg_pdbg2("   %c%c ",
-					  desc->master.mstr[i].read & (1 << j) ? 'r' : ' ',
-					  desc->master.mstr[i].write & (1 << j) ? 'w' : ' ');
-			msg_pdbg2("\n");
+				"Reg15", NULL
+			};
+			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
+		} else {
+			const char *const masters[] = {
+				"BIOS", "ME", "GbE", "unkn.", "EC", NULL
+			};
+			const char *const regions[] = {
+				" FD  ", "BIOS ", " ME  ", " GbE ", "Pltf.",
+				"Reg5 ", "Reg6 ", "Reg7 ", " EC  ", "Reg9 ",
+				"Reg10", "Reg11", "Reg12", "Reg13", "Reg14",
+				"Reg15", NULL
+			};
+			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
 		}
 	} else {
 		const struct ich_desc_master *const mstr = &desc->master;

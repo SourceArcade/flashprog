@@ -242,7 +242,7 @@ struct ich_desc_master {
 						:3;
 		};
 		/* From Skylake on */
-		struct {
+		struct ich_desc_master_region_access {
 			uint32_t ext_read	:4,
 				 ext_write	:4,
 				 read		:12,
