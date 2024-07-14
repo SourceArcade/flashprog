@@ -595,31 +595,21 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	const char *reg_name;
 	bool bild, top_swap;
 
-	switch (ich_generation) {
-	case CHIPSET_BAYTRAIL:
-		reg_name = "GCS";
-		gcs = mmio_readl(rcrb + 0);
-		bild = gcs & 1;
-		top_swap = (gcs & 2) >> 1;
-		break;
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_ELKHART_LAKE:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
+	if (ich_generation >= SPI_ENGINE_PCH100) {
 		reg_name = "BIOS_SPI_BC";
 		gcs = pci_read_long(dev, 0xdc);
 		bild = (gcs >> 7) & 1;
 		top_swap = (gcs >> 4) & 1;
-		break;
-	default:
+	} else if (ich_generation == CHIPSET_BAYTRAIL) {
+		reg_name = "GCS";
+		gcs = mmio_readl(rcrb + 0);
+		bild = gcs & 1;
+		top_swap = (gcs & 2) >> 1;
+	} else {
 		reg_name = "GCS";
 		gcs = mmio_readl(rcrb + 0x3410);
 		bild = gcs & 1;
 		top_swap = mmio_readb(rcrb + 0x3414) & 1;
-		break;
 	}
 
 	msg_pdbg("%s = 0x%x: ", reg_name, gcs);
@@ -736,18 +726,12 @@ static enum chipbustype enable_flash_ich_report_gcs(
 		/* LP PCHs use a single bit for BBS */
 		bbs = (gcs >> 10) & 0x1;
 		break;
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_APOLLO_LAKE:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
-		bbs = (gcs >> 6) & 0x1;
-		break;
 	default:
-		/* Other chipsets use two bits for BBS */
-		bbs = (gcs >> 10) & 0x3;
+		if (ich_generation >= SPI_ENGINE_PCH100)
+			bbs = (gcs >> 6) & 0x1;
+		else
+			/* Other chipsets use two bits for BBS */
+			bbs = (gcs >> 10) & 0x3;
 		break;
 	}
 	msg_pdbg("Boot BIOS Straps: 0x%x (%s)\n", bbs, boot_straps[bbs].name);
