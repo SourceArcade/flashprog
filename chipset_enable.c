@@ -699,6 +699,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 		boot_straps = boot_straps_pch8_lp;
 		break;
 	case CHIPSET_500_SERIES_TIGER_POINT:
+	case CHIPSET_C740_SERIES_EMMITSBURG:
 		boot_straps = boot_straps_pch500;
 		break;
 	case CHIPSET_APOLLO_LAKE:
@@ -1009,6 +1010,12 @@ static int enable_flash_pch500(struct flashprog_programmer *const prog,
 			       struct pci_dev *const spi_dev, const char *const name)
 {
 	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_500_SERIES_TIGER_POINT);
+}
+
+static int enable_flash_c740(struct flashprog_programmer *const prog,
+			     struct pci_dev *const spi_dev, const char *const name)
+{
+	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_C740_SERIES_EMMITSBURG);
 }
 
 /* Silvermont architecture: Bay Trail(-T/-I), Avoton/Rangeley.
@@ -2182,7 +2189,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0xa247,   ANY_REV, B_S,    NT,  "Intel", "C620 Series Supersku",	enable_flash_c620},
 	{0x8086, 0xa248,   ANY_REV, B_S,    NT,  "Intel", "C620 Series Supersku",	enable_flash_c620},
 	{0x8086, 0xa249,   ANY_REV, B_S,    NT,  "Intel", "C620 Series Supersku",	enable_flash_c620},
-	{0x8086, 0x1bca,   ANY_REV, B_S,    NT,  "Intel", "Emmitsburg SKU",		enable_flash_c620},
+	{0x8086, 0x1bca,   ANY_REV, B_S,    NT,  "Intel", "Emmitsburg SKU",		enable_flash_c740},
 	{0x8086, 0xa2c4,   ANY_REV, B_S,    NT,  "Intel", "H270",			enable_flash_pch100},
 	{0x8086, 0xa2c5,   ANY_REV, B_S,    NT,  "Intel", "Z270",			enable_flash_pch100},
 	{0x8086, 0xa2c6,   ANY_REV, B_S,    NT,  "Intel", "Q270",			enable_flash_pch100},

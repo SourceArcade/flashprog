@@ -44,6 +44,7 @@ ssize_t ich_number_of_regions(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_GEMINI_LAKE:
 		return 6;
 	case CHIPSET_C620_SERIES_LEWISBURG:
+	case CHIPSET_C740_SERIES_EMMITSBURG:
 	case CHIPSET_300_SERIES_CANNON_POINT:
 	case CHIPSET_500_SERIES_TIGER_POINT:
 	case CHIPSET_ELKHART_LAKE:
@@ -71,6 +72,7 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 {
 	switch (cs) {
 	case CHIPSET_C620_SERIES_LEWISBURG:
+	case CHIPSET_C740_SERIES_EMMITSBURG:
 		return 6;
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
@@ -91,6 +93,7 @@ static bool has_classic_proc_straps(const enum ich_chipset cs)
 	switch (cs) {
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 	case CHIPSET_C620_SERIES_LEWISBURG:
+	case CHIPSET_C740_SERIES_EMMITSBURG:
 		return true;
 	default:
 		return cs < SPI_ENGINE_PCH100;
@@ -124,6 +127,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"9 series Wildcat Point", "9 series Wildcat Point LP", "100 series Sunrise Point",
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
+		"C740 series Emmitsburg",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -292,6 +296,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_GEMINI_LAKE:
 		return freq_str[2][value];
 	case CHIPSET_500_SERIES_TIGER_POINT:
+	case CHIPSET_C740_SERIES_EMMITSBURG:
 		return freq_str[3][value];
 	case CHIPSET_ELKHART_LAKE:
 		return freq_str[4][value];
@@ -510,7 +515,8 @@ void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct i
 				" FD", "IFWI", " TXE", " n/a", "Pltf.", "DevExp", NULL
 			};
 			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
-		} else if (cs == CHIPSET_C620_SERIES_LEWISBURG) {
+		} else if (cs == CHIPSET_C620_SERIES_LEWISBURG ||
+			   cs == CHIPSET_C740_SERIES_EMMITSBURG) {
 			const char *const masters[] = {
 				"BIOS", "ME", "GbE", "DE", "BMC", "IE", NULL
 			};
@@ -991,8 +997,13 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			warn_peculiar_desc("Gemini Lake");
 			return CHIPSET_GEMINI_LAKE;
 		}
-		if (content->ISL <= 80)
-			return CHIPSET_C620_SERIES_LEWISBURG;
+		if (content->NM == 6) {
+			/* 0x8b is from the SPI Guide, but not yet seen in the wild. */
+			if (0x50 <= content->ISL && content->ISL <= 0x8b)
+				return CHIPSET_C740_SERIES_EMMITSBURG;
+			warn_peculiar_desc("C740 series");
+			return CHIPSET_C740_SERIES_EMMITSBURG;
+		}
 		warn_peculiar_desc("Ibex Peak");
 		return CHIPSET_5_SERIES_IBEX_PEAK;
 	} else if (upper->MDTBA == 0x00) {

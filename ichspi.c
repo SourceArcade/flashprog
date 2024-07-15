@@ -29,6 +29,10 @@
 #include "spi.h"
 #include "ich_descriptors.h"
 
+/* New since C740 series Emmitsburg */
+#define BIOS_BM_RAP		0x118
+#define BIOS_BM_WAP		0x11c
+
 /* Apollo Lake */
 #define APL_REG_FREG12		0xe0	/* 32 Bytes Flash Region 12 */
 
@@ -1517,7 +1521,8 @@ static const char *const access_names[] = {
 	"locked", "read-only", "write-only", "read-write"
 };
 
-static enum ich_access_protection ich9_handle_frap(uint32_t frap, unsigned int i)
+static enum ich_access_protection ich9_handle_access_perm(
+		uint32_t bm_rap, uint32_t bm_wap, unsigned int max, unsigned int i)
 {
 	const int rwperms_unknown = ARRAY_SIZE(access_names);
 	static const char *const region_names[] = {
@@ -1534,9 +1539,9 @@ static enum ich_access_protection ich9_handle_frap(uint32_t frap, unsigned int i
 		: APL_REG_FREG12 + (i - 12) * 4;
 	uint32_t freg = mmio_readl(ich_spibar + offset);
 
-	if (i < 8) {
-		rwperms = (((ICH_BRWA(frap) >> i) & 1) << 1) |
-			  (((ICH_BRRA(frap) >> i) & 1) << 0);
+	if (i < max) {
+		rwperms = (((bm_wap >> i) & 1) << 1) |
+			  (((bm_rap >> i) & 1) << 0);
 	} else {
 		/* Datasheets don't define any access bits for regions > 7. We
 		   can't rely on the actual descriptor settings either as there
@@ -1803,9 +1808,20 @@ int ich9_init_spi(void *spibar, enum ich_chipset ich_gen)
 		msg_pdbg("BRWA 0x%02x, ", ICH_BRWA(tmp));
 		msg_pdbg("BRRA 0x%02x\n", ICH_BRRA(tmp));
 
+		unsigned int max = 8; /* old, FRAP max. */
+		uint32_t bm_wap = ICH_BRWA(tmp), bm_rap = ICH_BRRA(tmp);
+
+		if (ich_gen >= CHIPSET_HAS_NEW_ACCESS_PERM) {
+			max = 32;
+			bm_wap = mmio_readl(ich_spibar + BIOS_BM_WAP);
+			bm_rap = mmio_readl(ich_spibar + BIOS_BM_RAP);
+			msg_pdbg("0x%x: 0x%08x (BIOS_BM_WAP)\n", BIOS_BM_WAP, bm_wap);
+			msg_pdbg("0x%x: 0x%08x (BIOS_BM_RAP)\n", BIOS_BM_RAP, bm_rap);
+		}
+
 		/* Handle FREGx and FRAP registers */
 		for (i = 0; i < num_freg; i++)
-			ich_spi_rw_restricted |= ich9_handle_frap(tmp, i);
+			ich_spi_rw_restricted |= ich9_handle_access_perm(bm_rap, bm_wap, max, i);
 		if (ich_spi_rw_restricted)
 			msg_pinfo("Not all flash regions are freely accessible by flashprog. This is "
 				  "most likely\ndue to an active ME. Please see "
