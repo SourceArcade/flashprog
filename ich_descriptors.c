@@ -955,8 +955,8 @@ static inline void warn_peculiar_desc(const char *const name)
  * Guesses a minimum chipset version based on the maximum number of
  * soft straps per generation and presence of the MIP base (MDTBA).
  */
-static enum ich_chipset guess_ich_chipset_from_content(const struct ich_desc_content *const content,
-						       const struct ich_desc_upper_map *const upper)
+static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const content,
+					  const struct ich_desc_upper_map *const upper)
 {
 	if (content->ICCRIBA == 0x00) {
 		if (content->MSL == 0 && content->ISL <= 2)
@@ -1018,46 +1018,6 @@ static enum ich_chipset guess_ich_chipset_from_content(const struct ich_desc_con
 	}
 }
 
-/*
- * As an additional measure, we check the read frequency like `ifdtool`.
- * The frequency value 6 (17MHz) was reserved before Skylake and is the
- * only valid value since. Skylake is currently the most important dis-
- * tinction because of the dropped number of regions field (NR).
- */
-static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const content,
-					  const struct ich_desc_component *const component,
-					  const struct ich_desc_upper_map *const upper)
-{
-	const enum ich_chipset guess = guess_ich_chipset_from_content(content, upper);
-
-	switch (guess) {
-	case CHIPSET_300_SERIES_CANNON_POINT:
-	case CHIPSET_500_SERIES_TIGER_POINT:
-	case CHIPSET_GEMINI_LAKE:
-	case CHIPSET_ELKHART_LAKE:
-		/* `freq_read` was repurposed, so can't check on it any more. */
-		break;
-	case CHIPSET_100_SERIES_SUNRISE_POINT:
-	case CHIPSET_C620_SERIES_LEWISBURG:
-	case CHIPSET_APOLLO_LAKE:
-		if (component->modes.freq_read != 6) {
-			msg_pwarn("\nThe flash descriptor looks like a Skylake/Sunrise Point descriptor.\n"
-				  "However, the read frequency isn't set to 17MHz (the only valid value).\n"
-				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashprog@flashprog.org\n\n");
-		}
-		break;
-	default:
-		if (component->modes.freq_read == 6) {
-			msg_pwarn("\nThe flash descriptor has the read frequency set to 17MHz. However,\n"
-				  "it doesn't look like a Skylake/Sunrise Point compatible descriptor.\n"
-				  "Please report this message, the output of `ich_descriptors_tool` for\n"
-				  "your descriptor and the output of `lspci -nn` to flashprog@flashprog.org\n\n");
-		}
-	}
-	return guess;
-}
-
 /* len is the length of dump in bytes */
 int read_ich_descriptors_from_dump(const uint32_t *const dump, const size_t len,
 				   enum ich_chipset *const cs, struct ich_descriptors *const desc)
@@ -1108,7 +1068,7 @@ int read_ich_descriptors_from_dump(const uint32_t *const dump, const size_t len,
 	}
 
 	if (*cs == CHIPSET_ICH_UNKNOWN) {
-		*cs = guess_ich_chipset(&desc->content, &desc->component, &desc->upper);
+		*cs = guess_ich_chipset(&desc->content, &desc->upper);
 		prettyprint_ich_chipset(*cs);
 	}
 
