@@ -85,6 +85,17 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 	return -1;
 }
 
+static bool has_classic_proc_straps(const enum ich_chipset cs)
+{
+	switch (cs) {
+	case CHIPSET_100_SERIES_SUNRISE_POINT:
+	case CHIPSET_C620_SERIES_LEWISBURG:
+		return true;
+	default:
+		return cs < SPI_ENGINE_PCH100;
+	}
+}
+
 void prettyprint_ich_reg_vscc(uint32_t reg_val, int verbosity, bool print_vcl)
 {
 	print(verbosity, "BES=0x%x, ",	(reg_val & VSCC_BES)  >> VSCC_BES_OFF);
@@ -152,8 +163,10 @@ void prettyprint_ich_descriptor_content(enum ich_chipset cs, const struct ich_de
 	msg_pdbg2("FISBA/FPSBA (Flash ICH/PCH/SoC Strap Base Addr): 0x%03x\n", getFISBA(cont));
 	msg_pdbg2("NM          (Number of Masters):                 %5zd\n",   ich_number_of_masters(cs, cont));
 	msg_pdbg2("FMBA        (Flash Master Base Address):         0x%03x\n", getFMBA(cont));
-	msg_pdbg2("MSL/PSL     (MCH/PROC Strap Length):             %5d\n",    cont->MSL);
-	msg_pdbg2("FMSBA       (Flash MCH/PROC Strap Base Address): 0x%03x\n", getFMSBA(cont));
+	if (has_classic_proc_straps(cs)) {
+		msg_pdbg2("MSL/PSL     (MCH/PROC Strap Length):             %5d\n",    cont->MSL);
+		msg_pdbg2("FMSBA       (Flash MCH/PROC Strap Base Address): 0x%03x\n", getFMSBA(cont));
+	}
 	msg_pdbg2("\n");
 }
 
@@ -857,17 +870,19 @@ void prettyprint_ich_descriptor_straps(enum ich_chipset cs, const struct ich_des
 	unsigned int i, max_count;
 	msg_pdbg2("=== Softstraps ===\n");
 
-	max_count = MIN(ARRAY_SIZE(desc->north.STRPs), desc->content.MSL);
-	if (max_count < desc->content.MSL) {
-		msg_pdbg2("MSL (%u) is greater than the current maximum of %u entries.\n",
-			  desc->content.MSL, max_count);
-		msg_pdbg2("Only the first %u entries will be printed.\n", max_count);
-	}
+	if (has_classic_proc_straps(cs)) {
+		max_count = MIN(ARRAY_SIZE(desc->north.STRPs), desc->content.MSL);
+		if (max_count < desc->content.MSL) {
+			msg_pdbg2("MSL (%u) is greater than the current maximum of %u entries.\n",
+				  desc->content.MSL, max_count);
+			msg_pdbg2("Only the first %u entries will be printed.\n", max_count);
+		}
 
-	msg_pdbg2("--- North/MCH/PROC (%d entries) ---\n", max_count);
-	for (i = 0; i < max_count; i++)
-		msg_pdbg2("STRP%-2d = 0x%08x\n", i, desc->north.STRPs[i]);
-	msg_pdbg2("\n");
+		msg_pdbg2("--- North/MCH/PROC (%d entries) ---\n", max_count);
+		for (i = 0; i < max_count; i++)
+			msg_pdbg2("STRP%-2d = 0x%08x\n", i, desc->north.STRPs[i]);
+		msg_pdbg2("\n");
+	}
 
 	max_count = MIN(ARRAY_SIZE(desc->south.STRPs), desc->content.ISL);
 	if (max_count < desc->content.ISL) {
@@ -1086,14 +1101,16 @@ int read_ich_descriptors_from_dump(const uint32_t *const dump, const size_t len,
 	for (i = 0; i < nm; i++)
 		desc->master.FLMSTRs[i] = dump[(getFMBA(&desc->content) >> 2) + i];
 
-	/* MCH/PROC (aka. North) straps */
-	if (len < getFMSBA(&desc->content) + desc->content.MSL * 4)
-		return ICH_RET_OOB;
+	if (has_classic_proc_straps(*cs)) {
+		/* MCH/PROC (aka. North) straps */
+		if (len < getFMSBA(&desc->content) + desc->content.MSL * 4)
+			return ICH_RET_OOB;
 
-	/* limit the range to be written */
-	max_count = MIN(sizeof(desc->north.STRPs) / 4, desc->content.MSL);
-	for (i = 0; i < max_count; i++)
-		desc->north.STRPs[i] = dump[(getFMSBA(&desc->content) >> 2) + i];
+		/* limit the range to be written */
+		max_count = MIN(sizeof(desc->north.STRPs) / 4, desc->content.MSL);
+		for (i = 0; i < max_count; i++)
+			desc->north.STRPs[i] = dump[(getFMSBA(&desc->content) >> 2) + i];
+	}
 
 	/* ICH/PCH (aka. South) straps */
 	if (len < getFISBA(&desc->content) + desc->content.ISL * 4)
