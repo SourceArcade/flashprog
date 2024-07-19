@@ -705,6 +705,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
 	case CHIPSET_ELKHART_LAKE:
+	case CHIPSET_SNOW_RIDGE: /* hard coded to 0 (SPI) */
 		boot_straps = boot_straps_apl;
 		break;
 	case CHIPSET_8_SERIES_WELLSBURG: // FIXME: check datasheet
@@ -1016,6 +1017,12 @@ static int enable_flash_c740(struct flashprog_programmer *const prog,
 			     struct pci_dev *const spi_dev, const char *const name)
 {
 	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_C740_SERIES_EMMITSBURG);
+}
+
+static int enable_flash_snowridge(struct flashprog_programmer *const prog,
+				  struct pci_dev *const spi_dev, const char *const name)
+{
+	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_SNOW_RIDGE);
 }
 
 /* Silvermont architecture: Bay Trail(-T/-I), Avoton/Rangeley.
@@ -2218,6 +2225,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0x54a4,   ANY_REV, B_S,    DEP, "Intel", "Alder Lake-N",		enable_flash_pch500},
 	{0x8086, 0x7a24,   ANY_REV, B_S,    NT,  "Intel", "Raptor Lake-S",		enable_flash_pch500},
 	{0x8086, 0x7aa4,   ANY_REV, B_S,    NT,  "Intel", "Alder Lake-S",		enable_flash_pch500},
+	{0x8086, 0x18e0,   ANY_REV, B_S,    NT,  "Intel", "Snow Ridge",			enable_flash_snowridge},
 #endif
 	{0},
 };

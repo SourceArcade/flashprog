@@ -367,6 +367,7 @@ enum ich_chipset {
 	CHIPSET_HAS_NEW_ACCESS_PERM, /****** BM_RAP/WAP regs from here on *****/
 
 	CHIPSET_C740_SERIES_EMMITSBURG = CHIPSET_HAS_NEW_ACCESS_PERM,
+	CHIPSET_SNOW_RIDGE,
 };
 
 /* ichspi.c */

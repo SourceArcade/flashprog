@@ -141,6 +141,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"600\" or \"alder\" for Intel's 600 series chipsets.\n"
 "\t- \"c620\" or \"lewis\" for Intel's C620 series aka. Lewisburg chipsets.\n"
 "\t- \"c740\" or \"emmits\" for Intel's C740 series chipsets.\n"
+"\t- \"snow\" for Intel's Snow Ridge SoC.\n"
 "If '-d' is specified some regions such as the BIOS image as seen by the CPU or\n"
 "the GbE blob that is required to initialize the GbE are also dumped to files.\n",
 	argv[0], argv[0]);
@@ -252,6 +253,8 @@ int main(int argc, char *argv[])
 		else if ((strcmp(csn, "c740") == 0) ||
 			 (strcmp(csn, "emmits") == 0))
 			cs = CHIPSET_C740_SERIES_EMMITSBURG;
+		else if (strcmp(csn, "snow") == 0)
+			cs = CHIPSET_SNOW_RIDGE;
 	}
 
 	ret = read_ich_descriptors_from_dump(buf, len, &cs, &desc);

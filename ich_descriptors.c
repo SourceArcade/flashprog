@@ -48,6 +48,7 @@ ssize_t ich_number_of_regions(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_300_SERIES_CANNON_POINT:
 	case CHIPSET_500_SERIES_TIGER_POINT:
 	case CHIPSET_ELKHART_LAKE:
+	case CHIPSET_SNOW_RIDGE:
 		return 16;
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 		return 10;
@@ -73,6 +74,7 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 	switch (cs) {
 	case CHIPSET_C620_SERIES_LEWISBURG:
 	case CHIPSET_C740_SERIES_EMMITSBURG:
+	case CHIPSET_SNOW_RIDGE:
 		return 6;
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
@@ -127,7 +129,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"9 series Wildcat Point", "9 series Wildcat Point LP", "100 series Sunrise Point",
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
-		"C740 series Emmitsburg",
+		"C740 series Emmitsburg", "Snow Ridge",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -224,7 +226,7 @@ static const char *pprint_density(enum ich_chipset cs, const struct ich_descript
 
 static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 {
-	static const char *const freq_str[5][8] = { {
+	static const char *const freq_str[][8] = { {
 		"20 MHz",
 		"33 MHz",
 		"reserved",
@@ -269,6 +271,15 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 		"20 MHz",
 		"reserved",
 		"reserved",
+	}, {
+		"reserved",
+		"48 MHz",
+		"32 MHz",
+		"reserved",
+		"24 MHz",
+		"19.2 MHz",
+		"13.7 MHz",
+		"reserved",
 	}};
 
 	switch (cs) {
@@ -300,6 +311,8 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 		return freq_str[3][value];
 	case CHIPSET_ELKHART_LAKE:
 		return freq_str[4][value];
+	case CHIPSET_SNOW_RIDGE:
+		return freq_str[5][value];
 	case CHIPSET_ICH_UNKNOWN:
 	default:
 		return "unknown";
@@ -308,7 +321,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 
 static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 {
-	static const char *const freq_str[1][8] = { {
+	static const char *const freq_str[][8] = { {
 		"20 MHz",
 		"24 MHz",
 		"30 MHz",
@@ -317,11 +330,23 @@ static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 		"reserved",
 		"reserved",
 		"reserved"
+	}, {
+		"16 MHz",
+		"19.2 MHz",
+		"24 MHz",
+		"32 MHz",
+		"48 MHz",
+		"reserved",
+		"reserved",
+		"reserved"
 	}};
 
 	switch (cs) {
 	case CHIPSET_300_SERIES_CANNON_POINT:
 		msg_pdbg2("eSPI/EC Bus Clock Frequency:    %s\n", freq_str[0][value]);
+		return;
+	case CHIPSET_SNOW_RIDGE:
+		msg_pdbg2("eSPI/EC Bus Clock Frequency:    %s\n", freq_str[1][value]);
 		return;
 	case CHIPSET_500_SERIES_TIGER_POINT:
 		msg_pdbg2("Read Clock Frequency:           %s\n", "reserved");
@@ -369,6 +394,7 @@ void prettyprint_ich_descriptor_component(enum ich_chipset cs, const struct ich_
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_C620_SERIES_LEWISBURG:
+	case CHIPSET_SNOW_RIDGE:
 		msg_pdbg2("Dual Output Fast Read Support:  %sabled\n",
 			  desc->component.modes.dual_output ? "en" : "dis");
 		break;
@@ -411,7 +437,7 @@ static void pprint_freg(const struct ich_desc_region *reg, uint32_t i)
 {
 	static const char *const region_names[] = {
 		"Descr.", "BIOS", "ME", "GbE", "Platf.", "DevExp", "BIOS2", "unknown",
-		"EC/BMC", "unknown", "IE", "10GbE", "unknown", "unknown", "unknown", "unknown"
+		"EC/BMC", "unknown", "IE", "10GbE/NIS", "OpROM", "iRC", "unknown", "PTT"
 	};
 	if (i >= ARRAY_SIZE(region_names)) {
 		msg_pdbg2("%s: region index too high.\n", __func__);
@@ -419,7 +445,7 @@ static void pprint_freg(const struct ich_desc_region *reg, uint32_t i)
 	}
 	uint32_t base = ICH_FREG_BASE(reg->FLREGs[i]);
 	uint32_t limit = ICH_FREG_LIMIT(reg->FLREGs[i]);
-	msg_pdbg2("Region %d (%-7s) ", i, region_names[i]);
+	msg_pdbg2("Region %d (%-9s) ", i, region_names[i]);
 	if (base > limit)
 		msg_pdbg2("is unused.\n");
 	else
@@ -529,13 +555,13 @@ void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct i
 			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
 		} else {
 			const char *const masters[] = {
-				"BIOS", "ME", "GbE", "unkn.", "EC", NULL
+				"BIOS", "ME", "GbE", "NAC", "EC", "unkn.", NULL
 			};
 			const char *const regions[] = {
 				" FD  ", "BIOS ", " ME  ", " GbE ", "Pltf.",
-				"Reg5 ", "Reg6 ", "Reg7 ", " EC  ", "Reg9 ",
-				"Reg10", "Reg11", "Reg12", "Reg13", "Reg14",
-				"Reg15", NULL
+				"Reg5 ", "BIOS2", "Reg7 ", " EC  ", "Reg9 ",
+				"Reg10", " NIS ", "Reg12", " iRC ", "Reg14",
+				" PTT ", NULL
 			};
 			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
 		}
@@ -1027,6 +1053,11 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			return CHIPSET_100_SERIES_SUNRISE_POINT;
 		warn_peculiar_desc("100 series");
 		return CHIPSET_100_SERIES_SUNRISE_POINT;
+	} else if (content->FLMAP2 == 0xffffffff) {
+		if (content->ISL == 0x8f)
+			return CHIPSET_SNOW_RIDGE;
+		warn_peculiar_desc("Snow Ridge");
+		return CHIPSET_SNOW_RIDGE;
 	} else {
 		if (content->ICCRIBA == 0x34)
 			return CHIPSET_300_SERIES_CANNON_POINT;
