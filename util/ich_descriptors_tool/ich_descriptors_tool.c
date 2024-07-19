@@ -128,6 +128,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"apollo\" for Intel's Apollo Lake SoC.\n"
 "\t- \"gemini\" for Intel's Gemini Lake SoC.\n"
 "\t- \"jasper\" for Intel's Jasper Lake SoC.\n"
+"\t- \"elkhart\" for Intel's Elkhart Lake SoC.\n"
 "\t- \"5\" or \"ibex\" for Intel's 5 series chipsets,\n"
 "\t- \"6\" or \"cougar\" for Intel's 6 series chipsets,\n"
 "\t- \"7\" or \"panther\" for Intel's 7 series chipsets.\n"
@@ -138,6 +139,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"400\" or \"comet\" for Intel's 400 series chipsets.\n"
 "\t- \"500\" or \"tiger\" for Intel's 500 series chipsets.\n"
 "\t- \"600\" or \"alder\" for Intel's 600 series chipsets.\n"
+"\t- \"c620\" or \"lewis\" for Intel's C620 series aka. Lewisburg chipsets.\n"
 "If '-d' is specified some regions such as the BIOS image as seen by the CPU or\n"
 "the GbE blob that is required to initialize the GbE are also dumped to files.\n",
 	argv[0], argv[0]);
@@ -243,6 +245,9 @@ int main(int argc, char *argv[])
 			cs = CHIPSET_GEMINI_LAKE;
 		else if (strcmp(csn, "elkhart") == 0)
 			cs = CHIPSET_ELKHART_LAKE;
+		else if ((strcmp(csn, "c620") == 0) ||
+			 (strcmp(csn, "lewis") == 0))
+			cs = CHIPSET_C620_SERIES_LEWISBURG;
 	}
 
 	ret = read_ich_descriptors_from_dump(buf, len, &cs, &desc);
