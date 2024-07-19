@@ -71,13 +71,14 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 {
 	switch (cs) {
 	case CHIPSET_C620_SERIES_LEWISBURG:
+		return 6;
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
 	case CHIPSET_ELKHART_LAKE:
-		if (cont->NM <= MAX_NUM_MASTERS)
-			return cont->NM;
-		break;
+		return 2;
 	default:
+		if (cs >= SPI_ENGINE_PCH100)
+			return 5;
 		if (cont->NM < MAX_NUM_MASTERS)
 			return cont->NM + 1;
 	}
