@@ -309,6 +309,7 @@ void flashprog_flag_set(struct flashprog_flashctx *const flashctx,
 		case FLASHPROG_FLAG_FORCE_BOARDMISMATCH: flashctx->flags.force_boardmismatch = value; break;
 		case FLASHPROG_FLAG_VERIFY_AFTER_WRITE:	 flashctx->flags.verify_after_write = value; break;
 		case FLASHPROG_FLAG_VERIFY_WHOLE_CHIP:	 flashctx->flags.verify_whole_chip = value; break;
+		case FLASHPROG_FLAG_NON_VOLATILE_WRSR:	 flashctx->flags.non_volatile_wrsr = value; break;
 	}
 }
 
@@ -326,6 +327,7 @@ bool flashprog_flag_get(const struct flashprog_flashctx *const flashctx, const e
 		case FLASHPROG_FLAG_FORCE_BOARDMISMATCH: return flashctx->flags.force_boardmismatch;
 		case FLASHPROG_FLAG_VERIFY_AFTER_WRITE:	 return flashctx->flags.verify_after_write;
 		case FLASHPROG_FLAG_VERIFY_WHOLE_CHIP:	 return flashctx->flags.verify_whole_chip;
+		case FLASHPROG_FLAG_NON_VOLATILE_WRSR:	 return flashctx->flags.non_volatile_wrsr;
 		default:				 return false;
 	}
 }

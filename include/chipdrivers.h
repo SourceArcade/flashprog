@@ -71,6 +71,10 @@ enum wrsr_target {
 	WRSR_NON_VOLATILE_BITS	= 2,
 	WRSR_EITHER		= 3,
 };
+static inline enum wrsr_target default_wrsr_target(const struct flashctx *flash)
+{
+	return flash->flags.non_volatile_wrsr ? WRSR_NON_VOLATILE_BITS : WRSR_VOLATILE_BITS;
+}
 int spi_read_register(const struct flashctx *flash, enum flash_reg reg, uint8_t *value);
 int spi_write_register(const struct flashctx *flash, enum flash_reg reg, uint8_t value, enum wrsr_target);
 void spi_prettyprint_status_register_bit(uint8_t status, int bit);
