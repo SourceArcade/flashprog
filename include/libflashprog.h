@@ -65,6 +65,7 @@ enum flashprog_flag {
 	FLASHPROG_FLAG_FORCE_BOARDMISMATCH,
 	FLASHPROG_FLAG_VERIFY_AFTER_WRITE,
 	FLASHPROG_FLAG_VERIFY_WHOLE_CHIP,
+	FLASHPROG_FLAG_NON_VOLATILE_WRSR,
 };
 void flashprog_flag_set(struct flashprog_flashctx *, enum flashprog_flag, bool value);
 bool flashprog_flag_get(const struct flashprog_flashctx *, enum flashprog_flag);
