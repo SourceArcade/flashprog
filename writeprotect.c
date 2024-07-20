@@ -169,7 +169,7 @@ static enum flashprog_wp_result write_wp_bits(struct flashctx *flash, struct wp_
 
 		value = (value & ~write_masks[reg]) | expected;
 
-		if (spi_write_register(flash, reg, value))
+		if (spi_write_register(flash, reg, value, WRSR_EITHER))
 			return FLASHPROG_WP_ERR_WRITE_FAILED;
 	}
 

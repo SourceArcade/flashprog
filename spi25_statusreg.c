@@ -56,7 +56,8 @@ static int spi_prepare_wrsr_ext(
 	return 0;
 }
 
-int spi_write_register(const struct flashctx *flash, enum flash_reg reg, uint8_t value)
+int spi_write_register(const struct flashctx *flash, enum flash_reg reg,
+		       uint8_t value, enum wrsr_target target)
 {
 	int feature_bits = flash->chip->feature_bits;
 
@@ -127,14 +128,18 @@ int spi_write_register(const struct flashctx *flash, enum flash_reg reg, uint8_t
 	}
 
 	uint8_t enable_cmd;
-	if (feature_bits & FEATURE_WRSR_WREN) {
+	if (((feature_bits & FEATURE_WRSR_EITHER) == 0) && (target & WRSR_VOLATILE_BITS)) {
+		/* TODO: check database and remove this case! */
+		msg_cwarn("Missing status register write definition, assuming EWSR is needed\n");
+		enable_cmd = JEDEC_EWSR;
+	} else if ((feature_bits & FEATURE_WRSR_WREN) && (target & WRSR_NON_VOLATILE_BITS)) {
 		enable_cmd = JEDEC_WREN;
-	} else if (feature_bits & FEATURE_WRSR_EWSR) {
+	} else if ((feature_bits & FEATURE_WRSR_EWSR) && (target & WRSR_VOLATILE_BITS)) {
 		enable_cmd = JEDEC_EWSR;
 	} else {
-		msg_cdbg("Missing status register write definition, assuming "
-			 "EWSR is needed\n");
-		enable_cmd = JEDEC_EWSR;
+		msg_cerr("Chip doesn't support %svolatile status register writes.\n",
+			 target & WRSR_NON_VOLATILE_BITS ? "non-" : "");
+		return 1;
 	}
 
 	struct spi_command cmds[] = {
@@ -240,7 +245,7 @@ int spi_read_register(const struct flashctx *flash, enum flash_reg reg, uint8_t 
 static int spi_restore_status(struct flashctx *flash, uint8_t status)
 {
 	msg_cdbg("restoring chip status (0x%02x)\n", status);
-	return spi_write_register(flash, STATUS1, status);
+	return spi_write_register(flash, STATUS1, status, WRSR_EITHER);
 }
 
 /* A generic block protection disable.
@@ -288,7 +293,7 @@ static int spi_disable_blockprotect_generic(struct flashctx *flash, uint8_t bp_m
 			return 1;
 		}
 		/* All bits except the register lock bit (often called SPRL, SRWD, WPEN) are readonly. */
-		result = spi_write_register(flash, STATUS1, status & ~lock_mask);
+		result = spi_write_register(flash, STATUS1, status & ~lock_mask, WRSR_EITHER);
 		if (result) {
 			msg_cerr("Could not write status register 1.\n");
 			return result;
@@ -305,7 +310,8 @@ static int spi_disable_blockprotect_generic(struct flashctx *flash, uint8_t bp_m
 		msg_cdbg("done.\n");
 	}
 	/* Global unprotect. Make sure to mask the register lock bit as well. */
-	result = spi_write_register(flash, STATUS1, status & ~(bp_mask | lock_mask) & unprotect_mask);
+	result = spi_write_register(flash, STATUS1,
+			status & ~(bp_mask | lock_mask) & unprotect_mask, WRSR_EITHER);
 	if (result) {
 		msg_cerr("Could not write status register 1.\n");
 		return result;
