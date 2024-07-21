@@ -461,6 +461,7 @@ struct flashprog_flashctx {
 	int address_high_byte;
 	bool in_4ba_mode;
 	bool in_qpi_mode;
+	bool volatile_qe_enabled;
 	/* For SPI flash chips, we dynamically select the fast-read operation. */
 	struct spi_read_op *spi_fast_read;
 

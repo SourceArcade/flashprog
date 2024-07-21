@@ -110,15 +110,27 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 		return 0;
 
 	/* Check QE bit if present */
+	flash->volatile_qe_enabled = false;
 	if (flash->chip->reg_bits.qe.reg != INVALID_REG) {
 		const struct reg_bit_info qe = flash->chip->reg_bits.qe;
+		const uint8_t mask = 1 << qe.bit_index;
 		uint8_t reg_val;
 
 		if (spi_read_register(flash, qe.reg, &reg_val)) {
-			msg_cwarn("Failed read chip register!\n");
 			reg_val = 0;
+		} else if (!(reg_val & mask) &&
+			   (flash->chip->feature_bits & FEATURE_WRSR_EWSR)) {
+			msg_pdbg("Trying to set volatile quad-enable (QE).\n");
+			reg_val |= mask;
+			if (spi_write_register(flash, qe.reg, reg_val, WRSR_VOLATILE_BITS) ||
+			    spi_read_register(flash, qe.reg, &reg_val)) {
+				reg_val = 0;
+			} else if (reg_val & mask) {
+				flash->volatile_qe_enabled = true;
+			}
 		}
-		if (!(reg_val & 1 << qe.bit_index)) {
+
+		if (!(reg_val & mask)) {
 			msg_cinfo("Quad-enable (QE) bit is unknown or unset, disabling quad i/o.\n");
 			flash->chip->feature_bits &= ~FEATURE_ANY_QUAD;
 		} else {
@@ -266,6 +278,16 @@ void spi_finish_io(struct flashctx *const flash)
 	if (flash->in_qpi_mode) {
 		if (spi_exit_qpi(flash))
 			msg_cwarn("Failed to exit QPI mode!\n");
+	}
+	if (flash->volatile_qe_enabled) {
+		msg_pdbg("Trying to restore volatile quad-enable (QE) state.\n");
+		const struct reg_bit_info qe = flash->chip->reg_bits.qe;
+		uint8_t reg_val;
+
+		if (!spi_read_register(flash, qe.reg, &reg_val)) {
+			reg_val &= ~(1 << qe.bit_index);
+			spi_write_register(flash, qe.reg, reg_val, WRSR_VOLATILE_BITS);
+		}
 	}
 	free(flash->spi_fast_read);
 }
