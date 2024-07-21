@@ -132,10 +132,10 @@ int spi_write_register(const struct flashctx *flash, enum flash_reg reg,
 		/* TODO: check database and remove this case! */
 		msg_cwarn("Missing status register write definition, assuming EWSR is needed\n");
 		enable_cmd = JEDEC_EWSR;
-	} else if ((feature_bits & FEATURE_WRSR_WREN) && (target & WRSR_NON_VOLATILE_BITS)) {
-		enable_cmd = JEDEC_WREN;
 	} else if ((feature_bits & FEATURE_WRSR_EWSR) && (target & WRSR_VOLATILE_BITS)) {
 		enable_cmd = JEDEC_EWSR;
+	} else if ((feature_bits & FEATURE_WRSR_WREN) && (target & WRSR_NON_VOLATILE_BITS)) {
+		enable_cmd = JEDEC_WREN;
 	} else {
 		msg_cerr("Chip doesn't support %svolatile status register writes.\n",
 			 target & WRSR_NON_VOLATILE_BITS ? "non-" : "");
