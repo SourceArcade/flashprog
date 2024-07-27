@@ -28,6 +28,9 @@
 ACTION!="add|change", GOTO="flashprog_rules_end"
 SUBSYSTEM!="usb|usb_device", GOTO="flashprog_rules_end"
 
+# Altera Blaster
+ATTRS{idVendor}=="09fb", ATTRS{idProduct}=="6001", MODE="664", GROUP="plugdev"
+
 # Amontec JTAGkey(2)
 # http://www.amontec.com/jtagkey.shtml
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", MODE="664", GROUP="plugdev"
@@ -40,6 +43,9 @@ ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="664", GROUP="plugdev"
 # http://www.dediprog.com/SPI-flash-in-circuit-programming/SF100
 ATTRS{idVendor}=="0483", ATTRS{idProduct}=="dada", MODE="664", GROUP="plugdev"
 
+# DirtyJTAG dongle "Generic Jean THOMAS DirtyJTAG"
+ATTRS{idVendor}=="1209", ATTRS{idProduct}=="c0ca", MODE="664", GROUP="plugdev"
+
 # DLP Design DLP-USB1232H
 # http://www.dlpdesign.com/usb/usb1232h.shtml
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="664", GROUP="plugdev"
@@ -51,6 +57,12 @@ ATTRS{idVendor}=="1457", ATTRS{idProduct}=="5118", MODE="664", GROUP="plugdev"
 # FTDI FT4232H Mini-Module
 # http://www.ftdichip.com/Products/EvaluationKits/FT4232H_MiniModule.htm
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="664", GROUP="plugdev"
+
+# FTDI FT232H Mini-Module
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", MODE="664", GROUP="plugdev"
+
+# FTDI FT4222H Mini-Module
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="601c", MODE="664", GROUP="plugdev"
 
 # GOEPEL PicoTAP
 # http://www.goepel.com/jtagboundary-scan/hardware/picotap.html
@@ -65,6 +77,9 @@ ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5003", MODE="664", GROUP="plugdev"
 # Kristech KT-LINK
 # https://kristech.pl/files/KT-LINK-UM-ENG.pdf
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="bbe2", MODE="664", GROUP="plugdev"
+
+# Microchip Technology, Inc. PICkit2
+ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="0033", MODE="664", GROUP="plugdev"
 
 # Olimex ARM-USB-OCD
 # http://olimex.com/dev/arm-usb-ocd.html
