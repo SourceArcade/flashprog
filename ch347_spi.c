@@ -36,9 +36,6 @@
 #define WRITE_EP	0x06
 #define READ_EP 	0x86
 
-#define MODE_1_IFACE 2
-#define MODE_2_IFACE 1
-
 /* The USB descriptor says the max transfer size is 512 bytes, but the
  * vendor driver only seems to transfer a maximum of 510 bytes at once,
  * leaving 507 bytes for data as the command + length take up 3 bytes
@@ -48,6 +45,7 @@
 
 struct ch347_spi_data {
 	struct libusb_device_handle *handle;
+	unsigned int iface;
 };
 
 /* TODO: Add support for HID mode */
@@ -60,10 +58,8 @@ static int ch347_spi_shutdown(void *data)
 {
 	struct ch347_spi_data *ch347_data = data;
 
-	/* TODO: Set this depending on the mode */
-	int spi_interface = MODE_1_IFACE;
-	libusb_release_interface(ch347_data->handle, spi_interface);
-	libusb_attach_kernel_driver(ch347_data->handle, spi_interface);
+	libusb_release_interface(ch347_data->handle, ch347_data->iface);
+	libusb_attach_kernel_driver(ch347_data->handle, ch347_data->iface);
 	libusb_close(ch347_data->handle);
 	libusb_exit(NULL);
 
@@ -322,16 +318,32 @@ static int ch347_spi_init(struct flashprog_programmer *const prog)
 		return 1;
 	}
 
-	/* TODO: set based on mode */
-	/* Mode 1 uses interface 2 for the SPI interface */
-	int spi_interface = MODE_1_IFACE;
+	struct libusb_config_descriptor *config;
+	ret = libusb_get_active_config_descriptor(libusb_get_device(ch347_data->handle), &config);
+	if (ret != LIBUSB_SUCCESS) {
+		msg_perr("Couldn't get config descriptor: %s (%d)\n", libusb_strerror(ret), ret);
+		ret = 1;
+		goto error_exit;
+	}
 
-	ret = libusb_detach_kernel_driver(ch347_data->handle, spi_interface);
+	unsigned int iface;
+	for (iface = 0; iface < config->bNumInterfaces; ++iface) {
+		if (config->interface[iface].altsetting[0].bInterfaceClass == LIBUSB_CLASS_VENDOR_SPEC)
+			break;
+	}
+	if (iface == config->bNumInterfaces) {
+		msg_perr("Couldn't find compatible interface.\n");
+		ret = 1;
+		goto error_exit;
+	}
+	ch347_data->iface = iface;
+
+	ret = libusb_detach_kernel_driver(ch347_data->handle, iface);
 	if (ret != 0 && ret != LIBUSB_ERROR_NOT_FOUND)
 		msg_pwarn("Cannot detach the existing USB driver. Claiming the interface may fail. %s\n",
 			libusb_error_name(ret));
 
-	ret = libusb_claim_interface(ch347_data->handle, spi_interface);
+	ret = libusb_claim_interface(ch347_data->handle, iface);
 	if (ret != 0) {
 		msg_perr("Failed to claim interface 2: '%s'\n", libusb_error_name(ret));
 		goto error_exit;
