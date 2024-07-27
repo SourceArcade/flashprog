@@ -51,6 +51,7 @@ struct ch347_spi_data {
 /* TODO: Add support for HID mode */
 static const struct dev_entry devs_ch347_spi[] = {
 	{0x1A86, 0x55DB, OK, "QinHeng Electronics", "USB To UART+SPI+I2C"},
+	{0x1A86, 0x55DE, OK, "QinHeng Electronics", "USB To UART+SPI+I2C+JTAG"},
 	{0}
 };
 
@@ -309,11 +310,15 @@ static int ch347_spi_init(struct flashprog_programmer *const prog)
 	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_INFO);
 #endif
 
-	uint16_t vid = devs_ch347_spi[0].vendor_id;
-	uint16_t pid = devs_ch347_spi[0].device_id;
-	ch347_data->handle = libusb_open_device_with_vid_pid(NULL, vid, pid);
+	const struct dev_entry *dev_entry;
+	for (dev_entry = devs_ch347_spi; dev_entry->vendor_id != 0; ++dev_entry) {
+		ch347_data->handle = libusb_open_device_with_vid_pid(
+					NULL, dev_entry->vendor_id, dev_entry->device_id);
+		if (ch347_data->handle)
+			break;
+	}
 	if (ch347_data->handle == NULL) {
-		msg_perr("Couldn't open device %04x:%04x.\n", vid, pid);
+		msg_perr("Couldn't find CH347 device.\n");
 		free(ch347_data);
 		return 1;
 	}
