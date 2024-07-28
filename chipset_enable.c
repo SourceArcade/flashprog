@@ -1436,14 +1436,12 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 		return ERROR_FATAL;
 	}
 
-	/* RomRange2 is supposed to be used for the mapping directly below 4G. */
-	const uint32_t rom_range2 = pci_read_long(lpc, 0x6c);
-	const uint32_t rom_range_end = rom_range2 | 0xffff;
-	const uint32_t rom_range_start = (rom_range2 & 0xffff) << 16;
-	const size_t mapped_len = rom_range_end > rom_range_start ? rom_range_end - rom_range_start + 1 : 0;
-	msg_pdbg("ROM Range 2: 0x%08x..0x%08x (%zu kB)\n", rom_range_start, rom_range_end, mapped_len / KiB);
-
 	const uint32_t spibar = pci_read_long(lpc, 0xa0);
+	if (spibar == 0xffffffff) {
+		msg_perr("SPI100 BAR reads all `ff', aborting.\n");
+		return ERROR_FATAL;
+	}
+
 	msg_pdbg("AltSpiCSEnable=%u, SpiRomEnable=%u", spibar >> 0 & 1, spibar >> 1 & 1);
 	msg_pdbg(", AbortEnable=%u, RouteTpm2Spi=%u", spibar >> 2 & 1, spibar >> 3 & 1);
 	msg_pdbg(", PspSpiMmioSel=%u\n", spibar >> 4 & 1);
@@ -1467,6 +1465,13 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 	void *const virt_spibar = rphysmap("SPI100 SPI registers", phys_spibar, 256);
 	if (virt_spibar == ERROR_PTR)
 		return ERROR_FATAL;
+
+	/* RomRange2 is supposed to be used for the mapping directly below 4G. */
+	const uint32_t rom_range2 = pci_read_long(lpc, 0x6c);
+	const uint32_t rom_range_end = rom_range2 | 0xffff;
+	const uint32_t rom_range_start = (rom_range2 & 0xffff) << 16;
+	const size_t mapped_len = rom_range_end > rom_range_start ? rom_range_end - rom_range_start + 1 : 0;
+	msg_pdbg("ROM Range 2: 0x%08x..0x%08x (%zu kB)\n", rom_range_start, rom_range_end, mapped_len / KiB);
 
 	void *memory_mapping = NULL;
 	if (spirom_enable && mapped_len) {
