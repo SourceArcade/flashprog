@@ -1335,6 +1335,13 @@ is given in
 and can be in the range 468 .. 60000. The frequency will be rounded down to
 a supported value (60 MHz divided by a power of 2). The default is a frequency
 of 7.5 MHz.
+The SPI mode can also be set using the spimode parameter:
+.sp
+.B "  flashprog \-p ch347_spi:spimode=mode"
+.sp
+where
+.B mode
+is in the range 0 to 3. The default is mode 0.
 .SS
 .BR "ni845x_spi " programmer
 .IP

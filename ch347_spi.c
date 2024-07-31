@@ -202,7 +202,7 @@ static int ch347_spi_send_command(const struct flashctx *flash, unsigned int wri
 	return 0;
 }
 
-static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divisor)
+static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divisor, uint8_t mode)
 {
 	int32_t ret;
 	uint8_t buff[29] = {
@@ -215,9 +215,9 @@ static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divis
 		[5] = 4,
 		[6] = 1,
 		/* Clock polarity: bit 1 */
-		[9] = 0,
+		[9] = mode & 2,
 		/* Clock phase: bit 0 */
-		[11] = 0,
+		[11] = mode & 1,
 		/* Another mystery byte */
 		[14] = 2,
 		/* Clock divisor: bits 5:3 */
@@ -294,6 +294,23 @@ static int ch347_spi_init(struct flashprog_programmer *const prog)
 		msg_pinfo("Using spispeed of %ukHz.\n", ch347_div_to_khz(div));
 	} else {
 		msg_pdbg("Using default spispeed of %ukHz.\n", ch347_div_to_khz(div));
+	}
+	char *const spimode = extract_programmer_param("spimode");
+	uint8_t mode = 0;
+	if (spimode) {
+		char *endptr;
+		mode = strtoul(spimode, &endptr, 10);
+		if (*endptr != '\0' || endptr == spimode || mode > 3) {
+			msg_perr("Invalid `spimode` argument.\n");
+			free(spimode);
+			free(ch347_data);
+			return 1;
+		}
+		free(spimode);
+
+		msg_pinfo("Using spimode of %u.\n", mode);
+	} else {
+		msg_pdbg("Using default spimode of 0.\n");
 	}
 
 	int32_t ret = libusb_init(NULL);
@@ -373,7 +390,7 @@ static int ch347_spi_init(struct flashprog_programmer *const prog)
 		(desc.bcdDevice >> 0) & 0x000F);
 
 	/* TODO: add programmer cfg for things like CS pin */
-	if (ch347_spi_config(ch347_data, div) < 0)
+	if (ch347_spi_config(ch347_data, div, mode) < 0)
 		goto error_exit;
 
 	return register_spi_master(&spi_master_ch347_spi, 0, ch347_data);
