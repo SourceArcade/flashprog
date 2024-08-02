@@ -20,8 +20,8 @@ Please make a backup of your flash chip before writing to it.
 Please see the flashprog(8) manpage.
 
 
-Packaging
----------
+Source Packaging
+----------------
 
 To package flashprog and remove dependencies on Git, either use
 make export
