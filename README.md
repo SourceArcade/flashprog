@@ -134,14 +134,14 @@ To cross-compile on Linux for DOS:
  in one subdirectory. There will be an extra subdirectory libpci-libgetopt
  created, which will contain compiled libpci and libgetopt.
 
- Download pciutils 3.5.6 and apply http://flashprog.org/File:Pciutils-3.5.6.patch.gz
+ Download pciutils 3.5.6 and apply https://flashprog.org/wiki/File:Pciutils-3.5.6.patch.gz
  Compile pciutils, using following command line:
 
     make ZLIB=no DNS=no HOST=i386-djgpp-djgpp CROSS_COMPILE=i586-pc-msdosdjgpp- \
       PREFIX=/ DESTDIR=$PWD/../libpci-libgetopt  \
       STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" install install-lib
 
- Download and compile with 'make' http://flashprog.org/File:Libgetopt.tar.gz
+ Download and compile with 'make' https://flashprog.org/wiki/File:Libgetopt.tar.gz
 
  Copy the libgetopt.a to ../libpci-libgetopt/lib and
  getopt.h to ../libpci-libgetopt/include
@@ -156,7 +156,7 @@ To cross-compile on Linux for DOS:
 
  upx -9 flashprog.exe
 
- To run flashprog.exe, download http://flashprog.org/File:Csdpmi7b.zip and
+ To run flashprog.exe, download https://flashprog.org/wiki/File:Csdpmi7b.zip and
  unpack CWSDPMI.EXE into the current directory or one in PATH.
 
 To cross-compile on Linux for Windows:
@@ -214,8 +214,8 @@ Contact
 
 The official flashprog website is:
 
-  http://www.flashprog.org/
+  https://flashprog.org/
 
 Available contact methods are
 
-  https://www.flashprog.org/Contact
+  https://flashprog.org/wiki/Contact
