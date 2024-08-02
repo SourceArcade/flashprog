@@ -46,17 +46,32 @@ Build Instructions
 
 To build flashprog you need to install the following software:
 
+ * git (if you check out the source from the repository)
+ * build utilities: meson or make and a C compiler (build-essential or similar depending on OS/distribution)
+ * pkg-config to find library dependencies
  * pciutils+libpci (if you want support for mainboard or PCI device flashing)
- * libusb (if you want FT2232, Dediprog or USB-Blaster support)
- * libftdi (if you want FT2232 or USB-Blaster support)
- * libjaylink (if you want support for SEGGER J-Link and compatible devices)
+ * libusb 1.0 development package (if you want support for USB programmers, except BusPirate and serprog based)
+ * libftdi 1.0 development package (if you want support for FT2232H or programmers based on it)
+ * libjaylink development package (if you want support for J-LINK programmers)
+ * libgpiod development package (if you want support for GPIO bitbanging under Linux)
 
-Linux et al:
+Compilation with a limited set of programmer drivers is possible. `make` will
+output hints how to disable programmers with missing dependencies.
 
- * pciutils / libpci
- * pciutils-devel / pciutils-dev / libpci-dev
- * zlib-devel / zlib1g-dev (needed if libpci was compiled with libz support)
- * libgpiod-dev (if you want support for Linux GPIO devices)
+### Package names for the above vary across OS distributions:
+
+On Linux et al, look for the following packages:
+
+ * git
+ * gcc
+ * meson / make
+ * pkg-config / pkgconf (not needed if none of the below are used)
+ * pciutils / libpci (optional)
+ * pciutils-devel / pciutils-dev / libpci-dev (optional)
+ * libusb / libusb-1.0-0-dev (optional)
+ * libftdi / libftdi1-dev (optional)
+ * libjaylink / libjaylink-dev (optional)
+ * libgpiod / libgpiod-dev (optional)
 
 On FreeBSD, you need the following ports:
 
@@ -67,6 +82,8 @@ On OpenBSD, you need the following ports:
 
  * devel/gmake
  * sysutils/pciutils
+
+### Building
 
 To compile on Linux, use:
 
