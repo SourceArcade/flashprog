@@ -11,8 +11,8 @@ It supports a wide range of flash chips (most commonly found in SOIC8, DIP8,
 SOIC16, WSON8, PLCC32, DIP32, TSOP32, and TSOP40 packages), which use various
 protocols such as LPC, FWH, parallel flash, or SPI.
 
-Do not use flashprog on laptops (yet)! The embedded controller (EC) present in
-many laptops might interact badly with any attempts to communicate with the
+Be careful when using flashprog on laptops! The embedded controller (EC) present in
+older laptops (~pre 2011) might interact badly with any attempts to communicate with the
 flash chip and may brick your laptop.
 
 Please make a backup of your flash chip before writing to it.
