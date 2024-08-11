@@ -242,6 +242,12 @@ programmer = {
     'srcs'    : files('ft2232_spi.c' ),
     'flags'   : [ '-DCONFIG_FT2232_SPI=1' ],
   },
+  'ft4222_spi' : {
+    'deps'    : [ libusb1 ],
+    'groups'  : [ group_usb, group_ftdi, group_external ],
+    'srcs'    : files('ft4222_spi.c' ),
+    'flags'   : [ '-DCONFIG_FT4222_SPI=1' ],
+  },
   'gfxnvidia' : {
     'systems' : systems_hwaccess,
     'cpu_families' : [ cpus_raw_mem ],
