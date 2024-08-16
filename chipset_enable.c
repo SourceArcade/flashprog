@@ -1425,7 +1425,10 @@ static int enable_flash_sb600_smbus(struct flashprog_programmer *prog, struct pc
 		return ERROR_FATAL;
 	}
 
-	return enable_flash_sb600(prog, lpc, name);
+	const int ret = enable_flash_sb600(prog, lpc, name);
+
+	pci_free_dev(lpc);
+	return ret;
 }
 
 static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci_dev *const smbus, const char *const name)
@@ -1439,12 +1442,15 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 	const uint32_t spibar = pci_read_long(lpc, 0xa0);
 	if (spibar == 0xffffffff) {
 		msg_perr("SPI100 BAR reads all `ff', aborting.\n");
+		pci_free_dev(lpc);
 		return ERROR_FATAL;
 	}
 
 	msg_pdbg("AltSpiCSEnable=%u, SpiRomEnable=%u", spibar >> 0 & 1, spibar >> 1 & 1);
 	msg_pdbg(", AbortEnable=%u, RouteTpm2Spi=%u", spibar >> 2 & 1, spibar >> 3 & 1);
 	msg_pdbg(", PspSpiMmioSel=%u\n", spibar >> 4 & 1);
+
+	pci_free_dev(lpc);
 
 	const bool spirom_enable = spibar & BIT(1);
 	if (spirom_enable) {
