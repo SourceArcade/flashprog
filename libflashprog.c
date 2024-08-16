@@ -167,6 +167,7 @@ int flashprog_programmer_init(struct flashprog_programmer **const flashprog,
 	return 0;
 
 _free_err:
+	programmer_shutdown(*flashprog);
 	free((*flashprog)->param);
 	free(*flashprog);
 	return 1;
