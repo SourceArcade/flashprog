@@ -828,7 +828,7 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 		return 1;
 	}
 
-	if (flash->chip->bustype == BUS_SPI) {
+	if (flash->chip->bustype == BUS_SPI && flash->chip->spi_cmd_set == SPI25) {
 		bool native_4ba;
 		int i;
 
