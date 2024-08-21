@@ -833,6 +833,9 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 		int i;
 
 		const uint8_t *opcode = spi_get_opcode_from_erasefn(eraser.block_erase, &native_4ba);
+		if (!opcode)
+			return 1;
+
 		for (i = 0; opcode[i]; i++) {
 			if ((native_4ba && !spi_master_4ba(flash)) ||
 			    !flash->mst.spi->probe_opcode(flash, opcode[i])) {
