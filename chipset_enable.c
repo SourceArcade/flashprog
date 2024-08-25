@@ -981,12 +981,6 @@ static int enable_flash_pch300_22nm(struct flashprog_programmer *const prog,
 	return enable_flash_pch100_or_c620(dev, name, 0x1f, 5, CHIPSET_300_SERIES_CANNON_POINT);
 }
 
-static int enable_flash_mcc(struct flashprog_programmer *const prog,
-			    struct pci_dev *const dev, const char *const name)
-{
-	return enable_flash_pch100_or_c620(dev, name, 0x1f, 5, CHIPSET_ELKHART_LAKE);
-}
-
 static int enable_flash_apl(struct flashprog_programmer *const prog,
 			    struct pci_dev *const dev, const char *const name)
 {
@@ -997,6 +991,12 @@ static int enable_flash_glk(struct flashprog_programmer *prog,
 			    struct pci_dev *const dev, const char *const name)
 {
 	return enable_flash_pch100_or_c620(dev, name, 0x0d, 2, CHIPSET_GEMINI_LAKE);
+}
+
+static int enable_flash_mcc(struct flashprog_programmer *const prog,
+			    struct pci_dev *const spi_dev, const char *const name)
+{
+	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_ELKHART_LAKE);
 }
 
 static int enable_flash_pch300(struct flashprog_programmer *const prog,
