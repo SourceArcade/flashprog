@@ -981,12 +981,6 @@ static int enable_flash_pch300(struct flashprog_programmer *const prog,
 	return enable_flash_pch100_or_c620(dev, name, 0x1f, 5, CHIPSET_300_SERIES_CANNON_POINT);
 }
 
-static int enable_flash_pch500(struct flashprog_programmer *const prog,
-			       struct pci_dev *const dev, const char *const name)
-{
-	return enable_flash_pch100_or_c620(dev, name, 0x1f, 5, CHIPSET_500_SERIES_TIGER_POINT);
-}
-
 static int enable_flash_mcc(struct flashprog_programmer *const prog,
 			    struct pci_dev *const dev, const char *const name)
 {
@@ -1003,6 +997,12 @@ static int enable_flash_glk(struct flashprog_programmer *prog,
 			    struct pci_dev *const dev, const char *const name)
 {
 	return enable_flash_pch100_or_c620(dev, name, 0x0d, 2, CHIPSET_GEMINI_LAKE);
+}
+
+static int enable_flash_pch500(struct flashprog_programmer *const prog,
+			       struct pci_dev *const spi_dev, const char *const name)
+{
+	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_500_SERIES_TIGER_POINT);
 }
 
 /* Silvermont architecture: Bay Trail(-T/-I), Avoton/Rangeley.
@@ -2135,12 +2135,6 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0x9d84,   ANY_REV, B_S,    DEP, "Intel", "Cannon Lake U Premium",	enable_flash_pch300},
 	{0x8086, 0x0284,   ANY_REV, B_S,    DEP, "Intel", "Comet Lake U Premium",	enable_flash_pch300},
 	{0x8086, 0x0285,   ANY_REV, B_S,    DEP, "Intel", "Comet Lake U Base",		enable_flash_pch300},
-	{0x8086, 0xa081,   ANY_REV, B_S,    NT,  "Intel", "Tiger Lake UP3 Super",	enable_flash_pch500},
-	{0x8086, 0xa082,   ANY_REV, B_S,    DEP, "Intel", "Tiger Lake UP3 Premium",	enable_flash_pch500},
-	{0x8086, 0xa083,   ANY_REV, B_S,    NT,  "Intel", "Tiger Lake UP3 Base",	enable_flash_pch500},
-	{0x8086, 0xa086,   ANY_REV, B_S,    NT,  "Intel", "Tiger Lake UP4 Super",	enable_flash_pch500},
-	{0x8086, 0xa087,   ANY_REV, B_S,    NT,  "Intel", "Tiger Lake UP4 Premium",	enable_flash_pch500},
-	{0x8086, 0xa088,   ANY_REV, B_S,    DEP, "Intel", "Tiger Lake UP3",		enable_flash_pch500},
 	{0x8086, 0xa141,   ANY_REV, B_S,    NT,  "Intel", "Sunrise Point Desktop Sample", enable_flash_pch100},
 	{0x8086, 0xa142,   ANY_REV, B_S,    NT,  "Intel", "Sunrise Point Unknown Sample", enable_flash_pch100},
 	{0x8086, 0xa143,   ANY_REV, B_S,    DEP, "Intel", "H110",			enable_flash_pch100},
@@ -2221,20 +2215,8 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0x068e,   ANY_REV, B_S,    NT,  "Intel", "WM490",			enable_flash_pch300},
 	{0x8086, 0x0697,   ANY_REV, B_S,    NT,  "Intel", "W480",			enable_flash_pch300},
 	{0x8086, 0x4da4,   ANY_REV, B_S,    NT,  "Intel", "Jasper Lake",		enable_flash_pch300},
-	{0x8086, 0x4381,   ANY_REV, B_S,    NT,  "Intel", "Tiger Point Desktop ES",	enable_flash_pch500},
-	{0x8086, 0x4382,   ANY_REV, B_S,    NT,  "Intel", "Tiger Point Mobile ES",	enable_flash_pch500},
-	{0x8086, 0x4383,   ANY_REV, B_S,    NT,  "Intel", "Tiger Point Server ES",	enable_flash_pch500},
-	{0x8086, 0x4384,   ANY_REV, B_S,    NT,  "Intel", "Q570",			enable_flash_pch500},
-	{0x8086, 0x4385,   ANY_REV, B_S,    NT,  "Intel", "Z590",			enable_flash_pch500},
-	{0x8086, 0x4386,   ANY_REV, B_S,    NT,  "Intel", "H570",			enable_flash_pch500},
-	{0x8086, 0x4387,   ANY_REV, B_S,    NT,  "Intel", "B560",			enable_flash_pch500},
-	{0x8086, 0x4388,   ANY_REV, B_S,    NT,  "Intel", "H510",			enable_flash_pch500},
-	{0x8086, 0x438c,   ANY_REV, B_S,    NT,  "Intel", "C252",			enable_flash_pch500},
-	{0x8086, 0x438d,   ANY_REV, B_S,    NT,  "Intel", "C256",			enable_flash_pch500},
-	{0x8086, 0x438f,   ANY_REV, B_S,    NT,  "Intel", "W580",			enable_flash_pch500},
-	{0x8086, 0x4389,   ANY_REV, B_S,    NT,  "Intel", "WM590",			enable_flash_pch500},
-	{0x8086, 0x438a,   ANY_REV, B_S,    NT,  "Intel", "QM580",			enable_flash_pch500},
-	{0x8086, 0x438b,   ANY_REV, B_S,    DEP, "Intel", "HM570",			enable_flash_pch500},
+	{0x8086, 0xa0a4,   ANY_REV, B_S,    NT,  "Intel", "Tiger Lake UP3/4",		enable_flash_pch500},
+	{0x8086, 0x43a4,   ANY_REV, B_S,    DEP, "Intel", "500 series Tiger Point",	enable_flash_pch500},
 	{0x8086, 0x51a4,   ANY_REV, B_S,    DEP, "Intel", "Alder Lake-P",		enable_flash_pch500},
 	{0x8086, 0x54a4,   ANY_REV, B_S,    DEP, "Intel", "Alder Lake-N",		enable_flash_pch500},
 	{0x8086, 0x7a24,   ANY_REV, B_S,    NT,  "Intel", "Raptor Lake-S",		enable_flash_pch500},
