@@ -894,14 +894,43 @@ static int enable_flash_pch100_shutdown(void *const pci_acc)
 	return 0;
 }
 
+static int enable_flash_pch_spidev(
+		struct pci_dev *const spi_dev, const char *const name,
+		const enum ich_chipset pch_generation)
+{
+	const enum chipbustype boot_buses = enable_flash_ich_report_gcs(spi_dev, pch_generation, NULL);
+
+	const int ret_bc = enable_flash_ich_bios_cntl_config_space(spi_dev, pch_generation, 0xdc);
+	if (ret_bc == ERROR_FATAL)
+		return ERROR_FATAL;
+
+	const uint32_t phys_spibar = pci_read_long(spi_dev, PCI_BASE_ADDRESS_0) & 0xfffff000;
+	void *const spibar = rphysmap("SPIBAR", phys_spibar, 0x1000);
+	if (spibar == ERROR_PTR)
+		return ERROR_FATAL;
+	msg_pdbg("SPIBAR = 0x%0*" PRIxPTR " (phys = 0x%08x)\n", PRIxPTR_WIDTH, (uintptr_t)spibar, phys_spibar);
+
+	/* This adds BUS_SPI */
+	const int ret_spi = ich9_init_spi(spibar, pch_generation);
+	if (ret_spi == ERROR_FATAL)
+		return ERROR_FATAL;
+
+	if (ret_bc || ret_spi)
+		return ERROR_NONFATAL;
+
+	/* Suppress unknown laptop warning if we booted from SPI. */
+	if (boot_buses & BUS_SPI)
+		laptop_ok = true;
+
+	return 0;
+}
+
 static int enable_flash_pch100_or_c620(
-		struct pci_dev *const dev, const char *const name,
+		struct pci_dev *const lpc_dev, const char *const name,
 		const int slot, const int func, const enum ich_chipset pch_generation)
 {
-	int ret = ERROR_FATAL;
-
 	/*
-	 * The SPI PCI device is usually hidden (by hiding PCI vendor
+	 * On older gens, the SPI dev is hidden (by hiding PCI vendor
 	 * and device IDs). So we need a PCI access method that works
 	 * even when the OS doesn't know the PCI device. We can't use
 	 * this method globally since it would bring along other con-
@@ -911,47 +940,24 @@ static int enable_flash_pch100_or_c620(
 	struct pci_access *const saved_pacc = pacc;
 	if (!pci_acc) {
 		msg_perr("Can't allocate PCI accessor.\n");
-		return ret;
+		return ERROR_FATAL;
 	}
 	pci_acc->method = PCI_ACCESS_I386_TYPE1;
 	pci_init(pci_acc);
 	register_shutdown(enable_flash_pch100_shutdown, pci_acc);
 
-	struct pci_dev *const spi_dev = pci_get_dev(pci_acc, dev->domain, dev->bus, slot, func);
+	struct pci_dev *const spi_dev = pci_get_dev(pci_acc, lpc_dev->domain, lpc_dev->bus, slot, func);
 	if (!spi_dev) {
 		msg_perr("Can't allocate PCI device.\n");
-		return ret;
+		return ERROR_FATAL;
 	}
 
-	/* Modify pacc so the rpci_write can register the undo callback with a
-	 * device using the correct pci_access */
+	/* Modify pacc so the rpci_write can register the undo
+	   callback with a device using the correct pci_access. */
 	pacc = pci_acc;
-	const enum chipbustype boot_buses = enable_flash_ich_report_gcs(spi_dev, pch_generation, NULL);
 
-	const int ret_bc = enable_flash_ich_bios_cntl_config_space(spi_dev, pch_generation, 0xdc);
-	if (ret_bc == ERROR_FATAL)
-		goto _freepci_ret;
+	const int ret = enable_flash_pch_spidev(spi_dev, name, pch_generation);
 
-	const uint32_t phys_spibar = pci_read_long(spi_dev, PCI_BASE_ADDRESS_0) & 0xfffff000;
-	void *const spibar = rphysmap("SPIBAR", phys_spibar, 0x1000);
-	if (spibar == ERROR_PTR)
-		goto _freepci_ret;
-	msg_pdbg("SPIBAR = 0x%0*" PRIxPTR " (phys = 0x%08x)\n", PRIxPTR_WIDTH, (uintptr_t)spibar, phys_spibar);
-
-	/* This adds BUS_SPI */
-	const int ret_spi = ich9_init_spi(spibar, pch_generation);
-	if (ret_spi != ERROR_FATAL) {
-		if (ret_bc || ret_spi)
-			ret = ERROR_NONFATAL;
-		else
-			ret = 0;
-	}
-
-	/* Suppress unknown laptop warning if we booted from SPI. */
-	if (!ret && (boot_buses & BUS_SPI))
-		laptop_ok = true;
-
-_freepci_ret:
 	pci_free_dev(spi_dev);
 	pacc = saved_pacc;
 	return ret;
