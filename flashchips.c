@@ -18157,7 +18157,7 @@ const struct flashchip flashchips[] = {
 		/* supports SFDP */
 		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44, read ID 0x4B */
 		/* QPI: only FV & JV..M versions */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_QIO |
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_OTP | FEATURE_QIO |
 				  FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3,
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
