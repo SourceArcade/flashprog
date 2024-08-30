@@ -9252,7 +9252,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP |
 				  FEATURE_4BA | FEATURE_QPI_35 | FEATURE_FAST_READ_QPI4B,
 		.dummy_cycles	= { .qpi_read_params = { 6, 4, 8, 10 } },
-		.tested		= TEST_OK_PREW,
+		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
@@ -9287,7 +9287,14 @@ const struct flashchip flashchips[] = {
 		.reg_bits = {
 			.qe	= {STATUS1, 6, RW},
 			.dc	= {{CONFIG, 6, RW}, {CONFIG, 7, RW}},
+			.srp	= {STATUS1, 7, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {CONFIG, 3, OTP},
 		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
