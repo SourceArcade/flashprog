@@ -1198,7 +1198,7 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 	int ret = 0, layout_count = 0;
 
 	all_skipped = true;
-	msg_cinfo("Erasing and writing flash chip... ");
+	msg_cinfo("Erasing %sflash chip... ", info->newcontents ? "and writing " : "");
 
 	if (do_erase) {
 		layout_count = create_erase_layout(flashctx, &erase_layouts);
@@ -1251,7 +1251,7 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 	}
 	if (all_skipped)
 		msg_cinfo("\nWarning: Chip content is identical to the requested image.\n");
-	msg_cinfo("Erase/write done.\n");
+	msg_cinfo("Erase%s done.\n", info->newcontents ? "/write" : "");
 
 free_ret:
 	free_erase_layout(erase_layouts, layout_count);
