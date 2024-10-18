@@ -15077,6 +15077,44 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "SST",
+		.name		= "SST26VF080A",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= SST_ID,
+		.model_id	= SST_SST26VF080A,
+		.total_size	= 1024,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP,
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 256} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 32} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 16} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
+		.unlock		= spi_disable_blockprotect_sst26_global_unprotect,
+		.write		= spi_chip_write_256, /* Multi I/O supported */
+		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
+		.voltage	= {2700, 3600},
+	},
+
+	{
+		.vendor		= "SST",
 		.name		= "SST28SF040A",
 		.bustype	= BUS_PARALLEL,
 		.manufacture_id	= SST_ID,
