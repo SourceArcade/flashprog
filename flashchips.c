@@ -21676,6 +21676,118 @@ const struct flashchip flashchips[] = {
 	},
 
 	{
+		.vendor		= "Zetta Device",
+		.name		= "ZD25LQ64",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= ZETTADEVICE_ID,
+		.model_id	= ZETTADEVICE_ZD25LQ64,
+		.total_size	= 8192,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_WRSR_EXT2 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 2048} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 256} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 128} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp2_srwd,
+		.unlock		= spi_disable_blockprotect_bp2_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 1950},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "Zetta Device",
+		.name		= "ZD25LQ128",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= ZETTADEVICE_ID,
+		.model_id	= ZETTADEVICE_ZD25LQ128,
+		.total_size	= 16384,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_WRSR_EXT2 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 4096} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 512} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 256} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp2_srwd,
+		.unlock		= spi_disable_blockprotect_bp2_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 1950},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
 		.vendor		= "Unknown",
 		.name		= "SFDP-capable chip",
 		.bustype	= BUS_SPI,
