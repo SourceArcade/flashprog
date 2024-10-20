@@ -215,7 +215,10 @@
 #define BOYA_BOHONG_B_25D40AS	0x4013
 #define BOYA_BOHONG_B_25D80AS	0x4014 /* Same as BY25Q80* */
 #define BOYA_BOHONG_B_25D16AS	0x4015 /* Same as BY25Q16* */
+#define BOYA_BOHONG_B_25Q32BS	0x4016
+#define BOYA_BOHONG_B_25Q64AS	0x4017
 #define BOYA_BOHONG_B_25Q128AS	0x4018
+#define BOYA_BOHONG_B_25Q128FS	0x4118
 
 /* Bright Microelectronics has the same manufacturer ID as Hyundai... */
 #define BRIGHT_ID		0xAD	/* Bright Microelectronics */
