@@ -164,8 +164,9 @@ size_t gran_to_bytes(enum write_granularity);
 #define FEATURE_SET_READ_PARAMS	(1u << 31) /**< SRP instruction 0xc0 for dummy cycles and burst length */
 
 /* Multi-I/O Shorthands */
-#define FEATURE_QIO		(FEATURE_FAST_READ | \
-				 FEATURE_FAST_READ_DOUT | FEATURE_FAST_READ_DIO | \
+#define FEATURE_DIO		(FEATURE_FAST_READ | \
+				 FEATURE_FAST_READ_DOUT | FEATURE_FAST_READ_DIO)
+#define FEATURE_QIO		(FEATURE_DIO | \
 				 FEATURE_FAST_READ_QOUT | FEATURE_FAST_READ_QIO)
 #define FEATURE_QPI_35		(FEATURE_QIO | FEATURE_QPI_35_F5)
 #define FEATURE_QPI_38		(FEATURE_QIO | FEATURE_QPI_38_FF)
