@@ -7101,6 +7101,9 @@ const struct flashchip flashchips[] = {
 			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
 			.cmp    = {STATUS2, 6, RW},
 		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
 		.decode_range	= decode_range_spi25,
 		.prepare_access	= spi_prepare_io,
 		.finish_access	= spi_finish_io,
