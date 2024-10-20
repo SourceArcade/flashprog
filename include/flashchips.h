@@ -1035,6 +1035,10 @@
 #define XTX_XT25F02E		0x4012
 #define XTX_XT25F04D		0x4013
 #define XTX_XT25F08B		0x4014
+#define XTX_XT25F16B		0x4015	/* Same as XT25F16F */
+#define XTX_XT25F32B		0x4016	/* Same as XT25F32F */
+#define XTX_XT25F64B		0x4017	/* Same as XT25F64F */
+#define XTX_XT25F128B		0x4018	/* Same as XT25F128F/XTBF128F */
 
 #define ZETTADEVICE_ID          0xBA	/* Zetta Device */
 #define ZETTADEVICE_ZD25D20     0x2012
