@@ -1536,11 +1536,11 @@ int selfcheck(void)
 	} else {
 		for (i = 0; i < flashchips_size - 1; i++) {
 			const struct flashchip *chip = &flashchips[i];
+			const char *const name = chip->name != NULL ? chip->name : "unnamed";
 			if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE) {
 				ret = 1;
 				msg_gerr("ERROR: Some field of flash chip #%d (%s) is misconfigured.\n"
-					 "Please report a bug at flashprog@flashprog.org\n", i,
-					 chip->name == NULL ? "unnamed" : chip->name);
+					 "Please report a bug at flashprog@flashprog.org\n", i, name);
 			}
 			if (chip->feature_bits &
 			    (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN | FEATURE_4BA_ENTER_EAR7 |
@@ -1548,8 +1548,15 @@ int selfcheck(void)
 			    && !chip->prepare_access) {
 				msg_gerr("ERROR: Flash chip #%d (%s) misses chip\n"
 					 "preparation function for 4BA and multi-i/o modes.\n"
-					 "Please report a bug at flashprog@flashprog.org\n", i,
-					 chip->name == NULL ? "unnamed" : chip->name);
+					 "Please report a bug at flashprog@flashprog.org\n", i, name);
+				ret = 1;
+			}
+			if (chip->reg_bits.bp[0].reg != INVALID_REG &&
+			    (!chip->wp_write_cfg || !chip->wp_read_cfg ||
+			     !chip->wp_get_ranges || !chip->decode_range)) {
+				msg_gerr("ERROR: Flash chip #%d (%s) advertises block-protection\n"
+					 "bits, but misses one or more write-protection functions.\n"
+					 "Please report a bug at flashprog@flashprog.org\n", i, name);
 				ret = 1;
 			}
 			if (selfcheck_eraseblocks(chip)) {
