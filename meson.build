@@ -636,6 +636,8 @@ foreach p_name, p_data : programmer
   endif
 endforeach
 
+subdir('util')
+
 summary({
   'active' : [programmer_names_active],
   'non active' : [programmer_names_not_active],

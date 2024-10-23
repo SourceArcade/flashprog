@@ -4,6 +4,7 @@ option('default_programmer_name', type : 'string', description : 'default progra
 option('default_programmer_args', type : 'string', description : 'default programmer arguments')
 option('ich_descriptors_tool', type : 'feature', value : 'auto', description : 'Build ich_descriptors_tool')
 option('use_internal_dmi', type : 'boolean', value : 'true')
+option('install_udev_rules', type : 'boolean', value : 'false', description : 'Install udev rules')
 option('programmer', type : 'array', value : ['auto'], choices : [
         'auto', 'all',
         'group_internal', 'group_external',
