@@ -15497,6 +15497,311 @@ const struct flashchip flashchips[] = {
 	},
 
 	{
+		.vendor		= "Puya",
+		.name		= "P25Q32H",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= PUYA_ID,
+		.model_id	= PUYA_P25Q32H,
+		.total_size	= 4096,
+		.page_size	= 256,
+		/* Has configuration register that acts like third status register. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {256, 16384} },
+				.block_erase = spi_block_erase_81,
+			}, {
+				.eraseblocks = { {4 * 1024, 1024} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 128} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 64} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {4096 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {4096 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp	= {STATUS1, 7, RW},
+			.srl	= {STATUS2, 0, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb	= {STATUS1, 5, RW},
+			.sec	= {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "Puya",
+		.name		= "P25Q32SH",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= PUYA_ID,
+		.model_id	= PUYA_P25Q32H,
+		.total_size	= 4096,
+		.page_size	= 256,
+		/* Has configuration register that acts like third status register. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 10, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {256, 16384} },
+				.block_erase = spi_block_erase_81,
+			}, {
+				.eraseblocks = { {4 * 1024, 1024} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 128} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 64} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {4096 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {4096 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp	= {STATUS1, 7, RW},
+			.srl	= {STATUS2, 0, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb	= {STATUS1, 5, RW},
+			.sec	= {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "Puya",
+		.name		= "P25Q64H",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= PUYA_ID,
+		.model_id	= PUYA_P25Q64H,
+		.total_size	= 8192,
+		.page_size	= 256,
+		/* Has configuration register that acts like third status register. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {256, 32768} },
+				.block_erase = spi_block_erase_81,
+			}, {
+				.eraseblocks = { {4 * 1024, 2048} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 256} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 128} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp	= {STATUS1, 7, RW},
+			.srl	= {STATUS2, 0, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb	= {STATUS1, 5, RW},
+			.sec	= {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "Puya",
+		.name		= "P25Q64SH",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= PUYA_ID,
+		.model_id	= PUYA_P25Q64H,
+		.total_size	= 8192,
+		.page_size	= 256,
+		/* Has configuration register that acts like third status register. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 10, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {256, 32768} },
+				.block_erase = spi_block_erase_81,
+			}, {
+				.eraseblocks = { {4 * 1024, 2048} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 256} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 128} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp	= {STATUS1, 7, RW},
+			.srl	= {STATUS2, 0, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb	= {STATUS1, 5, RW},
+			.sec	= {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "Puya",
+		.name		= "P25Q128H",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= PUYA_ID,
+		.model_id	= PUYA_P25Q128H,
+		.total_size	= 16384,
+		.page_size	= 256,
+		/* Has configuration register that acts like third status register. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 10, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {256, 65536} },
+				.block_erase = spi_block_erase_81,
+			}, {
+				.eraseblocks = { {4 * 1024, 4096} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 512} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 256} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp	= {STATUS1, 7, RW},
+			.srl	= {STATUS2, 0, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb	= {STATUS1, 5, RW},
+			.sec	= {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2300, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
 		.vendor		= "SST",
 		.name		= "SST25LF020A",
 		.bustype	= BUS_SPI,
