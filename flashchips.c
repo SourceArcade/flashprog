@@ -7256,51 +7256,6 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
-		.name		= "GD25B128B/GD25Q128B",
-		.bustype	= BUS_SPI,
-		.manufacture_id	= GIGADEVICE_ID,
-		.model_id	= GIGADEVICE_GD25Q128,
-		.total_size	= 16384,
-		.page_size	= 256,
-		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
-		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_rdid,
-		.probe_timing	= TIMING_ZERO,
-		.block_erasers	=
-		{
-			{
-				.eraseblocks = { {4 * 1024, 4096} },
-				.block_erase = spi_block_erase_20,
-			}, {
-				.eraseblocks = { {32 * 1024, 512} },
-				.block_erase = spi_block_erase_52,
-			}, {
-				.eraseblocks = { {64 * 1024, 256} },
-				.block_erase = spi_block_erase_d8,
-			}, {
-				.eraseblocks = { {16 * 1024 * 1024, 1} },
-				.block_erase = spi_block_erase_60,
-			}, {
-				.eraseblocks = { {16 * 1024 * 1024, 1} },
-				.block_erase = spi_block_erase_c7,
-			}
-		},
-		.reg_bits	=
-		{
-			.qe	= {STATUS2, 1, RW}, /* RO 1 in GD25B128B case */
-		},
-		.printlock	= spi_prettyprint_status_register_bp4_srwd,
-		.unlock		= spi_disable_blockprotect_bp4_srwd, /* TODO: 2nd status reg (read with 0x35) */
-		.write		= spi_chip_write_256,
-		.read		= spi_chip_read,
-		.voltage	= {2700, 3600},
-		.prepare_access	= spi_prepare_io,
-		.finish_access	= spi_finish_io,
-	},
-
-	{
-		.vendor		= "GigaDevice",
 		.name		= "GD25LQ128C/GD25LQ128D/GD25LQ128E",
 		.bustype	= BUS_SPI,
 		.manufacture_id	= GIGADEVICE_ID,
@@ -7690,14 +7645,15 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
-		.name		= "GD25Q127C",
+		.name		= "GD25Q127C/GD25B127D",
 		.bustype	= BUS_SPI,
 		.manufacture_id	= GIGADEVICE_ID,
 		.model_id	= GIGADEVICE_GD25Q128,
 		.total_size	= 16384,
 		.page_size	= 256,
 		/* OTP: 1536B total; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP | FEATURE_QIO,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QIO,
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -7746,6 +7702,61 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
+		.name		= "GD25Q128B/GD25B128B",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD25Q128,
+		.total_size	= 16384,
+		.page_size	= 256,
+		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QIO,
+		.tested		= TEST_OK_PREW,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 4096} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 512} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 256} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {16 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {16 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd, /* TODO: 2nd status reg (read with 0x35) */
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW}, /* GD25B128B: Fixed QE=1 */
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
 		.name		= "GD25Q128C",
 		.bustype	= BUS_SPI,
 		.manufacture_id	= GIGADEVICE_ID,
@@ -7753,7 +7764,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 16384,
 		.page_size	= 256,
 		/* OTP: 1536B total; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP | FEATURE_QPI_SRP,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, 8 } },
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
@@ -7786,6 +7798,65 @@ const struct flashchip flashchips[] = {
 		.reg_bits	=
 		{
 			.qe	= {STATUS2, 1, RW},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
+		.name		= "GD25Q128E/GD25B128E/GD25R128E/GD25Q128H/GD25B128H",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD25Q128,
+		.total_size	= 16384,
+		.page_size	= 256,
+		/* OTP: 1536B total; read 0x48; write 0x42, erase 0x44 */
+		/* Supports full QIO but has a non-volatile DC bit. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR2 | FEATURE_WRSR3 | FEATURE_OTP |
+				  FEATURE_FAST_READ | FEATURE_FAST_READ_DOUT | FEATURE_FAST_READ_QOUT,
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 4096} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 512} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 256} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {16 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {16 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		/* TODO: 2nd status reg (read 0x35, write 0x31) and 3rd status reg (read 0x15, write 0x11) */
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2700, 3600},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW}, /* GD25B/R: Fixed QE=1 */
+			.dc	= {{STATUS3, 0, RW}},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
