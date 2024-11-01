@@ -18,98 +18,91 @@
 ## Please keep this list sorted alphabetically by vendor/device name.
 ##
 
-##
-## This is tested on udev version 154, other versions may need small fixes.
-##
-## Note that you might want to change the "plugdev" group to whatever is
-## suitable for your respective distribution.
-##
-
 ACTION!="add|change", GOTO="flashprog_rules_end"
 SUBSYSTEM!="usb|usb_device", GOTO="flashprog_rules_end"
 
 # Altera Blaster
-ATTRS{idVendor}=="09fb", ATTRS{idProduct}=="6001", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="09fb", ATTRS{idProduct}=="6001", TAG+="uaccess"
 
 # Amontec JTAGkey(2)
 # http://www.amontec.com/jtagkey.shtml
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", TAG+="uaccess"
 
 # Buspirate
 # http://dangerousprototypes.com/2009/10/08/bus-pirate-raw-spi-mode/
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", TAG+="uaccess"
 
 # Dediprog SF100
 # http://www.dediprog.com/SPI-flash-in-circuit-programming/SF100
-ATTRS{idVendor}=="0483", ATTRS{idProduct}=="dada", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0483", ATTRS{idProduct}=="dada", TAG+="uaccess"
 
 # DirtyJTAG dongle "Generic Jean THOMAS DirtyJTAG"
-ATTRS{idVendor}=="1209", ATTRS{idProduct}=="c0ca", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="1209", ATTRS{idProduct}=="c0ca", TAG+="uaccess"
 
 # DLP Design DLP-USB1232H
 # http://www.dlpdesign.com/usb/usb1232h.shtml
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", TAG+="uaccess"
 
 # FIC OpenMoko Neo1973 Debug board (V2+)
 # http://wiki.openmoko.org/wiki/Neo1973_Debug_Board_v2
-ATTRS{idVendor}=="1457", ATTRS{idProduct}=="5118", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="1457", ATTRS{idProduct}=="5118", TAG+="uaccess"
 
 # FTDI FT4232H Mini-Module
 # http://www.ftdichip.com/Products/EvaluationKits/FT4232H_MiniModule.htm
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", TAG+="uaccess"
 
 # FTDI FT232H Mini-Module
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", TAG+="uaccess"
 
 # FTDI FT4222H Mini-Module
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="601c", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="601c", TAG+="uaccess"
 
 # GOEPEL PicoTAP
 # http://www.goepel.com/jtagboundary-scan/hardware/picotap.html
-ATTRS{idVendor}=="096c", ATTRS{idProduct}=="1449", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="096c", ATTRS{idProduct}=="1449", TAG+="uaccess"
 
 # Google servo debug board
 # https://www.chromium.org/chromium-os/servo
-ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5001", MODE="664", GROUP="plugdev"
-ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5002", MODE="664", GROUP="plugdev"
-ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5003", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5001", TAG+="uaccess"
+ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5002", TAG+="uaccess"
+ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="5003", TAG+="uaccess"
 
 # Kristech KT-LINK
 # https://kristech.pl/files/KT-LINK-UM-ENG.pdf
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="bbe2", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="bbe2", TAG+="uaccess"
 
 # Microchip Technology, Inc. PICkit2
-ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="0033", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="0033", TAG+="uaccess"
 
 # Olimex ARM-USB-OCD
 # http://olimex.com/dev/arm-usb-ocd.html
-ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="0003", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="0003", TAG+="uaccess"
 
 # Olimex ARM-USB-OCD-H
 # http://olimex.com/dev/arm-usb-ocd-h.html
-ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="002b", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="002b", TAG+="uaccess"
 
 # Olimex ARM-USB-TINY
 # http://olimex.com/dev/arm-usb-tiny.html
-ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="0004", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="0004", TAG+="uaccess"
 
 # Olimex ARM-USB-TINY-H
 # http://olimex.com/dev/arm-usb-tiny-h.html
-ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="002a", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="15ba", ATTRS{idProduct}=="002a", TAG+="uaccess"
 
 # TIAO/DIYGADGET USB Multi-Protocol Adapter (TUMPA)
 # http://www.diygadget.com/tiao-usb-multi-protocol-adapter-jtag-spi-i2c-serial.html
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="8a98", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="8a98", TAG+="uaccess"
 
 # TIAO/DIYGADGET USB Multi-Protocol Adapter (TUMPA) Lite
 # http://www.tiaowiki.com/w/TIAO_USB_Multi_Protocol_Adapter_Lite_User's_Manual
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="8a99", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="8a99", TAG+="uaccess"
 
 # Winchiphead (WCH) CH341a based programmer
-ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", TAG+="uaccess"
 
 # Winchiphead (WCH) CH347T/F based programmers
-ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55db", MODE="664", GROUP="plugdev"
-ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55de", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55db", TAG+="uaccess"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55de", TAG+="uaccess"
 
 LABEL="flashprog_rules_end"
