@@ -617,7 +617,7 @@ if get_option('classic_cli').auto() or get_option('classic_cli').enabled()
     c_args : cargs,
     include_directories : include_dir,
     install : true,
-    install_dir : get_option('sbindir'),
+    install_dir : get_option('bindir'),
     link_with : libflashprog.get_static_lib(), # flashprog needs internal symbols of libflashprog
   )
 endif
