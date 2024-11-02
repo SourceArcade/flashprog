@@ -70,6 +70,13 @@ int open_logfile(const char * const filename);
 int close_logfile(void);
 void start_logging(void);
 
+/* generic helper, like getopt_long() but without `--' prefix, re-uses `optind` */
+struct opt_command {
+	const char *name;
+	int val;
+};
+int getopt_command(int argc, char *const argv[], const struct opt_command *);
+
 void print_generic_options(void);
 
 #endif

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include <sys/stat.h>
 
 #include "flash.h"
@@ -211,6 +212,22 @@ int cli_process_layout_args(struct flashprog_layout **const layout,
 	}
 
 	return 0;
+}
+
+/* Note: Changes global `optind` from <getopt.h>. */
+int getopt_command(const int argc, char *const argv[], const struct opt_command *const opts)
+{
+	if (optind >= argc || argv[optind][0] == '-')
+		return -1;
+
+	unsigned int i;
+	for (i = 0; opts[i].name; ++i) {
+		if (!strcmp(argv[optind], opts[i].name)) {
+			++optind;
+			return opts[i].val;
+		}
+	}
+	return -1;
 }
 
 void print_generic_options(void)
