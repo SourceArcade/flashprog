@@ -70,4 +70,6 @@ int open_logfile(const char * const filename);
 int close_logfile(void);
 void start_logging(void);
 
+void print_generic_options(void);
+
 #endif

@@ -213,6 +213,19 @@ int cli_process_layout_args(struct flashprog_layout **const layout,
 	return 0;
 }
 
+void print_generic_options(void)
+{
+	fprintf(stderr, "\n"
+		"Where generic <options> are\n"
+		"    -p | --programmer <name>[:<params>] specify the programmer device. One of\n");
+	list_programmers_linebreak(12, 80, 0);
+	fprintf(stderr, "\n"
+		"    -c | --chip <chipname>              probe only for specified flash chip\n"
+		"    -V | --verbose                      more verbose output\n"
+		"    -o | --output <logfile>             log output to <logfile>\n"
+		"    -h | --help                         print help text\n");
+}
+
 void print_chip_support_status(const struct flashchip *chip)
 {
 	if (chip->feature_bits & FEATURE_OTP) {
