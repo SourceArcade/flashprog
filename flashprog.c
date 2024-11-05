@@ -1881,9 +1881,6 @@ int flashprog_image_write(struct flashctx *const flashctx, void *const buffer, c
 	if (verify && !all_skipped) {
 		msg_cinfo("Verifying flash... ");
 
-		/* Work around chips which need some time to calm down. */
-		programmer_delay(1000*1000);
-
 		if (verify_all)
 			combine_image_by_layout(flashctx, newcontents, oldcontents);
 		ret = verify_by_layout(flashctx, verify_layout, curcontents, newcontents);
