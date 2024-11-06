@@ -50,6 +50,7 @@ ssize_t ich_number_of_regions(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_ELKHART_LAKE:
 	case CHIPSET_SNOW_RIDGE:
 	case CHIPSET_METEOR_LAKE:
+	case CHIPSET_LUNAR_LAKE:
 		return 16;
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 		return 10;
@@ -78,6 +79,8 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_SNOW_RIDGE:
 	case CHIPSET_METEOR_LAKE:
 		return 6;
+	case CHIPSET_LUNAR_LAKE:
+		return 7;
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
 	case CHIPSET_ELKHART_LAKE:
@@ -131,7 +134,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"9 series Wildcat Point", "9 series Wildcat Point LP", "100 series Sunrise Point",
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
-		"C740 series Emmitsburg", "Snow Ridge", "Meteor Lake",
+		"C740 series Emmitsburg", "Snow Ridge", "Meteor Lake", "Lunar Lake",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -311,6 +314,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_500_SERIES_TIGER_POINT:
 	case CHIPSET_C740_SERIES_EMMITSBURG:
 	case CHIPSET_METEOR_LAKE:
+	case CHIPSET_LUNAR_LAKE:
 		return freq_str[3][value];
 	case CHIPSET_ELKHART_LAKE:
 		return freq_str[4][value];
@@ -353,6 +357,7 @@ static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 		return;
 	case CHIPSET_500_SERIES_TIGER_POINT:
 	case CHIPSET_METEOR_LAKE:
+	case CHIPSET_LUNAR_LAKE:
 		msg_pdbg2("Read Clock Frequency:           %s\n", "reserved");
 		return;
 	default:
@@ -554,6 +559,17 @@ void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct i
 				" FD  ", " BIOS", " ME  ", " GbE ", "Pltf.",
 				" DE  ", "BIOS2", " Reg7", " BMC ", " DE2 ",
 				" IE  ", "10GbE", "OpROM", "Reg13", "Reg14",
+				"Reg15", NULL
+			};
+			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
+		} else if (cs == CHIPSET_LUNAR_LAKE) {
+			const char *const masters[] = {
+				"BIOS", "CSME", "GbE", "rsvd.", "EC", "PSE", "SSE", NULL
+			};
+			const char *const regions[] = {
+				" FD  ", "BIOS ", "CSME ", " GbE ", "Pltf.",
+				"Reg5 ", "Reg6 ", "Reg7 ", " EC  ", "Reg9 ",
+				" PSE ", "Reg11", "Reg12", "Reg13", "Reg14",
 				"Reg15", NULL
 			};
 			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
@@ -1075,6 +1091,9 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			} else if (content->CSSO == 0x6c) { /* backwards compatible Jasper Lake */
 				return CHIPSET_300_SERIES_CANNON_POINT;
 			} else if (content->CSSO == 0x70) {
+				/* 0x7d from in SPI guide, 0x7e found in the wild */
+				if (content->ISL == 0x7d || content->ISL == 0x7e)
+					return CHIPSET_LUNAR_LAKE;
 				if (content->ISL == 0x82)
 					return CHIPSET_METEOR_LAKE;
 			}
