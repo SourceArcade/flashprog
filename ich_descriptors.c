@@ -51,6 +51,7 @@ ssize_t ich_number_of_regions(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_SNOW_RIDGE:
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
+	case CHIPSET_ARROW_LAKE:
 		return 16;
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 		return 10;
@@ -78,6 +79,7 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_C740_SERIES_EMMITSBURG:
 	case CHIPSET_SNOW_RIDGE:
 	case CHIPSET_METEOR_LAKE:
+	case CHIPSET_ARROW_LAKE:
 		return 6;
 	case CHIPSET_LUNAR_LAKE:
 		return 7;
@@ -101,6 +103,7 @@ static bool has_classic_proc_straps(const enum ich_chipset cs)
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 	case CHIPSET_C620_SERIES_LEWISBURG:
 	case CHIPSET_C740_SERIES_EMMITSBURG:
+	case CHIPSET_ARROW_LAKE:
 		return true;
 	default:
 		return cs < SPI_ENGINE_PCH100;
@@ -135,6 +138,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
 		"C740 series Emmitsburg", "Snow Ridge", "Meteor Lake", "Lunar Lake",
+		"800 series Arrow Lake",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -315,6 +319,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_C740_SERIES_EMMITSBURG:
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
+	case CHIPSET_ARROW_LAKE:
 		return freq_str[3][value];
 	case CHIPSET_ELKHART_LAKE:
 		return freq_str[4][value];
@@ -358,6 +363,7 @@ static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_500_SERIES_TIGER_POINT:
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
+	case CHIPSET_ARROW_LAKE:
 		msg_pdbg2("Read Clock Frequency:           %s\n", "reserved");
 		return;
 	default:
@@ -1043,6 +1049,10 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			warn_peculiar_desc("Gemini Lake");
 			return CHIPSET_GEMINI_LAKE;
 		}
+		if (content->ISL < 0x50) { /* arbitrary choice, just say < 0x50 is old */
+			warn_peculiar_desc("Ibex Peak");
+			return CHIPSET_5_SERIES_IBEX_PEAK;
+		}
 		if (content->NM == 6) {
 			/* 0x8b is from the SPI Guide, but not yet seen in the wild. */
 			if (0x50 <= content->ISL && content->ISL <= 0x8b)
@@ -1050,8 +1060,10 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			warn_peculiar_desc("C740 series");
 			return CHIPSET_C740_SERIES_EMMITSBURG;
 		}
-		warn_peculiar_desc("Ibex Peak");
-		return CHIPSET_5_SERIES_IBEX_PEAK;
+		if (content->ISL == 0xb3 && content->MSL == 0x3a)
+			return CHIPSET_ARROW_LAKE;
+		warn_peculiar_desc("Arrow Lake");
+		return CHIPSET_ARROW_LAKE;
 	} else if (upper->MDTBA == 0x00) {
 		if (content->ICCRIBA < 0x31 && content->FMSBA < 0x30) {
 			if (content->MSL == 0 && content->ISL <= 17)
