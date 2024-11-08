@@ -7262,8 +7262,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= GIGADEVICE_GD25LQ128CD,
 		.total_size	= 16384,
 		.page_size	= 256,
-		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
+		/* OTP: 3x 512B, later 3x 1024B; read 0x48; write 0x42, erase 0x44 */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, 8 } },
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
@@ -7291,7 +7291,7 @@ const struct flashchip flashchips[] = {
 		.unlock		= spi_disable_blockprotect_bp4_srwd, /* TODO: 2nd status reg (read with 0x35) */
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1695, 1950},
+		.voltage	= {1650, 1950},
 		.reg_bits	=
 		{
 			.qe	= {STATUS2, 1, RW},
@@ -7429,8 +7429,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= GIGADEVICE_GD25LQ32,
 		.total_size	= 4096,
 		.page_size	= 256,
-		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
+		/* OTP: 1024B total, 256B reserved, later 3x 1024B; read 0x48; write 0x42, erase 0x44 */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
@@ -7454,15 +7454,25 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.reg_bits	=
-		{
-			.qe	= {STATUS2, 1, RW},
-		},
 		.printlock	= spi_prettyprint_status_register_bp4_srwd,
 		.unlock		= spi_disable_blockprotect_bp4_srwd, /* TODO: 2nd status reg (read with 0x35) */
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
-		.voltage	= {1695, 1950},
+		.voltage	= {1650, 1950},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
+			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
 		.prepare_access	= spi_prepare_io,
 		.finish_access	= spi_finish_io,
 	},
@@ -7531,8 +7541,8 @@ const struct flashchip flashchips[] = {
 		.model_id	= GIGADEVICE_GD25LQ64,
 		.total_size	= 8192,
 		.page_size	= 256,
-		/* OTP: 1024B total, 256B reserved; read 0x48; write 0x42, erase 0x44 */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
+		/* OTP: 1024B total, 256B reserved, later 3x 1024B; read 0x48; write 0x42, erase 0x44 */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 4, 4, 6, 8 } },
 		.tested		= TEST_OK_PREWB,
 		.probe		= probe_spi_rdid,
@@ -7559,8 +7569,8 @@ const struct flashchip flashchips[] = {
 		.printlock	= spi_prettyprint_status_register_bp4_srwd,
 		.unlock		= spi_disable_blockprotect_bp4_srwd, /* TODO: 2nd status reg (read with 0x35) */
 		.write		= spi_chip_write_256,
-		.read		= spi_chip_read, /* Fast read (0x0B) and multi I/O supported */
-		.voltage	= {1695, 1950},
+		.read		= spi_chip_read,
+		.voltage	= {1650, 1950},
 		.reg_bits	=
 		{
 			.qe	= {STATUS2, 1, RW},
