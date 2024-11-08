@@ -7423,6 +7423,197 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
+		.name		= "GD25LQ256D/GD25LE256D/GD25LB256D/GD25LQ255E",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD25LQ256D,
+		.total_size	= 32768,
+		.page_size	= 256,
+		/* GD25LQ255E also supports native 4BA commands, EAR. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_OTP |
+				  FEATURE_4BA_ENTER | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 8192} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 1024} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 512} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 2000},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW}, /* GD25LB256D: Fixed QE=1 */
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			.tb     = {STATUS1, 5, RW},
+			.sec    = {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
+		.name		= "GD25LQ256H/GD25LE256H/GD25LB256F",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD25LQ256D,
+		.total_size	= 32768,
+		.page_size	= 256,
+		/* Has non-volatile DC bits which affect DIO and QIO in SPI mode. */
+		/* LE256H supports DTR. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_FAST_READ_QPI4B |
+				  (FEATURE_QPI_SRP & ~(FEATURE_FAST_READ_DIO | FEATURE_FAST_READ_QIO)),
+		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, 8 } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 8192} },
+				.block_erase = spi_block_erase_21,
+			}, {
+				.eraseblocks = { {4 * 1024, 8192} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 1024} },
+				.block_erase = spi_block_erase_5c,
+			}, {
+				.eraseblocks = { {32 * 1024, 1024} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 512} },
+				.block_erase = spi_block_erase_dc,
+			}, {
+				.eraseblocks = { {64 * 1024, 512} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 2000},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW}, /* GD25LB256F: Fixed QE=1 */
+			.dc	= {{STATUS3, 0, RW}, {STATUS3, 1, RW}},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+			.cmp	= {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
+		.name		= "GD25LE255E",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD25LQ256D,
+		.total_size	= 32768,
+		.page_size	= 256,
+		/* Non-volatile DC bits control SPI mode, hence disable fast-read commands. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | (FEATURE_4BA & ~FEATURE_4BA_FAST_READ) |
+				  FEATURE_FAST_READ_QPI4B | (FEATURE_QPI_SRP & ~FEATURE_QIO),
+		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, } },
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 8192} },
+				.block_erase = spi_block_erase_21,
+			}, {
+				.eraseblocks = { {4 * 1024, 8192} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 1024} },
+				.block_erase = spi_block_erase_5c,
+			}, {
+				.eraseblocks = { {32 * 1024, 1024} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 512} },
+				.block_erase = spi_block_erase_dc,
+			}, {
+				.eraseblocks = { {64 * 1024, 512} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {32 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 2000},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.dc	= {{STATUS3, 0, RW}, {STATUS3, 1, RW}},
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
 		.name		= "GD25LQ32",
 		.bustype	= BUS_SPI,
 		.manufacture_id	= GIGADEVICE_ID,
