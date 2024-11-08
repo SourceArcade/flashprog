@@ -7889,13 +7889,14 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
-		.name		= "GD25LR512ME",
+		.name		= "GD25LB512ME/GD25LR512ME",
 		.bustype	= BUS_SPI,
 		.manufacture_id	= GIGADEVICE_ID,
-		.model_id	= GIGADEVICE_GD25LR512ME,
+		.model_id	= GIGADEVICE_GD25LB512ME,
 		.total_size	= 65536,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_OTP | FEATURE_4BA,
+		/* Has non-volatile DC bits in unsupported register, controlling QIO, QPI. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_OTP | FEATURE_4BA,
 		.tested		= TEST_OK_PREW,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -7909,10 +7910,10 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_20,
 			}, {
 				.eraseblocks = { {32 * 1024, 2048} },
-				.block_erase = spi_block_erase_52,
+				.block_erase = spi_block_erase_5c,
 			}, {
 				.eraseblocks = { {32 * 1024, 2048} },
-				.block_erase = spi_block_erase_5c,
+				.block_erase = spi_block_erase_52,
 			}, {
 				.eraseblocks = { {64 * 1024, 1024} },
 				.block_erase = spi_block_erase_dc,
@@ -7927,6 +7928,109 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
+		/* Has WPS bit in unsupported register. */
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 2000},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
+		.name		= "GD55LB01GE",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD55LB01GE,
+		.total_size	= 128 * 1024,
+		.page_size	= 256,
+		/* Has non-volatile DC bits in unsupported register, controlling QIO, QPI. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_OTP | FEATURE_4BA,
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 32768} },
+				.block_erase = spi_block_erase_21,
+			}, {
+				.eraseblocks = { {4 * 1024, 32768} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 4096} },
+				.block_erase = spi_block_erase_5c,
+			}, {
+				.eraseblocks = { {32 * 1024, 4096} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 2048} },
+				.block_erase = spi_block_erase_dc,
+			}, {
+				.eraseblocks = { {64 * 1024, 2048} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {128 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {128 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		/* Has WPS bit in unsupported register. */
+		.printlock	= spi_prettyprint_status_register_bp4_srwd,
+		.unlock		= spi_disable_blockprotect_bp4_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 2000},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
+		.vendor		= "GigaDevice",
+		.name		= "GD55LB02GE",
+		.bustype	= BUS_SPI,
+		.manufacture_id	= GIGADEVICE_ID,
+		.model_id	= GIGADEVICE_GD55LB02GE,
+		.total_size	= 256 * 1024,
+		.page_size	= 256,
+		/* Has non-volatile DC bits in unsupported register, controlling QIO, QPI. */
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_OTP | FEATURE_4BA,
+		.tested		= TEST_UNTESTED,
+		.probe		= probe_spi_rdid,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 65536} },
+				.block_erase = spi_block_erase_21,
+			}, {
+				.eraseblocks = { {4 * 1024, 65536} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 8192} },
+				.block_erase = spi_block_erase_5c,
+			}, {
+				.eraseblocks = { {32 * 1024, 8192} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 4096} },
+				.block_erase = spi_block_erase_dc,
+			}, {
+				.eraseblocks = { {64 * 1024, 4096} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {256 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {256 * 1024 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		/* Has WPS bit in unsupported register. */
 		.printlock	= spi_prettyprint_status_register_bp4_srwd,
 		.unlock		= spi_disable_blockprotect_bp4_srwd,
 		.write		= spi_chip_write_256,
