@@ -1551,6 +1551,14 @@ int selfcheck(void)
 					 "Please report a bug at flashprog@flashprog.org\n", i, name);
 				ret = 1;
 			}
+			uint8_t zero_cycles[sizeof(chip->dummy_cycles)] = { 0 };
+			if ((chip->feature_bits & (FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF)) &&
+			    !memcmp(&chip->dummy_cycles, zero_cycles, sizeof(zero_cycles))) {
+				msg_gerr("ERROR: Flash chip #%d (%s) misses QPI dummy-cycle\n"
+					 "settings. Please report a bug at flashprog@flashprog.org\n",
+					 i, name);
+				ret = 1;
+			}
 			if (chip->reg_bits.bp[0].reg != INVALID_REG &&
 			    (!chip->wp_write_cfg || !chip->wp_read_cfg ||
 			     !chip->wp_get_ranges || !chip->decode_range)) {
