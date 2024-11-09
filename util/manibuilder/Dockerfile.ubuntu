@@ -2,7 +2,9 @@ FROM manibase
 
 RUN \
 	useradd -p locked -m mani && \
-	if grep -q main /etc/apt/sources.list; then \
+	if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+		true; \
+	elif grep -q main /etc/apt/sources.list; then \
 		if ! grep -q universe /etc/apt/sources.list; then \
 			sed -i -e 's/ main$/ main universe/' \
 				/etc/apt/sources.list || exit 1; \
