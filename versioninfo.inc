@@ -1,0 +1,2 @@
+VERSION = 1.3.x
+MAN_DATE = 2024-11-03
