@@ -55,8 +55,7 @@ WORKING_TAGS := $(filter-out $(BROKEN_TAGS),$(ALL_TAGS))
 
 arch_filter = $(sort \
 	$(foreach arch,$(1), \
-	  $(filter-out $(subst $(arch),,$(MULTIARCH_TAGS) $(OFFICIAL_TAGS)), \
-			$(MULTIARCH_TAGS) $(OFFICIAL_TAGS))))
+	  $(filter-out $(subst $(arch),,$(ALL_TAGS)), $(ALL_TAGS))))
 
 machine_map = \
 	$(if $(filter i386 i686 x86,$(1)),i386 x86, \
