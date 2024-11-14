@@ -406,6 +406,7 @@ int flashprog_wp_main(int argc, char *argv[])
 	if (ret == 3) {
 		fprintf(stderr, "Multiple flash chip definitions match the detected chip.\n"
 				"Please specify which chip definition to use with the -c <chipname> option.\n");
+		goto shutdown_ret;
 	} else if (ret) {
 		fprintf(stderr, "No EEPROM/flash device found.\n");
 		goto shutdown_ret;
