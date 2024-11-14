@@ -65,7 +65,7 @@ int cli_init(void)
 	return flashprog_init(/* perform_selfcheck => */1);
 }
 
-int cli_parse_log_args(struct log_args *const args, const int opt, const char *const optarg)
+int cli_parse_log_args(struct log_args *const args, const int opt, const char *const opt_arg)
 {
 	switch (opt) {
 	case OPTION_VERBOSE:
@@ -74,7 +74,7 @@ int cli_parse_log_args(struct log_args *const args, const int opt, const char *c
 			args->logfile_level = args->screen_level;
 		break;
 	case OPTION_LOGFILE:
-		if (cli_check_filename(optarg, "log"))
+		if (cli_check_filename(opt_arg, "log"))
 			return 1;
 
 		if (args->logfile) {
@@ -82,7 +82,7 @@ int cli_parse_log_args(struct log_args *const args, const int opt, const char *c
 			free(args->logfile);
 		}
 
-		args->logfile = strdup(optarg);
+		args->logfile = strdup(opt_arg);
 		if (!args->logfile) {
 			fprintf(stderr, "Out of memory!\n");
 			return 2;
@@ -93,7 +93,7 @@ int cli_parse_log_args(struct log_args *const args, const int opt, const char *c
 	return 0;
 }
 
-int cli_parse_flash_args(struct flash_args *const args, const int opt, const char *const optarg)
+int cli_parse_flash_args(struct flash_args *const args, const int opt, const char *const opt_arg)
 {
 	switch (opt) {
 	case OPTION_PROGRAMMER:
@@ -103,12 +103,12 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 				"arguments for a programmer with ','. Please see the man page for details.\n");
 			return 1;
 		}
-		const char *const colon = strchr(optarg, ':');
+		const char *const colon = strchr(opt_arg, ':');
 		if (colon) {
-			args->prog_name = strndup(optarg, colon - optarg);
+			args->prog_name = strndup(opt_arg, colon - opt_arg);
 			args->prog_args = strdup(colon + 1);
 		} else {
-			args->prog_name = strdup(optarg);
+			args->prog_name = strdup(opt_arg);
 		}
 		if (!args->prog_name || (colon && !args->prog_args)) {
 			fprintf(stderr, "Out of memory!\n");
@@ -120,7 +120,7 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 			fprintf(stderr, "Error: --chip specified more than once.\n");
 			return 1;
 		}
-		args->chip = strdup(optarg);
+		args->chip = strdup(opt_arg);
 		if (!args->chip) {
 			fprintf(stderr, "Out of memory!\n");
 			return 2;
@@ -131,7 +131,7 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 	return 0;
 }
 
-int cli_parse_layout_args(struct layout_args *const args, const int opt, const char *const optarg)
+int cli_parse_layout_args(struct layout_args *const args, const int opt, const char *const opt_arg)
 {
 	if (args->layoutfile || args->ifd || args->fmap || args->fmapfile) {
 		fprintf(stderr, "Error: Only one layout source may be specified.\n");
@@ -140,10 +140,10 @@ int cli_parse_layout_args(struct layout_args *const args, const int opt, const c
 
 	switch (opt) {
 	case OPTION_LAYOUT:
-		if (cli_check_filename(optarg, "layout"))
+		if (cli_check_filename(opt_arg, "layout"))
 			return 1;
 
-		args->layoutfile = strdup(optarg);
+		args->layoutfile = strdup(opt_arg);
 		if (!args->layoutfile) {
 			fprintf(stderr, "Out of memory!\n");
 			return 2;
@@ -156,10 +156,10 @@ int cli_parse_layout_args(struct layout_args *const args, const int opt, const c
 		args->fmap = true;
 		break;
 	case OPTION_FMAP_FILE:
-		if (cli_check_filename(optarg, "fmap"))
+		if (cli_check_filename(opt_arg, "fmap"))
 			return 1;
 
-		args->fmapfile = strdup(optarg);
+		args->fmapfile = strdup(opt_arg);
 		if (!args->fmapfile) {
 			fprintf(stderr, "Out of memory!\n");
 			return 2;
