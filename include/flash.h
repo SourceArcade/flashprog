@@ -238,6 +238,7 @@ struct wp_bits;
 
 enum preparation_steps {
 	PREPARE_PROBE,
+	PREPARE_POST_PROBE,
 	PREPARE_FULL,
 };
 

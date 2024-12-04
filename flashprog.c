@@ -661,6 +661,9 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (flash->chip->probe(flash) != 1)
 			goto notfound;
 
+		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_POST_PROBE))
+			goto notfound;
+
 		/* If this is the first chip found, accept it.
 		 * If this is not the first chip found, accept it only if it is
 		 * a non-generic match. SFDP and CFI are generic matches.

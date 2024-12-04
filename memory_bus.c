@@ -46,6 +46,9 @@ static void programmer_unmap_flash_region(const struct flashctx *flash, void *vi
 
 int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 {
+	if (prep == PREPARE_POST_PROBE)
+		return 0;
+
 	/* Init pointers to the fail-safe state to distinguish them later from legit values. */
 	flash->virtual_memory = (chipaddr)ERROR_PTR;
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
@@ -66,6 +69,9 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 
 int prepare_memory_register_access(struct flashctx *flash, enum preparation_steps prep)
 {
+	if (prep == PREPARE_POST_PROBE)
+		return 0;
+
 	if (prepare_memory_access(flash, prep))
 		return 1;
 
