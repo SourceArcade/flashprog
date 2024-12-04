@@ -38,7 +38,7 @@
 
 static const char *const region_names[] = {
 	"Descriptor", "BIOS", "ME", "GbE", "Platform",
-	"Region5", "BIOS2", "Region7", "EC/BMC", "Region9",
+	"Region5", "BIOS2", "Region7", "EC_BMC", "Region9",
 	"IE", "10GbE", "Region12", "Region13", "Region14",
 	"Region15"
 };
