@@ -135,7 +135,7 @@ static int determine_generation(struct pci_dev *dev)
 		} else {
 			msg_pwarn("FCH device found but SMBus revision 0x%02x does not match known values.\n"
 				  "Please report this to flashprog@flashprog.org and include this\n"
-				  "log and the output of lspci -nnvx, thanks!.\n", rev);
+				  "log and the output of `sudo lspci -nnvxxx`, thanks!.\n", rev);
 		}
 	} else if (dev->device_id == 0x790e) {
 		int rev = find_smbus_dev_rev(0x1022, 0x790B);
@@ -150,14 +150,14 @@ static int determine_generation(struct pci_dev *dev)
 		} else {
 			msg_pwarn("FCH device found but SMBus revision 0x%02x does not match known values.\n"
 				  "Please report this to flashprog@flashprog.org and include this\n"
-				  "log and the output of lspci -nnvx, thanks!.\n", rev);
+				  "log and the output of `sudo lspci -nnvxxx`, thanks!.\n", rev);
 		}
 
 
 	} else
 		msg_pwarn("%s: Unknown LPC device %" PRIx16 ":%" PRIx16 ".\n"
 			  "Please report this to flashprog@flashprog.org and include this\n"
-			  "log and the output of lspci -nnvx, thanks!\n",
+			  "log and the output of `sudo lspci -nnvxxx`, thanks!\n",
 			  __func__, dev->vendor_id, dev->device_id);
 	if (amd_gen == CHIPSET_AMD_UNKNOWN) {
 		msg_perr("Could not determine chipset generation.");
