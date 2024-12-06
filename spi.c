@@ -27,12 +27,33 @@
 #include "spi_command.h"
 #include "spi.h"
 
+static int spi_send_wrapped_command(
+		const struct flashctx *flash, enum io_mode io_mode,
+		unsigned int writecnt, unsigned int readcnt,
+		const unsigned char *writearr, unsigned char *readarr)
+{
+	struct spi_command cmd[] = {
+	{
+		.io_mode = io_mode,
+		.opcode_len = 1,
+		.address_len = writecnt - 1,
+		.read_len = readcnt,
+		.writearr = writearr,
+		.readarr = readarr,
+	},
+		NULL_SPI_CMD
+	};
+
+	return spi_send_multicommand(flash, cmd);
+}
+
 int spi_send_command(const struct flashctx *flash, unsigned int writecnt,
 		     unsigned int readcnt, const unsigned char *writearr,
 		     unsigned char *readarr)
 {
 	if (spi_current_io_mode(flash) != SINGLE_IO_1_1_1)
-		return default_spi_send_command(flash, writecnt, readcnt, writearr, readarr);
+		return spi_send_wrapped_command(flash, spi_current_io_mode(flash),
+						writecnt, readcnt, writearr, readarr);
 
 	return flash->mst.spi->command(flash, writecnt, readcnt, writearr,
 				       readarr);
@@ -48,19 +69,7 @@ int default_spi_send_command(const struct flashctx *flash, unsigned int writecnt
 			     const unsigned char *writearr,
 			     unsigned char *readarr)
 {
-	struct spi_command cmd[] = {
-	{
-		.io_mode = spi_current_io_mode(flash),
-		.opcode_len = 1,
-		.address_len = writecnt - 1,
-		.read_len = readcnt,
-		.writearr = writearr,
-		.readarr = readarr,
-	},
-		NULL_SPI_CMD
-	};
-
-	return spi_send_multicommand(flash, cmd);
+	return spi_send_wrapped_command(flash, SINGLE_IO_1_1_1, writecnt, readcnt, writearr, readarr);
 }
 
 int default_spi_send_multicommand(const struct flashctx *flash,
