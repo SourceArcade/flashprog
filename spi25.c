@@ -694,13 +694,12 @@ int spi_nbyte_read(struct flashctx *flash, uint8_t *dst, unsigned int address, u
 {
 	const struct spi_read_op *const read_op = get_spi_read_op(flash);
 	const size_t mode_len = read_op->mode_byte ? 1 : 0;
-	uint8_t cmd_buf[1 + JEDEC_MAX_ADDR_LEN + 1];
+	uint8_t cmd_buf[1 + JEDEC_MAX_ADDR_LEN + 1] = { read_op->opcode, };
 
 	const int addr_len = spi_prepare_address(flash, cmd_buf, read_op->native_4ba, address);
 	if (addr_len < 0)
 		return 1;
 
-	cmd_buf[0] = read_op->opcode;
 	cmd_buf[addr_len + 1] = read_op->mode_byte;
 
 	struct spi_command cmd[] = {
