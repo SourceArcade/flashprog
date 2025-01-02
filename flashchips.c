@@ -12237,6 +12237,222 @@ const struct flashchip flashchips[] = {
 		.finish_access	= spi_finish_io,
 	},
 
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC080",
+		.bustype	= BUS_SPI,
+		.total_size	= 1,
+		.page_size	= 16,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {1 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC016",
+		.bustype	= BUS_SPI,
+		.total_size	= 2,
+		.page_size	= 16,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {2 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC032",
+		.bustype	= BUS_SPI,
+		.total_size	= 4,
+		.page_size	= 32,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC064",
+		.bustype	= BUS_SPI,
+		.total_size	= 8,
+		.page_size	= 32,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {8 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC128",
+		.bustype	= BUS_SPI,
+		.total_size	= 16,
+		.page_size	= 64,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {16 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC256",
+		.bustype	= BUS_SPI,
+		.total_size	= 32,
+		.page_size	= 64,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {32 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC512",
+		.bustype	= BUS_SPI,
+		.total_size	= 64,
+		.page_size	= 128,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {64 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
+	{
+		.vendor		= "Microchip",
+		.name		= "25LC1024",
+		.bustype	= BUS_SPI,
+		.total_size	= 128,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
+		.tested		= TEST_UNTESTED,
+		.spi_cmd_set	= SPI25_EEPROM,
+		.probe		= probe_noop,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {128 * 1024, 1} },
+				.block_erase = spi_block_erase_emulation,
+			}
+		},
+
+		.printlock	= spi_prettyprint_status_register_bp1_srwd,
+		.unlock		= spi_disable_blockprotect_bp1_srwd,
+		.gran		= write_gran_1bit,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {2500, 5500},
+	},
+
 	/* The ST M25P05 is a bit of a problem. It has the same ID as the
 	 * ST M25P05-A in RES mode, but supports only 128 byte writes instead
 	 * of 256 byte writes. We rely heavily on the fact that probe_spi_res1
