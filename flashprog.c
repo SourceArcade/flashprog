@@ -602,6 +602,11 @@ char *flashbuses_to_text(enum chipbustype bustype)
 	return ret;
 }
 
+int probe_noop(struct flashctx *flash)
+{
+	return 1;
+}
+
 static int init_default_layout(struct flashctx *flash)
 {
 	/* Fill default layout covering the whole chip. */
