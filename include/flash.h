@@ -279,6 +279,7 @@ struct flashchip {
 		/* SPI25 is very common. Keep it at zero so we don't have
 		   to specify it for each and every chip in the database.*/
 		SPI25 = 0,
+		SPI25_EEPROM,
 		SPI95,
 		SPI_EDI,
 	} spi_cmd_set;

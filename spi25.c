@@ -377,10 +377,29 @@ int spi_set_extended_address(struct flashctx *const flash, const uint8_t addr_hi
 	return 0;
 }
 
+static size_t spi_address_length(struct flashctx *const flash, const bool native_4ba)
+{
+	if (flash->chip->spi_cmd_set == SPI25_EEPROM) {
+		if (flashprog_flash_getsize(flash) > 64*KiB)
+			return 3;
+		if (flashprog_flash_getsize(flash) > 256)
+			return 2;
+		return 1;
+	}
+
+	if (native_4ba || flash->in_4ba_mode)
+		return 4;
+
+	return 3;
+}
+
 static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
 			       const bool native_4ba, const unsigned int addr)
 {
-	if (native_4ba || flash->in_4ba_mode) {
+	const size_t len = spi_address_length(flash, native_4ba);
+
+	switch (len) {
+	case 4:
 		if (!spi_master_4ba(flash)) {
 			msg_cwarn("4-byte address requested but master can't handle 4-byte addresses.\n");
 			return -1;
@@ -389,8 +408,8 @@ static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
 		cmd_buf[2] = (addr >> 16) & 0xff;
 		cmd_buf[3] = (addr >>  8) & 0xff;
 		cmd_buf[4] = (addr >>  0) & 0xff;
-		return 4;
-	} else {
+		return len;
+	case 3:
 		if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
 			if (spi_set_extended_address(flash, addr >> 24))
 				return -1;
@@ -402,7 +421,14 @@ static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
 		cmd_buf[1] = (addr >> 16) & 0xff;
 		cmd_buf[2] = (addr >>  8) & 0xff;
 		cmd_buf[3] = (addr >>  0) & 0xff;
-		return 3;
+		return len;
+	case 2:
+		cmd_buf[1] = (addr >> 8) & 0xff;
+		cmd_buf[2] = (addr >> 0) & 0xff;
+		return len;
+	default:
+		cmd_buf[1] = addr & 0xff;
+		return len;
 	}
 }
 
