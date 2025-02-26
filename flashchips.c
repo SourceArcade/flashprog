@@ -23570,6 +23570,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950},
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -24149,6 +24150,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {1700, 1950}, /* Fast read (0x0B) and multi I/O supported */
 		.reg_bits	=
 		{
+			.qe	= {STATUS2, 1, RW},
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
@@ -25959,7 +25961,7 @@ const struct flashchip flashchips[] = {
 		.model_id	= XTX_XT25F08B,
 		.total_size	= 1024,
 		.page_size	= 256,
-		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_QIO,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_QIO,
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
@@ -25981,6 +25983,10 @@ const struct flashchip flashchips[] = {
 				.eraseblocks = { {1024 * 1024, 1} },
 				.block_erase = spi_block_erase_c7,
 			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
 		},
 		.printlock	= spi_prettyprint_status_register_bp3_srwd,
 		.unlock		= spi_disable_blockprotect_bp3_srwd,
