@@ -18028,9 +18028,8 @@ const struct flashchip flashchips[] = {
 			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
-			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
-			.tb	= {STATUS1, 5, RW},
-			.sec	= {STATUS1, 6, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {STATUS1, 6, RW},
 			.cmp	= {STATUS2, 6, RW},
 			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
 		},
@@ -18095,9 +18094,8 @@ const struct flashchip flashchips[] = {
 			.qe	= {STATUS2, 1, RO}, /* Fixed QE=1 */
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
-			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
-			.tb	= {STATUS1, 5, RW},
-			.sec	= {STATUS1, 6, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {STATUS1, 6, RW},
 			.cmp	= {STATUS2, 6, RW},
 			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
 		},
@@ -18162,9 +18160,8 @@ const struct flashchip flashchips[] = {
 			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
-			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
-			.tb	= {STATUS1, 5, RW},
-			.sec	= {STATUS1, 6, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {STATUS1, 6, RW},
 			.cmp	= {STATUS2, 6, RW},
 			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
 		},
@@ -18229,9 +18226,8 @@ const struct flashchip flashchips[] = {
 			.qe	= {STATUS2, 1, RO}, /* Fixed QE=1 */
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
-			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
-			.tb	= {STATUS1, 5, RW},
-			.sec	= {STATUS1, 6, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {STATUS1, 6, RW},
 			.cmp	= {STATUS2, 6, RW},
 			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
 		},
@@ -18296,9 +18292,8 @@ const struct flashchip flashchips[] = {
 			.qe	= {STATUS2, 1, RW},
 			.srp	= {STATUS1, 7, RW},
 			.srl	= {STATUS2, 0, RW},
-			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
-			.tb	= {STATUS1, 5, RW},
-			.sec	= {STATUS1, 6, RW},
+			.bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb	= {STATUS1, 6, RW},
 			.cmp	= {STATUS2, 6, RW},
 			.wps	= {STATUS3, 2, RW}, /* Called configuration register in datasheet. */
 		},
