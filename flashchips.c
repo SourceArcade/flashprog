@@ -8737,6 +8737,7 @@ const struct flashchip flashchips[] = {
 			.tb     = {STATUS1, 5, RW}, /* Called BP3 in datasheet, acts like TB */
 			.sec    = {STATUS1, 6, RW}, /* Called BP4 in datasheet, acts like SEC */
 			.cmp    = {STATUS2, 6, RW},
+			.wps	= {STATUS3, 2, RW},
 		},
 		.wp_write_cfg	= spi_wp_write_cfg,
 		.wp_read_cfg	= spi_wp_read_cfg,
