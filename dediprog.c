@@ -1506,8 +1506,8 @@ static int dediprog_init(struct flashprog_programmer *const prog)
 	}
 
 	if (io_mode == DEFAULT) {
-		if (protocol(dp_data) < PROTOCOL_V3) {
-			msg_pdbg("Multi i/o is only tested with protocol v3, not enabling by default.\n");
+		if (dp_data->devicetype != DEV_SF600PG2) {
+			msg_pdbg("Multi i/o is only tested with SF600Plus-G2, not enabling by default.\n");
 		} else {
 			io_mode = DUAL;
 		}
