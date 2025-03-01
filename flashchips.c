@@ -7849,7 +7849,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR3 |
 				  FEATURE_OTP | (FEATURE_4BA & ~FEATURE_4BA_FAST_READ) |
 				  FEATURE_FAST_READ_QPI4B | (FEATURE_QPI_SRP & ~FEATURE_QIO),
-		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, } },
+		.dummy_cycles	= { .qpi_read_params = { 4, 6, 8, 0 } },
 		.tested		= TEST_UNTESTED,
 		.probe		= probe_spi_rdid,
 		.probe_timing	= TIMING_ZERO,
