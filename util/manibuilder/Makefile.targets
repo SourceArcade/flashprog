@@ -39,7 +39,19 @@ OFFICIAL_TAGS := \
 
 OTHER_TAGS := djgpp\:6.1.0
 
-ALL_TAGS := $(ANITA_TAGS) $(OFFICIAL_TAGS) $(MULTIARCH_TAGS) $(OTHER_TAGS)
+NONCROSS_TAGS := $(ANITA_TAGS) $(OFFICIAL_TAGS) $(MULTIARCH_TAGS) $(OTHER_TAGS)
+
+
+ANDROID_TAGS := \
+	$(foreach v,23 35, \
+	  $(foreach p,armv7a-linux-androideabi \
+			$(foreach a,aarch64 i686 x86_64,$(a)-linux-android), \
+	    cross-$(p)$(v)-clang))
+
+CROSS_TAGS := $(ANDROID_TAGS)
+
+
+ALL_TAGS := $(NONCROSS_TAGS) $(CROSS_TAGS)
 
 BROKEN_TAGS := arm64v8/fedora\:35 arm32v6/alpine\:3.15 alpine\:armhf-v3.14
 
@@ -73,6 +85,8 @@ native: $(NATIVE_TAGS)
 
 working: $(WORKING_TAGS)
 
+cross: $(CROSS_TAGS)
+
 all: $(ALL_TAGS)
 
 show-default:
@@ -83,6 +97,9 @@ show-native:
 
 show-working:
 	@printf "%s\n" $(WORKING_TAGS)
+
+show-cross:
+	@printf "%s\n" $(CROSS_TAGS)
 
 show-all:
 	@printf "%s\n" $(ALL_TAGS)

@@ -1,0 +1,14 @@
+cross-build: %-build: Dockerfile.% mani-wrapper.sh
+	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
+
+$(CROSS_TAGS): CC=ccache $(patsubst cross-%,%,$@)
+$(CROSS_TAGS): ENV_VARS=CROSS_COMPILE=$(patsubst cross-%,%,$(patsubst %-clang,%-,$(patsubst %-gcc,%-,$@)))
+
+$(CROSS_TAGS): MESONARGS+=--cross-file /opt/$(patsubst cross-%,%,$@).txt -Dwerror=false
+
+$(CROSS_TAGS): MAKEARGS+=CONFIG_ENABLE_LIBPCI_PROGRAMMERS=no CONFIG_ENABLE_LIBUSB1_PROGRAMMERS=no
+$(CROSS_TAGS): MAKEARGS+=CONFIG_FT2232_SPI=no CONFIG_USBBLASTER_SPI=no
+$(CROSS_TAGS): MAKEARGS+=CONFIG_JLINK_SPI=no CONFIG_LINUX_GPIO_SPI=no
+
+$(ANDROID_TAGS): AR=llvm-ar
+$(ANDROID_TAGS): STRIP=llvm-strip

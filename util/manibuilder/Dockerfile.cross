@@ -1,0 +1,49 @@
+FROM alvrme/alpine-android:android-35-jdk8
+
+RUN \
+	adduser -D mani mani && \
+	apk update && \
+	apk add build-base git ccache meson
+
+ENV NDK_VERSION=27.2.12479018
+RUN extras ndk -n ${NDK_VERSION}
+ENV PATH /opt/sdk/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}
+
+RUN bash <<EOF
+	set -e
+	ndk_bin="/opt/sdk/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+	for trgt in {aarch64,i686,x86_64}-linux-android{23,35}-clang \
+		    armv7a-linux-androideabi{23,35}-clang
+	do
+		echo "[binaries]"			 >/opt/\${trgt}.txt
+		echo "c = '\${ndk_bin}/\${trgt}'"	>>/opt/\${trgt}.txt
+		echo "ar = '\${ndk_bin}/llvm-ar'"	>>/opt/\${trgt}.txt
+		echo "strip = '\${ndk_bin}/llvm-strip'"	>>/opt/\${trgt}.txt
+		echo ""					>>/opt/\${trgt}.txt
+		echo "[host_machine]"			>>/opt/\${trgt}.txt
+		echo "system = 'android'"		>>/opt/\${trgt}.txt
+		echo "cpu_family = '\${trgt%%-*}'"	>>/opt/\${trgt}.txt
+		echo "cpu = '\${trgt%%-*}'"		>>/opt/\${trgt}.txt
+		echo "endian = 'little'"		>>/opt/\${trgt}.txt
+	done
+EOF
+
+RUN mkdir -p -m 1777 /ccache
+
+USER mani
+
+ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
+RUN \
+	cd && \
+	mkdir .ccache && chown mani:mani .ccache && \
+	git clone ${ORIGIN} flashprog
+
+ARG IDENT=mani
+ARG CCACHE_MAX=512M
+RUN \
+	ccache --set-config cache_dir=/ccache/${IDENT} && \
+	ccache --set-config max_size=${CCACHE_MAX}
+
+ENV DEVSHELL /bin/sh
+COPY mani-wrapper.sh /home/mani/
+ENTRYPOINT ["/bin/sh", "/home/mani/mani-wrapper.sh"]

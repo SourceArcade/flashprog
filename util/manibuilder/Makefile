@@ -28,6 +28,7 @@ ident = $(subst /,_,$(subst :,_,$(subst \:,_,$(1))))
 
 include Makefile.env
 include Makefile.anita
+include Makefile.cross
 
 # $(1): mani tag
 # $(2): from tag
@@ -61,10 +62,11 @@ source-build: Dockerfile.source
 		  docker build . --build-arg SRC_TMP=$${SRC_TMP} -f $< -t mani/source; \
 		  rm -rf $${SRC_TMP}; }
 
-source-check-build git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
+$(addsuffix -check-build,source git cross $(NONCROSS_TAGS)): %-check-build:
 	$(QUIET_SETUP)\
 	[ $$(docker image ls -q mani/$*) ] \
 		|| $(MAKE) $*-build $(if $(QUIET_SETUP),>/dev/null 2>/dev/null)
+$(addsuffix -check-build,$(CROSS_TAGS)): cross-check-build
 
 $(ALL_TAGS): export QUIET_SETUP=$(QUIET_TEST)
 $(ALL_TAGS): export TEST_REMOTE?=$(if $(TEST_LOCAL),\
@@ -79,7 +81,7 @@ $(ALL_TAGS): %: %-check-build mani-net $(if $(TEST_LOCAL),local-git)
 		--env IDENT=$(call ident,$*) \
 		--volume manicache:/ccache \
 		--network=manibuilder \
-		--name mani_$(call ident,$*) mani/$* \
+		--name mani_$(call ident,$*) mani/$(patsubst cross-%,cross,$*) \
 		"git fetch $(TEST_REMOTE) $(TEST_REVISION) && \
 		 git checkout FETCH_HEAD && \
 		 export CC='$(CC)' STRIP='$(STRIP)' LIBS_BASE='$(LIBS_BASE)' && \
@@ -109,7 +111,8 @@ $(addsuffix -shell,$(ALL_TAGS)): %-shell: %-check-build
 			--env IDENT=$(call ident,$*) \
 			--volume manicache:/ccache \
 			--network=manibuilder \
-			mani/$* $(patsubst %,"%",$(SHELL_ARG)); \
+			mani/$(patsubst cross-%,cross,$*) \
+			$(patsubst %,"%",$(SHELL_ARG)); \
 	fi
 
 .PHONY: $(foreach s,-build -check-build -shell, $(addsuffix $(s),$(ALL_TAGS)))
