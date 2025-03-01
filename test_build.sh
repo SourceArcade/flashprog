@@ -26,20 +26,37 @@ test_prog() {
 	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -v "${TEMP_DIR}/empty"
 }
 
-if [ "${MAKECMD=make}" ]; then
-	${MAKECMD} clean
-	eval ${MAKECMD} -j${CPUS:-$(nproc)} CC="\"${CC:-ccache cc}\"" ${MAKEARGS-CONFIG_EVERYTHING=yes}
-	test_prog ./flashprog
-fi
-
-if [ "${MESONCMD=meson}" ]; then
-	eval ${MESONCMD} setup ${MESONARGS--D programmer=all --buildtype release} "${TEMP_DIR}/build"
-	ninja ${CPUS:+-j${CPUS}} -C "${TEMP_DIR}/build"
-	test_prog "${TEMP_DIR}/build/flashprog"
-
-	if [ "${MAKECMD}" -a ! "${CROSS_COMPILE}" ]; then
-		./flashprog -L >"${TEMP_DIR}/flashprog.supported"
-		"${TEMP_DIR}/build/flashprog" -L >"${TEMP_DIR}/mashprog.supported"
-		diff -u "${TEMP_DIR}/flashprog.supported" "${TEMP_DIR}/mashprog.supported"
+build_and_test() {
+	if [ "${MAKECMD=make}" ]; then
+		${MAKECMD} clean
+		eval ${MAKECMD} -j${CPUS:-$(nproc)} CC="\"${CC}\"" ${MAKEARGS-CONFIG_EVERYTHING=yes}
+		test_prog ./flashprog
 	fi
+
+	if [ "${MESONCMD=meson}" ]; then
+		eval CC="\"${CC}\"" ${MESONCMD} setup ${MESONARGS--D programmer=all --buildtype release} "${TEMP_DIR}/build"
+		ninja ${CPUS:+-j${CPUS}} -C "${TEMP_DIR}/build"
+		test_prog "${TEMP_DIR}/build/flashprog"
+
+		if [ "${MAKECMD}" -a ! "${CROSS_COMPILE}" ]; then
+			./flashprog -L >"${TEMP_DIR}/flashprog.supported"
+			"${TEMP_DIR}/build/flashprog" -L >"${TEMP_DIR}/mashprog.supported"
+			diff -u "${TEMP_DIR}/flashprog.supported" "${TEMP_DIR}/mashprog.supported"
+		fi
+	fi
+}
+
+CC="${CC:-ccache cc}"
+
+build_and_test
+if [ "${CC%%*cc}" = "" ] && \
+   [ -x "$(command -v clang 2>&1)" ] && \
+   ! "${CC}" --version 2>&1 | grep -iq clang 2>&1; then
+	if [ "${CC% *cc}" != "${CC}" ]; then
+		CC="${CC% *cc} clang"
+	else
+		CC="clang"
+	fi
+	rm -rf "${TEMP_DIR}/build"
+	build_and_test
 fi
