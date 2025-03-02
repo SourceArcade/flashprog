@@ -2,11 +2,13 @@ FROM manibase
 
 COPY isrgrootx1.pem /etc/ssl/cert.pem
 
+ARG ADDITIONAL_PACKAGES=
 RUN \
 	adduser -D mani mani && \
 	apk update && \
 	apk add build-base linux-headers git ccache \
-		pciutils-dev libusb-dev libftdi1-dev && \
+		pciutils-dev libusb-dev libftdi1-dev \
+		${ADDITIONAL_PACKAGES} && \
 	if [ ! -h /etc/ssl/cert.pem ]; then \
 		rm -f /etc/ssl/certs/*; \
 		ln -sf /etc/ssl/cert.pem /etc/ssl/certs/ca-certificates.crt; \
