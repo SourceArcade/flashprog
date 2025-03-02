@@ -39,7 +39,7 @@ Dockerfile.$(call ident,$(1)): Dockerfile.$(3) mani-wrapper.sh
 
 .INTERMEDIATE: Dockerfile.$(call ident,$(1))
 
-$(1)-build: Dockerfile.$(call ident,$(1))
+$(1)-build: Dockerfile.$(call ident,$(1)) source-check-build
 	$(QUIET_SETUP)docker build . \
 		$(addprefix --platform$(spc),$(4)) -f $$< -t mani/$(1) \
 		--build-arg IDENT=$(call ident,$(1)) $$(DOCKER_BUILD_ARGS)
@@ -54,7 +54,14 @@ $(foreach tag,$(OFFICIAL_TAGS), \
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
 
-git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
+source-build: Dockerfile.source
+	$(QUIET_SETUP)\
+		SRC_TMP=$$(mktemp -d -p .) && \
+		{ git clone $${TEST_LOCAL:-../../} $${SRC_TMP} && \
+		  docker build . --build-arg SRC_TMP=$${SRC_TMP} -f $< -t mani/source; \
+		  rm -rf $${SRC_TMP}; }
+
+source-check-build git-check-build $(addsuffix -check-build,$(ALL_TAGS)): %-check-build:
 	$(QUIET_SETUP)\
 	[ $$(docker image ls -q mani/$*) ] \
 		|| $(MAKE) $*-build $(if $(QUIET_SETUP),>/dev/null 2>/dev/null)

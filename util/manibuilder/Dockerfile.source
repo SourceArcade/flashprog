@@ -1,0 +1,4 @@
+FROM scratch
+
+ARG SRC_TMP=
+COPY ${SRC_TMP} /source
