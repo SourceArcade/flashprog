@@ -1,3 +1,5 @@
+FROM --platform=${BUILDPLATFORM} mani/source AS source
+
 FROM manibase
 
 RUN \
@@ -9,16 +11,15 @@ RUN \
 	{ apt-get -qqy install libjaylink-dev libgpiod-dev || true; } && \
 	apt-get clean
 
+COPY --from=source /source /home/mani/flashprog
+RUN chown -R mani:mani /home/mani/flashprog
+
 RUN mkdir -p -m 1777 /ccache
 
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
-ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
-RUN \
-	cd && \
-	mkdir .ccache && chown mani:mani .ccache && \
-	git clone ${ORIGIN} flashprog
+RUN cd && mkdir .ccache && chown mani:mani .ccache
 
 ARG IDENT=mani
 ARG CCACHE_MAX=32M
