@@ -591,7 +591,7 @@ pkgg.generate(
 )
 
 config_manfile = configuration_data()
-config_manfile.set('VERSION', version)
+config_manfile.set('VERSION', meson.project_version())
 config_manfile.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
 foreach man : [ 'flashprog.8', 'flashprog-config.8', 'flashprog-write-protect.8' ]
   configure_file(
