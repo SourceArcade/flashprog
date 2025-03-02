@@ -11,10 +11,18 @@ MESONARGS := -D programmer=all -D classic_cli_print_wiki=enabled --auto-features
 spc :=
 spc := $(spc) $(spc)
 
+# Replace %$(2) -> %/$(2), e.g. armv5 with arm/v5 etc.
+preproc_subst = $(if $(2),$(call preproc_arch,$(patsubst %$(2),%/$(2),$(1)),$(3)),$(1))
+preproc_arch = $(call preproc_subst,$(1),$(firstword $(2)),$(wordlist 2,$(words $(2)),$(2)))
+
 # Get stem of multiarch tags of the form `stem[-variation]:arch-version`
 ma_stem = $(word 1,$(subst -,$(spc),$(subst :,$(spc),$(subst \:,$(spc),$(1)))))
 # Get stem of official tags of the form `arch/stem:version`
 official_stem = $(word 2,$(subst /,$(spc),$(subst :,$(spc),$(subst \:,$(spc),$(1)))))
+# Get arch prefix of official tags
+official_arch = $(word 1,$(subst /,$(spc),$(1)))
+# Create a platform string from the arch prefix, e.g. arm32v5 -> linux/arm/v5
+official_plat = linux/$(patsubst arm32%,arm%,$(call preproc_arch,$(call official_arch,$(1)),v5 v6 v7 v8))
 
 ident = $(subst /,_,$(subst :,_,$(subst \:,_,$(1))))
 
@@ -24,6 +32,7 @@ include Makefile.anita
 # $(1): mani tag
 # $(2): from tag
 # $(3): Dockerfile suffix
+# $(4): platform            (optional)
 define build_template
 Dockerfile.$(call ident,$(1)): Dockerfile.$(3) mani-wrapper.sh
 	$(QUIET_SETUP)sed -e 's|^FROM manibase|FROM $(2)|' $$< >$$@
@@ -31,14 +40,16 @@ Dockerfile.$(call ident,$(1)): Dockerfile.$(3) mani-wrapper.sh
 .INTERMEDIATE: Dockerfile.$(call ident,$(1))
 
 $(1)-build: Dockerfile.$(call ident,$(1))
-	$(QUIET_SETUP)docker build . -f $$< -t mani/$(1) --build-arg IDENT=$(call ident,$(1)) $$(DOCKER_BUILD_ARGS)
+	$(QUIET_SETUP)docker build . \
+		$(addprefix --platform$(spc),$(4)) -f $$< -t mani/$(1) \
+		--build-arg IDENT=$(call ident,$(1)) $$(DOCKER_BUILD_ARGS)
 endef
 
 $(foreach tag,$(MULTIARCH_TAGS), \
 	$(eval $(call build_template,$(tag),multiarch/$(tag),$(call ma_stem,$(tag)))))
 
 $(foreach tag,$(OFFICIAL_TAGS), \
-	$(eval $(call build_template,$(tag),$(tag),$(call official_stem,$(tag)))))
+	$(eval $(call build_template,$(tag),$(tag),$(call official_stem,$(tag)),$(call official_plat,$(tag)))))
 
 djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
