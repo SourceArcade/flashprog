@@ -2,12 +2,14 @@ FROM --platform=${BUILDPLATFORM} mani/source AS source
 
 FROM manibase
 
+ARG ADDITIONAL_PACKAGES=
 RUN \
 	useradd -p locked -m mani && \
 	apt-get -qq update && \
 	apt-get -qq upgrade && \
 	apt-get -qqy install gcc make git doxygen ccache pkg-config meson \
-		libpci-dev libftdi1-dev libusb-1.0-0-dev && \
+		libpci-dev libftdi1-dev libusb-1.0-0-dev \
+		${ADDITIONAL_PACKAGES} && \
 	{ apt-get -qqy install libjaylink-dev libgpiod-dev || true; } && \
 	apt-get clean
 
