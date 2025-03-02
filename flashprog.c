@@ -33,6 +33,7 @@
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "chipdrivers.h"
+#include "version.h"
 
 const char flashprog_version[] = FLASHPROG_VERSION;
 const char *chip_to_probe = NULL;

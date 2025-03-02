@@ -37,7 +37,6 @@ add_project_arguments('-D__BSD_VISIBLE', language : 'c') # required for u_char, 
 add_project_arguments('-D__XSI_VISIBLE', language : 'c') # required for gettimeofday() on FreeBSD
 add_project_arguments('-D_NETBSD_SOURCE', language : 'c') # required for indirect include of strings.h on NetBSD
 add_project_arguments('-D_DARWIN_C_SOURCE', language : 'c') # required for indirect include of strings.h on MacOS
-add_project_arguments('-DFLASHPROG_VERSION="' + meson.project_version() + '"', language : 'c')
 
 # get defaults from configure
 config_print_wiki = get_option('classic_cli_print_wiki')
@@ -590,14 +589,21 @@ pkgg.generate(
   description : 'library to interact with flashprog',
 )
 
-config_manfile = configuration_data()
-config_manfile.set('VERSION', meson.project_version())
-config_manfile.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
+config_data = configuration_data()
+config_data.set('VERSION', meson.project_version())
+config_data.set('MAN_DATE', run_command('util/getversion.sh', '--man-date', check : true).stdout().strip())
+
+configure_file(
+  input : 'include/version.h.in',
+  output : 'version.h',
+  configuration : config_data,
+)
+
 foreach man : [ 'flashprog.8', 'flashprog-config.8', 'flashprog-write-protect.8' ]
   configure_file(
     input : man + '.tmpl',
     output : man,
-    configuration : config_manfile,
+    configuration : config_data,
     install: true,
     install_dir: join_paths(get_option('mandir'), 'man8'),
   )

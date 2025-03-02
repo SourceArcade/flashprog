@@ -9,6 +9,7 @@
 /flashprog-*
 /flashprog.exe
 /flashprog.8
+/include/version.h
 /libflashprog.a
 /libflashprog-doc/
 /versioninfo.inc

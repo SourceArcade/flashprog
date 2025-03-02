@@ -409,8 +409,6 @@ CLI_OBJS = cli.o cli_config.o cli_wp.o cli_classic.o cli_output.o cli_common.o p
 VERSION := $(shell ./util/getversion.sh --version)
 MAN_DATE := $(shell ./util/getversion.sh --man-date)
 
-SCMDEF := -D'FLASHPROG_VERSION="$(VERSION)"'
-
 # Inform user of the version string
 ifeq ($(filter branch tag,$(MAKECMDGOALS)), )
 $(info Replacing all version templates with $(VERSION).)
@@ -1003,8 +1001,13 @@ config:
 		exit 1;								\
 	fi
 
+include/version.h: %.h: %.h.in
+	sed 's/@VERSION@/$(VERSION)/' $< >$@
+
+flashprog.o: include/version.h
+
 %.o: %.c | config
-	$(CC) -MMD $(CFLAGS) $(CPPFLAGS) $(FLASHPROG_CFLAGS) $(FEATURE_FLAGS) $(SCMDEF) -o $@ -c $<
+	$(CC) -MMD $(CFLAGS) $(CPPFLAGS) $(FLASHPROG_CFLAGS) $(FEATURE_FLAGS) -o $@ -c $<
 
 $(PROGRAM)$(EXEC_SUFFIX): $(CLI_OBJS) libflashprog.a
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -1028,7 +1031,7 @@ strip: $(PROGRAM)$(EXEC_SUFFIX)
 # We don't use EXEC_SUFFIX here because we want to clean everything.
 clean:
 	rm -f $(PROGRAM) $(PROGRAM).exe libflashprog.a $(filter-out Makefile.d, $(wildcard *.d *.o platform/*.d platform/*.o)) \
-		$(MANS) $(MANS:.8=.8.html) $(BUILD_DETAILS_FILE)
+		include/version.h $(MANS) $(MANS:.8=.8.html) $(BUILD_DETAILS_FILE)
 	@+$(MAKE) -C util/ich_descriptors_tool/ clean
 
 install: $(PROGRAM)$(EXEC_SUFFIX) $(MANS)
