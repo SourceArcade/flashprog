@@ -62,8 +62,11 @@ machine_map = \
 
 NATIVE_TAGS := $(call arch_filter,$(call machine_map,$(shell uname -m)))
 
-# for now, build all working targets by default
-DEFAULT_TAGS := $(WORKING_TAGS)
+# for now, build all working targets by default,
+# native targets last (faster, better for parallelization)
+DEFAULT_TAGS := \
+	$(filter-out $(NATIVE_TAGS),$(WORKING_TAGS)) \
+	$(filter $(NATIVE_TAGS),$(WORKING_TAGS))
 
 default: $(DEFAULT_TAGS)
 
