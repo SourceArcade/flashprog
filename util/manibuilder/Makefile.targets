@@ -22,6 +22,7 @@ ALMALINUX_TAGS := \
 	    $(a)/almalinux\:$(v)))
 
 OFFICIAL_TAGS := \
+	$(ALMALINUX_TAGS) \
 	$(foreach a,ppc64le s390x arm64v8 amd64, \
 	  $(foreach v,44 43 42 41 40 39 38 37 36 35, \
 	    $(a)/fedora\:$(v))) \
@@ -36,11 +37,10 @@ OFFICIAL_TAGS := \
 	$(foreach a,ppc64le s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
 	  $(foreach v,3.22 3.21 3.20 3.19 3.18 3.17 3.16 3.15, \
 	    $(a)/alpine\:$(v))) \
-	$(ALMALINUX_TAGS)
 
 OTHER_TAGS := djgpp\:6.1.0
 
-ALL_TAGS := $(ANITA_TAGS) $(MULTIARCH_TAGS) $(OFFICIAL_TAGS) $(OTHER_TAGS)
+ALL_TAGS := $(ANITA_TAGS) $(OFFICIAL_TAGS) $(MULTIARCH_TAGS) $(OTHER_TAGS)
 
 BROKEN_TAGS := arm64v8/fedora\:35 arm32v6/alpine\:3.15 alpine\:armhf-v3.14
 
