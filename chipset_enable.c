@@ -2244,7 +2244,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0x43a4,   ANY_REV, B_S,    DEP, "Intel", "500 series Tiger Point",	enable_flash_pch500},
 	{0x8086, 0x51a4,   ANY_REV, B_S,    DEP, "Intel", "Alder Lake-P",		enable_flash_pch500},
 	{0x8086, 0x54a4,   ANY_REV, B_S,    DEP, "Intel", "Alder Lake-N",		enable_flash_pch500},
-	{0x8086, 0x7a24,   ANY_REV, B_S,    NT,  "Intel", "Raptor Lake-S",		enable_flash_pch500},
+	{0x8086, 0x7a24,   ANY_REV, B_S,    DEP, "Intel", "Raptor Lake-S",		enable_flash_pch500},
 	{0x8086, 0x7aa4,   ANY_REV, B_S,    NT,  "Intel", "Alder Lake-S",		enable_flash_pch500},
 	{0x8086, 0x18e0,   ANY_REV, B_S,    NT,  "Intel", "Snow Ridge",			enable_flash_snowridge},
 	{0x8086, 0x7e23,   ANY_REV, B_S,    DEP, "Intel", "Meteor Lake",		enable_flash_mtl},
