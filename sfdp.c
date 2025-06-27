@@ -208,9 +208,94 @@ static int sfdp_fill_flash(struct flashchip *chip, uint8_t *buf, uint16_t len)
 	chip->total_size = total_size / 1024;
 	msg_cdbg2("  Flash chip size is %d kB.\n", chip->total_size);
 	if (total_size > (1 << 24)) {
-		msg_cdbg("Flash chip size is bigger than what 3-Byte addressing "
-			 "can access.\n");
-		return 1;
+		msg_cdbg2("Flash chip size is bigger than what 3-Byte addressing "
+			  "can access, checking for 4-byte addressing support.\n");
+
+		/* Check if we have the 16th DWORD (4-byte addressing info) */
+		if (len < 16 * 4) {
+			msg_cdbg("Flash chip size requires 4-byte addressing but "
+				 "SFDP table too short to contain 4BA information.\n");
+			return 1;
+		}
+
+		/* Parse 16th DWORD (offset 15 * 4 = 60) */
+		tmp32 =  ((unsigned int)buf[(4 * 15) + 0]);
+		tmp32 |= ((unsigned int)buf[(4 * 15) + 1]) << 8;
+		tmp32 |= ((unsigned int)buf[(4 * 15) + 2]) << 16;
+		tmp32 |= ((unsigned int)buf[(4 * 15) + 3]) << 24;
+
+		uint8_t enter_4ba = (tmp32 >> 24) & 0xFF;
+		uint16_t exit_4ba = (tmp32 >> 14) & 0x3FF;
+
+		msg_cdbg2("  4BA Enter methods: 0x%02x, Exit methods: 0x%03x\n",
+			  enter_4ba, exit_4ba);
+
+		/* Sanity check: validate exit methods correspond to enter methods */
+		if ((enter_4ba & 0x01) && !(exit_4ba & 0x01)) {
+			msg_cwarn("  Warning: Enter via B7h supported but exit via E9h not supported\n");
+		}
+		if ((enter_4ba & 0x02) && !(exit_4ba & 0x02)) {
+			msg_cwarn("  Warning: Enter via WREN+B7h supported but exit via WREN+E9h not supported\n");
+		}
+		if ((enter_4ba & 0x04) && !(exit_4ba & 0x04)) {
+			msg_cwarn("  Warning: Extended address register enter supported but exit not supported\n");
+		}
+		if ((enter_4ba & 0x08) && !(exit_4ba & 0x08)) {
+			msg_cwarn("  Warning: Bank register enter supported but exit not supported\n");
+		}
+		if ((enter_4ba & 0x10) && !(exit_4ba & 0x10)) {
+			msg_cwarn("  Warning: Nonvolatile config register enter supported but exit not supported\n");
+		}
+
+		/* Parse Enter 4-Byte Addressing methods */
+		if (enter_4ba & 0x01) {
+			/* Issue instruction B7h (no WREN required) */
+			chip->feature_bits |= FEATURE_4BA_ENTER;
+			msg_cdbg2("  Supports 4BA enter via B7h instruction\n");
+		}
+		if (enter_4ba & 0x02) {
+			/* Issue WREN (06h), then B7h */
+			chip->feature_bits |= FEATURE_4BA_ENTER_WREN;
+			/* If both bits are set, clear the conflicting FEATURE_4BA_ENTER */
+			if (enter_4ba & 0x01) {
+				msg_cwarn("  Warning: Both B7h (no WREN) and WREN+B7h methods specified - this should not happen\n");
+				chip->feature_bits &= ~FEATURE_4BA_ENTER;
+			}
+			msg_cdbg2("  Supports 4BA enter via WREN + B7h\n");
+		}
+		if (enter_4ba & 0x04) {
+			/* Extended address register (C8h read, C5h write) */
+			chip->feature_bits |= FEATURE_4BA_EAR_C5C8;
+			msg_cdbg2("  Supports extended address register (C5h/C8h)\n");
+		}
+		if (enter_4ba & 0x08) {
+			/* Bank register (16h read, 17h write) */
+			chip->feature_bits |= FEATURE_4BA_EAR_1716 | FEATURE_4BA_ENTER_EAR7;
+			msg_cdbg2("  Supports bank register (17h/16h)\n");
+		}
+		if (enter_4ba & 0x20) {
+			/* Dedicated 4-byte instruction set */
+			msg_cdbg("  Supports dedicated 4-byte instruction set (not supported by flashprog yet)\n");
+		}
+		if (enter_4ba & 0x40) {
+			/* Always operates in 4-byte mode */
+			msg_cdbg("  Always operates in 4-byte address mode\n"
+				  "   not supported by flashprog.\n");
+			return 1;
+
+		}
+
+		/* Check if any 4BA method is supported */
+		if (!(chip->feature_bits & (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN |
+					    FEATURE_4BA_EAR_C5C8 | FEATURE_4BA_EAR_1716 |
+					    FEATURE_4BA_NATIVE))) {
+			msg_cdbg("Flash chip size requires 4-byte addressing but "
+				 "no supported 4BA methods found in SFDP.\n");
+			return 1;
+		}
+
+		chip->prepare_access = spi_prepare_io;
+		chip->finish_access = spi_finish_io;
 	}
 
 	if (opcode_4k_erase != 0xFF)
