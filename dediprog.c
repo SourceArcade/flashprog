@@ -278,14 +278,13 @@ static int dediprog_set_leds(int leds, const struct dediprog_data *dp_data)
 	 *   bit 0 == 0: red light is on.
 	 *
 	 * Additionally, the command structure has changed with the "new" protocol.
-	 *
-	 * FIXME: take IO pins into account
 	 */
-	int target_leds, ret;
+	int ret;
 	if (protocol(dp_data) >= PROTOCOL_V2) {
-		target_leds = (leds ^ 7) << 8;
-		ret = dediprog_write(dp_data->handle, CMD_SET_IO_LED, target_leds, 0, NULL, 0);
+		const unsigned int target_io_leds = (leds ^ 7) << 8 | 0x9;
+		ret = dediprog_write(dp_data->handle, CMD_SET_IO_LED, target_io_leds, 0, NULL, 0);
 	} else {
+		unsigned int target_leds;
 		if (dp_data->firmwareversion < FIRMWARE_VERSION(5, 0, 0)) {
 			target_leds = ((leds & LED_ERROR) >> 2) | ((leds & LED_PASS) << 2);
 		} else {
