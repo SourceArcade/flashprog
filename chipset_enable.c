@@ -1478,7 +1478,49 @@ static int enable_flash_sb600_smbus(struct flashprog_programmer *prog, struct pc
 	return ret;
 }
 
-static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci_dev *const smbus, const char *const name)
+static int enable_read_amd_spi100_rom3(struct flashprog_programmer *const prog, const size_t rom_range3_len)
+{
+	/*
+	 * NOTE: We are flying blind due to ROM Armor, so we can only use
+	 * hardcoded, commonly used addresses. We will only ever attempt
+	 * to read, and try our best to confirm that we run in an expec-
+	 * ted environment.
+	 */
+
+	const uint64_t rom3_phys = 0xfd00000000;
+	if ((uintptr_t)rom3_phys != rom3_phys) {
+		msg_pinfo("amd_rom3read driver currently requires a 64-bit build of flashprog.\n");
+		return ERROR_FATAL;
+	}
+
+	msg_pinfo("Trying memory mapped, read-only access.\n");
+
+	/* There is an undocumented interface, suspiciously
+	   similar to and one page above the usual SPIBAR. */
+	const void *const odd_spibar =
+		rphysmap("Odd SPI registers", 0xfec10000 + 0x1000, 256);
+
+	/* RomRange2 is supposed to be used for the mapping directly below 4G. */
+	const void *const rom2 = rphysmap("SPI100 rom2 range", 0xff000000, 16*MiB);
+
+	/* RomRange3 default: */
+	const void *const rom3 = rphysmap("SPI100 rom3 range", (uintptr_t)rom3_phys, rom_range3_len);
+
+	if (odd_spibar == ERROR_PTR || rom2 == ERROR_PTR || rom3 == ERROR_PTR)
+		return ERROR_FATAL;
+
+	/* Our best guess */
+	internal_buses_supported &= ~BUS_NONSPI;
+	/* Suppress unknown laptop warning with non-SPI buses disabled. */
+	laptop_ok = true;
+
+	return amd_rom3read_probe(odd_spibar, rom2, rom3, rom_range3_len);
+}
+
+static int enable_flash_amd_spi100_generic(
+		struct flashprog_programmer *const prog,
+		struct pci_dev *const smbus, const char *const name,
+		size_t rom_range3_len)
 {
 	struct pci_dev *const lpc = pci_get_dev(pacc, smbus->domain, smbus->bus, smbus->dev, 3);
 	if (!lpc) {
@@ -1491,8 +1533,11 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 	pci_free_dev(lpc);
 
 	if (spibar == 0xffffffff) {
-		msg_perr("SPI100 BAR reads all `ff', aborting.\n");
-		return ERROR_FATAL;
+		msg_pwarn("\nWarning: SPI100 BAR reads all `ff'. Assuming ROM Armor is enabled.\n");
+		if (rom_range3_len)
+			return enable_read_amd_spi100_rom3(prog, rom_range3_len);
+		else
+			return ERROR_FATAL;
 	}
 
 	msg_pdbg("AltSpiCSEnable=%u, SpiRomEnable=%u", spibar >> 0 & 1, spibar >> 1 & 1);
@@ -1535,6 +1580,18 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 	}
 
 	return amd_spi100_probe(virt_spibar, memory_mapping, memory_mapping ? mapped_len : 0);
+}
+
+static int enable_flash_amd_spi100(struct flashprog_programmer *prog,
+				   struct pci_dev *const smbus, const char *const name)
+{
+	return enable_flash_amd_spi100_generic(prog, smbus, name, 0);
+}
+
+static int enable_flash_amd_spi100_rom3(struct flashprog_programmer *prog,
+					struct pci_dev *const smbus, const char *const name)
+{
+	return enable_flash_amd_spi100_generic(prog, smbus, name, 64*MiB);
 }
 
 /* sets bit 0 in 0x6d */
@@ -1868,9 +1925,9 @@ const struct penable chipset_enables[] = {
 	{0x1022, 0x790b, REV(0x4b), B_FLS,  OK,  "AMD", "Stoney Ridge",			enable_flash_sb600_smbus},
 	{0x1022, 0x790b, REV(0x51), B_FLS,  NT,  "AMD", "Renoir/Cezanne",		enable_flash_amd_spi100},
 	{0x1022, 0x790b, REV(0x59), B_FLS, DEP,  "AMD", "Pinnacle Ridge",		enable_flash_amd_spi100},
-	{0x1022, 0x790b, REV(0x61), B_FLS, DEP,  "AMD", "Raven Ridge/Matisse/Starship",	enable_flash_amd_spi100},
+	{0x1022, 0x790b, REV(0x61), B_FLS, DEP,  "AMD", "Raven Ridge/Matisse/Starship",	enable_flash_amd_spi100_rom3},
 	{0x1022, 0x790b, REV(0x71), B_FLS, DEP,  "AMD", "Mendocino/Van Gogh/Rembrandt/Raphael/Genoa",
-											enable_flash_amd_spi100},
+											enable_flash_amd_spi100_rom3},
 	{0x1039, 0x0406,   ANY_REV, B_PFL,  NT,  "SiS", "501/5101/5501",		enable_flash_sis501},
 	{0x1039, 0x0496,   ANY_REV, B_PFL,  NT,  "SiS", "85C496+497",			enable_flash_sis85c496},
 	{0x1039, 0x0530,   ANY_REV, B_PFL,  OK,  "SiS", "530",				enable_flash_sis530},

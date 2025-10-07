@@ -382,6 +382,9 @@ int via_init_spi(uint32_t mmio_base);
 /* amd_imc.c */
 int handle_imc(struct pci_dev *);
 
+/* amd_rom3read.c */
+int amd_rom3read_probe(const void *spibar, const void *rom2, const void *rom3, size_t rom3_len);
+
 /* amd_spi100.c */
 int amd_spi100_probe(void *const spibar, void *const memory_mapping, const size_t mapped_len);
 
