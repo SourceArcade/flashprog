@@ -1503,6 +1503,8 @@ static int enable_flash_amd_spi100(struct flashprog_programmer *prog, struct pci
 	if (spirom_enable) {
 		/* If SPI ROM is memory mapped, nothing else can be */
 		internal_buses_supported &= ~BUS_NONSPI;
+		/* Suppress unknown laptop warning with non-SPI buses disabled. */
+		laptop_ok = true;
 	}
 
 	const uint32_t phys_spibar = spibar & ~0xff;	/* 8 bits config/reserved */
