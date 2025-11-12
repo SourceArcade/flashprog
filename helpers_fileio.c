@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #ifndef __LIBPAYLOAD__
 #include <fcntl.h>
