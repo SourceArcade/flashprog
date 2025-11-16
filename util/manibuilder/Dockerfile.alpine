@@ -8,13 +8,14 @@ RUN \
 	apk update && \
 	apk add build-base linux-headers git ccache \
 		pciutils-dev libusb-dev libftdi1-dev \
+		libgpiod-dev meson \
 		${ADDITIONAL_PACKAGES} && \
 	if [ ! -h /etc/ssl/cert.pem ]; then \
 		rm -f /etc/ssl/certs/*; \
 		ln -sf /etc/ssl/cert.pem /etc/ssl/certs/ca-certificates.crt; \
 	fi
 
-RUN apk add libjaylink-dev libgpiod-dev meson || true
+RUN apk add libjaylink-dev || true
 
 # fix weird permissions in armhf-v3.11
 RUN [ -d /usr/share/git-core/templates ] && \
