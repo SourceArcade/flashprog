@@ -7,11 +7,8 @@ MULTIARCH_TAGS := \
 	$(foreach a,x86_64 aarch64 ppc64le s390x, \
 	  $(foreach v,34 33, \
 	    fedora\:$(v)-$(a))) \
-	$(foreach a,ppc64el armhf mipsel amd64 i386, \
-	  $(foreach v,bullseye buster, \
-	    debian-debootstrap\:$(a)-$(v))) \
-	$(foreach a,arm64 mips, \
-	  debian-debootstrap\:$(a)-buster) \
+	$(foreach a,armhf amd64 i386, \
+	  debian-debootstrap\:$(a)-bullseye) \
 	$(foreach a,ppc64el arm64 armhf amd64, \
 	  $(foreach v,jammy focal, \
 	    ubuntu-debootstrap\:$(a)-$(v))) \
@@ -29,8 +26,9 @@ OFFICIAL_TAGS := \
 	  $(foreach v,44 43 42 41 40 39 38 37 36 35, \
 	    $(a)/fedora\:$(v))) \
 	$(foreach a,ppc64le mips64le s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
-	  $(foreach v,bookworm, \
-	    $(a)/debian\:$(v))) \
+	  $(a)/debian\:bookworm) \
+	$(foreach a,ppc64le riscv64 s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
+	  $(a)/debian\:trixie) \
 	$(foreach a,amd64 arm32v7 arm64v8 ppc64le s390x, \
 	  $(foreach v,noble, \
 	    $(a)/ubuntu\:$(v))) \
