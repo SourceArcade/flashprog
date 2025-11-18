@@ -63,14 +63,6 @@ enum dediprog_leds {
 	LED_ALL			= 7,
 };
 
-/* IO bits for CMD_SET_IO_LED message */
-enum dediprog_ios {
-	IO1			= 1 << 0,
-	IO2			= 1 << 1,
-	IO3			= 1 << 2,
-	IO4			= 1 << 3,
-};
-
 enum dediprog_cmds {
 	CMD_TRANSCEIVE		= 0x01,
 	CMD_POLL_STATUS_REG	= 0x02,
