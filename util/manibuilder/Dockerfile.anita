@@ -4,7 +4,7 @@ RUN \
 	useradd -p locked -m mani && \
 	apt-get -qq update && \
 	apt-get -qq upgrade && \
-	apt-get -qqy install git python-is-python3 python3-pexpect \
+	apt-get -qqy install curl git python-is-python3 python3-pexpect \
 			     python3-distutils genisoimage qemu-system && \
 	apt-get clean
 
@@ -27,7 +27,10 @@ ARG EXTRA_PKG=""
 ARG RUNTIME_MEM=128M
 ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
 ARG PKG_PATH=http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/7.1/All
-RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
+RUN cd && \
+	PKG_PATH=$(curl -ILso /dev/null -w %{url_effective} ${PKG_PATH}) && \
+	PKG_PATH=http:${PKG_PATH#http*:} && \
+	anita --persist --memory-size=${RUNTIME_MEM} --run \
 "echo 'dhcpcd --waitip'                          >init && \
  echo 'export PKG_PATH=${PKG_PATH}'             >>init && \
  . ./init && \
