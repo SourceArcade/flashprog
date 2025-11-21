@@ -31,12 +31,17 @@ anita\:9.3-i386-build: QEMU_DISK_SIZE=2G
 anita\:9.3-i386-build: QEMU_INSTALL_MEM=128M
 anita\:9.3-i386-build: QEMU_RUNTIME_MEM=256M
 
+# libftdi1
+LIBFTDI1_TAGS := \
+	$(addprefix anita\:,10.0-amd64 10.0-i386 9.3-amd64 9.3-i386) \
 
+$(addsuffix -build,$(LIBFTDI1_TAGS)): EXTRA_PKG=libftdi1
 
 $(addsuffix -build,$(ANITA_TAGS)): %-build: Dockerfile.anita anita-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$* \
 		--build-arg PKG_PATH=$(PKGSRC_MIRROR)$(PKGSRC_PATH) \
 		--build-arg INST_IMG=$(NETBSD_MIRROR)$(NETBSD_IMAGE) \
+		--build-arg EXTRA_PKG=$(EXTRA_PKG) \
 		--build-arg DISK_SIZE=$(QEMU_DISK_SIZE) \
 		--build-arg INSTALL_MEM=$(QEMU_INSTALL_MEM) \
 		--build-arg RUNTIME_MEM=$(QEMU_RUNTIME_MEM)
@@ -53,8 +58,5 @@ $(ANITA_KVM_TAGS): MANI_DOCKER_ARGS+=--env ANITA_VMM_ARGS="-enable-kvm"
 # Always use GNU make
 $(ANITA_TAGS): MAKECMD=gmake
 
-# No libjaylink
-$(ANITA_TAGS): MAKEARGS+=CONFIG_JLINK_SPI=no
-
 # No libftdi1
-$(ANITA_TAGS): MAKEARGS+=CONFIG_FT2232_SPI=no CONFIG_USBBLASTER_SPI=no
+anita\:10.1-sparc64: MAKEARGS+=CONFIG_FT2232_SPI=no CONFIG_USBBLASTER_SPI=no

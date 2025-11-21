@@ -32,7 +32,7 @@ RUN cd && anita --persist --memory-size=${RUNTIME_MEM} --run \
  echo 'export PKG_PATH=${PKG_PATH}'             >>init && \
  . ./init && \
  pkg_add gmake git-base ccache pkg-config meson \
-         pciutils libusb1 libusb-compat libftdi \
+         pciutils libusb1 libusb-compat libjaylink \
          ${EXTRA_PKG} && \
  git config --global --add http.sslVerify false && \
  git clone ${ORIGIN} flashprog" \
