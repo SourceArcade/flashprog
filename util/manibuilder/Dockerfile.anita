@@ -31,8 +31,11 @@ RUN cd && \
 	PKG_PATH=$(curl -ILso /dev/null -w %{url_effective} ${PKG_PATH}) && \
 	PKG_PATH=http:${PKG_PATH#http*:} && \
 	anita --persist --memory-size=${RUNTIME_MEM} --run \
-"echo 'dhcpcd --waitip'                          >init && \
+"echo 'ip6addrctl=YES'                          >>/etc/rc.conf && \
+ echo 'ip6addrctl_policy=ipv4_prefer'           >>/etc/rc.conf && \
+ echo 'dhcpcd --waitip'                          >init && \
  echo 'export PKG_PATH=${PKG_PATH}'             >>init && \
+ service ip6addrctl restart && \
  . ./init && \
  pkg_add gmake git-base ccache pkg-config meson \
          pciutils libusb1 libusb-compat libjaylink \
