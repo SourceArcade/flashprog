@@ -41,7 +41,7 @@ OTHER_TAGS := djgpp\:6.1.0
 
 ALL_TAGS := $(ANITA_TAGS) $(MULTIARCH_TAGS) $(OFFICIAL_TAGS) $(OTHER_TAGS)
 
-BROKEN_TAGS := arm64v8/fedora\:35
+BROKEN_TAGS := arm64v8/fedora\:35 arm32v6/alpine\:3.15 alpine\:armhf-v3.14
 
 WORKING_TAGS := $(filter-out $(BROKEN_TAGS),$(ALL_TAGS))
 
