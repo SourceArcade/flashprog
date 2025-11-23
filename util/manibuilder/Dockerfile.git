@@ -1,6 +1,7 @@
 FROM alpine/git
 
 RUN	apk add git-daemon
+RUN	git config --global --add safe.directory /git/flashprog.git
 EXPOSE	9418
 VOLUME	["/git/flashprog.git"]
 CMD	["daemon", "--reuseaddr", "--export-all", "--base-path=/git", "/git/flashprog.git"]
