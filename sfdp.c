@@ -465,6 +465,11 @@ int probe_spi_sfdp(struct flashctx *flash)
 		free(tbuf);
 	}
 
+	if (ret == 1 && selfcheck_chip(flash->chip, -1)) {
+		msg_cerr("SFDP parsing resulted in invalid chip structure.\n");
+		ret = 0;
+	}
+
 cleanup_hdrs:
 	free(hdrs);
 	free(hbuf);
