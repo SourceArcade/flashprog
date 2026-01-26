@@ -543,6 +543,7 @@ int flashprog_read_range(struct flashctx *, uint8_t *buf, unsigned int start, un
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
 void emergency_help_message(void);
 void list_programmers_linebreak(int startcol, int cols, int paren);
+int selfcheck_chip(const struct flashchip *, int idx);
 int selfcheck(void);
 int read_buf_from_file(unsigned char *buf, unsigned long size, const char *filename);
 int write_buf_to_file(const unsigned char *buf, unsigned long size, const char *filename);
