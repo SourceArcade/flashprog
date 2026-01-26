@@ -739,7 +739,7 @@ free_chip:
 }
 
 /* Even if an error is found, the function will keep going and check the rest. */
-static int selfcheck_eraseblocks(const struct flashchip *chip)
+static int selfcheck_eraseblocks(const struct flashchip *chip, const char *label)
 {
 	int i, j, k;
 	int ret = 0;
@@ -756,7 +756,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			    !eraser.eraseblocks[i].size) {
 				msg_gerr("ERROR: Flash chip %s erase function %i region %i has size 0.\n"
 					 "Please report a bug at flashprog@flashprog.org\n",
-					 chip->name, k, i);
+					 label, k, i);
 				ret = 1;
 			}
 			/* Blocks with zero count are bugs in flashchips.c. */
@@ -764,7 +764,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			    eraser.eraseblocks[i].size) {
 				msg_gerr("ERROR: Flash chip %s erase function %i region %i has count 0.\n"
 					 "Please report a bug at flashprog@flashprog.org\n",
-					 chip->name, k, i);
+					 label, k, i);
 				ret = 1;
 			}
 			done += eraser.eraseblocks[i].count *
@@ -782,7 +782,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 				"region walking resulted in 0x%06x bytes total,"
 				" expected 0x%06x bytes.\n"
 				"Please report a bug at flashprog@flashprog.org\n",
-				chip->name, k, done, chip->total_size * 1024);
+				label, k, done, chip->total_size * 1024);
 			ret = 1;
 		}
 		if (!eraser.block_erase)
@@ -796,7 +796,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 			    chip->block_erasers[j].block_erase) {
 				msg_gerr("ERROR: Flash chip %s erase function %i and %i are identical.\n"
 					 "Please report a bug at flashprog@flashprog.org\n",
-					 chip->name, k, j);
+					 label, k, j);
 				ret = 1;
 			}
 		}
@@ -804,7 +804,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip)
 		{
 			msg_gerr("ERROR: Flash chip %s erase function %i is not in order.\n"
 				 "Please report a bug at flashprog@flashprog.org\n",
-				 chip->name, k);
+				 label, k);
 			ret = 1;
 		}
 		prev_eraseblock_count = curr_eraseblock_count;
@@ -1491,39 +1491,45 @@ void list_programmers_linebreak(int startcol, int cols, int paren)
 int selfcheck_chip(const struct flashchip *const chip, const int idx)
 {
 	int ret = 0;
+	char label[80];
 	const char *const name = chip->name != NULL ? chip->name : "unnamed";
+
+	if (idx >= 0)
+		snprintf(label, sizeof(label), "#%d (%s)", idx, name);
+	else
+		snprintf(label, sizeof(label), "%s", name);
 
 	if (chip->vendor == NULL || chip->name == NULL || chip->bustype == BUS_NONE) {
 		ret = 1;
-		msg_gerr("ERROR: Some field of flash chip #%d (%s) is misconfigured.\n"
-			 "Please report a bug at flashprog@flashprog.org\n", idx, name);
+		msg_gerr("ERROR: Some field of flash chip %s is misconfigured.\n"
+			 "Please report a bug at flashprog@flashprog.org\n", label);
 	}
 	if (chip->feature_bits &
 	    (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN | FEATURE_4BA_ENTER_EAR7 |
 	     FEATURE_ANY_DUAL | FEATURE_ANY_QUAD)
 	    && !chip->prepare_access) {
-		msg_gerr("ERROR: Flash chip #%d (%s) misses chip\n"
+		msg_gerr("ERROR: Flash chip %s misses chip\n"
 			 "preparation function for 4BA and multi-i/o modes.\n"
-			 "Please report a bug at flashprog@flashprog.org\n", idx, name);
+			 "Please report a bug at flashprog@flashprog.org\n", label);
 		ret = 1;
 	}
 	uint8_t zero_cycles[sizeof(chip->dummy_cycles)] = { 0 };
 	if ((chip->feature_bits & (FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF)) &&
 	    !memcmp(&chip->dummy_cycles, zero_cycles, sizeof(zero_cycles))) {
-		msg_gerr("ERROR: Flash chip #%d (%s) misses QPI dummy-cycle\n"
+		msg_gerr("ERROR: Flash chip %s misses QPI dummy-cycle\n"
 			 "settings. Please report a bug at flashprog@flashprog.org\n",
-			 idx, name);
+			 label);
 		ret = 1;
 	}
 	if (chip->reg_bits.bp[0].reg != INVALID_REG &&
 	    (!chip->wp_write_cfg || !chip->wp_read_cfg ||
 	     !chip->wp_get_ranges || !chip->decode_range)) {
-		msg_gerr("ERROR: Flash chip #%d (%s) advertises block-protection\n"
+		msg_gerr("ERROR: Flash chip %s advertises block-protection\n"
 			 "bits, but misses one or more write-protection functions.\n"
-			 "Please report a bug at flashprog@flashprog.org\n", idx, name);
+			 "Please report a bug at flashprog@flashprog.org\n", label);
 		ret = 1;
 	}
-	if (selfcheck_eraseblocks(chip)) {
+	if (selfcheck_eraseblocks(chip, label)) {
 		ret = 1;
 	}
 
