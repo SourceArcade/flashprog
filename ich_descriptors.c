@@ -384,6 +384,21 @@ void prettyprint_ich_descriptor_component(enum ich_chipset cs, const struct ich_
 	msg_pdbg2("\n");
 
 	msg_pdbg2("--- Details ---\n");
+	static const char *const volt_sel[] = { "3.3", "1.8" };
+	switch (cs) {
+	case CHIPSET_300_SERIES_CANNON_POINT:
+	case CHIPSET_500_SERIES_TIGER_POINT:
+	case CHIPSET_APOLLO_LAKE:
+	case CHIPSET_GEMINI_LAKE:
+	case CHIPSET_METEOR_LAKE:
+	case CHIPSET_LUNAR_LAKE:
+	case CHIPSET_ARROW_LAKE:
+		msg_pdbg2("Voltage Select:                 %sV\n", volt_sel[desc->component.modes.volt_sel]);
+		break;
+	default:
+		break;
+	}
+
 	msg_pdbg2("Component 1 density:            %s\n", pprint_density(cs, desc, 0));
 	if (desc->content.NC)
 		msg_pdbg2("Component 2 density:            %s\n", pprint_density(cs, desc, 1));

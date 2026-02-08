@@ -125,7 +125,9 @@ struct ich_desc_component {
 		 * Sunrise Point/100:	48		30		7	0:3, 4:7
 		 */
 		struct {
-			uint32_t		:17,
+			uint32_t		:9,
+				 volt_sel	:1,
+						:7,
 				 freq_read	:3,
 				 fastread	:1,
 				 freq_fastread	:3,
