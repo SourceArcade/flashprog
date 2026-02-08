@@ -52,6 +52,7 @@ ssize_t ich_number_of_regions(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
 	case CHIPSET_ARROW_LAKE:
+	case CHIPSET_PANTHER_LAKE:
 		return 16;
 	case CHIPSET_100_SERIES_SUNRISE_POINT:
 		return 10;
@@ -82,6 +83,7 @@ ssize_t ich_number_of_masters(const enum ich_chipset cs, const struct ich_desc_c
 	case CHIPSET_ARROW_LAKE:
 		return 6;
 	case CHIPSET_LUNAR_LAKE:
+	case CHIPSET_PANTHER_LAKE:
 		return 7;
 	case CHIPSET_APOLLO_LAKE:
 	case CHIPSET_GEMINI_LAKE:
@@ -138,7 +140,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
 		"C740 series Emmitsburg", "Snow Ridge", "Meteor Lake", "Lunar Lake",
-		"800 series Arrow Lake",
+		"800 series Arrow Lake", "Panther Lake",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -270,7 +272,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 		"25 MHz",
 		"reserved",
 		"14 MHz",
-		"reserved"
+		"80 MHz"
 	}, {
 		"reserved",
 		"50 MHz",
@@ -320,6 +322,7 @@ static const char *pprint_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
 	case CHIPSET_ARROW_LAKE:
+	case CHIPSET_PANTHER_LAKE:
 		return freq_str[3][value];
 	case CHIPSET_ELKHART_LAKE:
 		return freq_str[4][value];
@@ -364,6 +367,7 @@ static void pprint_read_freq(enum ich_chipset cs, uint8_t value)
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
 	case CHIPSET_ARROW_LAKE:
+	case CHIPSET_PANTHER_LAKE:
 		msg_pdbg2("Read Clock Frequency:           %s\n", "reserved");
 		return;
 	default:
@@ -394,6 +398,9 @@ void prettyprint_ich_descriptor_component(enum ich_chipset cs, const struct ich_
 	case CHIPSET_LUNAR_LAKE:
 	case CHIPSET_ARROW_LAKE:
 		msg_pdbg2("Voltage Select:                 %sV\n", volt_sel[desc->component.modes.volt_sel]);
+		break;
+	case CHIPSET_PANTHER_LAKE:
+		msg_pdbg2("Voltage Select:                 %sV\n", volt_sel[1]);
 		break;
 	default:
 		break;
@@ -583,7 +590,7 @@ void prettyprint_ich_descriptor_master(const enum ich_chipset cs, const struct i
 				"Reg15", NULL
 			};
 			prettyprint_pch100_masters(desc, nm, masters, nr, regions);
-		} else if (cs == CHIPSET_LUNAR_LAKE) {
+		} else if (cs == CHIPSET_LUNAR_LAKE || cs == CHIPSET_PANTHER_LAKE) {
 			const char *const masters[] = {
 				"BIOS", "CSME", "GbE", "rsvd.", "EC", "PSE", "SSE", NULL
 			};
@@ -1115,6 +1122,11 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 		if (content->CSSL == 0x03) {
 			if (content->CSSO == 0x58) {
 				return CHIPSET_ELKHART_LAKE;
+			} else if (content->CSSO == 0x60) {
+				if (content->ISL == 0x9a)
+					return CHIPSET_PANTHER_LAKE;
+				warn_peculiar_desc("Panther Lake");
+				return CHIPSET_PANTHER_LAKE;
 			} else if (content->CSSO == 0x6c) { /* backwards compatible Jasper Lake */
 				return CHIPSET_300_SERIES_CANNON_POINT;
 			} else if (content->CSSO == 0x70) {

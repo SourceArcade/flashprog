@@ -709,6 +709,7 @@ static enum chipbustype enable_flash_ich_report_gcs(
 	case CHIPSET_METEOR_LAKE:
 	case CHIPSET_LUNAR_LAKE:
 	case CHIPSET_ARROW_LAKE:
+	case CHIPSET_PANTHER_LAKE:
 		boot_straps = boot_straps_apl;
 		break;
 	case CHIPSET_8_SERIES_WELLSBURG: // FIXME: check datasheet
@@ -1044,6 +1045,12 @@ static int enable_flash_arl(struct flashprog_programmer *const prog,
 			    struct pci_dev *const spi_dev, const char *const name)
 {
 	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_ARROW_LAKE);
+}
+
+static int enable_flash_ptl(struct flashprog_programmer *const prog,
+			    struct pci_dev *const spi_dev, const char *const name)
+{
+	return enable_flash_pch_spidev(spi_dev, name, CHIPSET_PANTHER_LAKE);
 }
 
 /* Silvermont architecture: Bay Trail(-T/-I), Avoton/Rangeley.
@@ -2309,6 +2316,8 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0x7723,   ANY_REV, B_S,    NT,  "Intel", "Arrow Lake-H",		enable_flash_mtl},
 	{0x8086, 0xa823,   ANY_REV, B_S,    NT,  "Intel", "Lunar Lake",			enable_flash_lnl},
 	{0x8086, 0xae23,   ANY_REV, B_S,    NT,  "Intel", "Arrow Lake-S/HX",		enable_flash_arl},
+	{0x8086, 0xe323,   ANY_REV, B_S,    NT,  "Intel", "Panther Lake 404/H12Xe",	enable_flash_ptl},
+	{0x8086, 0xe423,   ANY_REV, B_S,    NT,  "Intel", "Panther Lake H",		enable_flash_ptl},
 #endif
 	{0},
 };

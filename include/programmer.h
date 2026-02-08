@@ -371,6 +371,7 @@ enum ich_chipset {
 	CHIPSET_METEOR_LAKE,
 	CHIPSET_LUNAR_LAKE,
 	CHIPSET_ARROW_LAKE,
+	CHIPSET_PANTHER_LAKE,
 };
 
 /* ichspi.c */
