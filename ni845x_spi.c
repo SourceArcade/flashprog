@@ -497,82 +497,73 @@ static int ni845x_spi_shutdown(void *data)
 	return 0;
 }
 
-static void ni845x_warn_over_max_voltage(const struct flashctx *flash)
+static void ni845x_warn_over_max_voltage(const unsigned int max_mv)
 {
 	if (device_pid == USB8451) {
-		msg_pwarn("The %s chip maximum voltage is %.1fV, while the USB-8451 "
+		msg_pwarn("The chip maximum voltage is %.1fV, while the USB-8451 "
 			  "IO voltage levels are 3.3V.\n"
 			  "Ignoring this because ignore_io_voltage_limits parameter is set.\n",
-			 flash->chip->name,
-			 flash->chip->voltage.max / 1000.0f);
+			 max_mv / 1000.0f);
 	} else if (device_pid == USB8452) {
-		msg_pwarn("The %s chip maximum voltage is %.1fV, while the USB-8452 "
+		msg_pwarn("The chip maximum voltage is %.1fV, while the USB-8452 "
 			  "IO voltage is set to %.1fV.\n"
 			  "Ignoring this because ignore_io_voltage_limits parameter is set.\n",
-			  flash->chip->name,
-			  flash->chip->voltage.max / 1000.0f,
+			  max_mv / 1000.0f,
 			  io_voltage_in_mV / 1000.0f);
 	}
 }
 
-static int ni845x_spi_io_voltage_check(const struct flashctx *flash)
+static int ni845x_adapt_voltage(const struct master_common *const mst,
+				const unsigned int min_mv, const unsigned int max_mv)
 {
-	static bool first_transmit = true;
+	if (io_voltage_in_mV > max_mv) {
+		if (ignore_io_voltage_limits) {
+			ni845x_warn_over_max_voltage(max_mv);
+			return 0;
+		}
 
-	if (first_transmit && flash->chip) {
-		first_transmit = false;
-		if (io_voltage_in_mV > flash->chip->voltage.max) {
-			if (ignore_io_voltage_limits) {
-				ni845x_warn_over_max_voltage(flash);
-				return 0;
-			}
-
-			if (device_pid == USB8451) {
-				msg_perr("The %s chip maximum voltage is %.1fV, while the USB-8451 "
-					 "IO voltage levels are 3.3V.\nAborting operations\n",
-					 flash->chip->name,
-					 flash->chip->voltage.max / 1000.0f);
+		if (device_pid == USB8451) {
+			msg_perr("The chip maximum voltage is %.1fV, while the USB-8451 "
+				 "IO voltage levels are 3.3V.\nAborting operations\n",
+				 max_mv / 1000.0f);
+			return -1;
+		} else if (device_pid == USB8452) {
+			msg_perr("Lowering IO voltage because the chip maximum voltage is %.1fV, "
+				 "(%.1fV was set)\n",
+				 max_mv / 1000.0f,
+				 io_voltage_in_mV / 1000.0f);
+			if (usb8452_spi_set_io_voltage(max_mv,
+						       &io_voltage_in_mV,
+						       USE_LOWER)) {
+				msg_perr("Unable to lower the IO voltage below "
+					 "the chip's maximum voltage\n");
 				return -1;
-			} else if (device_pid == USB8452) {
-				msg_perr("Lowering IO voltage because the %s chip maximum voltage is %.1fV, "
-					 "(%.1fV was set)\n",
-					 flash->chip->name,
-					 flash->chip->voltage.max / 1000.0f,
-					 io_voltage_in_mV / 1000.0f);
-				if (usb8452_spi_set_io_voltage(flash->chip->voltage.max,
-							       &io_voltage_in_mV,
-							       USE_LOWER)) {
-					msg_perr("Unable to lower the IO voltage below "
-						 "the chip's maximum voltage\n");
-					return -1;
-				}
 			}
-		} else if (io_voltage_in_mV < flash->chip->voltage.min) {
-			if (device_pid == USB8451) {
-				msg_pwarn("Flash operations might be unreliable, because the %s chip's "
-					  "minimum voltage is %.1fV, while the USB-8451's "
-					  "IO voltage levels are 3.3V.\n",
-					  flash->chip->name,
-					  flash->chip->voltage.min / 1000.0f);
+		}
+	} else if (io_voltage_in_mV < min_mv) {
+		if (device_pid == USB8451) {
+			msg_pwarn("Flash operations might be unreliable, because the chip's "
+				  "minimum voltage is %.1fV, while the USB-8451's "
+				  "IO voltage levels are 3.3V.\n",
+				  min_mv / 1000.0f);
+			return ignore_io_voltage_limits ? 0 : -1;
+		} else if (device_pid == USB8452) {
+			msg_pwarn("Raising the IO voltage because the chip's "
+				  "minimum voltage is %.1fV, "
+				  "(%.1fV was set)\n",
+				  min_mv / 1000.0f,
+				  io_voltage_in_mV / 1000.0f);
+			if (usb8452_spi_set_io_voltage(min_mv,
+						       &io_voltage_in_mV,
+						       USE_HIGHER)) {
+				msg_pwarn("Unable to raise the IO voltage above the chip's "
+					  "minimum voltage\n"
+					  "Flash operations might be unreliable.\n");
 				return ignore_io_voltage_limits ? 0 : -1;
-			} else if (device_pid == USB8452) {
-				msg_pwarn("Raising the IO voltage because the %s chip's "
-					  "minimum voltage is %.1fV, "
-					  "(%.1fV was set)\n",
-					  flash->chip->name,
-					  flash->chip->voltage.min / 1000.0f,
-					  io_voltage_in_mV / 1000.0f);
-				if (usb8452_spi_set_io_voltage(flash->chip->voltage.min,
-							       &io_voltage_in_mV,
-							       USE_HIGHER)) {
-					msg_pwarn("Unable to raise the IO voltage above the chip's "
-						  "minimum voltage\n"
-						  "Flash operations might be unreliable.\n");
-					return ignore_io_voltage_limits ? 0 : -1;
-				}
 			}
 		}
 	}
+
 	return 0;
 }
 
@@ -585,9 +576,6 @@ static int ni845x_spi_transmit(const struct flashctx *flash,
 	uInt32 read_size = 0;
 	uInt8 *transfer_buffer = NULL;
 	int32 ret = 0;
-
-	if (ni845x_spi_io_voltage_check(flash))
-		return -1;
 
 	transfer_buffer = calloc(write_cnt + read_cnt, sizeof(uInt8));
 	if (transfer_buffer == NULL) {
@@ -633,6 +621,8 @@ static const struct spi_master spi_programmer_ni845x = {
 	.write_256	= default_spi_write_256,
 	.shutdown	= ni845x_spi_shutdown,
 	.probe_opcode	= default_spi_probe_opcode,
+
+	.common.adapt_voltage = ni845x_adapt_voltage,
 };
 
 const struct programmer_entry programmer_ni845x_spi = {
