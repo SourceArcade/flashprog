@@ -273,6 +273,10 @@ extern bool programmer_may_write;
 extern unsigned long flashbase;
 char *extract_programmer_param(const char *param_name);
 
+struct master_common {
+	int (*adapt_voltage)(const struct master_common *, unsigned int min_mv, unsigned int max_mv);
+};
+
 /* spi.c */
 #define MAX_DATA_UNSPECIFIED 0
 #define MAX_DATA_READ_UNLIMITED 64 * 1024
@@ -301,6 +305,9 @@ char *extract_programmer_param(const char *param_name);
 
 struct spi_command;
 struct spi_master {
+	/* XXX: Keep common struct first, it is overlayed with other master types. */
+	struct master_common common;
+
 	uint32_t features;
 	unsigned int max_data_read; // (Ideally,) maximum data read size in one go (excluding opcode+address).
 	unsigned int max_data_write; // (Ideally,) maximum data write size in one go (excluding opcode+address).
@@ -416,6 +423,9 @@ int wbsio_check_for_spi(struct flashprog_programmer *);
 
 /* opaque.c */
 struct opaque_master {
+	/* XXX: Keep common struct first, it is overlayed with other master types. */
+	struct master_common common;
+
 	int max_data_read;
 	int max_data_write;
 	/* Specific functions for this master */
@@ -430,6 +440,9 @@ int register_opaque_master(const struct opaque_master *mst, void *data);
 
 /* parallel.c */
 struct par_master {
+	/* XXX: Keep common struct first, it is overlayed with other master types. */
+	struct master_common common;
+
 	void (*chip_writeb) (const struct flashctx *flash, uint8_t val, chipaddr addr);
 	void (*chip_writew) (const struct flashctx *flash, uint16_t val, chipaddr addr);
 	void (*chip_writel) (const struct flashctx *flash, uint32_t val, chipaddr addr);
@@ -462,6 +475,7 @@ struct registered_master {
 	size_t max_rom_decode;
 	enum chipbustype buses_supported;
 	union {
+		struct master_common common;
 		struct par_master par;
 		struct spi_master spi;
 		struct opaque_master opaque;

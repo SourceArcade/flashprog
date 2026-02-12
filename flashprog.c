@@ -649,6 +649,13 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		*flash->chip = *chip;
 		flash->mst.par = &mst->par; /* both `mst` are unions, so we need only one pointer */
 
+		/* If we probe for a specific chip, we can adapt the voltage early. */
+		if (chip_to_probe && flash->mst.common->adapt_voltage) {
+			if (flash->mst.common->adapt_voltage(flash->mst.common,
+					chip->voltage.min, chip->voltage.max))
+				goto free_chip;
+		}
+
 		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_PROBE))
 			goto free_chip;
 
@@ -1688,6 +1695,12 @@ int prepare_flash_access(struct flashctx *const flash,
 	if (layout_sanity_checks(flash, write_it)) {
 		msg_cerr("Requested regions can not be handled. Aborting.\n");
 		return 1;
+	}
+
+	if (flash->mst.common->adapt_voltage) {
+		if (flash->mst.common->adapt_voltage(flash->mst.common,
+				flash->chip->voltage.min, flash->chip->voltage.max))
+			return 1;
 	}
 
 	if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_FULL))

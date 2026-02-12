@@ -445,6 +445,7 @@ struct flashprog_flashctx {
 	uintptr_t physical_registers;
 	chipaddr virtual_registers;
 	union {
+		struct master_common *common;
 		struct par_master *par;
 		struct spi_master *spi;
 		struct opaque_master *opaque;
