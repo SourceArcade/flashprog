@@ -228,7 +228,8 @@ static int usb8452_spi_set_io_voltage(uint16_t requested_io_voltage_mV,
 				      uint16_t *set_io_voltage_mV,
 				      enum voltage_coerce_mode coerce_mode)
 {
-	int i = 0;
+	int32 ret;
+	unsigned int i;
 	uint8_t selected_voltage_100mV = 0;
 	uint8_t requested_io_voltage_100mV = 0;
 
@@ -293,9 +294,9 @@ static int usb8452_spi_set_io_voltage(uint16_t requested_io_voltage_mV,
 	if (set_io_voltage_mV)
 		*set_io_voltage_mV = (selected_voltage_100mV * 100);
 
-	i = ni845xSetIoVoltageLevel(device_handle, selected_voltage_100mV);
-	if (i != 0) {
-		ni845x_report_error("ni845xSetIoVoltageLevel", i);
+	ret = ni845xSetIoVoltageLevel(device_handle, selected_voltage_100mV);
+	if (ret != 0) {
+		ni845x_report_error("ni845xSetIoVoltageLevel", ret);
 		return -1;
 	}
 	return 0;
