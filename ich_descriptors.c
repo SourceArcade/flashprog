@@ -140,7 +140,7 @@ void prettyprint_ich_chipset(enum ich_chipset cs)
 		"C620 series Lewisburg", "300/400 series Cannon/Comet Point",
 		"500/600 series Tiger/Alder Point", "Apollo Lake", "Gemini Lake", "Elkhart Lake",
 		"C740 series Emmitsburg", "Snow Ridge", "Meteor Lake", "Lunar Lake",
-		"800 series Arrow Lake", "Panther Lake",
+		"800 series Arrow Lake", "Panther/Wildcat Lake",
 	};
 	if (cs < CHIPSET_ICH8 || cs - CHIPSET_ICH8 + 1 >= ARRAY_SIZE(chipset_names))
 		cs = 0;
@@ -1123,7 +1123,7 @@ static enum ich_chipset guess_ich_chipset(const struct ich_desc_content *const c
 			if (content->CSSO == 0x58) {
 				return CHIPSET_ELKHART_LAKE;
 			} else if (content->CSSO == 0x60) {
-				if (content->ISL == 0x9a)
+				if (content->ISL == 0x9a || content->ISL == 0x78)
 					return CHIPSET_PANTHER_LAKE;
 				warn_peculiar_desc("Panther Lake");
 				return CHIPSET_PANTHER_LAKE;

@@ -2318,6 +2318,7 @@ const struct penable chipset_enables[] = {
 	{0x8086, 0xae23,   ANY_REV, B_S,    NT,  "Intel", "Arrow Lake-S/HX",		enable_flash_arl},
 	{0x8086, 0xe323,   ANY_REV, B_S,    NT,  "Intel", "Panther Lake 404/H12Xe",	enable_flash_ptl},
 	{0x8086, 0xe423,   ANY_REV, B_S,    NT,  "Intel", "Panther Lake H",		enable_flash_ptl},
+	{0x8086, 0x4d23,   ANY_REV, B_S,    NT,  "Intel", "Wildcat Lake",		enable_flash_ptl},
 #endif
 	{0},
 };

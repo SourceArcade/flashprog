@@ -142,6 +142,7 @@ static void usage(char *argv[], const char *error)
 "\t- \"meteor\" for Intel's Meteor Lake SoC.\n"
 "\t- \"lunar\" for Intel's Lunar Lake SoC.\n"
 "\t- \"ptl\" for Intel's Panther Lake SoC.\n"
+"\t- \"wcl\" for Intel's Wildcat Lake SoC.\n"
 "\t- \"800\" or \"arrow\" for Intel's 800 series chipsets.\n"
 "\t- \"c620\" or \"lewis\" for Intel's C620 series aka. Lewisburg chipsets.\n"
 "\t- \"c740\" or \"emmits\" for Intel's C740 series chipsets.\n"
@@ -252,7 +253,8 @@ int main(int argc, char *argv[])
 		else if ((strcmp(csn, "800") == 0) ||
 			 (strcmp(csn, "arrow") == 0))
 			cs = CHIPSET_ARROW_LAKE;
-		else if (strcmp(csn, "ptl") == 0)
+		else if ((strcmp(csn, "ptl") == 0) ||
+			 (strcmp(csn, "wcl") == 0))
 			cs = CHIPSET_PANTHER_LAKE;
 		else if (strcmp(csn, "apollo") == 0)
 			cs = CHIPSET_APOLLO_LAKE;
