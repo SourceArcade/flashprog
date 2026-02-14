@@ -42,7 +42,6 @@ enum voltage_coerce_mode {
 
 static const struct spi_master spi_programmer_ni845x;
 
-static unsigned char CS_number;	// use chip select 0 as default
 static enum USB845x_type device_pid = Unknown_NI845X_Device;
 
 static uInt32 device_handle;
@@ -393,7 +392,6 @@ static void ni845x_spi_print_available_devices(void)
 static int ni845x_spi_init(struct flashprog_programmer *const prog)
 {
 	char *speed_str = NULL;
-	char *CS_str = NULL;
 	char *voltage = NULL;
 	char *endptr = NULL;
 	int requested_io_voltage_mV = 1200;     // default the IO voltage to 1.2V
@@ -401,17 +399,6 @@ static int ni845x_spi_init(struct flashprog_programmer *const prog)
 	char *serial_number = NULL;		// by default open the first connected device
 	char *ignore_io_voltage_limits_str = NULL;
 	int32 tmp = 0;
-
-	// read the cs parameter (which Chip select should we use)
-	CS_str = extract_programmer_param("cs");
-	if (CS_str) {
-		CS_number = CS_str[0] - '0';
-		free(CS_str);
-		if (strlen(CS_str) > 1 || CS_number < 0 || 7 < CS_number) {
-			msg_perr("Only CS 0-7 supported\n");
-			return 1;
-		}
-	}
 
 	voltage = extract_programmer_param("voltage");
 	if (voltage != NULL) {
