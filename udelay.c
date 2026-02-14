@@ -58,7 +58,7 @@ static int clock_check_res(void)
 	if (!clock_getres(clock_id, &res)) {
 		if (res.tv_sec == 0 && res.tv_nsec <= 100) {
 			msg_pinfo("Using clock_gettime for delay loops (clk_id: %d, resolution: %ldns).\n",
-				  (int)clock_id, res.tv_nsec);
+				  (int)clock_id, (long)res.tv_nsec);
 			use_clock_gettime = true;
 			return 1;
 		}
