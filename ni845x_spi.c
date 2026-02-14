@@ -169,7 +169,7 @@ static int ni845x_spi_open(const char *serial, uInt32 *return_handle)
 
 		device_pid = pid;
 
-		if (!serial || strtol(serial, NULL, 16) == serial_as_number)
+		if (!serial || strtoul(serial, NULL, 16) == serial_as_number)
 			break;
 
 		if (found_devices_count > 1) {
