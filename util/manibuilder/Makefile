@@ -4,7 +4,7 @@ include Makefile.targets
 
 CC := ccache cc
 MAKECMD := make
-MAKEARGS := CONFIG_EVERYTHING=yes
+MAKEARGS := CONFIG_EVERYTHING=yes all additional_tests
 MESONCMD := meson
 MESONARGS := -D programmer=all -D classic_cli_print_wiki=enabled --auto-features enabled
 

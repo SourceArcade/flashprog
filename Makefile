@@ -1026,6 +1026,11 @@ libflashprog.a: $(OBJS)
 strip: $(PROGRAM)$(EXEC_SUFFIX)
 	$(STRIP) $(STRIP_ARGS) $(PROGRAM)$(EXEC_SUFFIX)
 
+additional_tests: CPPFLAGS += -Iinclude/test
+ifeq ($(CONFIG_NI845X_SPI), no)
+additional_tests: ni845x_spi.o
+endif
+
 # Make sure to add all names of generated binaries here.
 # This includes all frontends and libflashprog.
 # We don't use EXEC_SUFFIX here because we want to clean everything.
@@ -1116,7 +1121,8 @@ libpayload: clean
 gitconfig:
 	./util/getrevision.sh -c 2>/dev/null && ./util/git-hooks/install.sh
 
-.PHONY: all install clean distclean config branch tag versioninfo _export export tarball libpayload gitconfig
+.PHONY: all install clean distclean config additional_tests branch tag
+.PHONY: versioninfo _export export tarball libpayload gitconfig
 
 # Disable implicit suffixes and built-in rules (for performance and profit)
 .SUFFIXES:

@@ -29,7 +29,7 @@ test_prog() {
 build_and_test() {
 	if [ "${MAKECMD=make}" ]; then
 		${MAKECMD} clean
-		eval ${MAKECMD} -j${CPUS:-$(nproc)} CC="\"${CC}\"" ${MAKEARGS-CONFIG_EVERYTHING=yes}
+		eval ${MAKECMD} -j${CPUS:-$(nproc)} CC="\"${CC}\"" ${MAKEARGS-CONFIG_EVERYTHING=yes all additional_tests}
 		test_prog ./flashprog
 	fi
 
