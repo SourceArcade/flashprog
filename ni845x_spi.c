@@ -589,8 +589,8 @@ static int ni845x_spi_transmit(const struct spi_master *mst,
 
 	if (read_cnt != 0 && read_arr != NULL) {
 		if ((read_cnt + write_cnt) != read_size) {
-			msg_perr("%s: expected and returned read count mismatch: %u expected, %ld received\n",
-					 __func__, read_cnt, read_size);
+			msg_perr("%s: expected and returned read count mismatch: %u expected, %lu received\n",
+					 __func__, read_cnt, (unsigned long)read_size);
 			free(transfer_buffer);
 			return -1;
 		}
