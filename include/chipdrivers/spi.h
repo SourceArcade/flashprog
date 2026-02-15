@@ -29,13 +29,11 @@ int spi_chip_read(struct flashprog_flashctx *, uint8_t *buf, unsigned int start,
 
 /* spi25.c */
 struct found_id *probe_spi_rdid(const struct bus_probe *, const struct master_common *);
+struct found_id *probe_spi_rems(const struct bus_probe *, const struct master_common *);
+struct found_id *probe_spi_res(const struct bus_probe *, const struct master_common *);
+struct found_id *probe_spi_at25f(const struct bus_probe *, const struct master_common *);
 
 int spi_simple_write_cmd(struct flashprog_flashctx *, uint8_t op, unsigned int poll_delay);
-int probe_spi_rems(struct flashprog_flashctx *);
-int probe_spi_res1(struct flashprog_flashctx *);
-int probe_spi_res2(struct flashprog_flashctx *);
-int probe_spi_res3(struct flashprog_flashctx *);
-int probe_spi_at25f(struct flashprog_flashctx *);
 int spi_write_enable(struct flashprog_flashctx *);
 int spi_write_disable(struct flashprog_flashctx *);
 int spi_block_erase_20(struct flashprog_flashctx *, unsigned int addr, unsigned int blocklen);

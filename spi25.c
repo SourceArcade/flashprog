@@ -46,25 +46,25 @@ static int spi_rdid(const struct spi_master *spi, unsigned char *readarr, int by
 	return 0;
 }
 
-static int spi_rems(struct flashctx *flash, unsigned char *readarr)
+static int spi_rems(const struct spi_master *spi, unsigned char *readarr)
 {
 	static const unsigned char cmd[JEDEC_REMS_OUTSIZE] = { JEDEC_REMS, };
 	int ret;
 
-	ret = spi_send_command(flash, sizeof(cmd), JEDEC_REMS_INSIZE, cmd, readarr);
+	ret = spi->command(spi, sizeof(cmd), JEDEC_REMS_INSIZE, cmd, readarr);
 	if (ret)
 		return ret;
 	msg_cspew("REMS returned 0x%02x 0x%02x. ", readarr[0], readarr[1]);
 	return 0;
 }
 
-static int spi_res(struct flashctx *flash, unsigned char *readarr, int bytes)
+static int spi_res(const struct spi_master *spi, unsigned char *readarr, int bytes)
 {
 	static const unsigned char cmd[JEDEC_RES_OUTSIZE] = { JEDEC_RES, };
 	int ret;
 	int i;
 
-	ret = spi_send_command(flash, sizeof(cmd), bytes, cmd, readarr);
+	ret = spi->command(spi, sizeof(cmd), bytes, cmd, readarr);
 	if (ret)
 		return ret;
 	msg_cspew("RES returned");
@@ -147,136 +147,114 @@ struct found_id *probe_spi_rdid(const struct bus_probe *probe, const struct mast
 	return found;
 }
 
-int probe_spi_rems(struct flashctx *flash)
+struct found_id *probe_spi_rems(const struct bus_probe *probe, const struct master_common *mst)
 {
-	const struct flashchip *chip = flash->chip;
+	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char readarr[JEDEC_REMS_INSIZE];
-	uint32_t id1, id2;
 
-	if (spi_rems(flash, readarr)) {
-		return 0;
+	if (spi_rems(spi, readarr) || flashprog_no_data(readarr, sizeof(readarr))) {
+		return NULL;
 	}
 
-	id1 = readarr[0];
-	id2 = readarr[1];
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
 
-	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
+	struct id_info *const id = &found->info.id;
 
-	if (id1 == chip->id.manufacture && id2 == chip->id.model)
-		return 1;
+	id->manufacture	= readarr[0];
+	id->model	= readarr[1];
+	id->type	= ID_SPI_REMS;
 
-	/* Test if this is a pure vendor match. */
-	if (id1 == chip->id.manufacture && GENERIC_DEVICE_ID == chip->id.model)
-		return 1;
+	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id->id1, id->id2);
 
-	/* Test if there is any vendor ID. */
-	if (GENERIC_MANUF_ID == chip->id.manufacture && id1 != 0xff && id1 != 0x00)
-		return 1;
-
-	return 0;
+	return found;
 }
 
-int probe_spi_res1(struct flashctx *flash)
+struct found_id *probe_spi_res(const struct bus_probe *probe, const struct master_common *mst)
 {
-	static const unsigned char allff[] = {0xff, 0xff, 0xff};
-	static const unsigned char all00[] = {0x00, 0x00, 0x00};
+	const struct spi_master *const spi = (const struct spi_master *)mst;
+	const unsigned int res_len = probe->type == ID_SPI_RES3 ? 3 :
+				    (probe->type == ID_SPI_RES2 ? 2 : 1);
 	unsigned char readarr[3];
-	uint32_t id2;
 
-	/* We only want one-byte RES if RDID and REMS are unusable. */
+	if (res_len == 1) {
+		/* We only want one-byte RES if RDID and REMS are unusable. */
 
-	/* Check if RDID is usable and does not return 0xff 0xff 0xff or
-	 * 0x00 0x00 0x00. In that case, RES is pointless.
-	 */
-	if (!spi_rdid(flash->mst.spi, readarr, 3) && memcmp(readarr, allff, 3) &&
-	    memcmp(readarr, all00, 3)) {
-		msg_cdbg("Ignoring RES in favour of RDID.\n");
-		return 0;
-	}
-	/* Check if REMS is usable and does not return 0xff 0xff or
-	 * 0x00 0x00. In that case, RES is pointless.
-	 */
-	if (!spi_rems(flash, readarr) &&
-	    memcmp(readarr, allff, JEDEC_REMS_INSIZE) &&
-	    memcmp(readarr, all00, JEDEC_REMS_INSIZE)) {
-		msg_cdbg("Ignoring RES in favour of REMS.\n");
-		return 0;
+		if (!spi_rdid(spi, readarr, 3) && !flashprog_no_data(readarr, 3)) {
+			msg_cdbg("Ignoring RES in favour of RDID.\n");
+			return NULL;
+		}
+
+		if (!spi_rems(spi, readarr) && !flashprog_no_data(readarr, JEDEC_REMS_INSIZE)) {
+			msg_cdbg("Ignoring RES in favour of REMS.\n");
+			return NULL;
+		}
 	}
 
-	if (spi_res(flash, readarr, 1)) {
-		return 0;
+	if (spi_res(spi, readarr, res_len) || flashprog_no_data(readarr, res_len)) {
+		return NULL;
 	}
 
-	id2 = readarr[0];
-
-	msg_cdbg("%s: id 0x%x\n", __func__, id2);
-
-	if (id2 != flash->chip->id.model)
-		return 0;
-
-	return 1;
-}
-
-int probe_spi_res2(struct flashctx *flash)
-{
-	unsigned char readarr[2];
-	uint32_t id1, id2;
-
-	if (spi_res(flash, readarr, 2)) {
-		return 0;
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
 	}
 
-	id1 = readarr[0];
-	id2 = readarr[1];
+	struct id_info *const id = &found->info.id;
 
-	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
-
-	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
-		return 0;
-
-	return 1;
-}
-
-int probe_spi_res3(struct flashctx *flash)
-{
-	unsigned char readarr[3];
-	uint32_t id1, id2;
-
-	if (spi_res(flash, readarr, 3)) {
-		return 0;
+	switch (res_len) {
+	case 1:
+		id->manufacture	= 0;
+		id->model	= readarr[0];
+		msg_cdbg("%s: id 0x%02x\n", __func__, id->model);
+		break;
+	case 2:
+		id->manufacture	= readarr[0];
+		id->model	= readarr[1];
+		msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id->id1, id->id2);
+		break;
+	case 3:
+		id->manufacture	= (readarr[0] << 8) | readarr[1];
+		id->model	= readarr[2];
+		msg_cdbg("%s: id1 0x%04x, id2 0x%02x\n", __func__, id->id1, id->id2);
+		break;
 	}
+	id->type = probe->type;
 
-	id1 = (readarr[0] << 8) | readarr[1];
-	id2 = readarr[2];
-
-	msg_cdbg("%s: id1 0x%x, id2 0x%x\n", __func__, id1, id2);
-
-	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
-		return 0;
-
-	return 1;
+	return found;
 }
 
 /* Only used for some Atmel chips. */
-int probe_spi_at25f(struct flashctx *flash)
+struct found_id *probe_spi_at25f(const struct bus_probe *probe, const struct master_common *mst)
 {
 	static const unsigned char cmd[AT25F_RDID_OUTSIZE] = { AT25F_RDID };
+	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char readarr[AT25F_RDID_INSIZE];
-	uint32_t id1;
-	uint32_t id2;
 
-	if (spi_send_command(flash, sizeof(cmd), sizeof(readarr), cmd, readarr))
-		return 0;
+	if (spi->command(spi, sizeof(cmd), sizeof(readarr), cmd, readarr))
+		return NULL;
+	if (flashprog_no_data(readarr, sizeof(readarr)))
+		return NULL;
 
-	id1 = readarr[0];
-	id2 = readarr[1];
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
 
-	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
+	struct id_info *const id = &found->info.id;
 
-	if (id1 == flash->chip->id.manufacture && id2 == flash->chip->id.model)
-		return 1;
+	id->manufacture	= readarr[0];
+	id->model	= readarr[1];
+	id->type	= ID_SPI_AT25F;
 
-	return 0;
+	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id->id1, id->id2);
+
+	return found;
 }
 
 static int spi_poll_wip(struct flashctx *const flash, const unsigned int poll_delay)

@@ -165,6 +165,11 @@ bool default_spi_probe_opcode(const struct flashctx *flash, uint8_t opcode)
 static const struct bus_probe spi_probes[] = {
        /* type		function		function argument */
 	{ ID_SPI_RDID,	probe_spi_rdid,		NULL },
+	{ ID_SPI_AT25F,	probe_spi_at25f,	NULL },
+	{ ID_SPI_REMS,	probe_spi_rems,		NULL },
+	{ ID_SPI_RES3,	probe_spi_res,		NULL },
+	{ ID_SPI_RES2,	probe_spi_res,		NULL },
+	{ ID_SPI_RES1,	probe_spi_res,		NULL },
 };
 
 static bool spi_probe_match(const struct flashchip *chip, const struct id_info_ext *found)
