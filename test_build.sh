@@ -15,15 +15,15 @@ test_prog() {
 		return 0
 	fi
 
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -w "${TEMP_DIR}/rand"
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -r "${TEMP_DIR}/bak"
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -w "${TEMP_DIR}/rand"
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -r "${TEMP_DIR}/bak"
 	cmp "${TEMP_DIR}/rand" "${TEMP_DIR}/bak"
 
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -w "${TEMP_DIR}/rand2"
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -v "${TEMP_DIR}/rand2"
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -c M25P10-A -w "${TEMP_DIR}/rand2"
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -c M25P10-A -v "${TEMP_DIR}/rand2"
 
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -E
-	"${prog}" -p dummy:emulate=M25P10.RES,image="${TEMP_DIR}/image" -c M25P10 -v "${TEMP_DIR}/empty"
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -c M25P10-A -E
+	"${prog}" -p dummy:emulate=M25P10-A,image="${TEMP_DIR}/image" -c M25P10-A -v "${TEMP_DIR}/empty"
 }
 
 build_and_test() {
