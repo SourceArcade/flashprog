@@ -31,6 +31,7 @@
 
 enum emu_chip {
 	EMULATE_NONE,
+	EMULATE_ST_M25P10_A,
 	EMULATE_ST_M25P10_RES,
 	EMULATE_SST_SST25VF040_REMS,
 	EMULATE_SST_SST25VF032B,
@@ -299,6 +300,20 @@ static int init_data(struct emu_data *data, enum chipbustype *dummy_buses_suppor
 		return 0;
 	}
 
+	if (!strcmp(tmp, "M25P10-A")) {
+		data->emu_chip = EMULATE_ST_M25P10_A;
+		data->emu_chip_size = 128 * 1024;
+		data->emu_max_byteprogram_size = 256;
+		data->emu_max_aai_size = 0;
+		data->emu_status_len = 1;
+		data->emu_jedec_se_size = 0;
+		data->emu_jedec_be_52_size = 0;
+		data->emu_jedec_be_d8_size = 32 * 1024;
+		data->emu_jedec_ce_60_size = 0;
+		data->emu_jedec_ce_c7_size = data->emu_chip_size;
+		msg_pdbg("Emulating ST M25P10-A SPI flash chip (RDID, page "
+			 "write)\n");
+	}
 	if (!strcmp(tmp, "M25P10.RES")) {
 		data->emu_chip = EMULATE_ST_M25P10_RES;
 		data->emu_chip_size = 128 * 1024;
@@ -758,6 +773,7 @@ static int emulate_spi_chip_response(unsigned int writecnt,
 		offs = writearr[1] << 16 | writearr[2] << 8 | writearr[3];
 		offs += writecnt - JEDEC_REMS_OUTSIZE;
 		switch (data->emu_chip) {
+		case EMULATE_ST_M25P10_A:
 		case EMULATE_ST_M25P10_RES:
 			if (readcnt > 0)
 				memset(readarr, 0x10, readcnt);
@@ -817,6 +833,14 @@ static int emulate_spi_chip_response(unsigned int writecnt,
 		break;
 	case JEDEC_RDID:
 		switch (data->emu_chip) {
+		case EMULATE_ST_M25P10_A:
+			if (readcnt > 0)
+				readarr[0] = 0x20;
+			if (readcnt > 1)
+				readarr[1] = 0x20;
+			if (readcnt > 2)
+				readarr[2] = 0x11;
+			break;
 		case EMULATE_SST_SST25VF032B:
 			if (readcnt > 0)
 				readarr[0] = 0xbf;
@@ -1163,6 +1187,7 @@ static int dummy_spi_send_command(const struct spi_master *mst,
 	/* Response for unknown commands and missing chip is 0xff. */
 	memset(readarr, 0xff, readcnt);
 	switch (emu_data->emu_chip) {
+	case EMULATE_ST_M25P10_A:
 	case EMULATE_ST_M25P10_RES:
 	case EMULATE_SST_SST25VF040_REMS:
 	case EMULATE_SST_SST25VF032B:
