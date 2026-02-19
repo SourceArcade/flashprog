@@ -16,6 +16,7 @@
 
 #include <string.h>
 #include "flash.h"
+#include "programmer.h"
 #include "chipdrivers/edi.h"
 #include "spi_command.h"
 #include "ene.h"
@@ -45,21 +46,21 @@ static void edi_read_cmd(unsigned char *cmd, unsigned short address)
 	cmd[3] = (address >> 0) & 0xff; /* Address lower byte. */
 }
 
-static int edi_write(struct flashctx *flash, unsigned short address, unsigned char data)
+static int edi_write(const struct spi_master *spi, unsigned short address, unsigned char data)
 {
 	unsigned char cmd[5];
 	int rc;
 
 	edi_write_cmd(cmd, address, data);
 
-	rc = spi_send_command(flash, sizeof(cmd), 0, cmd, NULL);
+	rc = spi->command(spi, sizeof(cmd), 0, cmd, NULL);
 	if (rc)
 		return -1;
 
 	return 0;
 }
 
-static int edi_read_byte(struct flashctx *flash, unsigned short address, unsigned char *data)
+static int edi_read_byte(const struct spi_master *spi, unsigned short address, unsigned char *data)
 {
 	unsigned char cmd[4];
 	unsigned char buffer[edi_read_buffer_length];
@@ -69,7 +70,7 @@ static int edi_read_byte(struct flashctx *flash, unsigned short address, unsigne
 
 	edi_read_cmd(cmd, address);
 
-	rc = spi_send_command(flash, sizeof(cmd), sizeof(buffer), cmd, buffer);
+	rc = spi->command(spi, sizeof(cmd), sizeof(buffer), cmd, buffer);
 	if (rc)
 		return -1;
 
@@ -103,12 +104,12 @@ static int edi_read_byte(struct flashctx *flash, unsigned short address, unsigne
 	return -1;
 }
 
-static int edi_read(struct flashctx *flash, unsigned short address, unsigned char *data)
+static int edi_read(const struct spi_master *spi, unsigned short address, unsigned char *data)
 {
 	int rc;
 
 	do {
-		rc = edi_read_byte(flash, address, data);
+		rc = edi_read_byte(spi, address, data);
 		if (rc == -EDI_NOT_READY) {
 			/*
 			 * Buffer size is increased, one step at a time,
@@ -133,31 +134,31 @@ static int edi_read(struct flashctx *flash, unsigned short address, unsigned cha
 	return 0;
 }
 
-static int edi_disable(struct flashctx *flash)
+static int edi_disable(const struct spi_master *spi)
 {
 	unsigned char cmd = EDI_DISABLE;
 	int rc;
 
-	rc = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
+	rc = spi->command(spi, sizeof(cmd), 0, &cmd, NULL);
 	if (rc)
 		return -1;
 
 	return 0;
 }
 
-static int edi_chip_probe(struct flashctx *flash, const struct ene_chip *chip)
+static int edi_chip_probe(const struct spi_master *spi, const struct ene_chip *chip)
 {
 	unsigned char hwversion;
 	unsigned char ediid;
 	int rc;
 
-	rc = edi_read(flash, ENE_EC_HWVERSION, &hwversion);
+	rc = edi_read(spi, ENE_EC_HWVERSION, &hwversion);
 	if (rc < 0) {
 		msg_cdbg("%s: reading hwversion failed\n", __func__);
 		return 0;
 	}
 
-	rc = edi_read(flash, ENE_EC_EDIID, &ediid);
+	rc = edi_read(spi, ENE_EC_EDIID, &ediid);
 	if (rc < 0) {
 		msg_cdbg("%s: reading ediid failed\n", __func__);
 		return 0;
@@ -171,72 +172,72 @@ static int edi_chip_probe(struct flashctx *flash, const struct ene_chip *chip)
 	return 0;
 }
 
-static int edi_spi_enable(struct flashctx *flash)
+static int edi_spi_enable(const struct spi_master *spi)
 {
 	unsigned char buffer;
 	int rc;
 
-	rc = edi_read(flash, ENE_XBI_EFCFG, &buffer);
+	rc = edi_read(spi, ENE_XBI_EFCFG, &buffer);
 	if (rc < 0)
 		return -1;
 
 	buffer |= ENE_XBI_EFCFG_CMD_WE;
 
-	rc = edi_write(flash, ENE_XBI_EFCFG, buffer);
+	rc = edi_write(spi, ENE_XBI_EFCFG, buffer);
 	if (rc < 0)
 		return -1;
 
 	return 0;
 }
 
-static int edi_spi_disable(struct flashctx *flash)
+static int edi_spi_disable(const struct spi_master *spi)
 {
 	unsigned char buffer;
 	int rc;
 
-	rc = edi_read(flash, ENE_XBI_EFCFG, &buffer);
+	rc = edi_read(spi, ENE_XBI_EFCFG, &buffer);
 	if (rc < 0)
 		return -1;
 
 	buffer &= ~ENE_XBI_EFCFG_CMD_WE;
 
-	rc = edi_write(flash, ENE_XBI_EFCFG, buffer);
+	rc = edi_write(spi, ENE_XBI_EFCFG, buffer);
 	if (rc < 0)
 		return -1;
 
 	return 0;
 }
 
-static int edi_spi_busy(struct flashctx *flash)
+static int edi_spi_busy(const struct spi_master *spi)
 {
 	unsigned char buffer;
 	int rc;
 
-	rc = edi_read(flash, ENE_XBI_EFCFG, &buffer);
+	rc = edi_read(spi, ENE_XBI_EFCFG, &buffer);
 	if (rc < 0)
 		return -1;
 
 	return !!(buffer & ENE_XBI_EFCFG_BUSY);
 }
 
-static int edi_spi_address(struct flashctx *flash, unsigned int start, unsigned int address)
+static int edi_spi_address(const struct spi_master *spi, unsigned int start, unsigned int address)
 {
 	int rc;
 
 	if ((address == start) || (((address - 1) & 0xff) != (address & 0xff))) {
-		rc = edi_write(flash, ENE_XBI_EFA0, ((address & 0xff) >> 0));
+		rc = edi_write(spi, ENE_XBI_EFA0, ((address & 0xff) >> 0));
 		if (rc < 0)
 			return -1;
 	}
 
 	if ((address == start) || (((address - 1) & 0xff00) != (address & 0xff00))) {
-		rc = edi_write(flash, ENE_XBI_EFA1, ((address & 0xff00) >> 8));
+		rc = edi_write(spi, ENE_XBI_EFA1, ((address & 0xff00) >> 8));
 		if (rc < 0)
 			return -1;
 	}
 
 	if ((address == start) || (((address - 1) & 0xff0000) != (address & 0xff0000))) {
-		rc = edi_write(flash, ENE_XBI_EFA2, ((address & 0xff0000) >> 16));
+		rc = edi_write(spi, ENE_XBI_EFA2, ((address & 0xff0000) >> 16));
 		if (rc < 0)
 			return -1;
 	}
@@ -244,36 +245,36 @@ static int edi_spi_address(struct flashctx *flash, unsigned int start, unsigned 
 	return 0;
 }
 
-static int edi_8051_reset(struct flashctx *flash)
+static int edi_8051_reset(const struct spi_master *spi)
 {
 	unsigned char buffer;
 	int rc;
 
-	rc = edi_read(flash, ENE_EC_PXCFG, &buffer);
+	rc = edi_read(spi, ENE_EC_PXCFG, &buffer);
 	if (rc < 0)
 		return -1;
 
 	buffer |= ENE_EC_PXCFG_8051_RESET;
 
-	rc = edi_write(flash, ENE_EC_PXCFG, buffer);
+	rc = edi_write(spi, ENE_EC_PXCFG, buffer);
 	if (rc < 0)
 		return -1;
 
 	return 0;
 }
 
-static int edi_8051_execute(struct flashctx *flash)
+static int edi_8051_execute(const struct spi_master *spi)
 {
 	unsigned char buffer;
 	int rc;
 
-	rc = edi_read(flash, ENE_EC_PXCFG, &buffer);
+	rc = edi_read(spi, ENE_EC_PXCFG, &buffer);
 	if (rc < 0)
 		return -1;
 
 	buffer &= ~ENE_EC_PXCFG_8051_RESET;
 
-	rc = edi_write(flash, ENE_EC_PXCFG, buffer);
+	rc = edi_write(spi, ENE_EC_PXCFG, buffer);
 	if (rc < 0)
 		return -1;
 
@@ -282,6 +283,7 @@ static int edi_8051_execute(struct flashctx *flash)
 
 int edi_chip_block_erase(struct flashctx *flash, unsigned int page, unsigned int size)
 {
+	const struct spi_master *const spi = flash->mst.spi;
 	unsigned int timeout = 64;
 	int rc;
 
@@ -290,21 +292,21 @@ int edi_chip_block_erase(struct flashctx *flash, unsigned int page, unsigned int
 		return -1;
 	}
 
-	rc = edi_spi_enable(flash);
+	rc = edi_spi_enable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to enable SPI!\n", __func__);
 		return -1;
 	}
 
-	rc = edi_spi_address(flash, page, page);
+	rc = edi_spi_address(spi, page, page);
 	if (rc < 0)
 		return -1;
 
-	rc = edi_write(flash, ENE_XBI_EFCMD, ENE_XBI_EFCMD_ERASE);
+	rc = edi_write(spi, ENE_XBI_EFCMD, ENE_XBI_EFCMD_ERASE);
 	if (rc < 0)
 		return -1;
 
-	while (edi_spi_busy(flash) == 1 && timeout) {
+	while (edi_spi_busy(spi) == 1 && timeout) {
 		programmer_delay(10);
 		timeout--;
 	}
@@ -314,7 +316,7 @@ int edi_chip_block_erase(struct flashctx *flash, unsigned int page, unsigned int
 		return -1;
 	}
 
-	rc = edi_spi_disable(flash);
+	rc = edi_spi_disable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to disable SPI!\n", __func__);
 		return -1;
@@ -325,6 +327,7 @@ int edi_chip_block_erase(struct flashctx *flash, unsigned int page, unsigned int
 
 int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
+	const struct spi_master *const spi = flash->mst.spi;
 	unsigned int address = start;
 	unsigned int pages;
 	unsigned int timeout;
@@ -343,7 +346,7 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 
 	pages = len / flash->chip->page_size;
 
-	rc = edi_spi_enable(flash);
+	rc = edi_spi_enable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to enable SPI!\n", __func__);
 		return -1;
@@ -353,20 +356,20 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 		timeout = 64;
 
 		/* Clear page buffer. */
-		rc = edi_write(flash, ENE_XBI_EFCMD, ENE_XBI_EFCMD_HVPL_CLEAR);
+		rc = edi_write(spi, ENE_XBI_EFCMD, ENE_XBI_EFCMD_HVPL_CLEAR);
 		if (rc < 0)
 			return -1;
 
 		for (j = 0; j < flash->chip->page_size; j++) {
-			rc = edi_spi_address(flash, start, address);
+			rc = edi_spi_address(spi, start, address);
 			if (rc < 0)
 				return -1;
 
-			rc = edi_write(flash, ENE_XBI_EFDAT, *buf);
+			rc = edi_write(spi, ENE_XBI_EFDAT, *buf);
 			if (rc < 0)
 				return -1;
 
-			rc = edi_write(flash, ENE_XBI_EFCMD, ENE_XBI_EFCMD_HVPL_LATCH);
+			rc = edi_write(spi, ENE_XBI_EFCMD, ENE_XBI_EFCMD_HVPL_LATCH);
 			if (rc < 0)
 				return -1;
 
@@ -375,11 +378,11 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 		}
 
 		/* Program page buffer to flash. */
-		rc = edi_write(flash, ENE_XBI_EFCMD, ENE_XBI_EFCMD_PROGRAM);
+		rc = edi_write(spi, ENE_XBI_EFCMD, ENE_XBI_EFCMD_PROGRAM);
 		if (rc < 0)
 			return -1;
 
-		while (edi_spi_busy(flash) == 1 && timeout) {
+		while (edi_spi_busy(spi) == 1 && timeout) {
 			programmer_delay(10);
 			timeout--;
 		}
@@ -392,7 +395,7 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 		flashprog_progress_add(flash, flash->chip->page_size);
 	}
 
-	rc = edi_spi_disable(flash);
+	rc = edi_spi_disable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to disable SPI!\n", __func__);
 		return -1;
@@ -403,12 +406,13 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 
 int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
+	const struct spi_master *const spi = flash->mst.spi;
 	unsigned int address = start;
 	unsigned int i;
 	unsigned int timeout;
 	int rc;
 
-	rc = edi_spi_enable(flash);
+	rc = edi_spi_enable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to enable SPI!\n", __func__);
 		return -1;
@@ -423,21 +427,21 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 	for (i = 0; i < len; i++) {
 		timeout = 64;
 
-		rc = edi_spi_address(flash, start, address);
+		rc = edi_spi_address(spi, start, address);
 		if (rc < 0)
 			return -1;
 
-		rc = edi_write(flash, ENE_XBI_EFCMD, ENE_XBI_EFCMD_READ);
+		rc = edi_write(spi, ENE_XBI_EFCMD, ENE_XBI_EFCMD_READ);
 		if (rc < 0)
 			return -1;
 
 		do {
-			rc = edi_read(flash, ENE_XBI_EFDAT, buf);
+			rc = edi_read(spi, ENE_XBI_EFDAT, buf);
 			if (rc == 0)
 				break;
 
 			/* Just in case. */
-			while (edi_spi_busy(flash) == 1 && timeout) {
+			while (edi_spi_busy(spi) == 1 && timeout) {
 				programmer_delay(10);
 				timeout--;
 			}
@@ -453,7 +457,7 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 		flashprog_progress_add(flash, 1);
 	}
 
-	rc = edi_spi_disable(flash);
+	rc = edi_spi_disable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to disable SPI!\n", __func__);
 		return -1;
@@ -464,21 +468,19 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 
 static int edi_shutdown(void *data)
 {
-	struct flashctx *flash;
+	const struct spi_master *const spi = data;
 	int rc;
 
 	if (data == NULL)
 		return -1;
 
-	flash = (struct flashctx *)data;
-
-	rc = edi_8051_execute(flash);
+	rc = edi_8051_execute(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to execute 8051!\n", __func__);
 		return -1;
 	}
 
-	rc = edi_disable(flash);
+	rc = edi_disable(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to disable EDI!\n", __func__);
 		return -1;
@@ -489,6 +491,7 @@ static int edi_shutdown(void *data)
 
 int edi_probe_kb9012(struct flashctx *flash)
 {
+	const struct spi_master *const spi = flash->mst.spi;
 	int probe;
 	int rc;
 	unsigned char hwversion;
@@ -502,19 +505,19 @@ int edi_probe_kb9012(struct flashctx *flash)
 	 * operational starting from the next request. This dummy read below
 	 * draws the chip's attention and as result the chip enables its EDI.
 	 */
-	edi_read(flash, ENE_EC_HWVERSION, &hwversion);
+	edi_read(spi, ENE_EC_HWVERSION, &hwversion);
 
-	probe = edi_chip_probe(flash, &ene_kb9012);
+	probe = edi_chip_probe(spi, &ene_kb9012);
 	if (!probe)
 		return 0;
 
-	rc = edi_8051_reset(flash);
+	rc = edi_8051_reset(spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to reset 8051!\n", __func__);
 		return 0;
 	}
 
-	register_shutdown(edi_shutdown, (void *)flash);
+	register_shutdown(edi_shutdown, (void *)spi);
 
 	return 1;
 }
