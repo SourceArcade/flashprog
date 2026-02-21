@@ -41,9 +41,6 @@ const char *chip_to_probe = NULL;
 static const struct programmer_entry *programmer = NULL;
 static char *programmer_param = NULL;
 
-/* If nonzero, used as the start address of bottom-aligned flash. */
-unsigned long flashbase;
-
 /* Is writing allowed with this programmer? */
 bool programmer_may_write;
 
@@ -135,9 +132,6 @@ int programmer_init(struct flashprog_programmer *const prog)
 	}
 	programmer = prog->driver;
 	programmer_param = prog->param;
-	/* Initialize all programmer specific data. */
-	/* Default to top aligned flash at 4 GB. */
-	flashbase = 0;
 	/* Registering shutdown functions is now allowed. */
 	may_register_shutdown = true;
 	/* Default to allowing writes. Broken programmers set this to 0. */

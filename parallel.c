@@ -64,7 +64,7 @@ void chip_readn(const struct flashctx *flash, uint8_t *buf, chipaddr addr,
 }
 
 int register_par_master(const struct par_master *mst, const enum chipbustype buses,
-			const size_t max_rom_decode, void *data)
+			const uintptr_t rom_base, const size_t max_rom_decode, void *data)
 {
 	struct registered_master rmst = { 0 };
 
@@ -86,6 +86,8 @@ int register_par_master(const struct par_master *mst, const enum chipbustype bus
 
 	rmst.buses_supported = buses;
 	rmst.par = *mst;
+
+	rmst.par.rom_base = rom_base;
 	if (data)
 		rmst.par.data = data;
 

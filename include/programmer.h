@@ -226,7 +226,7 @@ int board_flash_enable(struct flashprog_programmer *, const char *vendor, const 
 int chipset_flash_enable(struct flashprog_programmer *);
 
 /* processor_enable.c */
-int processor_flash_enable(void);
+int processor_flash_enable(struct flashprog_programmer *);
 #endif
 
 #if CONFIG_INTERNAL == 1
@@ -243,6 +243,7 @@ int dmi_match(const char *pattern);
 
 /* internal.c */
 struct internal_data {
+	uintptr_t rom_base;
 	size_t max_rom_decode;
 };
 struct superio {
@@ -270,7 +271,6 @@ extern enum chipbustype internal_buses_supported;
 /* flashprog.c */
 // FIXME: These need to be local, not global
 extern bool programmer_may_write;
-extern unsigned long flashbase;
 char *extract_programmer_param(const char *param_name);
 
 struct master_common {
@@ -445,6 +445,8 @@ struct par_master {
 	/* XXX: Keep common struct first, it is overlayed with other master types. */
 	struct master_common common;
 
+	uintptr_t rom_base;
+
 	void (*chip_writeb) (const struct flashctx *flash, uint8_t val, chipaddr addr);
 	void (*chip_writew) (const struct flashctx *flash, uint16_t val, chipaddr addr);
 	void (*chip_writel) (const struct flashctx *flash, uint32_t val, chipaddr addr);
@@ -460,7 +462,7 @@ struct par_master {
 	int (*shutdown)(void *data);
 	void *data;
 };
-int register_par_master(const struct par_master *mst, const enum chipbustype buses, size_t max_rom_decode, void *data);
+int register_par_master(const struct par_master *mst, const enum chipbustype buses, uintptr_t rom_base, size_t max_rom_decode, void *data);
 
 /* programmer.c */
 void *fallback_map(const char *descr, uintptr_t phys_addr, size_t len);

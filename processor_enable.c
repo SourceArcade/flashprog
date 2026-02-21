@@ -62,7 +62,7 @@ static int is_loongson(void)
 }
 #endif
 
-int processor_flash_enable(void)
+int processor_flash_enable(struct flashprog_programmer *prog)
 {
 	/* Default to 1 to catch not implemented architectures. */
 	int ret = 1;
@@ -70,7 +70,8 @@ int processor_flash_enable(void)
 	/* FIXME: detect loongson on FreeBSD and OpenBSD as well.  */
 #if defined (__MIPSEL__) && defined (__linux)
 	if (is_loongson()) {
-		flashbase = 0x1fc00000;
+		struct internal_data *const internal = prog->data;
+		internal->rom_base = 0x1fc00000;
 		ret = 0;
 	}
 #elif defined(__i386__) || defined(__x86_64__)

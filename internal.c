@@ -190,6 +190,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 		ret = 1;
 		goto internal_init_exit;
 	}
+	internal->rom_base = 0; /* Default to top aligned flash at 4 GB. */
 	internal->max_rom_decode = 0;
 	prog->data = internal;
 
@@ -213,7 +214,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 		goto internal_init_exit;
 	}
 
-	if (processor_flash_enable()) {
+	if (processor_flash_enable(prog)) {
 		msg_perr("Processor detection/init failed.\n"
 			 "Aborting.\n");
 		ret = 1;
@@ -292,7 +293,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 
 	if (internal_buses_supported & BUS_NONSPI) {
 		register_par_master(&par_master_internal, internal_buses_supported,
-				    internal->max_rom_decode, NULL);
+				    internal->rom_base, internal->max_rom_decode, NULL);
 	}
 
 	/* Report if a non-whitelisted laptop is detected that likely uses a legacy bus. */

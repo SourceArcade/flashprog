@@ -113,7 +113,7 @@ static int atapromise_init(struct flashprog_programmer *const prog)
 		  "purpose of updating the firmware of this device (padding may necessary).\n",
 		  rom_size / 1024);
 
-	return register_par_master(&par_master_atapromise, BUS_PARALLEL, rom_size, NULL);
+	return register_par_master(&par_master_atapromise, BUS_PARALLEL, 0, rom_size, NULL);
 }
 
 static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)

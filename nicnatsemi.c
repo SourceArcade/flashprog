@@ -70,7 +70,7 @@ static int nicnatsemi_init(struct flashprog_programmer *const prog)
 	 * to be 64KiB; and the mask in the read/write functions below wants
 	 * to be 0x0000FFFF.
 	 */
-	return register_par_master(&par_master_nicnatsemi, BUS_PARALLEL, 128*KiB, NULL);
+	return register_par_master(&par_master_nicnatsemi, BUS_PARALLEL, 0, 128*KiB, NULL);
 }
 
 static void nicnatsemi_chip_writeb(const struct flashctx *flash, uint8_t val,

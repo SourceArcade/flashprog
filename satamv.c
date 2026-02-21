@@ -148,7 +148,7 @@ static int satamv_init(struct flashprog_programmer *const prog)
 
 	/* 512 kByte with two 8-bit latches, and
 	 * 4 MByte with additional 3-bit latch. */
-	return register_par_master(&par_master_satamv, BUS_PARALLEL, 4*MiB, NULL);
+	return register_par_master(&par_master_satamv, BUS_PARALLEL, 0, 4*MiB, NULL);
 }
 
 /* BAR2 (MEM) can map NVRAM and flash. We set it to flash in the init function.

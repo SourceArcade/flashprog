@@ -46,6 +46,8 @@ static void programmer_unmap_flash_region(const struct flashctx *flash, void *vi
 
 int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 {
+	const struct par_master *const par = flash->mst.par;
+
 	if (prep == PREPARE_POST_PROBE)
 		return 0;
 
@@ -54,7 +56,7 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
 
 	const chipsize_t size = flash->chip->total_size * 1024;
-	const uintptr_t base = flashbase ? flashbase : (0xffffffff - size + 1);
+	const uintptr_t base = par->rom_base ? par->rom_base : (0xffffffff - size + 1);
 	void *const addr = programmer_map_flash_region(flash, flash->chip->name, base, size);
 	if (addr == ERROR_PTR) {
 		msg_perr("Could not map flash chip %s at 0x%0*" PRIxPTR ".\n",

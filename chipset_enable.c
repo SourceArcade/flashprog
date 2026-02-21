@@ -479,7 +479,7 @@ idsel_garbage_out:
 
 	/* Ignore all legacy ranges below 1 MB.
 	 * We currently only support flashing the chip which responds to
-	 * IDSEL=0. To support IDSEL!=0, flashbase and decode size calculations
+	 * IDSEL=0. To support IDSEL!=0, rom_base and decode size calculations
 	 * have to be adjusted.
 	 */
 	int max_decode_fwh_idsel = 0, max_decode_fwh_decode = 0;
@@ -1859,6 +1859,7 @@ static int enable_flash_ht1000(struct flashprog_programmer *prog, struct pci_dev
  */
 static int get_flashbase_sc520(struct flashprog_programmer *prog, struct pci_dev *dev, const char *name)
 {
+	struct internal_data *const internal = prog->data;
 	int i, bootcs_found = 0;
 	uint32_t parx = 0;
 	void *mmcr;
@@ -1879,16 +1880,16 @@ static int get_flashbase_sc520(struct flashprog_programmer *prog, struct pci_dev
 		}
 	}
 
-	/* 3. PARx[25] = 1b --> flashbase[29:16] = PARx[13:0]
-	 *    PARx[25] = 0b --> flashbase[29:12] = PARx[17:0]
+	/* 3. PARx[25] = 1b --> rom_base[29:16] = PARx[13:0]
+	 *    PARx[25] = 0b --> rom_base[29:12] = PARx[17:0]
 	 */
 	if (bootcs_found) {
 		if (parx & (1 << 25)) {
 			parx &= (1 << 14) - 1; /* Mask [13:0] */
-			flashbase = parx << 16;
+			internal->rom_base = parx << 16;
 		} else {
 			parx &= (1 << 18) - 1; /* Mask [17:0] */
-			flashbase = parx << 12;
+			internal->rom_base = parx << 12;
 		}
 	} else {
 		msg_pinfo("AMD Elan SC520 detected, but no BOOTCS. "
