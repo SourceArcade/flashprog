@@ -20,41 +20,42 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "flash.h"
-#include "flashchips.h"
 #include "chipdrivers/spi.h"
-#include "spi_command.h"
+#include "programmer.h"
 #include "spi.h"
 
 /* For ST95XXX chips which have RDID */
-int probe_spi_st95(struct flashctx *flash)
+struct found_id *probe_spi_st95(const struct bus_probe *probe, const struct master_common *mst)
 {
 	/*
 	 * ST_M95_RDID_OUTSIZE depends on size of the flash and
 	 * not all ST_M95XXX have RDID.
 	 */
 	static const unsigned char cmd[ST_M95_RDID_OUTSIZE_MAX] = { ST_M95_RDID };
+	const struct spi_master *const spi = (const struct spi_master *)mst;
+	const size_t address_len = (uintptr_t)probe->arg;
 	unsigned char readarr[ST_M95_RDID_INSIZE];
-	uint32_t id1, id2;
-	int ret;
 
-	uint32_t rdid_outsize = ST_M95_RDID_2BA_OUTSIZE; // 16 bit address
-	if (flash->chip->total_size * KiB > 64 * KiB)
-		rdid_outsize = ST_M95_RDID_3BA_OUTSIZE; // 24 bit address
+	if (spi->command(spi, 1 + address_len, sizeof(readarr), cmd, readarr))
+		return NULL;
+	if (flashprog_no_data(readarr, sizeof(readarr)))
+		return NULL;
 
-	ret = spi_send_command(flash, rdid_outsize, sizeof(readarr), cmd, readarr);
-	if (ret)
-		return 0;
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
 
-	id1 = readarr[0]; // manufacture id
-	id2 = (readarr[1] << 8) | readarr[2]; // SPI family code + model id
+	struct id_info *const id = &found->info.id;
 
-	msg_cdbg("%s: id1 0x%02x, id2 0x%02x\n", __func__, id1, id2);
+	id->manufacture	= readarr[0];
+	id->model	= (readarr[1] << 8) | readarr[2];
+	id->type	= ID_SPI_ST95;
 
-	if (id1 == flash->chip->id.manufacture && id2 == flash->chip->id.model)
-		return 1;
+	msg_cdbg("%s: id1 0x%02x, id2 0x%04x\n", __func__, id->id1, id->id2);
 
-	return 0;
+	return found;
 }
 
 /* ST95XXX chips don't have erase operation and erase is made as part of write command */

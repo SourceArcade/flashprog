@@ -119,7 +119,7 @@ int spi_erase_at45db_chip(struct flashprog_flashctx *, unsigned int addr, unsign
 int spi_erase_at45cs_sector(struct flashprog_flashctx *, unsigned int addr, unsigned int blocklen);
 
 /* spi95.c */
-int probe_spi_st95(struct flashprog_flashctx *);
+struct found_id *probe_spi_st95(const struct bus_probe *, const struct master_common *);
 int spi_block_erase_emulation(struct flashprog_flashctx *, unsigned int addr, unsigned int blocklen);
 
 /* writeprotect_ranges.c */
