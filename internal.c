@@ -18,7 +18,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
@@ -61,20 +60,13 @@ int register_superio(struct superio s)
 int is_laptop = 0;
 bool laptop_ok = false;
 
-static void internal_chip_writeb(const struct flashctx *flash, uint8_t val,
-				 chipaddr addr);
-static void internal_chip_writew(const struct flashctx *flash, uint16_t val,
-				 chipaddr addr);
-static void internal_chip_writel(const struct flashctx *flash, uint32_t val,
-				 chipaddr addr);
-static uint8_t internal_chip_readb(const struct flashctx *flash,
-				   const chipaddr addr);
-static uint16_t internal_chip_readw(const struct flashctx *flash,
-				    const chipaddr addr);
-static uint32_t internal_chip_readl(const struct flashctx *flash,
-				    const chipaddr addr);
-static void internal_chip_readn(const struct flashctx *flash, uint8_t *buf,
-				const chipaddr addr, size_t len);
+static void internal_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static void internal_chip_writew(const struct par_master *, uint16_t val, chipaddr);
+static void internal_chip_writel(const struct par_master *, uint32_t val, chipaddr);
+static uint8_t internal_chip_readb(const struct par_master *, chipaddr);
+static uint16_t internal_chip_readw(const struct par_master *, chipaddr);
+static uint32_t internal_chip_readl(const struct par_master *, chipaddr);
+static void internal_chip_readn(const struct par_master *, uint8_t *buf, chipaddr, size_t len);
 static const struct par_master par_master_internal = {
 	.chip_readb	= internal_chip_readb,
 	.chip_readw	= internal_chip_readw,
@@ -332,43 +324,37 @@ internal_init_exit:
 	return ret;
 }
 
-static void internal_chip_writeb(const struct flashctx *flash, uint8_t val,
-				 chipaddr addr)
+static void internal_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	mmio_writeb(val, (void *) addr);
 }
 
-static void internal_chip_writew(const struct flashctx *flash, uint16_t val,
-				 chipaddr addr)
+static void internal_chip_writew(const struct par_master *par, uint16_t val, chipaddr addr)
 {
 	mmio_writew(val, (void *) addr);
 }
 
-static void internal_chip_writel(const struct flashctx *flash, uint32_t val,
-				 chipaddr addr)
+static void internal_chip_writel(const struct par_master *par, uint32_t val, chipaddr addr)
 {
 	mmio_writel(val, (void *) addr);
 }
 
-static uint8_t internal_chip_readb(const struct flashctx *flash,
-				   const chipaddr addr)
+static uint8_t internal_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return mmio_readb((void *) addr);
 }
 
-static uint16_t internal_chip_readw(const struct flashctx *flash,
-				    const chipaddr addr)
+static uint16_t internal_chip_readw(const struct par_master *par, const chipaddr addr)
 {
 	return mmio_readw((void *) addr);
 }
 
-static uint32_t internal_chip_readl(const struct flashctx *flash,
-				    const chipaddr addr)
+static uint32_t internal_chip_readl(const struct par_master *par, const chipaddr addr)
 {
 	return mmio_readl((void *) addr);
 }
 
-static void internal_chip_readn(const struct flashctx *flash, uint8_t *buf,
+static void internal_chip_readn(const struct par_master *par, uint8_t *buf,
 				const chipaddr addr, size_t len)
 {
 	mmio_readn((void *)addr, buf, len);

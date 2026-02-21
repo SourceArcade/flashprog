@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "platform/pci.h"
@@ -34,8 +33,8 @@ static const struct dev_entry nics_realtek[] = {
 	{0},
 };
 
-static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
-static uint8_t nicrealtek_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void nicrealtek_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t nicrealtek_chip_readb(const struct par_master *, chipaddr);
 static int nicrealtek_shutdown(void *data);
 static const struct par_master par_master_nicrealtek = {
 	.chip_readb	= nicrealtek_chip_readb,
@@ -87,7 +86,7 @@ static int nicrealtek_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_nicrealtek, BUS_PARALLEL, 0, 0, NULL);
 }
 
-static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
+static void nicrealtek_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	/* Output addr and data, set WE to 0, set OE to 1, set CS to 0,
 	 * enable software access.
@@ -101,7 +100,7 @@ static void nicrealtek_chip_writeb(const struct flashctx *flash, uint8_t val, ch
 	     io_base_addr + bios_rom_addr);
 }
 
-static uint8_t nicrealtek_chip_readb(const struct flashctx *flash, const chipaddr addr)
+static uint8_t nicrealtek_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	uint8_t val;
 

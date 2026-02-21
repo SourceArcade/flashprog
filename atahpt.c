@@ -16,7 +16,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "platform/pci.h"
@@ -38,10 +37,8 @@ static const struct dev_entry ata_hpt[] = {
 	{0},
 };
 
-static void atahpt_chip_writeb(const struct flashctx *flash, uint8_t val,
-			       chipaddr addr);
-static uint8_t atahpt_chip_readb(const struct flashctx *flash,
-				 const chipaddr addr);
+static void atahpt_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t atahpt_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_atahpt = {
 	.chip_readb	= atahpt_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -77,15 +74,13 @@ static int atahpt_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_atahpt, BUS_PARALLEL, 0, 0, NULL);
 }
 
-static void atahpt_chip_writeb(const struct flashctx *flash, uint8_t val,
-			       chipaddr addr)
+static void atahpt_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	OUTB(val, io_base_addr + BIOS_ROM_DATA);
 }
 
-static uint8_t atahpt_chip_readb(const struct flashctx *flash,
-				 const chipaddr addr)
+static uint8_t atahpt_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	return INB(io_base_addr + BIOS_ROM_DATA);

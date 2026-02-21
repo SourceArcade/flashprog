@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "platform/pci.h"
@@ -52,10 +51,8 @@ static const struct dev_entry nics_3com[] = {
 	{0},
 };
 
-static void nic3com_chip_writeb(const struct flashctx *flash, uint8_t val,
-				chipaddr addr);
-static uint8_t nic3com_chip_readb(const struct flashctx *flash,
-				  const chipaddr addr);
+static void nic3com_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t nic3com_chip_readb(const struct par_master *, chipaddr);
 static int nic3com_shutdown(void *data);
 static const struct par_master par_master_nic3com = {
 	.chip_readb	= nic3com_chip_readb,
@@ -120,15 +117,13 @@ static int nic3com_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_nic3com, BUS_PARALLEL, 0, 128*KiB, NULL);
 }
 
-static void nic3com_chip_writeb(const struct flashctx *flash, uint8_t val,
-				chipaddr addr)
+static void nic3com_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	OUTB(val, io_base_addr + BIOS_ROM_DATA);
 }
 
-static uint8_t nic3com_chip_readb(const struct flashctx *flash,
-				  const chipaddr addr)
+static uint8_t nic3com_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	OUTL((uint32_t)addr, io_base_addr + BIOS_ROM_ADDR);
 	return INB(io_base_addr + BIOS_ROM_DATA);

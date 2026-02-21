@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
@@ -33,8 +32,8 @@ static const struct dev_entry devs_it8212[] = {
 #define IT8212_MEMMAP_SIZE (128 * 1024)
 #define IT8212_MEMMAP_MASK (IT8212_MEMMAP_SIZE - 1)
 
-static void it8212_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
-static uint8_t it8212_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void it8212_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t it8212_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_it8212 = {
 	.chip_readb	= it8212_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -67,12 +66,12 @@ static int it8212_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_it8212, BUS_PARALLEL, 0, IT8212_MEMMAP_SIZE, NULL);
 }
 
-static void it8212_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
+static void it8212_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	pci_mmio_writeb(val, it8212_bar + (addr & IT8212_MEMMAP_MASK));
 }
 
-static uint8_t it8212_chip_readb(const struct flashctx *flash, const chipaddr addr)
+static uint8_t it8212_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return pci_mmio_readb(it8212_bar + (addr & IT8212_MEMMAP_MASK));
 }

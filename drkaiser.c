@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
@@ -38,10 +37,8 @@ static const struct dev_entry drkaiser_pcidev[] = {
 
 static uint8_t *drkaiser_bar;
 
-static void drkaiser_chip_writeb(const struct flashctx *flash, uint8_t val,
-				 chipaddr addr);
-static uint8_t drkaiser_chip_readb(const struct flashctx *flash,
-				   const chipaddr addr);
+static void drkaiser_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t drkaiser_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_drkaiser = {
 	.chip_readb	= drkaiser_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -77,14 +74,12 @@ static int drkaiser_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_drkaiser, BUS_PARALLEL, 0, 128*KiB, NULL);
 }
 
-static void drkaiser_chip_writeb(const struct flashctx *flash, uint8_t val,
-				 chipaddr addr)
+static void drkaiser_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	pci_mmio_writeb(val, drkaiser_bar + (addr & DRKAISER_MEMMAP_MASK));
 }
 
-static uint8_t drkaiser_chip_readb(const struct flashctx *flash,
-				   const chipaddr addr)
+static uint8_t drkaiser_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return pci_mmio_readb(drkaiser_bar + (addr & DRKAISER_MEMMAP_MASK));
 }

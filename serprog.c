@@ -35,9 +35,7 @@
 #endif
 #include <string.h>
 #include <errno.h>
-#include "flash.h"
 #include "programmer.h"
-#include "chipdrivers.h"
 
 /* According to Serial Flasher Protocol Specification - version 1 */
 #define S_ACK			0x06
@@ -371,12 +369,9 @@ static struct spi_master spi_master_serprog = {
 	.probe_opcode	= default_spi_probe_opcode,
 };
 
-static void serprog_chip_writeb(const struct flashctx *flash, uint8_t val,
-				chipaddr addr);
-static uint8_t serprog_chip_readb(const struct flashctx *flash,
-				  const chipaddr addr);
-static void serprog_chip_readn(const struct flashctx *flash, uint8_t *buf,
-			       const chipaddr addr, size_t len);
+static void serprog_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t serprog_chip_readb(const struct par_master *, chipaddr);
+static void serprog_chip_readn(const struct par_master *, uint8_t *buf, chipaddr, size_t len);
 static void *serprog_map(const char *descr, uintptr_t phys_addr, size_t len);
 static const struct par_master par_master_serprog = {
 	.chip_readb	= serprog_chip_readb,
@@ -877,8 +872,7 @@ static int sp_check_opbuf_usage(int bytes_to_be_added)
 	return 0;
 }
 
-static void serprog_chip_writeb(const struct flashctx *flash, uint8_t val,
-				chipaddr addr)
+static void serprog_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	msg_pspew("%s\n", __func__);
 	if (sp_max_write_n) {
@@ -909,8 +903,7 @@ static void serprog_chip_writeb(const struct flashctx *flash, uint8_t val,
 	}
 }
 
-static uint8_t serprog_chip_readb(const struct flashctx *flash,
-				  const chipaddr addr)
+static uint8_t serprog_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	unsigned char c;
 	unsigned char buf[3];
@@ -954,8 +947,7 @@ static int sp_do_read_n(uint8_t * buf, const chipaddr addr, size_t len)
 }
 
 /* The externally called version that makes sure that max_read_n is obeyed. */
-static void serprog_chip_readn(const struct flashctx *flash, uint8_t * buf,
-			       const chipaddr addr, size_t len)
+static void serprog_chip_readn(const struct par_master *par, uint8_t * buf, const chipaddr addr, size_t len)
 {
 	size_t lenm = len;
 	chipaddr addrm = addr;

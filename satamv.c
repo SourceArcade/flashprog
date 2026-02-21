@@ -17,7 +17,6 @@
 /* Datasheets are not public (yet?) */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "hwaccess_physmap.h"
@@ -39,10 +38,8 @@ static const struct dev_entry satas_mv[] = {
 #define PCI_BAR2_CONTROL		0x00c08
 #define GPIO_PORT_CONTROL		0x104f0
 
-static void satamv_chip_writeb(const struct flashctx *flash, uint8_t val,
-			       chipaddr addr);
-static uint8_t satamv_chip_readb(const struct flashctx *flash,
-				 const chipaddr addr);
+static void satamv_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t satamv_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_satamv = {
 	.chip_readb	= satamv_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -173,15 +170,13 @@ static uint8_t satamv_indirect_chip_readb(const chipaddr addr)
 }
 
 /* FIXME: Prefer direct access to BAR2 if BAR2 is active. */
-static void satamv_chip_writeb(const struct flashctx *flash, uint8_t val,
-			       chipaddr addr)
+static void satamv_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	satamv_indirect_chip_writeb(val, addr);
 }
 
 /* FIXME: Prefer direct access to BAR2 if BAR2 is active. */
-static uint8_t satamv_chip_readb(const struct flashctx *flash,
-				 const chipaddr addr)
+static uint8_t satamv_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return satamv_indirect_chip_readb(addr);
 }

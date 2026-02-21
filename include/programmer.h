@@ -447,14 +447,14 @@ struct par_master {
 
 	uintptr_t rom_base;
 
-	void (*chip_writeb) (const struct flashctx *flash, uint8_t val, chipaddr addr);
-	void (*chip_writew) (const struct flashctx *flash, uint16_t val, chipaddr addr);
-	void (*chip_writel) (const struct flashctx *flash, uint32_t val, chipaddr addr);
-	void (*chip_writen) (const struct flashctx *flash, const uint8_t *buf, chipaddr addr, size_t len);
-	uint8_t (*chip_readb) (const struct flashctx *flash, const chipaddr addr);
-	uint16_t (*chip_readw) (const struct flashctx *flash, const chipaddr addr);
-	uint32_t (*chip_readl) (const struct flashctx *flash, const chipaddr addr);
-	void (*chip_readn) (const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
+	void (*chip_writeb) (const struct par_master *, uint8_t val, chipaddr addr);
+	void (*chip_writew) (const struct par_master *, uint16_t val, chipaddr addr);
+	void (*chip_writel) (const struct par_master *, uint32_t val, chipaddr addr);
+	void (*chip_writen) (const struct par_master *, const uint8_t *buf, chipaddr addr, size_t len);
+	uint8_t (*chip_readb) (const struct par_master *, const chipaddr addr);
+	uint16_t (*chip_readw) (const struct par_master *, const chipaddr addr);
+	uint32_t (*chip_readl) (const struct par_master *, const chipaddr addr);
+	void (*chip_readn) (const struct par_master *, uint8_t *buf, const chipaddr addr, size_t len);
 
 	void *(*map_flash) (const char *descr, uintptr_t phys_addr, size_t len);
 	void (*unmap_flash) (void *virt_addr, size_t len);
@@ -467,12 +467,12 @@ int register_par_master(const struct par_master *mst, const enum chipbustype bus
 /* programmer.c */
 void *fallback_map(const char *descr, uintptr_t phys_addr, size_t len);
 void fallback_unmap(void *virt_addr, size_t len);
-void fallback_chip_writew(const struct flashctx *flash, uint16_t val, chipaddr addr);
-void fallback_chip_writel(const struct flashctx *flash, uint32_t val, chipaddr addr);
-void fallback_chip_writen(const struct flashctx *flash, const uint8_t *buf, chipaddr addr, size_t len);
-uint16_t fallback_chip_readw(const struct flashctx *flash, const chipaddr addr);
-uint32_t fallback_chip_readl(const struct flashctx *flash, const chipaddr addr);
-void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipaddr addr, size_t len);
+void fallback_chip_writew(const struct par_master *, uint16_t val, chipaddr);
+void fallback_chip_writel(const struct par_master *, uint32_t val, chipaddr);
+void fallback_chip_writen(const struct par_master *, const uint8_t *buf, chipaddr, size_t len);
+uint16_t fallback_chip_readw(const struct par_master *, chipaddr);
+uint32_t fallback_chip_readl(const struct par_master *, chipaddr);
+void fallback_chip_readn(const struct par_master *, uint8_t *buf, chipaddr, size_t len);
 #define DEFAULT_MAX_DECODE_PARALLEL (16*MiB)
 #define MAX_ROM_DECODE_UNLIMITED UINT32_MAX
 struct registered_master {

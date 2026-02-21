@@ -30,53 +30,50 @@ void fallback_unmap(void *virt_addr, size_t len)
 }
 
 /* Little-endian fallback for drivers not supporting 16 bit accesses */
-void fallback_chip_writew(const struct flashctx *flash, uint16_t val,
-			  chipaddr addr)
+void fallback_chip_writew(const struct par_master *par, uint16_t val, chipaddr addr)
 {
-	chip_writeb(flash, val & 0xff, addr);
-	chip_writeb(flash, (val >> 8) & 0xff, addr + 1);
+	par->chip_writeb(par, val & 0xff, addr);
+	par->chip_writeb(par, (val >> 8) & 0xff, addr + 1);
 }
 
 /* Little-endian fallback for drivers not supporting 16 bit accesses */
-uint16_t fallback_chip_readw(const struct flashctx *flash, const chipaddr addr)
+uint16_t fallback_chip_readw(const struct par_master *par, const chipaddr addr)
 {
 	uint16_t val;
-	val = chip_readb(flash, addr);
-	val |= chip_readb(flash, addr + 1) << 8;
+	val = par->chip_readb(par, addr);
+	val |= par->chip_readb(par, addr + 1) << 8;
 	return val;
 }
 
 /* Little-endian fallback for drivers not supporting 32 bit accesses */
-void fallback_chip_writel(const struct flashctx *flash, uint32_t val,
-			  chipaddr addr)
+void fallback_chip_writel(const struct par_master *par, uint32_t val, chipaddr addr)
 {
-	chip_writew(flash, val & 0xffff, addr);
-	chip_writew(flash, (val >> 16) & 0xffff, addr + 2);
+	par->chip_writew(par, val & 0xffff, addr);
+	par->chip_writew(par, (val >> 16) & 0xffff, addr + 2);
 }
 
 /* Little-endian fallback for drivers not supporting 32 bit accesses */
-uint32_t fallback_chip_readl(const struct flashctx *flash, const chipaddr addr)
+uint32_t fallback_chip_readl(const struct par_master *par, const chipaddr addr)
 {
 	uint32_t val;
-	val = chip_readw(flash, addr);
-	val |= chip_readw(flash, addr + 2) << 16;
+	val = par->chip_readw(par, addr);
+	val |= par->chip_readw(par, addr + 2) << 16;
 	return val;
 }
 
-void fallback_chip_writen(const struct flashctx *flash, const uint8_t *buf, chipaddr addr, size_t len)
+void fallback_chip_writen(const struct par_master *par, const uint8_t *buf, chipaddr addr, size_t len)
 {
 	size_t i;
 	for (i = 0; i < len; i++)
-		chip_writeb(flash, buf[i], addr + i);
+		par->chip_writeb(par, buf[i], addr + i);
 	return;
 }
 
-void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf,
-			 chipaddr addr, size_t len)
+void fallback_chip_readn(const struct par_master *par, uint8_t *buf, chipaddr addr, size_t len)
 {
 	size_t i;
 	for (i = 0; i < len; i++)
-		buf[i] = chip_readb(flash, addr + i);
+		buf[i] = par->chip_readb(par, addr + i);
 	return;
 }
 

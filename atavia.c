@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "flash.h"
 #include "programmer.h"
 #include "platform/pci.h"
 
@@ -54,8 +53,8 @@ static const struct dev_entry ata_via[] = {
 	{0},
 };
 
-static void atavia_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
-static uint8_t atavia_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void atavia_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t atavia_chip_readb(const struct par_master *, chipaddr);
 static void *atavia_map(const char *descr, uintptr_t phys_addr, size_t len);
 static const struct par_master lpc_master_atavia = {
 	.chip_readb	= atavia_chip_readb,
@@ -162,7 +161,7 @@ static int atavia_init(struct flashprog_programmer *const prog)
 	return register_par_master(&lpc_master_atavia, BUS_LPC, 0, 0, NULL);
 }
 
-static void atavia_chip_writeb(const struct flashctx *flash, uint8_t val, const chipaddr addr)
+static void atavia_chip_writeb(const struct par_master *par, uint8_t val, const chipaddr addr)
 {
 	msg_pspew("%s: 0x%02x to 0x%*" PRIxPTR ".\n", __func__, val, PRIxPTR_WIDTH, addr);
 	pci_write_long(dev, BROM_ADDR, (addr & ~3));
@@ -174,7 +173,7 @@ static void atavia_chip_writeb(const struct flashctx *flash, uint8_t val, const 
 	}
 }
 
-static uint8_t atavia_chip_readb(const struct flashctx *flash, const chipaddr addr)
+static uint8_t atavia_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	pci_write_long(dev, BROM_ADDR, (addr & ~3));
 	pci_write_byte(dev, BROM_ACCESS, BROM_TRIGGER | ENABLE_BYTE(addr));

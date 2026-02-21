@@ -17,7 +17,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
@@ -60,10 +59,8 @@ static const struct dev_entry gfx_nvidia[] = {
 	{0},
 };
 
-static void gfxnvidia_chip_writeb(const struct flashctx *flash, uint8_t val,
-				  chipaddr addr);
-static uint8_t gfxnvidia_chip_readb(const struct flashctx *flash,
-				    const chipaddr addr);
+static void gfxnvidia_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t gfxnvidia_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_gfxnvidia = {
 	.chip_readb	= gfxnvidia_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -105,14 +102,12 @@ static int gfxnvidia_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_gfxnvidia, BUS_PARALLEL, 0, 0, NULL);
 }
 
-static void gfxnvidia_chip_writeb(const struct flashctx *flash, uint8_t val,
-				  chipaddr addr)
+static void gfxnvidia_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	pci_mmio_writeb(val, nvidia_bar + (addr & GFXNVIDIA_MEMMAP_MASK));
 }
 
-static uint8_t gfxnvidia_chip_readb(const struct flashctx *flash,
-				    const chipaddr addr)
+static uint8_t gfxnvidia_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return pci_mmio_readb(nvidia_bar + (addr & GFXNVIDIA_MEMMAP_MASK));
 }

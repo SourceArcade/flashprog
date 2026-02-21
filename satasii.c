@@ -38,8 +38,8 @@ static const struct dev_entry satas_sii[] = {
 	{0},
 };
 
-static void satasii_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
-static uint8_t satasii_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void satasii_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t satasii_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_satasii = {
 	.chip_readb	= satasii_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -101,7 +101,7 @@ static int satasii_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_satasii, BUS_PARALLEL, 0, 0, NULL);
 }
 
-static void satasii_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
+static void satasii_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	uint32_t data_reg;
 	uint32_t ctrl_reg = satasii_wait_done();
@@ -117,7 +117,7 @@ static void satasii_chip_writeb(const struct flashctx *flash, uint8_t val, chipa
 	satasii_wait_done();
 }
 
-static uint8_t satasii_chip_readb(const struct flashctx *flash, const chipaddr addr)
+static uint8_t satasii_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	uint32_t ctrl_reg = satasii_wait_done();
 

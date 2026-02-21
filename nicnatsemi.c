@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "platform/pci.h"
@@ -33,10 +32,8 @@ static const struct dev_entry nics_natsemi[] = {
 	{0},
 };
 
-static void nicnatsemi_chip_writeb(const struct flashctx *flash, uint8_t val,
-				   chipaddr addr);
-static uint8_t nicnatsemi_chip_readb(const struct flashctx *flash,
-				     const chipaddr addr);
+static void nicnatsemi_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t nicnatsemi_chip_readb(const struct par_master *, chipaddr);
 static const struct par_master par_master_nicnatsemi = {
 	.chip_readb	= nicnatsemi_chip_readb,
 	.chip_readw	= fallback_chip_readw,
@@ -73,8 +70,7 @@ static int nicnatsemi_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_nicnatsemi, BUS_PARALLEL, 0, 128*KiB, NULL);
 }
 
-static void nicnatsemi_chip_writeb(const struct flashctx *flash, uint8_t val,
-				   chipaddr addr)
+static void nicnatsemi_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	OUTL((uint32_t)addr & 0x0001FFFF, io_base_addr + BOOT_ROM_ADDR);
 	/*
@@ -88,8 +84,7 @@ static void nicnatsemi_chip_writeb(const struct flashctx *flash, uint8_t val,
 	OUTB(val, io_base_addr + BOOT_ROM_DATA);
 }
 
-static uint8_t nicnatsemi_chip_readb(const struct flashctx *flash,
-				     const chipaddr addr)
+static uint8_t nicnatsemi_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	OUTL(((uint32_t)addr & 0x0001FFFF), io_base_addr + BOOT_ROM_ADDR);
 	/*

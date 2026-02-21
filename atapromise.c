@@ -16,7 +16,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "flash.h"
 #include "programmer.h"
 #include "hwaccess_x86_io.h"
 #include "hwaccess_physmap.h"
@@ -53,8 +52,8 @@ static const struct dev_entry ata_promise[] = {
 	{0},
 };
 
-static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
-static uint8_t atapromise_chip_readb(const struct flashctx *flash, const chipaddr addr);
+static void atapromise_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
+static uint8_t atapromise_chip_readb(const struct par_master *, chipaddr);
 static void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len);
 
 static const struct par_master par_master_atapromise = {
@@ -116,7 +115,7 @@ static int atapromise_init(struct flashprog_programmer *const prog)
 	return register_par_master(&par_master_atapromise, BUS_PARALLEL, 0, rom_size, NULL);
 }
 
-static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
+static void atapromise_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
 {
 	uint32_t data;
 
@@ -124,7 +123,7 @@ static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, ch
 	OUTL(data, io_base_addr + 0x14);
 }
 
-static uint8_t atapromise_chip_readb(const struct flashctx *flash, const chipaddr addr)
+static uint8_t atapromise_chip_readb(const struct par_master *par, const chipaddr addr)
 {
 	return pci_mmio_readb(atapromise_bar + (addr & ADDR_MASK));
 }
