@@ -466,34 +466,20 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 	return 0;
 }
 
-static int edi_shutdown(void *data)
+static void edi_finish(struct flashctx *flash)
 {
-	const struct spi_master *const spi = data;
-	int rc;
+	const struct spi_master *const spi = flash->mst.spi;
 
-	if (data == NULL)
-		return -1;
-
-	rc = edi_8051_execute(spi);
-	if (rc < 0) {
+	if (edi_8051_execute(spi) < 0)
 		msg_perr("%s: Unable to execute 8051!\n", __func__);
-		return -1;
-	}
 
-	rc = edi_disable(spi);
-	if (rc < 0) {
+	if (edi_disable(spi) < 0)
 		msg_perr("%s: Unable to disable EDI!\n", __func__);
-		return -1;
-	}
-
-	return 0;
 }
 
 int edi_probe_kb9012(struct flashctx *flash)
 {
 	const struct spi_master *const spi = flash->mst.spi;
-	int probe;
-	int rc;
 	unsigned char hwversion;
 
 	/*
@@ -507,17 +493,22 @@ int edi_probe_kb9012(struct flashctx *flash)
 	 */
 	edi_read(spi, ENE_EC_HWVERSION, &hwversion);
 
-	probe = edi_chip_probe(spi, &ene_kb9012);
-	if (!probe)
+	return edi_chip_probe(spi, &ene_kb9012);
+}
+
+int edi_prepare(struct flashctx *flash, enum preparation_steps step)
+{
+	int rc;
+
+	if (step < PREPARE_FULL)
 		return 0;
 
-	rc = edi_8051_reset(spi);
+	rc = edi_8051_reset(flash->mst.spi);
 	if (rc < 0) {
 		msg_perr("%s: Unable to reset 8051!\n", __func__);
-		return 0;
+		return rc;
 	}
 
-	register_shutdown(edi_shutdown, (void *)spi);
-
-	return 1;
+	flash->chip->finish_access = edi_finish;
+	return 0;
 }

@@ -25,5 +25,6 @@ int edi_chip_block_erase(struct flashprog_flashctx *, unsigned int page, unsigne
 int edi_chip_write(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 int edi_chip_read(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
 int edi_probe_kb9012(struct flashprog_flashctx *);
+int edi_prepare(struct flashprog_flashctx *, enum preparation_steps);
 
 #endif /* !__CHIPDRIVERS_EDI_H__ */
