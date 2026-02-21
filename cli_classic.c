@@ -170,14 +170,23 @@ _free_ret:
 }
 
 /* Returns true if the flash chip cannot be completely accessed due to size/address limits of the programmer. */
-static bool max_decode_exceeded(const struct flashctx *const flash)
+static bool max_decode_exceeded(const struct flashctx *const flash, const bool force)
 {
 	if (flashprog_flash_getsize(flash) <= flash->mst.common->max_rom_decode)
 		return false;
 
 	msg_pdbg("Chip size %u kB is bigger than supported size %zu kB of\n"
-		 "chipset/board/programmer for memory-mapped interface, probe/read/erase/write\n"
-		 "may fail.\n", flash->chip->total_size, flash->mst.common->max_rom_decode / KiB);
+		 "chipset/board/programmer for memory-mapped interface.\n",
+		 flash->chip->total_size, flash->mst.common->max_rom_decode / KiB);
+
+	if (!force) {
+		msg_cerr("This flash chip is too big for this programmer (--verbose/-V gives details).\n"
+			 "Use --force/-f to override at your own risk. Any write may erase the whole\n"
+			 "chip and leave the unwritten area in erased state! You have been warned.\n");
+	} else {
+		msg_cwarn("This flash chip is too big for this programmer. Any write may erase the whole\n"
+			  "chip and leave the unwritten area in erased state!\n");
+	}
 	return true;
 }
 
@@ -529,11 +538,11 @@ int flashprog_classic_main(int argc, char *argv[])
 
 	print_chip_support_status(fill_flash->chip);
 
-	if (max_decode_exceeded(fill_flash) && !force) {
-		msg_cerr("This flash chip is too big for this programmer (--verbose/-V gives details).\n"
-			 "Use --force/-f to override at your own risk.\n");
-		ret = 1;
-		goto out_shutdown;
+	if (max_decode_exceeded(fill_flash, force)) {
+		if (!force || flashprog_limit_chip(fill_flash)) {
+			ret = 1;
+			goto out_shutdown;
+		}
 	}
 
 	if (!(read_it | write_it | verify_it | erase_it | flash_name | flash_size)) {

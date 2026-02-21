@@ -18,7 +18,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "flash.h"
+#include "programmer.h"
 
 /* Check if raw data is all 0 or all 1. */
 bool flashprog_no_data(const void *const raw_data, const size_t len)
@@ -57,6 +59,43 @@ int flashprog_read_chunked(struct flashctx *const flash, uint8_t *dst, unsigned 
 		flashprog_progress_add(flash, to_read);
 	}
 	return 0;
+}
+
+int flashprog_limit_chip(struct flashctx *flash)
+{
+	const chipsize_t limit = flash->mst.common->max_rom_decode;
+	struct flashchip *const chip = flash->chip;
+	const chipsize_t chip_size = chip->total_size * 1024;
+	unsigned int usable_erasers = 0;
+	unsigned int i;
+
+
+	/* Chip is small enough or already limited. */
+	if (chip_size <= limit)
+		return 0;
+
+	/* Undefine all block_erasers that don't operate on the whole chip,
+	   and adjust the eraseblock size of those which do. */
+	for (i = 0; i < NUM_ERASEFUNCTIONS; ++i) {
+		if (chip->block_erasers[i].eraseblocks[0].size != chip_size) {
+			chip->block_erasers[i].eraseblocks[0].count = 0;
+			chip->block_erasers[i].block_erase = NULL;
+		} else {
+			chip->block_erasers[i].eraseblocks[0].size = limit;
+			usable_erasers++;
+		}
+	}
+
+	if (usable_erasers) {
+		chip->total_size = limit / 1024;
+		if (chip->page_size > limit)
+			chip->page_size = limit;
+		return 0;
+	} else {
+		msg_pdbg("Failed to adjust size of chip \"%s\" (%d kB).\n",
+			 chip->name, chip->total_size);
+		return -1;
+	}
 }
 
 /* Returns the minimum number of bits needed to represent the given address.

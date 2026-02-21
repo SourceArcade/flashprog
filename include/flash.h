@@ -524,6 +524,7 @@ void print_supported_wiki(void);
 /* helpers.c */
 bool flashprog_no_data(const void *raw_data, size_t);
 int flashprog_read_chunked(struct flashctx *, uint8_t *dst, unsigned int start, unsigned int len, unsigned int chunksize, readfunc_t *);
+int flashprog_limit_chip(struct flashctx *);
 uint32_t address_to_bits(uint32_t addr);
 unsigned int bitcount(unsigned long a);
 #undef MIN

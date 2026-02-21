@@ -75,39 +75,6 @@ static void *atapromise_map(const char *descr, uintptr_t phys_addr, size_t len)
 	return NULL;
 }
 
-static void atapromise_limit_chip(struct flashchip *chip)
-{
-	unsigned int i, size;
-	unsigned int usable_erasers = 0;
-
-	size = chip->total_size * 1024;
-
-	/* Chip is small enough or already limited. */
-	if (size <= rom_size)
-		return;
-
-	/* Undefine all block_erasers that don't operate on the whole chip,
-	 * and adjust the eraseblock size of those which do.
-	 */
-	for (i = 0; i < NUM_ERASEFUNCTIONS; ++i) {
-		if (chip->block_erasers[i].eraseblocks[0].size != size) {
-			chip->block_erasers[i].eraseblocks[0].count = 0;
-			chip->block_erasers[i].block_erase = NULL;
-		} else {
-			chip->block_erasers[i].eraseblocks[0].size = rom_size;
-			usable_erasers++;
-		}
-	}
-
-	if (usable_erasers) {
-		chip->total_size = rom_size / 1024;
-		if (chip->page_size > rom_size)
-			chip->page_size = rom_size;
-	} else {
-		msg_pdbg("Failed to adjust size of chip \"%s\" (%d kB).\n", chip->name, chip->total_size);
-	}
-}
-
 static int atapromise_init(struct flashprog_programmer *const prog)
 {
 	struct pci_dev *dev = NULL;
@@ -153,14 +120,12 @@ static void atapromise_chip_writeb(const struct flashctx *flash, uint8_t val, ch
 {
 	uint32_t data;
 
-	atapromise_limit_chip(flash->chip);
 	data = (rom_base_addr + (addr & ADDR_MASK)) << 8 | val;
 	OUTL(data, io_base_addr + 0x14);
 }
 
 static uint8_t atapromise_chip_readb(const struct flashctx *flash, const chipaddr addr)
 {
-	atapromise_limit_chip(flash->chip);
 	return pci_mmio_readb(atapromise_bar + (addr & ADDR_MASK));
 }
 
