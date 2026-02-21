@@ -49,6 +49,7 @@ enum id_type {
 struct id_info {
 	union {
 		uint32_t manufacture;
+		uint32_t hwversion;
 		uint32_t id1;
 	};
 	union {

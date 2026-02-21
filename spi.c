@@ -22,6 +22,7 @@
 #include <string.h>
 #include "flash.h"
 #include "flashchips.h"
+#include "chipdrivers/edi.h"
 #include "chipdrivers/spi.h"
 #include "chipdrivers/probing.h"
 #include "programmer.h"
@@ -173,6 +174,7 @@ static const struct bus_probe spi_probes[] = {
 	{ 0, ID_SPI_SFDP,	probe_spi_sfdp,		NULL },
 	{ 1, ID_SPI_ST95,	probe_spi_st95,		(void *)(uintptr_t)3 },
 	{ 1, ID_SPI_ST95,	probe_spi_st95,		(void *)(uintptr_t)2 },
+	{ 2, ID_EDI,		probe_edi,		NULL },
 };
 
 static bool spi_probe_match(const struct flashchip *chip, const struct id_info_ext *found)

@@ -24,11 +24,6 @@
 
 static unsigned int edi_read_buffer_length = EDI_READ_BUFFER_LENGTH_DEFAULT;
 
-static const struct ene_chip ene_kb9012 = {
-	.hwversion = ENE_KB9012_HWVERSION,
-	.ediid = ENE_KB9012_EDIID,
-};
-
 static void edi_write_cmd(unsigned char *cmd, unsigned short address, unsigned char data)
 {
 	cmd[0] = EDI_WRITE; /* EDI write command. */
@@ -146,7 +141,7 @@ static int edi_disable(const struct spi_master *spi)
 	return 0;
 }
 
-static int edi_chip_probe(const struct spi_master *spi, const struct ene_chip *chip)
+static struct found_id *edi_chip_probe(const struct spi_master *spi)
 {
 	unsigned char hwversion;
 	unsigned char ediid;
@@ -155,21 +150,30 @@ static int edi_chip_probe(const struct spi_master *spi, const struct ene_chip *c
 	rc = edi_read(spi, ENE_EC_HWVERSION, &hwversion);
 	if (rc < 0) {
 		msg_cdbg("%s: reading hwversion failed\n", __func__);
-		return 0;
+		return NULL;
 	}
 
 	rc = edi_read(spi, ENE_EC_EDIID, &ediid);
 	if (rc < 0) {
 		msg_cdbg("%s: reading ediid failed\n", __func__);
-		return 0;
+		return NULL;
 	}
+
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	struct id_info *const id = &found->info.id;
+
+	id->hwversion	= hwversion;
+	id->model	= ediid;
+	id->type	= ID_EDI;
 
 	msg_cdbg("%s: hwversion 0x%02x, ediid 0x%02x\n", __func__, hwversion, ediid);
 
-	if (chip->hwversion == hwversion && chip->ediid == ediid)
-		return 1;
-
-	return 0;
+	return found;
 }
 
 static int edi_spi_enable(const struct spi_master *spi)
@@ -477,9 +481,9 @@ static void edi_finish(struct flashctx *flash)
 		msg_perr("%s: Unable to disable EDI!\n", __func__);
 }
 
-int edi_probe_kb9012(struct flashctx *flash)
+struct found_id *probe_edi(const struct bus_probe *probe, const struct master_common *mst)
 {
-	const struct spi_master *const spi = flash->mst.spi;
+	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char hwversion;
 
 	/*
@@ -493,7 +497,7 @@ int edi_probe_kb9012(struct flashctx *flash)
 	 */
 	edi_read(spi, ENE_EC_HWVERSION, &hwversion);
 
-	return edi_chip_probe(spi, &ene_kb9012);
+	return edi_chip_probe(spi);
 }
 
 int edi_prepare(struct flashctx *flash, enum preparation_steps step)

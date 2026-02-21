@@ -18,6 +18,7 @@
  * GNU General Public License for more details.
  */
 
+#include "ene.h"
 #include "flash.h"
 #include "flashchips.h"
 #include "chipdrivers.h"
@@ -4187,12 +4188,14 @@ const struct flashchip flashchips[] = {
 		.name		= "KB9012 (EDI)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_EDI,
+		.id.hwversion	= ENE_KB9012_HWVERSION,
+		.id.model	= ENE_KB9012_EDIID,
 		.total_size	= 128,
 		.page_size	= 128,
 		.feature_bits	= FEATURE_ERASED_ZERO,
 		.tested		= TEST_OK_PREW,
 		.spi_cmd_set	= SPI_EDI,
-		.probe		= edi_probe_kb9012,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{

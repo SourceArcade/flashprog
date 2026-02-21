@@ -43,9 +43,4 @@
 #define ENE_KB9012_HWVERSION		0xc3
 #define ENE_KB9012_EDIID		0x04
 
-struct ene_chip {
-	unsigned char hwversion;
-	unsigned char ediid;
-};
-
 #endif

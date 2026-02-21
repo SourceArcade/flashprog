@@ -20,11 +20,14 @@
 #include <stdint.h>
 
 struct flashprog_flashctx;
+struct master_common;
+struct bus_probe;
+
+struct found_id *probe_edi(const struct bus_probe *, const struct master_common *);
 
 int edi_chip_block_erase(struct flashprog_flashctx *, unsigned int page, unsigned int size);
 int edi_chip_write(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 int edi_chip_read(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
-int edi_probe_kb9012(struct flashprog_flashctx *);
 int edi_prepare(struct flashprog_flashctx *, enum preparation_steps);
 
 #endif /* !__CHIPDRIVERS_EDI_H__ */
