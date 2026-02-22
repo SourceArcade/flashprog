@@ -32,7 +32,7 @@
 #include "flashchips.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "version.h"
 
 const char flashprog_version[] = FLASHPROG_VERSION;

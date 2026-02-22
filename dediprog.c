@@ -23,7 +23,7 @@
 #include <errno.h>
 #include <libusb.h>
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "programmer.h"
 #include "spi.h"
 #include "spi_command.h"

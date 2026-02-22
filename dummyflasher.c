@@ -22,8 +22,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "programmer.h"
 
 #include "spi.h"

@@ -21,7 +21,7 @@
 
 #include "flash.h"
 #include "libflashprog.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "writeprotect.h"
 
 /** Read and extract a single bit from the chip's registers */

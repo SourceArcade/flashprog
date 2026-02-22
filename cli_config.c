@@ -24,7 +24,7 @@
 #include <unistd.h>
 
 #include "libflashprog.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "flash.h"
 #include "cli.h"
 

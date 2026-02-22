@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "hwaccess_x86_io.h"

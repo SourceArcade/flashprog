@@ -488,6 +488,22 @@ struct flashprog_flashctx {
 extern const struct flashchip flashchips[];
 extern const unsigned int flashchips_size;
 
+enum wrsr_target {
+	WRSR_VOLATILE_BITS	= 1,
+	WRSR_NON_VOLATILE_BITS	= 2,
+	WRSR_EITHER		= 3,
+};
+static inline enum wrsr_target default_wrsr_target(const struct flashprog_flashctx *flash)
+{
+	return flash->flags.non_volatile_wrsr ? WRSR_NON_VOLATILE_BITS : WRSR_VOLATILE_BITS;
+}
+
+/* spi.c */
+const uint8_t *spi_get_opcode_from_erasefn(erasefunc_t *, bool *native_4ba);
+
+/* spi25.c */
+erasefunc_t *spi25_get_erasefn_from_opcode(uint8_t opcode);
+
 /* parallel.c */
 void chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr);
 void chip_writew(const struct flashctx *flash, uint16_t val, chipaddr addr);

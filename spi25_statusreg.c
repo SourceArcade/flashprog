@@ -18,7 +18,7 @@
  */
 
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "spi_command.h"
 #include "spi.h"
 

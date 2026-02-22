@@ -22,7 +22,7 @@
 #include <string.h>
 #include "flash.h"
 #include "flashchips.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 #include "programmer.h"
 #include "spi_command.h"
 #include "spi.h"

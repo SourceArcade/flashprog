@@ -14,8 +14,9 @@
  * GNU General Public License for more details.
  */
 
+#include "flash.h"
 #include "writeprotect.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 
 static void decode_range_generic(size_t *start, size_t *len, const struct wp_bits *bits, size_t chip_len,
 				 bool fixed_block_len, bool apply_cmp_to_bp, int coeff_offset)

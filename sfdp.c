@@ -19,7 +19,7 @@
 #include "flash.h"
 #include "spi_command.h"
 #include "spi.h"
-#include "chipdrivers.h"
+#include "chipdrivers/spi.h"
 
 static int spi_sfdp_read_sfdp_chunk(struct flashctx *flash, uint32_t address, uint8_t *buf, int len)
 {
