@@ -72,6 +72,7 @@ struct flashprog_chip;
 struct master_common;
 
 struct bus_probe {
+	unsigned int priority;
 	enum id_type type;
 	struct found_id *(*run)(const struct bus_probe *, const struct master_common *);
 	void *arg;

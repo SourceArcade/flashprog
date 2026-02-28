@@ -625,22 +625,39 @@ static int init_default_layout(struct flashctx *flash)
 
 static void probe_bus(struct registered_master *const mst, const enum id_type type)
 {
+	unsigned int least_priority, priority, i;
 	struct found_id **next_ptr;
-	unsigned int i;
 
 	if (mst->probed)
 		return;
 
+	for (i = 0, least_priority = 0; i < mst->probing.probe_count; ++i) {
+		if (least_priority < mst->probing.probes[i].priority)
+			least_priority = mst->probing.probes[i].priority;
+	}
+
 	next_ptr = &mst->found_ids;
-	for (i = 0; i < mst->probing.probe_count; ++i) {
-		if (type && type != mst->probing.probes[i].type)
-			continue;
+	for (priority = 0; priority <= least_priority; ++priority) {
+		bool found = false;
 
-		*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common);
+		for (i = 0; i < mst->probing.probe_count; ++i) {
+			if (mst->probing.probes[i].priority != priority)
+				continue;
 
-		/* walk to end in case multiple IDs were found in a single call */
-		while (*next_ptr)
-			next_ptr = &(*next_ptr)->next;
+			if (type && type != mst->probing.probes[i].type)
+				continue;
+
+			*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common);
+			found |= !!*next_ptr;
+
+			/* walk to end in case multiple IDs were found in a single call */
+			while (*next_ptr)
+				next_ptr = &(*next_ptr)->next;
+		}
+
+		/* Skip lower-priority probing if anything was found. */
+		if (found)
+			break;
 	}
 
 	mst->probed = true;
