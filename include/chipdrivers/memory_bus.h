@@ -19,10 +19,13 @@
 #include <stdint.h>
 
 struct flashprog_flashctx;
+struct master_common;
+struct bus_probe;
+struct flashchip;
 
 /* 82802ab.c */
+struct found_id *probe_82802ab(const struct bus_probe *, const struct master_common *, const struct flashchip *);
 uint8_t wait_82802ab(struct flashprog_flashctx *);
-int probe_82802ab(struct flashprog_flashctx *);
 int erase_block_82802ab(struct flashprog_flashctx *, unsigned int page, unsigned int pagesize);
 int write_82802ab(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 void print_status_82802ab(uint8_t status);

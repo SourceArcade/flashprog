@@ -23,7 +23,10 @@
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+
 #include "flash.h"
+#include "programmer.h"
 #include "chipdrivers/memory_bus.h"
 
 void print_status_82802ab(uint8_t status)
@@ -37,50 +40,94 @@ void print_status_82802ab(uint8_t status)
 	msg_cdbg("%s", status & 0x2 ? "WP|TBL#|WP#,ABORT:" : "UNLOCK:");
 }
 
-int probe_82802ab(struct flashctx *flash)
+static struct found_id *probe_82802ab_generic(
+		const struct par_master *par,
+		chipsize_t chip_size, feature_bits_t chip_features)
 {
-	chipaddr bios = flash->virtual_memory;
-	uint8_t id1, id2, flashcontent1, flashcontent2;
-	int shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED) ? 1 : 0;
+	const unsigned int addr_shift = chip_features & FEATURE_ADDR_SHIFTED ? 1 : 0;
+	uint8_t raw[2], flashcontent1, flashcontent2;
+
+	const chipaddr bios = (chipaddr)programmer_map_flash_data(par, chip_size, "");
+	if (bios == (chipaddr)ERROR_PTR)
+		return NULL;
 
 	/* Reset to get a clean state */
-	chip_writeb(flash, 0xFF, bios);
+	par->chip_writeb(par, 0xFF, bios);
 	programmer_delay(10);
 
 	/* Enter ID mode */
-	chip_writeb(flash, 0x90, bios);
+	par->chip_writeb(par, 0x90, bios);
 	programmer_delay(10);
 
-	id1 = chip_readb(flash, bios + (0x00 << shifted));
-	id2 = chip_readb(flash, bios + (0x01 << shifted));
+	raw[0] = par->chip_readb(par, bios + (0x00 << addr_shift));
+	raw[1] = par->chip_readb(par, bios + (0x01 << addr_shift));
 
 	/* Leave ID mode */
-	chip_writeb(flash, 0xFF, bios);
+	par->chip_writeb(par, 0xFF, bios);
 
 	programmer_delay(10);
-
-	msg_cdbg("%s: id1 0x%02x, id2 0x%02x", __func__, id1, id2);
-
-	if (!oddparity(id1))
-		msg_cdbg(", id1 parity violation");
 
 	/*
 	 * Read the product ID location again. We should now see normal
 	 * flash contents.
 	 */
-	flashcontent1 = chip_readb(flash, bios + (0x00 << shifted));
-	flashcontent2 = chip_readb(flash, bios + (0x01 << shifted));
+	flashcontent1 = par->chip_readb(par, bios + (0x00 << addr_shift));
+	flashcontent2 = par->chip_readb(par, bios + (0x01 << addr_shift));
 
-	if (id1 == flashcontent1)
+	programmer_unmap_flash_region(par, (void *)bios, chip_size);
+
+	if (flashprog_no_data(raw, sizeof(raw)))
+		return NULL;
+
+	msg_cdbg("%s (%uKiB, features: 0x%02x): id1 0x%02x, id2 0x%02x",
+		 __func__, chip_size / KiB, chip_features, raw[0], raw[1]);
+
+	if (!oddparity(raw[0]))
+		msg_cdbg(", id1 parity violation");
+
+	if (raw[0] == flashcontent1)
 		msg_cdbg(", id1 is normal flash content");
-	if (id2 == flashcontent2)
+	if (raw[1] == flashcontent2)
 		msg_cdbg(", id2 is normal flash content");
-
 	msg_cdbg("\n");
-	if (id1 != flash->chip->id.manufacture || id2 != flash->chip->id.model)
-		return 0;
 
-	return 1;
+	struct memory_found_id *const found = alloc_memory_found_id();
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	found->generic.info.id.manufacture	= raw[0];
+	found->generic.info.id.model		= raw[1];
+	found->generic.info.id.type		= ID_82802AB;
+	found->memory_info.chip_size		= chip_size;
+	found->memory_info.chip_features	= chip_features;
+
+	return &found->generic;
+}
+
+struct found_id *probe_82802ab(const struct bus_probe *probe,
+			       const struct master_common *mst,
+			       const struct flashchip *chip)
+{
+	const struct par_master *const par = (const struct par_master *)mst;
+	struct found_id *ids = NULL, **next_ptr = &ids;
+	chipsize_t chip_size;
+
+	if (chip)
+		return probe_82802ab_generic(par, chip->total_size * KiB, chip->feature_bits);
+
+	for (chip_size = 256*KiB; chip_size <= 2*MiB; chip_size *= 2) {
+		*next_ptr = probe_82802ab_generic(par, chip_size, 0);
+		if (*next_ptr)
+			next_ptr = &(*next_ptr)->next;
+
+		*next_ptr = probe_82802ab_generic(par, chip_size, FEATURE_ADDR_SHIFTED);
+		if (*next_ptr)
+			next_ptr = &(*next_ptr)->next;
+	}
+
+	return ids;
 }
 
 /* FIXME: needs timeout */

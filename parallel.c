@@ -78,6 +78,7 @@ struct memory_found_id *alloc_memory_found_id(void)
 
 static const struct bus_probe memory_probes[] = {
     /* prio. type		function		function argument */
+	{ 0, ID_82802AB,	probe_82802ab,		NULL },
 };
 
 static bool memory_probe_match(const struct flashchip *chip, const struct id_info_ext *found)
