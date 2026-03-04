@@ -108,6 +108,8 @@ size_t gran_to_bytes(enum write_granularity);
 
 #define MAX_CHIP_RESTORE_FUNCTIONS 4
 
+typedef uint32_t feature_bits_t;
+
 /* Feature bits used for non-SPI only */
 #define FEATURE_LONG_RESET	(1 << 0)
 #define FEATURE_SHORT_RESET	(1 << 1)
@@ -255,7 +257,7 @@ struct flashprog_chip {
 	unsigned int total_size;
 	/* Chip page size in bytes */
 	unsigned int page_size;
-	int feature_bits;
+	feature_bits_t feature_bits;
 
 	/* Indicate how well flashprog supports different operations of this flash chip. */
 	struct tested {

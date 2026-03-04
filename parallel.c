@@ -19,8 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "flash.h"
 #include "programmer.h"
+#include "chipdrivers/probing.h"
+#include "chipdrivers/memory_bus.h"
 
 void chip_writeb(const struct flashctx *flash, uint8_t val, chipaddr addr)
 {
@@ -63,6 +68,27 @@ void chip_readn(const struct flashctx *flash, uint8_t *buf, chipaddr addr,
 	flash->mst.par->chip_readn(flash->mst.par, buf, addr, len);
 }
 
+struct memory_found_id *alloc_memory_found_id(void)
+{
+	struct memory_found_id *const found = calloc(1, sizeof(*found));
+	if (found)
+		found->generic.info.ext = &found->memory_info;
+	return found;
+}
+
+static const struct bus_probe memory_probes[] = {
+    /* prio. type		function		function argument */
+};
+
+static bool memory_probe_match(const struct flashprog_chip *chip, const struct id_info_ext *found)
+{
+	const struct memory_chip_info *const probe_info = found->ext;
+
+	return	(memcmp(&found->id, &chip->id, sizeof(chip->id)) == 0) &&
+		(probe_info->chip_size == chip->total_size * KiB) &&
+		(probe_info->chip_features == (probe_info->chip_features & chip->feature_bits));
+}
+
 int register_par_master(const struct par_master *mst, const enum chipbustype buses,
 			const uintptr_t rom_base, const size_t max_rom_decode, void *data)
 {
@@ -85,6 +111,9 @@ int register_par_master(const struct par_master *mst, const enum chipbustype bus
 	}
 
 	rmst.buses_supported = buses;
+	rmst.probing.probe_count = ARRAY_SIZE(memory_probes);
+	rmst.probing.probes = memory_probes;
+	rmst.probing.match = memory_probe_match;
 	rmst.par = *mst;
 
 	rmst.par.rom_base = rom_base;
