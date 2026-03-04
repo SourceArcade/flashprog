@@ -17,7 +17,7 @@
  */
 
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/memory_bus.h"
 
 int erase_sector_49lfxxxc(struct flashctx *flash, unsigned int address,
 			  unsigned int sector_size)

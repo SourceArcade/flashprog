@@ -17,7 +17,7 @@
  */
 
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/memory_bus.h"
 
 #define AUTO_PG_ERASE1		0x20
 #define AUTO_PG_ERASE2		0xD0

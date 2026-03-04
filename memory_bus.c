@@ -20,7 +20,7 @@
 #include "flash.h"
 #include "programmer.h"
 
-#include "chipdrivers.h"
+#include "chipdrivers/memory_bus.h"
 
 static void *programmer_map_flash_region(const struct flashctx *flash, const char *descr,
 					 uintptr_t phys_addr, size_t len)

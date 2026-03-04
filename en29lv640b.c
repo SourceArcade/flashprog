@@ -16,7 +16,7 @@
  */
 
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/memory_bus.h"
 
 /*
  * WARNING!

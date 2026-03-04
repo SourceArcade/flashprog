@@ -24,6 +24,7 @@
 #include "chipdrivers.h"
 #include "chipdrivers/edi.h"
 #include "chipdrivers/spi.h"
+#include "chipdrivers/memory_bus.h"
 #include "writeprotect.h"
 
 /**

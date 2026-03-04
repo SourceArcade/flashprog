@@ -23,7 +23,7 @@
  */
 
 #include "flash.h"
-#include "chipdrivers.h"
+#include "chipdrivers/memory_bus.h"
 
 static int stm50_erase_sector(struct flashctx *flash, unsigned int addr)
 {

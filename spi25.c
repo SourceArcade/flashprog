@@ -24,8 +24,8 @@
 #include <stdbool.h>
 #include "flash.h"
 #include "flashchips.h"
-#include "chipdrivers.h"
 #include "chipdrivers/spi.h"
+#include "chipdrivers/memory_bus.h"
 #include "programmer.h"
 #include "spi_command.h"
 #include "spi.h"
