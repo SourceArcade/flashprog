@@ -83,7 +83,7 @@ int printlock_w39v080fa_dual(struct flashprog_flashctx *);
 int printlock_at49f(struct flashprog_flashctx *);
 
 /* w29ee011.c */
-int probe_w29ee011(struct flashprog_flashctx *);
+struct found_id *probe_w29ee011(const struct bus_probe *, const struct master_common *, const struct flashchip *);
 
 /* stm50.c */
 int erase_sector_stm50(struct flashprog_flashctx *, unsigned int block, unsigned int blocksize);
