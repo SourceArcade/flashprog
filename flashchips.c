@@ -20633,9 +20633,9 @@ const struct flashchip flashchips[] = {
 		.total_size	= 1024,
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
-		.tested		= TEST_OK_PREW,
+		.tested		= {.probe = NT, .read = OK, .erase = OK, .write = OK},
 		.probe		= probe_jedec,
-		.probe_timing	= TIMING_FIXME,
+		.probe_timing	= 1,		/* 150ns */
 		.block_erasers	=
 		{
 			{
