@@ -705,18 +705,6 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashc
 	return !!found_id;
 }
 
-/* wrapper that's used until all probing functions are ported to per-bus probing */
-int probe_buses(struct flashctx *const flash)
-{
-	int i;
-	for (i = 0; i < registered_master_count; ++i) {
-		if (flash->mst.common == &registered_masters[i].common &&
-		    chip_on_bus(&registered_masters[i], flash->chip))
-			return 1;
-	}
-	return 0;
-}
-
 int probe_flash(struct registered_master *mst, int startchip, struct flashctx *flash, int force)
 {
 	const struct flashchip *chip;
@@ -730,10 +718,6 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (!buses_common)
 			continue;
 		msg_gdbg("Probing for %s %s, %d kB: ", chip->vendor, chip->name, chip->total_size);
-		if (!chip->probe && !force) {
-			msg_gdbg("failed! flashprog has no probe function for this flash chip.\n");
-			continue;
-		}
 
 		/* Start filling in the dynamic data. */
 		flash->chip = calloc(1, sizeof(*flash->chip));
@@ -757,7 +741,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (force)
 			break;
 
-		if (flash->chip->probe(flash) != 1)
+		if (!chip_on_bus(mst, flash->chip))
 			goto notfound;
 
 		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_POST_PROBE))

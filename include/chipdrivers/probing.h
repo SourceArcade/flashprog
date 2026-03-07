@@ -84,7 +84,4 @@ struct bus_probing {
 	bool (*match)(const struct flashchip *, const struct id_info_ext *);
 };
 
-struct flashprog_flashctx;
-int probe_buses(struct flashprog_flashctx *);
-
 #endif /* !__PROBING_H__ */

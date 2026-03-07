@@ -280,8 +280,6 @@ struct flashchip {
 		SPI_EDI,
 	} spi_cmd_set;
 
-	int (*probe) (struct flashctx *flash);
-
 	/* Delay after "enter/exit ID mode" commands in microseconds.
 	 * NB: negative values have special meanings, see TIMING_* below.
 	 */
