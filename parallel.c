@@ -78,6 +78,8 @@ struct memory_found_id *alloc_memory_found_id(void)
 
 static const struct bus_probe memory_probes[] = {
     /* prio. type		function		function argument */
+	{ 0, ID_JEDEC,		probe_jedec,		NULL },
+	{ 0, ID_JEDEC_29GL,	probe_jedec_29gl,	NULL },
 	{ 0, ID_82802AB,	probe_82802ab,		NULL },
 	/* Old Winbond W29* probe method w/ low priority because the
 	   probing sequence puts the AMIC A49LF040A in a funky state. */
@@ -90,6 +92,7 @@ static bool memory_probe_match(const struct flashchip *chip, const struct id_inf
 
 	return	(memcmp(&found->id, &chip->id, sizeof(chip->id)) == 0) &&
 		(probe_info->chip_size == chip->total_size * KiB) &&
+		(!probe_info->probe_timing || probe_info->probe_timing == chip->probe_timing) &&
 		(probe_info->chip_features == (probe_info->chip_features & chip->feature_bits));
 }
 

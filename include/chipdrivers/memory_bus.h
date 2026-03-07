@@ -33,11 +33,12 @@ int unlock_28f004s5(struct flashprog_flashctx *);
 int unlock_lh28f008bjt(struct flashprog_flashctx *);
 
 /* jedec.c */
+struct found_id *probe_jedec(const struct bus_probe *, const struct master_common *, const struct flashchip *);
+struct found_id *probe_jedec_29gl(const struct bus_probe *, const struct master_common *, const struct flashchip *);
+
 uint8_t oddparity(uint8_t val);
 void toggle_ready_jedec(const struct flashprog_flashctx *, chipaddr dst);
 void data_polling_jedec(const struct flashprog_flashctx *, chipaddr dst, uint8_t data);
-int probe_jedec(struct flashprog_flashctx *);
-int probe_jedec_29gl(struct flashprog_flashctx *);
 int write_jedec(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 int write_jedec_1(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 int erase_sector_jedec(struct flashprog_flashctx *, unsigned int page, unsigned int pagesize);
@@ -96,6 +97,7 @@ int write_en29lv640b(struct flashprog_flashctx *, const uint8_t *buf, unsigned i
 struct memory_chip_info {
 	chipsize_t chip_size;
 	feature_bits_t chip_features;
+	signed int probe_timing;
 };
 
 struct memory_found_id {

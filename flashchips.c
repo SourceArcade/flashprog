@@ -73,7 +73,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_SHORT_RESET | FEATURE_ADDR_2AA,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -108,7 +108,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_EITHER_RESET | FEATURE_ADDR_2AA,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -143,7 +143,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -173,7 +173,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -203,7 +203,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -233,7 +233,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -263,7 +263,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -293,7 +293,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -323,7 +323,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -353,7 +353,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -387,7 +387,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -421,7 +421,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -456,7 +456,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -491,7 +491,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -526,7 +526,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -561,7 +561,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -596,7 +596,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -631,7 +631,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -661,7 +661,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET, /* datasheet specifies address as don't care */
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -1467,7 +1467,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -1502,7 +1502,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -1537,7 +1537,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -1567,7 +1567,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* routine is wrapper to probe_jedec (pm49fl00x.c) */
 		.block_erasers	=
 		{
@@ -2752,7 +2752,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10000, /* 10mS, Enter=Exec */
 		.block_erasers	=
 		{
@@ -2779,7 +2779,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10000,			/* 10ms */
 		.block_erasers	=
 		{
@@ -2806,7 +2806,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10000,			/* 10 ms */
 		.block_erasers	=
 		{
@@ -2833,7 +2833,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10000, /* 10mS, Enter=Exec */
 		.block_erasers	=
 		{
@@ -3289,7 +3289,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3317,7 +3317,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3344,7 +3344,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3379,7 +3379,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3414,7 +3414,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3448,7 +3448,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,  /* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3482,7 +3482,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,  /* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -3517,7 +3517,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,  /* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -4138,7 +4138,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -4168,7 +4168,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= 0,
 		.tested		= {.probe = OK, .read = OK, .erase = BAD, .write = BAD},
-		.probe		= probe_jedec, /* FIXME! */
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -4391,7 +4391,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -6359,7 +6359,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_ADDR_AAA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -6394,7 +6394,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_ADDR_AAA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -6429,7 +6429,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -6460,7 +6460,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -6493,7 +6493,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -6526,7 +6526,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -6556,7 +6556,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -6585,7 +6585,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 512,
 		.page_size	= 4 * 1024,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -7266,7 +7266,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -7301,7 +7301,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -7337,7 +7337,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -7372,7 +7372,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -7407,7 +7407,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -7442,7 +7442,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -10281,7 +10281,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET, /* Some revisions may need FEATURE_ADDR_2AA */
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO, /* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -10316,7 +10316,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET, /* Some revisions may need FEATURE_ADDR_2AA */
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO, /* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -10351,7 +10351,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -10703,7 +10703,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -10736,7 +10736,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -10766,7 +10766,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -10799,7 +10799,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -11068,7 +11068,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 128,
 		.page_size	= 128 * 1024, /* 8k + 2x4k + 112k */
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -11098,7 +11098,7 @@ const struct flashchip flashchips[] = {
 		.total_size	= 128,
 		.page_size	= 128 * 1024, /* 112k + 2x4k + 8k */
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -12920,7 +12920,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 32 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -12956,7 +12956,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 32 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -12992,7 +12992,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13027,7 +13027,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13062,7 +13062,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13097,7 +13097,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 0, /* unused */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13132,7 +13132,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13162,7 +13162,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13192,7 +13192,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13225,7 +13225,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13255,7 +13255,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13288,7 +13288,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13321,7 +13321,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13351,7 +13351,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13384,7 +13384,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15641,7 +15641,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15671,7 +15671,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15701,7 +15701,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15731,7 +15731,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15761,7 +15761,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15791,7 +15791,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -15821,7 +15821,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -16690,7 +16690,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 8 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_FIXME,
 		.block_erasers	=
 		{
@@ -16725,7 +16725,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 8 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_FIXME,
 		.block_erasers	=
 		{
@@ -16760,7 +16760,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -16793,7 +16793,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -16826,7 +16826,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -16859,7 +16859,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -16892,7 +16892,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* routine is wrapper to probe_jedec (pm49fl00x.c) */
 		.block_erasers	=
 		{
@@ -16926,7 +16926,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -19870,7 +19870,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -19897,7 +19897,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -19924,7 +19924,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -19951,7 +19951,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -19978,7 +19978,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20008,7 +20008,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20038,7 +20038,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20068,7 +20068,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20098,7 +20098,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20128,7 +20128,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20158,7 +20158,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20188,7 +20188,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20221,7 +20221,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20251,7 +20251,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150 ns */
 		.block_erasers	=
 		{
@@ -20286,7 +20286,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150 ns */
 		.block_erasers	=
 		{
@@ -20324,7 +20324,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150 ns */
 		.block_erasers	=
 		{
@@ -20395,7 +20395,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150 ns */
 		.block_erasers	=
 		{
@@ -20502,7 +20502,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20535,7 +20535,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PRE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20568,7 +20568,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,			/* 150 ns */
 		.block_erasers	=
 		{
@@ -20601,7 +20601,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150ns */
 		.block_erasers	=
 		{
@@ -20635,7 +20635,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4096,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= {.probe = NT, .read = OK, .erase = OK, .write = OK},
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 1,		/* 150ns */
 		.block_erasers	=
 		{
@@ -20704,7 +20704,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_AAA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -20739,7 +20739,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_AAA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -20774,7 +20774,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO, /* datasheet specifies no timing */
 		.block_erasers	=
 		{
@@ -20805,7 +20805,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -20841,7 +20841,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10, // FIXME: check datasheet. Using the 10 us from probe_m29f400bt
 		.block_erasers	=
 		{
@@ -20876,7 +20876,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -20906,7 +20906,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -20936,7 +20936,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -22656,7 +22656,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22686,7 +22686,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22716,7 +22716,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22745,7 +22745,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 512,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22774,7 +22774,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -22804,7 +22804,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -22834,7 +22834,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22864,7 +22864,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22894,7 +22894,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16384, /* Non-uniform sectors */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -22929,7 +22929,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 16384, /* Non-uniform sectors */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
@@ -25343,7 +25343,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,		/* used datasheet for the W29C011A */
 		.block_erasers	=
 		{
@@ -25395,7 +25395,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25422,7 +25422,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25449,7 +25449,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_LONG_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25476,7 +25476,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25509,7 +25509,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25539,7 +25539,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25572,7 +25572,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25605,7 +25605,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25635,7 +25635,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25668,7 +25668,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128 * 1024, /* actual page size is 16 */
 		.feature_bits	= FEATURE_ADDR_2AA | FEATURE_SHORT_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec_29gl,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -25698,7 +25698,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25729,7 +25729,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25760,7 +25760,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 4 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25794,7 +25794,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PR,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25828,7 +25828,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25859,7 +25859,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25890,7 +25890,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25921,7 +25921,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25956,7 +25956,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -25988,7 +25988,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26019,7 +26019,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26050,7 +26050,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26082,7 +26082,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 64 * 1024,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_UNTESTED,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26113,7 +26113,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26148,7 +26148,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PROBE,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26175,7 +26175,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{
@@ -26210,7 +26210,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 128,
 		.feature_bits	= FEATURE_EITHER_RESET,
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_jedec,
+		.probe		= probe_buses,
 		.probe_timing	= 10,
 		.block_erasers	=
 		{

@@ -20,6 +20,7 @@
  */
 
 #include "flash.h"
+#include "programmer.h"
 #include "chipdrivers/memory_bus.h"
 
 #define MAX_REFLASH_TRIES 0x10
@@ -90,9 +91,9 @@ void data_polling_jedec(const struct flashctx *flash, chipaddr dst,
 		msg_cdbg("%s: excessive loops, i=0x%x\n", __func__, i);
 }
 
-static unsigned int getaddrmask(const struct flashchip *chip)
+static unsigned int getaddrmask_from_features(feature_bits_t chip_features)
 {
-	switch (chip->feature_bits & FEATURE_ADDR_MASK) {
+	switch (chip_features & FEATURE_ADDR_MASK) {
 	case FEATURE_ADDR_FULL:
 		return MASK_FULL;
 		break;
@@ -109,6 +110,11 @@ static unsigned int getaddrmask(const struct flashchip *chip)
 	}
 }
 
+static unsigned int getaddrmask(const struct flashprog_flashctx *flash)
+{
+	return getaddrmask_from_features(flash->chip->feature_bits);
+}
+
 static void start_program_jedec_common(const struct flashctx *flash, unsigned int mask)
 {
 	chipaddr bios = flash->virtual_memory;
@@ -119,39 +125,54 @@ static void start_program_jedec_common(const struct flashctx *flash, unsigned in
 	chip_writeb(flash, 0xA0, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 }
 
-int probe_jedec_29gl(struct flashctx *flash)
+static struct found_id *probe_jedec_29gl_generic(
+		const struct par_master *const par,
+		const chipsize_t chip_size, const feature_bits_t chip_features)
 {
-	unsigned int mask = getaddrmask(flash->chip);
-	chipaddr bios = flash->virtual_memory;
-	const struct flashchip *chip = flash->chip;
+	const unsigned int mask = getaddrmask_from_features(chip_features);
+	uint8_t raw[4];
+
+	const chipaddr bios = (chipaddr)programmer_map_flash_data(par, chip_size, "");
+	if (bios == (chipaddr)ERROR_PTR)
+		return NULL;
 
 	/* Reset chip to a clean slate */
-	chip_writeb(flash, 0xF0, bios + (0x5555 & mask));
+	par->chip_writeb(par, 0xF0, bios + (0x5555 & mask));
 
 	/* Issue JEDEC Product ID Entry command */
-	chip_writeb(flash, 0xAA, bios + (0x5555 & mask));
-	chip_writeb(flash, 0x55, bios + (0x2AAA & mask));
-	chip_writeb(flash, 0x90, bios + (0x5555 & mask));
+	par->chip_writeb(par, 0xAA, bios + (0x5555 & mask));
+	par->chip_writeb(par, 0x55, bios + (0x2AAA & mask));
+	par->chip_writeb(par, 0x90, bios + (0x5555 & mask));
 
 	/* Read product ID */
 	// FIXME: Continuation loop, second byte is at word 0x100/byte 0x200
-	uint32_t man_id = chip_readb(flash, bios + 0x00);
-	uint32_t dev_id = (chip_readb(flash, bios + 0x01) << 16) |
-			  (chip_readb(flash, bios + 0x0E) <<  8) |
-			  (chip_readb(flash, bios + 0x0F) <<  0);
+	raw[0] = par->chip_readb(par, bios + 0x00);
+	raw[1] = par->chip_readb(par, bios + 0x01);
+	raw[2] = par->chip_readb(par, bios + 0x0E);
+	raw[3] = par->chip_readb(par, bios + 0x0F);
 
 	/* Issue JEDEC Product ID Exit command */
-	chip_writeb(flash, 0xF0, bios + (0x5555 & mask));
+	par->chip_writeb(par, 0xF0, bios + (0x5555 & mask));
 
-	msg_cdbg("%s: man_id 0x%02x, dev_id 0x%06x", __func__, man_id, dev_id);
-	if (!oddparity(man_id))
-		msg_cdbg(", man_id parity violation");
+	const uint32_t man_id = raw[0];
+	const uint32_t dev_id = raw[1] << 16 | raw[2] << 8 | raw[3];
 
 	/* Read the product ID location again. We should now see normal flash contents. */
-	uint32_t flashcontent1 = chip_readb(flash, bios + 0x00); // FIXME: Continuation loop
-	uint32_t flashcontent2 = (chip_readb(flash, bios + 0x01) << 16) |
-				 (chip_readb(flash, bios + 0x0E) <<  8) |
-				 (chip_readb(flash, bios + 0x0F) <<  0);
+	uint32_t flashcontent1 = par->chip_readb(par, bios + 0x00); // FIXME: Continuation loop
+	uint32_t flashcontent2 = (par->chip_readb(par, bios + 0x01) << 16) |
+				 (par->chip_readb(par, bios + 0x0E) <<  8) |
+				 (par->chip_readb(par, bios + 0x0F) <<  0);
+
+	programmer_unmap_flash_region(par, (void *)bios, chip_size);
+
+	if (flashprog_no_data(raw, sizeof(raw)))
+		return NULL;
+
+	msg_cdbg("%s (%uKiB, features: 0x%02x): man_id 0x%02x, dev_id 0x%06x",
+		 __func__, chip_size / KiB, chip_features, man_id, dev_id);
+
+	if (!oddparity(man_id))
+		msg_cdbg(", man_id parity violation");
 
 	if (man_id == flashcontent1)
 		msg_cdbg(", man_id seems to be normal flash content");
@@ -159,33 +180,67 @@ int probe_jedec_29gl(struct flashctx *flash)
 		msg_cdbg(", dev_id seems to be normal flash content");
 
 	msg_cdbg("\n");
-	if (man_id != chip->id.manufacture || dev_id != chip->id.model)
-		return 0;
 
-	return 1;
+	struct memory_found_id *const found = alloc_memory_found_id();
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	found->generic.info.id.manufacture	= man_id;
+	found->generic.info.id.model		= dev_id;
+	found->generic.info.id.type		= ID_JEDEC_29GL;
+	found->memory_info.chip_size		= chip_size;
+	found->memory_info.chip_features	= chip_features;
+
+	return &found->generic;
 }
 
-static int probe_jedec_common(struct flashctx *flash, unsigned int mask)
+struct found_id *probe_jedec_29gl(const struct bus_probe *probe,
+				  const struct master_common *mst,
+				  const struct flashchip *chip)
 {
-	chipaddr bios = flash->virtual_memory;
-	const struct flashchip *chip = flash->chip;
-	bool shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED);
-	uint8_t id1, id2;
+	const struct par_master *const par = (const struct par_master *)mst;
+	struct found_id *ids = NULL, **next_ptr = &ids;
+	chipsize_t chip_size;
+
+	if (chip)
+		return probe_jedec_29gl_generic(par, chip->total_size * KiB, chip->feature_bits);
+
+	/* XXX: Only limited sizes and single mask supported at this time: */
+	for (chip_size = 16*MiB; chip_size >= 4*MiB; chip_size /= 2) {
+		*next_ptr = probe_jedec_29gl_generic(par, chip_size, FEATURE_ADDR_2AA);
+		if (*next_ptr)
+			next_ptr = &(*next_ptr)->next;
+	}
+
+	return ids;
+}
+
+static struct found_id *probe_jedec_generic(
+		const struct par_master *const par, const chipsize_t chip_size,
+		const feature_bits_t chip_features, const signed int probe_timing)
+{
+	const unsigned int mask = getaddrmask_from_features(chip_features);
+	const bool shifted = (chip_features & FEATURE_ADDR_SHIFTED);
+
+	uint8_t raw[4];
+	unsigned int idx = 0;
 	uint32_t largeid1, largeid2;
 	uint32_t flashcontent1, flashcontent2;
 	unsigned int probe_timing_enter, probe_timing_exit;
 
-	if (chip->probe_timing > 0)
-		probe_timing_enter = probe_timing_exit = chip->probe_timing;
-	else if (chip->probe_timing == TIMING_ZERO) { /* No delay. */
-		probe_timing_enter = probe_timing_exit = 0;
-	} else if (chip->probe_timing == TIMING_FIXME) { /* == _IGNORED */
-		msg_cdbg("Chip lacks correct probe timing information, using default 10ms/40us. ");
+	const chipaddr bios = (chipaddr)programmer_map_flash_data(par, chip_size, "");
+	if (bios == (chipaddr)ERROR_PTR)
+		return NULL;
+
+	if (probe_timing == TIMING_FIXME) {
 		probe_timing_enter = 10000;
 		probe_timing_exit = 40;
+	} else if (probe_timing > 0) {
+		probe_timing_enter = probe_timing_exit = probe_timing;
 	} else {
-		msg_cerr("Chip has negative value in probe_timing, failing without chip access\n");
-		return 0;
+		probe_timing_enter = probe_timing_exit = 0;
 	}
 
 	/* Earlier probes might have been too fast for the chip to enter ID
@@ -195,79 +250,82 @@ static int probe_jedec_common(struct flashctx *flash, unsigned int mask)
 	if (probe_timing_enter)
 		programmer_delay(probe_timing_enter);
 	/* Reset chip to a clean slate */
-	if (chip->feature_bits & FEATURE_LONG_RESET)
+	if (chip_features & FEATURE_LONG_RESET)
 	{
-		chip_writeb(flash, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+		par->chip_writeb(par, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 		if (probe_timing_exit)
 			programmer_delay(10);
-		chip_writeb(flash, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
+		par->chip_writeb(par, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
 		if (probe_timing_exit)
 			programmer_delay(10);
 	}
-	chip_writeb(flash, 0xF0, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+	par->chip_writeb(par, 0xF0, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 	if (probe_timing_exit)
 		programmer_delay(probe_timing_exit);
 
 	/* Issue JEDEC Product ID Entry command */
-	chip_writeb(flash, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+	par->chip_writeb(par, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 	if (probe_timing_enter)
 		programmer_delay(10);
-	chip_writeb(flash, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
+	par->chip_writeb(par, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
 	if (probe_timing_enter)
 		programmer_delay(10);
-	chip_writeb(flash, 0x90, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+	par->chip_writeb(par, 0x90, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 	if (probe_timing_enter)
 		programmer_delay(probe_timing_enter);
 
 	/* Read product ID */
-	id1 = chip_readb(flash, bios + (0x00 << shifted));
-	id2 = chip_readb(flash, bios + (0x01 << shifted));
-	largeid1 = id1;
-	largeid2 = id2;
+	largeid1 = raw[idx++] = par->chip_readb(par, bios + (0x00 << shifted));
+	largeid2 = raw[idx++] = par->chip_readb(par, bios + (0x01 << shifted));
 
 	/* Check if it is a continuation ID, this should be a while loop. */
-	if (id1 == 0x7F) {
+	if (largeid1 == 0x7F) {
 		largeid1 <<= 8;
-		id1 = chip_readb(flash, bios + 0x100);
-		largeid1 |= id1;
+		largeid1 |= raw[idx++] = par->chip_readb(par, bios + 0x100);
 	}
-	if (id2 == 0x7F) {
+	if (largeid2 == 0x7F) {
 		largeid2 <<= 8;
-		id2 = chip_readb(flash, bios + 0x101);
-		largeid2 |= id2;
+		largeid2 |= raw[idx++] = par->chip_readb(par, bios + 0x101);
 	}
 
 	/* Issue JEDEC Product ID Exit command */
-	if (chip->feature_bits & FEATURE_LONG_RESET)
+	if (chip_features & FEATURE_LONG_RESET)
 	{
-		chip_writeb(flash, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+		par->chip_writeb(par, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 		if (probe_timing_exit)
 			programmer_delay(10);
-		chip_writeb(flash, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
+		par->chip_writeb(par, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
 		if (probe_timing_exit)
 			programmer_delay(10);
 	}
-	chip_writeb(flash, 0xF0, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
+	par->chip_writeb(par, 0xF0, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 	if (probe_timing_exit)
 		programmer_delay(probe_timing_exit);
 
-	msg_cdbg("%s: id1 0x%02x, id2 0x%02x", __func__, largeid1, largeid2);
-	if (!oddparity(id1))
-		msg_cdbg(", id1 parity violation");
-
 	/* Read the product ID location again. We should now see normal flash contents. */
-	flashcontent1 = chip_readb(flash, bios + (0x00 << shifted));
-	flashcontent2 = chip_readb(flash, bios + (0x01 << shifted));
+	flashcontent1 = par->chip_readb(par, bios + (0x00 << shifted));
+	flashcontent2 = par->chip_readb(par, bios + (0x01 << shifted));
 
 	/* Check if it is a continuation ID, this should be a while loop. */
 	if (flashcontent1 == 0x7F) {
 		flashcontent1 <<= 8;
-		flashcontent1 |= chip_readb(flash, bios + 0x100);
+		flashcontent1 |= par->chip_readb(par, bios + 0x100);
 	}
 	if (flashcontent2 == 0x7F) {
 		flashcontent2 <<= 8;
-		flashcontent2 |= chip_readb(flash, bios + 0x101);
+		flashcontent2 |= par->chip_readb(par, bios + 0x101);
 	}
+
+	programmer_unmap_flash_region(par, (void *)bios, chip_size);
+
+	if (flashprog_no_data(raw, idx))
+		return NULL;
+
+	msg_cdbg("%s (%uKiB, features: 0x%02x): id1 0x%02x, id2 0x%02x",
+		 __func__, chip_size / KiB, chip_features, largeid1, largeid2);
+
+	if (!oddparity(raw[0]))
+		msg_cdbg(", id1 parity violation");
 
 	if (largeid1 == flashcontent1)
 		msg_cdbg(", id1 is normal flash content");
@@ -275,10 +333,77 @@ static int probe_jedec_common(struct flashctx *flash, unsigned int mask)
 		msg_cdbg(", id2 is normal flash content");
 
 	msg_cdbg("\n");
-	if (largeid1 != chip->id.manufacture || largeid2 != chip->id.model)
-		return 0;
 
-	return 1;
+	struct memory_found_id *const found = alloc_memory_found_id();
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	found->generic.info.id.manufacture	= largeid1;
+	found->generic.info.id.model		= largeid2;
+	found->generic.info.id.type		= ID_JEDEC;
+	found->memory_info.chip_size		= chip_size;
+	found->memory_info.chip_features	= chip_features;
+	found->memory_info.probe_timing		= probe_timing;
+
+	return &found->generic;
+}
+
+struct found_id *probe_jedec(const struct bus_probe *probe,
+			     const struct master_common *mst,
+			     const struct flashchip *chip)
+{
+	const struct par_master *const par = (const struct par_master *)mst;
+	struct found_id *ids = NULL, **next_ptr = &ids;
+	chipsize_t chip_size;
+	unsigned int set;
+
+	if (chip) {
+		return probe_jedec_generic(par,
+			chip->total_size * KiB, chip->feature_bits, chip->probe_timing);
+	}
+
+	static const struct {
+		feature_bits_t features;
+		signed int probe_timing;
+	} common_sets[] = {
+		{ FEATURE_SHORT_RESET | FEATURE_ADDR_2AA,	TIMING_ZERO },
+		{ FEATURE_LONG_RESET,				      10000 },
+		{ FEATURE_LONG_RESET,					 10 },
+		{ FEATURE_LONG_RESET,					  1 },
+		{ FEATURE_LONG_RESET,				TIMING_ZERO },
+	};
+	for (set = 0; set < ARRAY_SIZE(common_sets); ++set) {
+		for (chip_size = 1*MiB; chip_size >= 64*KiB; chip_size /= 2) {
+			*next_ptr = probe_jedec_generic(par, chip_size,
+				common_sets[set].features, common_sets[set].probe_timing);
+			if (*next_ptr)
+				next_ptr = &(*next_ptr)->next;
+		}
+	}
+
+	static const struct {
+		chipsize_t chip_size;
+		feature_bits_t features;
+		signed int probe_timing;
+	} additional_sets[] = {
+		{   2*MiB, FEATURE_SHORT_RESET,				 TIMING_ZERO },
+		{   2*MiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,		  10 },
+		{ 512*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,		  10 },
+		{ 384*KiB, FEATURE_LONG_RESET,					   1 },
+		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_2AA,	TIMING_FIXME },
+		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_AAA,	 TIMING_ZERO },
+		{ 128*KiB, FEATURE_SHORT_RESET,				 TIMING_ZERO },
+	};
+	for (set = 0; set < ARRAY_SIZE(additional_sets); ++set) {
+		*next_ptr = probe_jedec_generic(par, additional_sets[set].chip_size,
+			additional_sets[set].features, additional_sets[set].probe_timing);
+		if (*next_ptr)
+			next_ptr = &(*next_ptr)->next;
+	}
+
+	return ids;
 }
 
 static int erase_sector_jedec_common(struct flashctx *flash, unsigned int page,
@@ -414,7 +539,7 @@ int write_jedec_1(struct flashctx *flash, const uint8_t *src, unsigned int start
 	chipaddr olddst;
 	unsigned int mask;
 
-	mask = getaddrmask(flash->chip);
+	mask = getaddrmask(flash);
 
 	olddst = dst;
 	for (i = 0; i < len; i++) {
@@ -440,7 +565,7 @@ static int write_page_write_jedec_common(struct flashctx *flash, const uint8_t *
 	chipaddr d = dst;
 	unsigned int mask;
 
-	mask = getaddrmask(flash->chip);
+	mask = getaddrmask(flash);
 
 retry:
 	/* Issue JEDEC Start Program command */
@@ -519,7 +644,7 @@ int erase_chip_block_jedec(struct flashctx *flash, unsigned int addr,
 {
 	unsigned int mask;
 
-	mask = getaddrmask(flash->chip);
+	mask = getaddrmask(flash);
 	if ((addr != 0) || (blocksize != flash->chip->total_size * 1024)) {
 		msg_cerr("%s called with incorrect arguments\n",
 			__func__);
@@ -528,20 +653,12 @@ int erase_chip_block_jedec(struct flashctx *flash, unsigned int addr,
 	return erase_chip_jedec_common(flash, mask);
 }
 
-int probe_jedec(struct flashctx *flash)
-{
-	unsigned int mask;
-
-	mask = getaddrmask(flash->chip);
-	return probe_jedec_common(flash, mask);
-}
-
 int erase_sector_jedec(struct flashctx *flash, unsigned int page,
 		       unsigned int size)
 {
 	unsigned int mask;
 
-	mask = getaddrmask(flash->chip);
+	mask = getaddrmask(flash);
 	return erase_sector_jedec_common(flash, page, size, mask);
 }
 
@@ -550,7 +667,7 @@ int erase_block_jedec(struct flashctx *flash, unsigned int page,
 {
 	unsigned int mask;
 
-	mask = getaddrmask(flash->chip);
+	mask = getaddrmask(flash);
 	return erase_block_jedec_common(flash, page, size, mask);
 }
 
