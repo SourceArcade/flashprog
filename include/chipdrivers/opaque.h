@@ -20,6 +20,9 @@
 
 struct flashprog_flashctx;
 
+enum preparation_steps;
+int prepare_opaque(struct flashprog_flashctx *, enum preparation_steps);
+
 int probe_opaque(struct flashprog_flashctx *);
 int read_opaque(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
 int write_opaque(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);

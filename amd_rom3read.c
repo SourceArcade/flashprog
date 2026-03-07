@@ -86,7 +86,7 @@ static int compare_sparse(const void *const s1, const void *const s2, const size
 	return 0;
 }
 
-static int rom3read_probe(struct flashctx *const flash)
+static int rom3read_prepare(struct flashctx *const flash)
 {
 	const struct spi100 *const spi100 = flash->mst.opaque->data;
 	const void *const rom3 = spi100->memory;
@@ -151,7 +151,7 @@ static int rom3read_shutdown(void *spi100)
 static const struct opaque_master rom3read_master = {
 	.max_data_read	= MAX_DATA_UNSPECIFIED,
 	.max_data_write	= MAX_DATA_UNSPECIFIED,
-	.probe		= rom3read_probe,
+	.prepare	= rom3read_prepare,
 	.read		= rom3read_read,
 	.write		= rom3read_write,
 	.erase		= rom3read_erase,

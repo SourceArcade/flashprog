@@ -173,7 +173,7 @@ static int get_mtd_info(const char *sysfs_path, struct linux_mtd_data *data)
 	return 0;
 }
 
-static int linux_mtd_probe(struct flashctx *flash)
+static int linux_mtd_prepare(struct flashctx *flash)
 {
 	struct linux_mtd_data *data = flash->mst.opaque->data;
 
@@ -307,7 +307,7 @@ static const struct opaque_master linux_mtd_opaque_master = {
 	/* max_data_{read,write} don't have any effect for this programmer */
 	.max_data_read	= MAX_DATA_UNSPECIFIED,
 	.max_data_write	= MAX_DATA_UNSPECIFIED,
-	.probe		= linux_mtd_probe,
+	.prepare	= linux_mtd_prepare,
 	.read		= linux_mtd_read,
 	.write		= linux_mtd_write,
 	.erase		= linux_mtd_erase,

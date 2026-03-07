@@ -1248,7 +1248,7 @@ static int ich_hwseq_wait_for_cycle_complete(unsigned int len)
 	return 0;
 }
 
-static int ich_hwseq_probe(struct flashctx *flash)
+static int ich_hwseq_prepare(struct flashctx *flash)
 {
 	uint32_t total_size, boundary;
 	uint32_t erase_size_low, size_low, erase_size_high, size_high;
@@ -1687,7 +1687,7 @@ static const struct spi_master spi_master_ich9 = {
 static const struct opaque_master opaque_master_ich_hwseq = {
 	.max_data_read	= 64,
 	.max_data_write	= 64,
-	.probe		= ich_hwseq_probe,
+	.prepare	= ich_hwseq_prepare,
 	.read		= ich_hwseq_read,
 	.write		= ich_hwseq_write,
 	.erase		= ich_hwseq_block_erase,

@@ -431,7 +431,7 @@ struct opaque_master {
 	int max_data_read;
 	int max_data_write;
 	/* Specific functions for this master */
-	int (*probe) (struct flashctx *flash);
+	int (*prepare) (struct flashctx *flash);
 	int (*read) (struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len);
 	int (*write) (struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len);
 	int (*erase) (struct flashctx *flash, unsigned int blockaddr, unsigned int blocklen);

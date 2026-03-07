@@ -103,7 +103,7 @@ static inline bool is_i210(uint16_t device_id)
 	return (device_id & 0xfff0) == 0x1530;
 }
 
-static int nicintel_ee_probe_i210(struct flashctx *flash)
+static int nicintel_ee_prepare_i210(struct flashctx *flash)
 {
 	/* Emulated eeprom has a fixed size of 4 KB */
 	flash->chip->total_size = 4;
@@ -116,7 +116,7 @@ static int nicintel_ee_probe_i210(struct flashctx *flash)
 	return 1;
 }
 
-static int nicintel_ee_probe_82580(struct flashctx *flash)
+static int nicintel_ee_prepare_82580(struct flashctx *flash)
 {
 	if (nicintel_pci->device_id == UNPROG_DEVICE)
 		flash->chip->total_size = 16; /* Fall back to minimum supported size. */
@@ -406,7 +406,7 @@ static int nicintel_ee_erase_82580(struct flashctx *flash, unsigned int addr, un
 static int nicintel_ee_shutdown_82580(void *eecp);
 
 static const struct opaque_master opaque_master_nicintel_ee_82580 = {
-	.probe		= nicintel_ee_probe_82580,
+	.prepare	= nicintel_ee_prepare_82580,
 	.read		= nicintel_ee_read,
 	.write		= nicintel_ee_write_82580,
 	.erase		= nicintel_ee_erase_82580,
@@ -416,7 +416,7 @@ static const struct opaque_master opaque_master_nicintel_ee_82580 = {
 static int nicintel_ee_shutdown_i210(void *arg);
 
 static const struct opaque_master opaque_master_nicintel_ee_i210 = {
-	.probe		= nicintel_ee_probe_i210,
+	.prepare	= nicintel_ee_prepare_i210,
 	.read		= nicintel_ee_read,
 	.write		= nicintel_ee_write_i210,
 	.erase		= nicintel_ee_erase_i210,

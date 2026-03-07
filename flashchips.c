@@ -27371,6 +27371,7 @@ const struct flashchip flashchips[] = {
 		},
 		.write		= write_opaque,
 		.read		= read_opaque,
+		.prepare_access	= prepare_opaque,
 	},
 
 	{

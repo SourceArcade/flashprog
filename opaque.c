@@ -28,7 +28,14 @@
 
 int probe_opaque(struct flashctx *flash)
 {
-	return flash->mst.opaque->probe(flash);
+	return 1;
+}
+
+int prepare_opaque(struct flashctx *flash, enum preparation_steps step)
+{
+	if (step != PREPARE_POST_PROBE)
+		return 0;
+	return flash->mst.opaque->prepare(flash) ? 0 : -1;
 }
 
 int read_opaque(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
@@ -57,7 +64,7 @@ int register_opaque_master(const struct opaque_master *mst, void *data)
 		}
 	}
 
-	if (!mst->probe || !mst->read || !mst->write || !mst->erase) {
+	if (!mst->prepare || !mst->read || !mst->write || !mst->erase) {
 		msg_perr("%s called with incomplete master definition.\n"
 			 "Please report a bug at flashprog@flashprog.org\n",
 			 __func__);
