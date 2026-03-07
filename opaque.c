@@ -21,14 +21,30 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "flash.h"
 #include "flashchips.h"
 #include "chipdrivers/opaque.h"
+#include "chipdrivers/probing.h"
 #include "programmer.h"
 
-int probe_opaque(struct flashctx *flash)
+struct found_id *probe_opaque(const struct bus_probe *probe,
+			      const struct master_common *mst,
+			      const struct flashchip *chip)
 {
-	return 1;
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	found->info.id.type		= ID_OPAQUE;
+	found->info.id.manufacture	= PROGMANUF_ID;
+	found->info.id.model		= PROGDEV_ID;
+
+	return found;
 }
 
 int prepare_opaque(struct flashctx *flash, enum preparation_steps step)
@@ -53,6 +69,16 @@ int erase_opaque(struct flashctx *flash, unsigned int blockaddr, unsigned int bl
 	return flash->mst.opaque->erase(flash, blockaddr, blocklen);
 }
 
+static const struct bus_probe opaque_probes[] = {
+    /* prio. type		function		function argument */
+	{ 0, ID_OPAQUE,		probe_opaque,		NULL },
+};
+
+static bool opaque_probe_match(const struct flashchip *chip, const struct id_info_ext *found)
+{
+	return memcmp(&chip->id, &found->id, sizeof(found->id)) == 0;
+}
+
 int register_opaque_master(const struct opaque_master *mst, void *data)
 {
 	struct registered_master rmst = { 0 };
@@ -71,6 +97,9 @@ int register_opaque_master(const struct opaque_master *mst, void *data)
 		return ERROR_FLASHPROG_BUG;
 	}
 	rmst.buses_supported = BUS_PROG;
+	rmst.probing.probe_count = ARRAY_SIZE(opaque_probes);
+	rmst.probing.probes = opaque_probes;
+	rmst.probing.match = opaque_probe_match;
 	rmst.opaque = *mst;
 	if (data)
 		rmst.opaque.data = data;

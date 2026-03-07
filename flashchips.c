@@ -27361,7 +27361,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		/* probe is assumed to work, rest will be filled in by probe */
 		.tested		= TEST_OK_PROBE,
-		.probe		= probe_opaque,
+		.probe		= probe_buses,
 		/* eraseblock sizes will be set by the probing function */
 		.block_erasers	=
 		{
