@@ -16,12 +16,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "flash.h"
 #include "spi_command.h"
 #include "spi.h"
+#include "programmer.h"
+#include "flashchips.h"
 #include "chipdrivers/spi.h"
+#include "chipdrivers/probing.h"
 
-static int spi_sfdp_read_sfdp_chunk(struct flashctx *flash, uint32_t address, uint8_t *buf, int len)
+static int spi_sfdp_read_sfdp_chunk(const struct spi_master *spi, uint32_t address, uint8_t *buf, int len)
 {
 	int i, ret;
 	uint8_t *newbuf;
@@ -40,7 +44,7 @@ static int spi_sfdp_read_sfdp_chunk(struct flashctx *flash, uint32_t address, ui
 	newbuf = malloc(len + 1);
 	if (!newbuf)
 		return SPI_PROGRAMMER_ERROR;
-	ret = spi_send_command(flash, sizeof(cmd) - 1, len + 1, cmd, newbuf);
+	ret = spi->command(spi, sizeof(cmd) - 1, len + 1, cmd, newbuf);
 	memmove(buf, newbuf + 1, len);
 	free(newbuf);
 	if (ret)
@@ -51,7 +55,7 @@ static int spi_sfdp_read_sfdp_chunk(struct flashctx *flash, uint32_t address, ui
 	return 0;
 }
 
-static int spi_sfdp_read_sfdp(struct flashctx *flash, uint32_t address, uint8_t *buf, int len)
+static int spi_sfdp_read_sfdp(const struct spi_master *spi, uint32_t address, uint8_t *buf, int len)
 {
 	/* FIXME: There are different upper bounds for the number of bytes to
 	 * read on the various programmers (even depending on the rest of the
@@ -60,7 +64,7 @@ static int spi_sfdp_read_sfdp(struct flashctx *flash, uint32_t address, uint8_t 
 	int ret = 0;
 	while (len > 0) {
 		int step = min(len, maxstep);
-		ret = spi_sfdp_read_sfdp_chunk(flash, address, buf, step);
+		ret = spi_sfdp_read_sfdp_chunk(spi, address, buf, step);
 		if (ret)
 			return ret;
 		address += step;
@@ -338,9 +342,10 @@ done:
 	return 0;
 }
 
-int probe_spi_sfdp(struct flashctx *flash)
+int spi_prepare_sfdp(struct flashctx *flash, enum preparation_steps step)
 {
-	int ret = 0;
+	const struct spi_master *const spi = flash->mst.spi;
+	int ret;
 	uint8_t buf[8];
 	uint32_t tmp32;
 	uint8_t nph;
@@ -350,31 +355,23 @@ int probe_spi_sfdp(struct flashctx *flash)
 	uint8_t *hbuf;
 	uint8_t *tbuf;
 
-	if (spi_sfdp_read_sfdp(flash, 0x00, buf, 4)) {
-		msg_cdbg("Receiving SFDP signature failed.\n");
+	if (step != PREPARE_POST_PROBE)
 		return 0;
-	}
-	tmp32 = buf[0];
-	tmp32 |= ((unsigned int)buf[1]) << 8;
-	tmp32 |= ((unsigned int)buf[2]) << 16;
-	tmp32 |= ((unsigned int)buf[3]) << 24;
 
-	if (tmp32 != 0x50444653) {
-		msg_cdbg2("Signature = 0x%08x (should be 0x50444653)\n", tmp32);
-		msg_cdbg("No SFDP signature found.\n");
-		return 0;
-	}
-
-	if (spi_sfdp_read_sfdp(flash, 0x04, buf, 3)) {
+	ret = spi_sfdp_read_sfdp(spi, 0x04, buf, 3);
+	if (ret) {
 		msg_cdbg("Receiving SFDP revision and number of parameter "
 			 "headers (NPH) failed. ");
-		return 0;
+		return ret;
 	}
+
+	ret = SPI_GENERIC_ERROR;
+
 	msg_cdbg2("SFDP revision = %d.%d\n", buf[1], buf[0]);
 	if (buf[1] != 0x01) {
 		msg_cdbg("The chip supports an unknown version of SFDP. "
 			  "Aborting SFDP probe!\n");
-		return 0;
+		return ret;
 	}
 	nph = buf[2];
 	msg_cdbg2("SFDP number of parameter headers is %d (NPH = %d).\n",
@@ -387,7 +384,7 @@ int probe_spi_sfdp(struct flashctx *flash)
 		msg_gerr("Out of memory!\n");
 		goto cleanup_hdrs;
 	}
-	if (spi_sfdp_read_sfdp(flash, 0x08, hbuf, (nph + 1) * 8)) {
+	if (spi_sfdp_read_sfdp(spi, 0x08, hbuf, (nph + 1) * 8)) {
 		msg_cdbg("Receiving SFDP parameter table headers failed.\n");
 		goto cleanup_hdrs;
 	}
@@ -422,7 +419,7 @@ int probe_spi_sfdp(struct flashctx *flash)
 			msg_gerr("Out of memory!\n");
 			goto cleanup_hdrs;
 		}
-		if (spi_sfdp_read_sfdp(flash, tmp32, tbuf, len)){
+		if (spi_sfdp_read_sfdp(spi, tmp32, tbuf, len)){
 			msg_cdbg("Fetching SFDP parameter table %d failed.\n",
 				 i);
 			free(tbuf);
@@ -460,18 +457,51 @@ int probe_spi_sfdp(struct flashctx *flash)
 					 "parameter table is wrong (%d B), "
 					 "skipping it.\n", len);
 			} else if (sfdp_fill_flash(flash->chip, tbuf, len) == 0)
-				ret = 1;
+				ret = 0;
 		}
 		free(tbuf);
 	}
 
-	if (ret == 1 && selfcheck_chip(flash->chip, -1)) {
+	if (ret == 0 && selfcheck_chip(flash->chip, -1)) {
 		msg_cerr("SFDP parsing resulted in invalid chip structure.\n");
-		ret = 0;
+		ret = SPI_FLASHPROG_BUG;
 	}
 
 cleanup_hdrs:
 	free(hdrs);
 	free(hbuf);
 	return ret;
+}
+
+struct found_id *probe_spi_sfdp(const struct bus_probe *probe, const struct master_common *mst)
+{
+	uint8_t buf[8];
+	uint32_t tmp32;
+
+	if (spi_sfdp_read_sfdp((struct spi_master *)mst, 0x00, buf, 4)) {
+		msg_cdbg("Receiving SFDP signature failed.\n");
+		return NULL;
+	}
+	tmp32 = buf[0];
+	tmp32 |= ((unsigned int)buf[1]) << 8;
+	tmp32 |= ((unsigned int)buf[2]) << 16;
+	tmp32 |= ((unsigned int)buf[3]) << 24;
+
+	if (tmp32 != 0x50444653) {
+		msg_cdbg2("Signature = 0x%08x (should be 0x50444653)\n", tmp32);
+		msg_cdbg("No SFDP signature found.\n");
+		return NULL;
+	}
+
+	struct found_id *const found = calloc(1, sizeof(*found));
+	if (!found) {
+		msg_cerr("Out of memory!\n");
+		return NULL;
+	}
+
+	found->info.id.type		= ID_SPI_SFDP;
+	found->info.id.manufacture	= GENERIC_MANUF_ID;
+	found->info.id.model		= SFDP_DEVICE_ID;
+
+	return found;
 }

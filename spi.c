@@ -170,6 +170,7 @@ static const struct bus_probe spi_probes[] = {
 	{ 0, ID_SPI_RES3,	probe_spi_res,		NULL },
 	{ 0, ID_SPI_RES2,	probe_spi_res,		NULL },
 	{ 0, ID_SPI_RES1,	probe_spi_res,		NULL },
+	{ 0, ID_SPI_SFDP,	probe_spi_sfdp,		NULL },
 	{ 1, ID_SPI_ST95,	probe_spi_st95,		(void *)(uintptr_t)3 },
 	{ 1, ID_SPI_ST95,	probe_spi_st95,		(void *)(uintptr_t)2 },
 };

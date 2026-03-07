@@ -130,6 +130,7 @@ void decode_range_spi25_bit_cmp(size_t *start, size_t *len, const struct wp_bits
 void decode_range_spi25_2x_block(size_t *start, size_t *len, const struct wp_bits *, size_t chip_len);
 
 /* sfdp.c */
-int probe_spi_sfdp(struct flashprog_flashctx *);
+struct found_id *probe_spi_sfdp(const struct bus_probe *, const struct master_common *);
+int spi_prepare_sfdp(struct flashprog_flashctx *, enum preparation_steps);
 
 #endif /* !__CHIPDRIVERS_SPI_H__ */

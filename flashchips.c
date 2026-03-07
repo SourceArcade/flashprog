@@ -27334,13 +27334,14 @@ const struct flashchip flashchips[] = {
 		/* want the default "This flash part has status UNTESTED..." */
 		/* text to be printed. */
 		.tested		= TEST_OK_PREW,
-		.probe		= probe_spi_sfdp,
+		.probe		= probe_buses,
 		.block_erasers	= {}, /* set by probing function */
 		.unlock		= spi_disable_blockprotect, /* is this safe? */
 		.write		= NULL, /* set by probing function */
 		.read		= spi_chip_read,
 		/* FIXME: some vendor extensions define this */
 		.voltage	= {0},
+		.prepare_access	= spi_prepare_sfdp,
 	},
 
 	{
