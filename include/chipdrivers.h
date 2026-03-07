@@ -230,7 +230,4 @@ int prepare_memory_access(struct flashctx *, enum preparation_steps);
 int prepare_memory_register_access(struct flashctx *, enum preparation_steps);
 void finish_memory_access(struct flashctx *);
 
-/* flashprog.c */
-int probe_noop(struct flashctx *);
-
 #endif /* !__CHIPDRIVERS_H__ */

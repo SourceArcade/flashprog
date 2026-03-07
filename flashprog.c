@@ -612,11 +612,6 @@ char *flashbuses_to_text(enum chipbustype bustype)
 	return ret;
 }
 
-int probe_noop(struct flashctx *flash)
-{
-	return 1;
-}
-
 static int init_default_layout(struct flashctx *flash)
 {
 	/* Fill default layout covering the whole chip. */
@@ -673,8 +668,11 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashp
 	};
 
 	if (chip_to_probe) {
-		/* If we are looking for a particular chip,
-		   limit the probing functions to its type. */
+		/* We are looking for a particular chip.
+		   If it can't be probed, assume it's there... */
+		if (chip->id.type == ID_NONE)
+			return true;
+		/* ...otherwise, limit the probing functions to its type. */
 		probe_bus(mst, chip->id.type);
 	} else {
 		probe_bus(mst, 0);

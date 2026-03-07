@@ -13510,7 +13510,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13538,7 +13538,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13566,7 +13566,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13594,7 +13594,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13622,7 +13622,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13650,7 +13650,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13678,7 +13678,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
@@ -13706,7 +13706,7 @@ const struct flashchip flashchips[] = {
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_NO_ERASE | FEATURE_ERASED_ZERO,
 		.tested		= TEST_UNTESTED,
 		.spi_cmd_set	= SPI25_EEPROM,
-		.probe		= probe_noop,
+		.probe		= probe_buses,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
