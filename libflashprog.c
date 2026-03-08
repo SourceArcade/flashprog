@@ -100,17 +100,6 @@ int print(const enum flashprog_log_level level, const char *const fmt, ...)
 
 
 /**
- * @defgroup flashprog-query Querying
- * @{
- */
-
-/* TBD */
-
-/** @} */ /* end flashprog-query */
-
-
-
-/**
  * @defgroup flashprog-prog Programmers
  * @{
  */

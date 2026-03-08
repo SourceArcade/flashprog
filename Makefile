@@ -400,8 +400,10 @@ CHIP_OBJS = memory_bus.o jedec.o stm50.o w39.o w29ee011.o \
 ###############################################################################
 # Library code.
 
-LIB_OBJS = libflashprog.o layout.o flashprog.o udelay.o parallel.o programmer.o programmer_table.o \
-	helpers.o helpers_fileio.o ich_descriptors.o fmap.o platform/endian_$(ENDIAN).o platform/memaccess.o
+LIB_OBJS = libflashprog.o libflashprog/chips.o layout.o flashprog.o udelay.o \
+	parallel.o programmer.o programmer_table.o \
+	helpers.o helpers_fileio.o ich_descriptors.o fmap.o \
+	platform/endian_$(ENDIAN).o platform/memaccess.o
 
 
 ###############################################################################

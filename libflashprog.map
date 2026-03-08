@@ -1,5 +1,13 @@
 LIBFLASHPROG_1.0 {
   global:
+    flashprog_chip_first;
+    flashprog_chip_name;
+    flashprog_chip_next;
+    flashprog_chip_size;
+    flashprog_chip_vendor;
+    flashprog_chips_all;
+    flashprog_chips_count;
+    flashprog_chips_release;
     flashprog_flag_get;
     flashprog_flag_set;
     flashprog_flash_erase;

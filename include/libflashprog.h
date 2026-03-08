@@ -45,6 +45,25 @@ struct flashprog_programmer;
 int flashprog_programmer_init(struct flashprog_programmer **, const char *prog_name, const char *prog_params);
 int flashprog_programmer_shutdown(struct flashprog_programmer *);
 
+struct flashprog_chips;
+__attribute__((nonnull))
+int flashprog_chips_all(struct flashprog_chips **);
+__attribute__((nonnull))
+unsigned int flashprog_chips_count(const struct flashprog_chips *);
+void flashprog_chips_release(struct flashprog_chips *);
+
+struct flashprog_chip;
+__attribute__((nonnull))
+const struct flashprog_chip *flashprog_chip_first(const struct flashprog_chips *);
+__attribute__((nonnull))
+const struct flashprog_chip *flashprog_chip_next(const struct flashprog_chip *);
+__attribute__((nonnull))
+const char *flashprog_chip_vendor(const struct flashprog_chip *);
+__attribute__((nonnull))
+const char *flashprog_chip_name(const struct flashprog_chip *);
+__attribute__((nonnull))
+size_t flashprog_chip_size(const struct flashprog_chip *);
+
 struct flashprog_flashctx;
 int flashprog_flash_probe(struct flashprog_flashctx **, const struct flashprog_programmer *, const char *chip_name);
 size_t flashprog_flash_getsize(const struct flashprog_flashctx *);
