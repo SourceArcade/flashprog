@@ -4,6 +4,8 @@
  * Copyright (C) 2012, 2016 secunet Security Networks AG
  * (Written by Nico Huber <nico.huber@secunet.com> for secunet)
  *
+ * Copyright (C) 2026 Nico Huber <nico.h@gmx.de>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -25,12 +27,15 @@
 #include <string.h>
 #include <stdarg.h>
 
+#define flashprog_chip flashchip	/* For now, we use direct pointers   */
+#include "libflashprog.h"		/* to the internal struct flashchip. */
+
 #include "flash.h"
 #include "fmap.h"
 #include "programmer.h"
 #include "layout.h"
+#include "hwaccess_physmap.h"
 #include "ich_descriptors.h"
-#include "libflashprog.h"
 #include "writeprotect.h"
 
 /**
@@ -237,6 +242,101 @@ int flashprog_flash_probe(struct flashprog_flashctx **const flashctx,
 		*flashctx = NULL;
 	}
 	return ret;
+}
+
+/** @private */
+int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
+				    const struct flashprog_programmer *flashprog,
+				    const struct master_common *bus,
+				    const struct flashchip *chip)
+{
+	if (bus->adapt_voltage) {
+		if (bus->adapt_voltage(bus, chip->voltage.min, chip->voltage.max))
+			return 4;
+	}
+
+	struct flashprog_flashctx *const flash = calloc(1, sizeof(*flash));
+	if (!flash) {
+		msg_gerr("Out of memory!\n");
+		return 1;
+	}
+
+	flash->chip = calloc(1, sizeof(*flash->chip));
+	if (!flash->chip) {
+		msg_gerr("Out of memory!\n");
+		free(flash);
+		return 1;
+	}
+
+	*flash->chip = *chip;
+	flash->mst.common = bus; /* `mst` is a union, so we need only one pointer */
+
+	if (chip->prepare_access && chip->prepare_access(flash, PREPARE_POST_PROBE))
+		goto free_flash;
+
+	/* Fill default layout covering the whole chip. */
+	if (flashprog_layout_new(&flash->default_layout) ||
+	    flashprog_layout_add_region(flash->default_layout,
+			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
+	    flashprog_layout_include_region(flash->default_layout, "complete flash"))
+		goto free_flash;
+
+	char *const tmp = flashbuses_to_text(flash->chip->bustype);
+	msg_cinfo("Using %s flash chip \"%s\" (%d kB, %s) ",
+		  flash->chip->vendor, flash->chip->name, flash->chip->total_size, tmp);
+	free(tmp);
+	if (strcmp(flashprog->driver->name, "internal") == 0 && flash->physical_memory != 0)
+		msg_cinfo("mapped at physical address 0x%0*" PRIxPTR ".\n",
+			  PRIxPTR_WIDTH, flash->physical_memory);
+	else
+		msg_cinfo("on %s.\n", flashprog->driver->name);
+
+	if (flash->chip->printlock)
+		flash->chip->printlock(flash);
+
+	if (flash->chip->finish_access)
+		flash->chip->finish_access(flash);
+
+	*flashctx = flash;
+	return 0;
+
+free_flash:
+	if (flash->chip && flash->chip->finish_access)
+		flash->chip->finish_access(flash);
+	free(flash->chip);
+	free(flash);
+	return 4;
+}
+
+/**
+ * @brief Probe for a specific flash chip.
+ *
+ * Probes for a flash chip and returns a flash context, that can be used
+ * later with flash chip and @ref flashprog-ops "image operations".
+ *
+ * @param[out] flashctx Points to a pointer of type struct flashprog_flashctx
+ *                      that will be set. *flashctx has to be freed by the
+ *                      caller with @ref flashprog_flash_release.
+ * @param[in] flashprog The flash programmer used to access the chip.
+ * @param[in] chip A reference to a chip structure that was previously
+ *                 fetched by @ref flashprog-chips "enumeration". Its
+ *                 contents will be copied, so the underlying chip
+ *                 enumeration can be released directly after the call.
+ * @return 0 on success,
+ *         4 if the chip was detected, but preparation failed,
+ *         3 if multiple chips were found,
+ *         2 if no chip was detected,
+ *         or 1 on any other error.
+ */
+int flashprog_flash_probe_chip(struct flashprog_flashctx **flashctx,
+			       const struct flashprog_programmer *flashprog,
+			       const struct flashprog_chip *chip)
+{
+	const struct master_common *const bus = flashprog_chip_probe(flashprog, chip);
+	if (!bus)
+		return 2;
+
+	return flashprog_flash_prepare_context(flashctx, flashprog, bus, chip);
 }
 
 /**

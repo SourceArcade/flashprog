@@ -122,6 +122,8 @@ struct flashprog_test_status flashprog_chip_test_status(const struct flashprog_c
 
 struct flashprog_flashctx;
 int flashprog_flash_probe(struct flashprog_flashctx **, const struct flashprog_programmer *, const char *chip_name);
+__attribute__((nonnull))
+int flashprog_flash_probe_chip(struct flashprog_flashctx **, const struct flashprog_programmer *, const struct flashprog_chip *);
 size_t flashprog_flash_getsize(const struct flashprog_flashctx *);
 int flashprog_flash_erase(struct flashprog_flashctx *);
 void flashprog_flash_release(struct flashprog_flashctx *);

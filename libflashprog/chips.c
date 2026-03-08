@@ -90,6 +90,39 @@ static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 	return 0;
 }
 
+/** @private */
+const struct master_common *flashprog_chip_probe(
+		const struct flashprog_programmer *flashprog,
+		const struct flashchip *chip)
+{
+	if (!chip_from_db(chip))
+		/* If not in the DB, it must be a probed `chip_entry`. */
+		return ((const struct chip_entry *)chip)->bus;
+
+	int i;
+	for (i = 0; i < registered_master_count; ++i) {
+		struct registered_master *const bus = &registered_masters[i];
+
+		if (!(bus->buses_supported & chip->bustype))
+			continue;
+
+		/* If it can't be probed, assume it's there. */
+		if (chip->id.type == ID_NONE)
+			return &bus->common;
+
+		/* We probe for a specific chip, so we can adapt the voltage early. */
+		if (bus->common.adapt_voltage &&
+		    bus->common.adapt_voltage(&bus->common, chip->voltage.min, chip->voltage.max))
+			return NULL;
+
+		flashprog_bus_probe(bus, chip);
+		if (flashprog_chip_match(bus, chip))
+			return &bus->common;
+	}
+
+	return NULL;
+}
+
 /**
  * @brief Probe for flash chips.
  *

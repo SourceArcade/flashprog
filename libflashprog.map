@@ -18,6 +18,7 @@ LIBFLASHPROG_1.0 {
     flashprog_flash_erase;
     flashprog_flash_getsize;
     flashprog_flash_probe;
+    flashprog_flash_probe_chip;
     flashprog_flash_release;
     flashprog_image_read;
     flashprog_image_verify;

@@ -440,10 +440,10 @@ struct flashprog_flashctx {
 	uintptr_t physical_registers;
 	chipaddr virtual_registers;
 	union {
-		struct master_common *common;
-		struct par_master *par;
-		struct spi_master *spi;
-		struct opaque_master *opaque;
+		const struct master_common *common;
+		const struct par_master *par;
+		const struct spi_master *spi;
+		const struct opaque_master *opaque;
 	} mst;
 	const struct flashprog_layout *layout;
 	struct flashprog_layout *default_layout;
