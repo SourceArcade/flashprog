@@ -617,7 +617,7 @@ static int init_default_layout(struct flashctx *flash)
 	return 0;
 }
 
-static void probe_bus(struct registered_master *const mst, const struct flashchip *const chip)
+void flashprog_bus_probe(struct registered_master *const mst, const struct flashchip *const chip)
 {
 	unsigned int least_priority, priority, i;
 	struct found_id **next_ptr;
@@ -657,7 +657,7 @@ static void probe_bus(struct registered_master *const mst, const struct flashchi
 	mst->probed = true;
 }
 
-static bool chip_on_bus(struct registered_master *const mst, const struct flashchip *const chip)
+bool flashprog_chip_match(struct registered_master *const mst, const struct flashchip *const chip)
 {
 	static const char *const id_names[] = {
 		[ID_82802AB]	= "82802AB",
@@ -676,15 +676,17 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashc
 		[ID_EDI]	= "EDI",
 	};
 
+	msg_gdbg("Probing for %s %s, %d kB: ", chip->vendor, chip->name, chip->total_size);
+
 	if (chip_to_probe) {
 		/* We are looking for a particular chip.
 		   If it can't be probed, assume it's there... */
 		if (chip->id.type == ID_NONE)
 			return true;
 		/* ...otherwise, limit the probing sequences by its properties. */
-		probe_bus(mst, chip);
+		flashprog_bus_probe(mst, chip);
 	} else {
-		probe_bus(mst, NULL);
+		flashprog_bus_probe(mst, NULL);
 	}
 
 	struct found_id *found_id;
@@ -717,7 +719,6 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		buses_common = mst->buses_supported & chip->bustype;
 		if (!buses_common)
 			continue;
-		msg_gdbg("Probing for %s %s, %d kB: ", chip->vendor, chip->name, chip->total_size);
 
 		/* Start filling in the dynamic data. */
 		flash->chip = calloc(1, sizeof(*flash->chip));
@@ -741,7 +742,7 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		if (force)
 			break;
 
-		if (!chip_on_bus(mst, flash->chip))
+		if (!flashprog_chip_match(mst, flash->chip))
 			goto notfound;
 
 		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_POST_PROBE))
