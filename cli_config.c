@@ -236,7 +236,11 @@ int flashprog_config_main(int argc, char *argv[])
 
 	if (flashprog_programmer_init(&prog, flash_args.prog_name, flash_args.prog_args))
 		goto free_ret;
-	if (flashprog_flash_probe(&flash, prog, flash_args.chip)) {
+	ret = flashprog_flash_probe(&flash, prog, flash_args.chip);
+	if (ret == 3) {
+		fprintf(stderr, "Please specify which chip definition to use with the -c <chipname> option.\n");
+		goto shutdown_ret;
+	} else if (ret) {
 		fprintf(stderr, "No EEPROM/flash device found.\n");
 		goto shutdown_ret;
 	}

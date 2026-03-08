@@ -192,6 +192,52 @@ int flashprog_programmer_shutdown(struct flashprog_programmer *const flashprog)
  * @{
  */
 
+static int flashprog_flash_probe_any(struct flashprog_flashctx **flashctx,
+				     const struct flashprog_programmer *flashprog)
+{
+	struct flashprog_chips *chip_matches;
+	const struct flashprog_chip *chip;
+	bool first = true;
+	int ret;
+
+	if (flashprog_chips_probe(&chip_matches, flashprog))
+		return 1;
+
+	switch (flashprog_chips_count(chip_matches)) {
+	case 0:
+		ret = 2;
+		goto release_matches;
+	case 1:
+		chip = flashprog_chip_first(chip_matches);
+		break;
+	default:
+		msg_cinfo("Multiple flash chip definitions match the detected chip(s): ");
+		for (chip = flashprog_chip_first(chip_matches); chip;
+		     chip = flashprog_chip_next(chip), first = false)
+			msg_cinfo("%s\"%s\"", first ? "" : ", ", flashprog_chip_name(chip));
+		msg_cinfo("\n");
+		ret = 3;
+		goto release_matches;
+	}
+
+	ret = flashprog_flash_probe_chip(flashctx, flashprog, chip);
+
+release_matches:
+	flashprog_chips_release(chip_matches);
+	return ret;
+}
+
+static const struct flashchip *flashprog_chip_by_name(const char *chip_name)
+{
+	const struct flashchip *chip;
+	for (chip = flashchips; chip->name; ++chip) {
+		if (!strcmp(chip->name, chip_name))
+			return chip;
+	}
+	msg_cerr("Error: Unknown chip '%s' specified.\n", chip_name);
+	return NULL;
+}
+
 /**
  * @brief Probe for a flash chip.
  *
@@ -206,6 +252,8 @@ int flashprog_programmer_shutdown(struct flashprog_programmer *const flashprog)
  * @param[in] chip_name Name of a chip to probe for, or NULL to probe for
  *                      all known chips.
  * @return 0 on success,
+ *         5 if an unknown chip name was provided,
+ *         4 if the chip was detected, but preparation failed,
  *         3 if multiple chips were found,
  *         2 if no chip was found,
  *         or 1 on any other error.
@@ -214,34 +262,14 @@ int flashprog_flash_probe(struct flashprog_flashctx **const flashctx,
 			 const struct flashprog_programmer *const flashprog,
 			 const char *const chip_name)
 {
-	int i, ret = 2;
-	struct flashprog_flashctx second_flashctx = { 0, };
+	if (!chip_name)
+		return flashprog_flash_probe_any(flashctx, flashprog);
 
-	chip_to_probe = chip_name; /* chip_to_probe is global in flashprog.c */
+	const struct flashchip *const chip = flashprog_chip_by_name(chip_name);
+	if (!chip)
+		return 5;
 
-	*flashctx = malloc(sizeof(**flashctx));
-	if (!*flashctx)
-		return 1;
-	memset(*flashctx, 0, sizeof(**flashctx));
-
-	for (i = 0; i < registered_master_count; ++i) {
-		int flash_idx = -1;
-		if (!ret || (flash_idx = probe_flash(&registered_masters[i], 0, *flashctx, 0)) != -1) {
-			ret = 0;
-			/* We found one chip, now check that there is no second match. */
-			if (probe_flash(&registered_masters[i], flash_idx + 1, &second_flashctx, 0) != -1) {
-				flashprog_layout_release(second_flashctx.default_layout);
-				free(second_flashctx.chip);
-				ret = 3;
-				break;
-			}
-		}
-	}
-	if (ret) {
-		flashprog_flash_release(*flashctx);
-		*flashctx = NULL;
-	}
-	return ret;
+	return flashprog_flash_probe_chip(flashctx, flashprog, chip);
 }
 
 /** @private */
