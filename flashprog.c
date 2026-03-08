@@ -661,7 +661,6 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashc
 {
 	static const char *const id_names[] = {
 		[ID_82802AB]	= "82802AB",
-		[ID_EN29LV640B]	= "EN29LV640B",
 		[ID_JEDEC]	= "JEDEC",
 		[ID_JEDEC_29GL]	= "JEDEC_29GL",
 		[ID_OPAQUE]	= "OPAQUE",

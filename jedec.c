@@ -388,13 +388,14 @@ struct found_id *probe_jedec(const struct bus_probe *probe,
 		feature_bits_t features;
 		signed int probe_timing;
 	} additional_sets[] = {
-		{   2*MiB, FEATURE_SHORT_RESET,				 TIMING_ZERO },
-		{   2*MiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,		  10 },
-		{ 512*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,		  10 },
-		{ 384*KiB, FEATURE_LONG_RESET,					   1 },
-		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_2AA,	TIMING_FIXME },
-		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_AAA,	 TIMING_ZERO },
-		{ 128*KiB, FEATURE_SHORT_RESET,				 TIMING_ZERO },
+		{   8*MiB, FEATURE_SHORT_RESET | FEATURE_ADDR_SHIFTED | FEATURE_ADDR_AAA, 10 },
+		{   2*MiB, FEATURE_SHORT_RESET,					 TIMING_ZERO },
+		{   2*MiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,			  10 },
+		{ 512*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_SHIFTED,			  10 },
+		{ 384*KiB, FEATURE_LONG_RESET,						   1 },
+		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_2AA,		TIMING_FIXME },
+		{ 256*KiB, FEATURE_LONG_RESET | FEATURE_ADDR_AAA,		 TIMING_ZERO },
+		{ 128*KiB, FEATURE_SHORT_RESET,					 TIMING_ZERO },
 	};
 	for (set = 0; set < ARRAY_SIZE(additional_sets); ++set) {
 		*next_ptr = probe_jedec_generic(par, additional_sets[set].chip_size,

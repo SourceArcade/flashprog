@@ -26,7 +26,6 @@ enum id_type {
 
 	ID_82802AB,
 	ID_EDI,
-	ID_EN29LV640B,
 	ID_JEDEC,
 	ID_JEDEC_29GL,
 	ID_OPAQUE,

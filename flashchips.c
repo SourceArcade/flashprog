@@ -6609,15 +6609,15 @@ const struct flashchip flashchips[] = {
 		.vendor		= "Eon",
 		.name		= "EN29LV640B",
 		.bustype	= BUS_PARALLEL,
-		.id.type	= ID_EN29LV640B,
+		.id.type	= ID_JEDEC,
 		.id.manufacture	= EON_ID,
 		.id.model	= EON_EN29LV640B,
 		.total_size	= 8192,
 		.page_size	= 8192,
-		.feature_bits	= FEATURE_ADDR_SHIFTED,
-		.tested		= TEST_OK_PREW,
-		.probe		= probe_en29lv640b,
-		.probe_timing	= TIMING_ZERO,	/* Datasheet has no timing info specified */
+		.feature_bits	= FEATURE_ADDR_SHIFTED | FEATURE_ADDR_AAA | FEATURE_SHORT_RESET,
+		.tested		= {.probe = NT, .read = OK, .erase = OK, .write = OK},
+		.probe		= probe_buses,
+		.probe_timing	= 10,	/* Datasheet has no timing info specified */
 		.block_erasers	=
 		{
 			{

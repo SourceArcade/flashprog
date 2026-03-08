@@ -54,31 +54,3 @@ int write_en29lv640b(struct flashctx *flash, const uint8_t *src, unsigned int st
 	/* FIXME: Ignore errors for now. */
 	return 0;
 }
-
-int probe_en29lv640b(struct flashctx *flash)
-{
-	chipaddr bios = flash->virtual_memory;
-	uint16_t id1, id2;
-
-	chip_writeb(flash, 0xAA, bios + 0xAAA);
-	chip_writeb(flash, 0x55, bios + 0x555);
-	chip_writeb(flash, 0x90, bios + 0xAAA);
-
-	programmer_delay(10);
-
-	id1 = chip_readb(flash, bios + 0x200);
-	id1 |= (chip_readb(flash, bios) << 8);
-
-	id2 = chip_readb(flash, bios + 0x02);
-
-	chip_writeb(flash, 0xF0, bios + 0xAAA);
-
-	programmer_delay(10);
-
-	msg_cdbg("%s: id1 0x%04x, id2 0x%04x\n", __func__, id1, id2);
-
-	if (id1 == flash->chip->id.manufacture && id2 == flash->chip->id.model)
-		return 1;
-
-	return 0;
-}
