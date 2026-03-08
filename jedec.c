@@ -281,11 +281,11 @@ static struct found_id *probe_jedec_generic(
 	/* Check if it is a continuation ID, this should be a while loop. */
 	if (largeid1 == 0x7F) {
 		largeid1 <<= 8;
-		largeid1 |= raw[idx++] = par->chip_readb(par, bios + 0x100);
+		largeid1 |= raw[idx++] = par->chip_readb(par, bios + (0x100 << shifted));
 	}
 	if (largeid2 == 0x7F) {
 		largeid2 <<= 8;
-		largeid2 |= raw[idx++] = par->chip_readb(par, bios + 0x101);
+		largeid2 |= raw[idx++] = par->chip_readb(par, bios + (0x101 << shifted));
 	}
 
 	/* Issue JEDEC Product ID Exit command */
@@ -309,11 +309,11 @@ static struct found_id *probe_jedec_generic(
 	/* Check if it is a continuation ID, this should be a while loop. */
 	if (flashcontent1 == 0x7F) {
 		flashcontent1 <<= 8;
-		flashcontent1 |= par->chip_readb(par, bios + 0x100);
+		flashcontent1 |= par->chip_readb(par, bios + (0x100 << shifted));
 	}
 	if (flashcontent2 == 0x7F) {
 		flashcontent2 <<= 8;
-		flashcontent2 |= par->chip_readb(par, bios + 0x101);
+		flashcontent2 |= par->chip_readb(par, bios + (0x101 << shifted));
 	}
 
 	programmer_unmap_flash_region(par, (void *)bios, chip_size);
