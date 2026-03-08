@@ -11,6 +11,7 @@ LIBFLASHPROG_1.0 {
     flashprog_chip_voltage_range;
     flashprog_chips_all;
     flashprog_chips_count;
+    flashprog_chips_probe;
     flashprog_chips_release;
     flashprog_flag_get;
     flashprog_flag_set;

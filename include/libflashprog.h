@@ -49,6 +49,8 @@ struct flashprog_chips;
 __attribute__((nonnull))
 int flashprog_chips_all(struct flashprog_chips **);
 __attribute__((nonnull))
+int flashprog_chips_probe(struct flashprog_chips **, const struct flashprog_programmer *);
+__attribute__((nonnull))
 unsigned int flashprog_chips_count(const struct flashprog_chips *);
 void flashprog_chips_release(struct flashprog_chips *);
 

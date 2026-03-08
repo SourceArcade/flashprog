@@ -21,6 +21,7 @@
 
 #include "flash.h"
 #include "flashchips.h"
+#include "programmer.h"
 
 /**
  * @defgroup flashprog-chips Chip Enumeration
@@ -29,6 +30,16 @@
 
 /* Magic pointer that represents our built in database. */
 #define FLASHCHIPS_DB (struct flashprog_chips *)(uintptr_t)-1
+
+/** @private */
+struct flashprog_chips {
+	/** @private */
+	struct chip_entry {
+		struct flashprog_chip chip;
+		const struct master_common *bus;
+		struct chip_entry *next;
+	} *entries;
+};
 
 static bool chip_from_db(const struct flashprog_chip *chip) {
 	return flashchips <= chip && chip < flashchips + flashchips_size;
@@ -44,6 +55,72 @@ static bool chip_from_db(const struct flashprog_chip *chip) {
  */
 int flashprog_chips_all(struct flashprog_chips **chips) {
 	*chips = FLASHCHIPS_DB;
+	return 0;
+}
+
+static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
+				     struct registered_master *bus)
+{
+	flashprog_bus_probe(bus, NULL);
+
+	int chip;
+	for (chip = 0; flashchips[chip].name; ++chip) {
+		/* Ignore generic entries if we already have a match. */
+		if (chips->entries &&
+		    ((flashchips[chip].id.model == SFDP_DEVICE_ID) ||
+		     (flashchips[chip].id.model == GENERIC_DEVICE_ID)))
+			continue;
+
+		if (!flashprog_chip_match(bus, &flashchips[chip]))
+			continue;
+
+		struct chip_entry *const entry = malloc(sizeof(*entry));
+		if (!entry) {
+			msg_cerr("Out of memory!\n");
+			return 1;
+		}
+
+		entry->chip = flashchips[chip];
+		entry->bus  = &bus->common;
+		entry->next = chips->entries;
+
+		chips->entries = entry;
+	}
+
+	return 0;
+}
+
+/**
+ * @brief Probe for flash chips.
+ *
+ * Probes for flash chips on a given programmer. Can return multiple
+ * matches in case of ambiguous IDs or when the programmer features
+ * multiple buses.
+ *
+ * @param[out] chips Points to a struct flashprog_chips pointer that gets
+ *		     set if probing is successful. *chips has to be freed
+ *		     by the caller with @ref flashprog_chips_release after
+ *		     successful calls.
+ * @param[in] flashprog The flash programmer used to access the chip.
+ * @return 0 on success
+ */
+int flashprog_chips_probe(struct flashprog_chips **chips, const struct flashprog_programmer *flashprog)
+{
+	struct flashprog_chips *const matched_chips = calloc(1, sizeof(*matched_chips));
+	if (!matched_chips) {
+		msg_gerr("Out of memory!\n");
+		return 1;
+	}
+
+	int bus_index;
+	for (bus_index = 0; bus_index < registered_master_count; bus_index++) {
+		if (flashprog_chips_probe_bus(matched_chips, &registered_masters[bus_index])) {
+			flashprog_chips_release(matched_chips);
+			return 1;
+		}
+	}
+
+	*chips = matched_chips;
 	return 0;
 }
 
@@ -72,9 +149,14 @@ unsigned int flashprog_chips_count(const struct flashprog_chips *chips)
  */
 void flashprog_chips_release(struct flashprog_chips *chips)
 {
-	if (chips == FLASHCHIPS_DB)
+	if (!chips || chips == FLASHCHIPS_DB)
 		return;
 
+	struct chip_entry *next;
+	for (; chips->entries; chips->entries = next) {
+		next = chips->entries->next;
+		free(chips->entries);
+	}
 	free(chips);
 }
 
@@ -95,7 +177,7 @@ const struct flashprog_chip *flashprog_chip_first(const struct flashprog_chips *
 	if (chips == FLASHCHIPS_DB)
 		return flashchips;
 
-	return NULL;
+	return &chips->entries->chip;
 }
 
 /**
@@ -124,7 +206,8 @@ const struct flashprog_chip *flashprog_chip_next(const struct flashprog_chip *ch
 		return NULL;
 	}
 
-	return NULL;
+	/* If not in the DB, it must be a probed `chip_entry`. */
+	return &((const struct chip_entry *)chip)->next->chip;
 }
 
 /** @} */ /* end flashprog-chips */
