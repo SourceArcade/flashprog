@@ -65,9 +65,6 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 {
 	const struct par_master *const par = flash->mst.par;
 
-	if (prep == PREPARE_POST_PROBE)
-		return 0;
-
 	/* Init pointers to the fail-safe state to distinguish them later from legit values. */
 	flash->virtual_memory = (chipaddr)ERROR_PTR;
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
@@ -86,9 +83,6 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 int prepare_memory_register_access(struct flashctx *flash, enum preparation_steps prep)
 {
 	const struct par_master *const par = flash->mst.par;
-
-	if (prep == PREPARE_POST_PROBE)
-		return 0;
 
 	if (prepare_memory_access(flash, prep))
 		return 1;

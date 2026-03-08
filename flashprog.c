@@ -751,9 +751,6 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 				goto free_chip;
 		}
 
-		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_PROBE))
-			goto free_chip;
-
 		/* We handle a forced match like a real match, we just avoid probing. Note that probe_flash()
 		 * is only called with force=1 after normal probing failed.
 		 */
