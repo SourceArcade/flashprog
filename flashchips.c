@@ -21,9 +21,9 @@
 #include "ene.h"
 #include "flash.h"
 #include "flashchips.h"
-#include "chipdrivers.h"
 #include "chipdrivers/edi.h"
 #include "chipdrivers/spi.h"
+#include "chipdrivers/opaque.h"
 #include "chipdrivers/memory_bus.h"
 #include "writeprotect.h"
 

@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "flash.h"
 #include "flashchips.h"
-#include "chipdrivers.h"
+#include "chipdrivers/opaque.h"
 #include "programmer.h"
 
 int probe_opaque(struct flashctx *flash)
