@@ -69,20 +69,20 @@ struct found_id {
 	struct id_info_ext info;
 };
 
-struct flashprog_chip;
 struct master_common;
+struct flashchip;
 
 struct bus_probe {
 	unsigned int priority;
 	enum id_type type;
-	struct found_id *(*run)(const struct bus_probe *, const struct master_common *);
+	struct found_id *(*run)(const struct bus_probe *, const struct master_common *, const struct flashchip *);
 	void *arg;
 };
 
 struct bus_probing {
 	unsigned int probe_count;
 	const struct bus_probe *probes;
-	bool (*match)(const struct flashprog_chip *, const struct id_info_ext *);
+	bool (*match)(const struct flashchip *, const struct id_info_ext *);
 };
 
 struct flashprog_flashctx;

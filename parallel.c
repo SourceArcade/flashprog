@@ -80,7 +80,7 @@ static const struct bus_probe memory_probes[] = {
     /* prio. type		function		function argument */
 };
 
-static bool memory_probe_match(const struct flashprog_chip *chip, const struct id_info_ext *found)
+static bool memory_probe_match(const struct flashchip *chip, const struct id_info_ext *found)
 {
 	const struct memory_chip_info *const probe_info = found->ext;
 

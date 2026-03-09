@@ -25,7 +25,9 @@
 #include "spi.h"
 
 /* For ST95XXX chips which have RDID */
-struct found_id *probe_spi_st95(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_st95(const struct bus_probe *probe,
+				const struct master_common *mst,
+				const struct flashchip *chip)
 {
 	/*
 	 * ST_M95_RDID_OUTSIZE depends on size of the flash and

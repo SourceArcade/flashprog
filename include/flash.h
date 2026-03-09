@@ -244,8 +244,7 @@ enum preparation_steps {
 	PREPARE_FULL,
 };
 
-#define flashchip flashprog_chip
-struct flashprog_chip {
+struct flashchip {
 	const char *vendor;
 	const char *name;
 

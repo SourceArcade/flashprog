@@ -481,7 +481,9 @@ static void edi_finish(struct flashctx *flash)
 		msg_perr("%s: Unable to disable EDI!\n", __func__);
 }
 
-struct found_id *probe_edi(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_edi(const struct bus_probe *probe,
+			   const struct master_common *mst,
+			   const struct flashchip *chip)
 {
 	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char hwversion;

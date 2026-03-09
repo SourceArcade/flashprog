@@ -617,7 +617,7 @@ static int init_default_layout(struct flashctx *flash)
 	return 0;
 }
 
-static void probe_bus(struct registered_master *const mst, const enum id_type type)
+static void probe_bus(struct registered_master *const mst, const struct flashchip *const chip)
 {
 	unsigned int least_priority, priority, i;
 	struct found_id **next_ptr;
@@ -638,10 +638,10 @@ static void probe_bus(struct registered_master *const mst, const enum id_type ty
 			if (mst->probing.probes[i].priority != priority)
 				continue;
 
-			if (type && type != mst->probing.probes[i].type)
+			if (chip && chip->id.type != mst->probing.probes[i].type)
 				continue;
 
-			*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common);
+			*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common, chip);
 			found |= !!*next_ptr;
 
 			/* walk to end in case multiple IDs were found in a single call */
@@ -657,7 +657,7 @@ static void probe_bus(struct registered_master *const mst, const enum id_type ty
 	mst->probed = true;
 }
 
-static bool chip_on_bus(struct registered_master *const mst, const struct flashprog_chip *const chip)
+static bool chip_on_bus(struct registered_master *const mst, const struct flashchip *const chip)
 {
 	static const char *const id_names[] = {
 		[ID_82802AB]	= "82802AB",
@@ -682,10 +682,10 @@ static bool chip_on_bus(struct registered_master *const mst, const struct flashp
 		   If it can't be probed, assume it's there... */
 		if (chip->id.type == ID_NONE)
 			return true;
-		/* ...otherwise, limit the probing functions to its type. */
-		probe_bus(mst, chip->id.type);
+		/* ...otherwise, limit the probing sequences by its properties. */
+		probe_bus(mst, chip);
 	} else {
-		probe_bus(mst, 0);
+		probe_bus(mst, NULL);
 	}
 
 	struct found_id *found_id;

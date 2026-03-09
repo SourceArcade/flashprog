@@ -96,7 +96,9 @@ int spi_write_disable(struct flashctx *flash)
 	return spi_send_command(flash, sizeof(cmd), 0, cmd, NULL);
 }
 
-struct found_id *probe_spi_rdid(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_rdid(const struct bus_probe *probe,
+				const struct master_common *mst,
+				const struct flashchip *chip)
 {
 	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char readarr[4];
@@ -147,7 +149,9 @@ struct found_id *probe_spi_rdid(const struct bus_probe *probe, const struct mast
 	return found;
 }
 
-struct found_id *probe_spi_rems(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_rems(const struct bus_probe *probe,
+				const struct master_common *mst,
+				const struct flashchip *chip)
 {
 	const struct spi_master *const spi = (const struct spi_master *)mst;
 	unsigned char readarr[JEDEC_REMS_INSIZE];
@@ -173,7 +177,9 @@ struct found_id *probe_spi_rems(const struct bus_probe *probe, const struct mast
 	return found;
 }
 
-struct found_id *probe_spi_res(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_res(const struct bus_probe *probe,
+			       const struct master_common *mst,
+			       const struct flashchip *chip)
 {
 	const struct spi_master *const spi = (const struct spi_master *)mst;
 	const unsigned int res_len = probe->type == ID_SPI_RES3 ? 3 :
@@ -229,7 +235,9 @@ struct found_id *probe_spi_res(const struct bus_probe *probe, const struct maste
 }
 
 /* Only used for some Atmel chips. */
-struct found_id *probe_spi_at25f(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_at25f(const struct bus_probe *probe,
+				 const struct master_common *mst,
+				 const struct flashchip *chip)
 {
 	static const unsigned char cmd[AT25F_RDID_OUTSIZE] = { AT25F_RDID };
 	const struct spi_master *const spi = (const struct spi_master *)mst;

@@ -473,7 +473,9 @@ cleanup_hdrs:
 	return ret;
 }
 
-struct found_id *probe_spi_sfdp(const struct bus_probe *probe, const struct master_common *mst)
+struct found_id *probe_spi_sfdp(const struct bus_probe *probe,
+				const struct master_common *mst,
+				const struct flashchip *chip)
 {
 	uint8_t buf[8];
 	uint32_t tmp32;

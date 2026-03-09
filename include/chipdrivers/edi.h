@@ -22,8 +22,9 @@
 struct flashprog_flashctx;
 struct master_common;
 struct bus_probe;
+struct flashchip;
 
-struct found_id *probe_edi(const struct bus_probe *, const struct master_common *);
+struct found_id *probe_edi(const struct bus_probe *, const struct master_common *, const struct flashchip *chip);
 
 int edi_chip_block_erase(struct flashprog_flashctx *, unsigned int page, unsigned int size);
 int edi_chip_write(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
