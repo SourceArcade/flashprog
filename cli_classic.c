@@ -24,11 +24,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <getopt.h>
+
+#define flashprog_chip flashchip	/* For now, we use direct pointers   */
+#include "libflashprog.h"		/* to the internal struct flashchip. */
+
 #include "flash.h"
 #include "flashchips.h"
 #include "fmap.h"
 #include "programmer.h"
-#include "libflashprog.h"
 #include "cli.h"
 
 static void cli_classic_usage(const char *name)
@@ -95,6 +98,37 @@ static void cli_classic_validate_singleop(int *operation_specified)
 	if (++(*operation_specified) > 1) {
 		cli_classic_abort_usage("More than one operation specified. Aborting.\n");
 	}
+}
+
+static int force_chip(struct flashprog_flashctx **flash,
+		      const struct flashprog_programmer *const prog,
+		      const char *const chip_name)
+{
+	const struct flashprog_chip *chip;
+	struct master_common *bus = NULL;
+	int bus_idx;
+
+	chip = flashprog_chip_by_name(chip_name);
+	if (!chip)
+		return 1;
+
+	for (bus_idx = 0; bus_idx < registered_master_count; ++bus_idx) {
+		const enum flashprog_bus_type bustype = flashprog_chip_buses(chip);
+		if (!(registered_masters[bus_idx].buses_supported & bustype))
+			continue;
+
+		if (!bus)
+			bus = &registered_masters[bus_idx].common;
+		else
+			msg_cwarn("More than one compatible controller found for the\n"
+				  "requested flash chip, using the first one.\n");
+	}
+	if (!bus) {
+		msg_cerr("No compatible controller found for the requested flash chip.\n");
+		return 1;
+	}
+
+	return flashprog_flash_prepare_context(flash, prog, bus, chip);
 }
 
 static int do_read(struct flashctx *const flash, const char *const filename)
@@ -192,12 +226,10 @@ static bool max_decode_exceeded(const struct flashctx *const flash, const bool f
 
 int flashprog_classic_main(int argc, char *argv[])
 {
-	const struct flashchip *chip = NULL;
-	/* Probe for up to eight flash chips. */
-	struct flashctx flashes[8] = {{0}};
-	struct flashctx *fill_flash;
-	int opt, i, j;
-	int startchip = -1, chipcount = 0, option_index = 0;
+	const struct flashprog_chip *chip;
+	struct flashctx *fill_flash = NULL;
+	int opt, i;
+	int option_index = 0;
 	int operation_specified = 0;
 	bool force = false;
 #if CONFIG_PRINT_WIKI == 1
@@ -408,20 +440,6 @@ int flashprog_classic_main(int argc, char *argv[])
 	}
 	msg_gdbg("\n");
 
-	/* Does a chip with the requested name exist in the flashchips array? */
-	if (flash_args.chip) {
-		for (chip = flashchips; chip && chip->name; chip++)
-			if (!strcmp(chip->name, flash_args.chip))
-				break;
-		if (!chip || !chip->name) {
-			msg_cerr("Error: Unknown chip '%s' specified.\n", flash_args.chip);
-			msg_gerr("Run flashprog -L to view the hardware supported in this flashprog version.\n");
-			ret = 1;
-			goto out;
-		}
-		/* Keep chip around for later usage in case a forced read is requested. */
-	}
-
 	if (flash_args.prog_name == NULL) {
 		const char *const default_programmer = CONFIG_DEFAULT_PROGRAMMER_NAME;
 
@@ -458,85 +476,43 @@ int flashprog_classic_main(int argc, char *argv[])
 	msg_pdbg("The following protocols are supported: %s.\n", tempstr);
 	free(tempstr);
 
-	chip_to_probe = flash_args.chip;
-	for (j = 0; j < registered_master_count; j++) {
-		startchip = 0;
-		while (chipcount < (int)ARRAY_SIZE(flashes)) {
-			startchip = probe_flash(&registered_masters[j], startchip, &flashes[chipcount], 0);
-			if (startchip == -1)
-				break;
-			chipcount++;
-			startchip++;
-		}
-	}
-
-	if (chipcount > 1) {
-		msg_cinfo("Multiple flash chip definitions match the detected chip(s): \"%s\"",
-			  flashes[0].chip->name);
-		for (i = 1; i < chipcount; i++)
-			msg_cinfo(", \"%s\"", flashes[i].chip->name);
-		msg_cinfo("\nPlease specify which chip definition to use with the -c <chipname> option.\n");
+	switch (flashprog_flash_probe(&fill_flash, prog, flash_args.chip)) {
+	case 0:
+		break;
+	case 1:
 		ret = 1;
 		goto out_shutdown;
-	} else if (!chipcount) {
+	case 3:
+		msg_cinfo("Please specify which chip definition to use with the -c <chipname> option.\n");
+		ret = 1;
+		goto out_shutdown;
+	case 4:
+		msg_gerr("Flash context preparation failed! (--verbose/-V may provide details).\n");
+		ret = 1;
+		goto out_shutdown;
+	case 5:
+		msg_gerr("Run flashprog -L to view the hardware supported in this flashprog version.\n");
+		ret = 1;
+		goto out_shutdown;
+	default:
 		msg_cinfo("No EEPROM/flash device found.\n");
-		if (!force || !flash_args.chip) {
-			msg_cinfo("Note: flashprog can never write if the flash chip isn't found "
-				  "automatically.\n");
-		}
+		msg_cinfo("Note: flashprog can never write if the flash chip isn't found automatically.\n");
 		if (force && read_it && flash_args.chip) {
-			struct registered_master *mst;
-			int compatible_masters = 0;
 			msg_cinfo("Force read (-f -r -c) requested, pretending the chip is there:\n");
-			/* This loop just counts compatible controllers. */
-			for (j = 0; j < registered_master_count; j++) {
-				mst = &registered_masters[j];
-				/* chip is still set from the search earlier in this function. */
-				if (mst->buses_supported & chip->bustype)
-					compatible_masters++;
+			if (force_chip(&fill_flash, prog, flash_args.chip) == 0) {
+				msg_cinfo("Please note that forced reads most likely contain garbage.\n");
+				break;
 			}
-			if (!compatible_masters) {
-				msg_cinfo("No compatible controller found for the requested flash chip.\n");
-				ret = 1;
-				goto out_shutdown;
-			}
-			if (compatible_masters > 1)
-				msg_cinfo("More than one compatible controller found for the requested flash "
-					  "chip, using the first one.\n");
-			for (j = 0; j < registered_master_count; j++) {
-				mst = &registered_masters[j];
-				startchip = probe_flash(mst, 0, &flashes[0], 1);
-				if (startchip != -1)
-					break;
-			}
-			if (startchip == -1) {
-				// FIXME: This should never happen! Ask for a bug report?
-				msg_cinfo("Probing for flash chip '%s' failed.\n", flash_args.chip);
-				ret = 1;
-				goto out_shutdown;
-			}
-			msg_cinfo("Please note that forced reads most likely contain garbage.\n");
-			flashprog_flag_set(&flashes[0], FLASHPROG_FLAG_FORCE, force);
-			ret = do_read(&flashes[0], filename);
-			free(flashes[0].chip);
-			goto out_shutdown;
 		}
 		ret = 1;
 		goto out_shutdown;
-	} else if (!flash_args.chip) {
-		/* repeat for convenience when looking at foreign logs */
-		tempstr = flashbuses_to_text(flashes[0].chip->bustype);
-		msg_gdbg("Found %s flash chip \"%s\" (%d kB, %s).\n",
-			 flashes[0].chip->vendor, flashes[0].chip->name, flashes[0].chip->total_size, tempstr);
-		free(tempstr);
 	}
-
-	fill_flash = &flashes[0];
+	chip = fill_flash->chip;
 
 	if (show_progress)
 		flashprog_set_progress_callback(fill_flash, &flashprog_progress_cb, NULL);
 
-	print_chip_support_status(fill_flash->chip);
+	print_chip_support_status(chip);
 
 	if (max_decode_exceeded(fill_flash, force)) {
 		if (!force || flashprog_limit_chip(fill_flash)) {
@@ -551,10 +527,10 @@ int flashprog_classic_main(int argc, char *argv[])
 	}
 
 	if (flash_name) {
-		if (fill_flash->chip->vendor && fill_flash->chip->name) {
-			printf("vendor=\"%s\" name=\"%s\"\n",
-				fill_flash->chip->vendor,
-				fill_flash->chip->name);
+		const char *const vendor = flashprog_chip_vendor(chip);
+		const char *const name = flashprog_chip_name(chip);
+		if (vendor && name) {
+			printf("vendor=\"%s\" name=\"%s\"\n", vendor, name);
 		} else {
 			ret = -1;
 		}
@@ -562,7 +538,7 @@ int flashprog_classic_main(int argc, char *argv[])
 	}
 
 	if (flash_size) {
-		printf("%zu\n", flashprog_flash_getsize(fill_flash));
+		printf("%zu\n", flashprog_chip_size(chip));
 		goto out_shutdown;
 	}
 
@@ -608,16 +584,11 @@ int flashprog_classic_main(int argc, char *argv[])
 	else if (verify_it)
 		ret = do_verify(fill_flash, filename);
 
-	flashprog_layout_release(layout);
-
 out_shutdown:
+	flashprog_layout_release(layout);
+	flashprog_flash_release(fill_flash);
 	flashprog_programmer_shutdown(prog);
 out:
-	for (i = 0; i < chipcount; i++) {
-		flashprog_layout_release(flashes[i].default_layout);
-		free(flashes[i].chip);
-	}
-
 	cleanup_include_args(&include_args);
 	free(filename);
 	free(referencefile);

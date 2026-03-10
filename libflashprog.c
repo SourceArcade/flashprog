@@ -227,7 +227,8 @@ release_matches:
 	return ret;
 }
 
-static const struct flashchip *flashprog_chip_by_name(const char *chip_name)
+/** @private */
+const struct flashchip *flashprog_chip_by_name(const char *chip_name)
 {
 	const struct flashchip *chip;
 	for (chip = flashchips; chip->name; ++chip) {

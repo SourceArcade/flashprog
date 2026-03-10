@@ -91,6 +91,7 @@ bool flashprog_chip_match(struct registered_master *, const struct flashchip *);
 struct flashprog_chips;
 struct flashprog_flashctx;
 struct flashprog_programmer;
+const struct flashchip *flashprog_chip_by_name(const char *chip_name);
 const struct master_common *flashprog_chip_probe(const struct flashprog_programmer *, const struct flashchip *);
 int flashprog_flash_prepare_context(struct flashprog_flashctx **, const struct flashprog_programmer *, const struct master_common *, const struct flashchip *);
 
