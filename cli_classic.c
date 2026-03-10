@@ -170,14 +170,14 @@ _free_ret:
 }
 
 /* Returns true if the flash chip cannot be completely accessed due to size/address limits of the programmer. */
-static bool max_decode_exceeded(const struct registered_master *const mst, const struct flashctx *const flash)
+static bool max_decode_exceeded(const struct flashctx *const flash)
 {
-	if (flashprog_flash_getsize(flash) <= mst->max_rom_decode)
+	if (flashprog_flash_getsize(flash) <= flash->mst.common->max_rom_decode)
 		return false;
 
 	msg_pdbg("Chip size %u kB is bigger than supported size %zu kB of\n"
 		 "chipset/board/programmer for memory-mapped interface, probe/read/erase/write\n"
-		 "may fail.\n", flash->chip->total_size, mst->max_rom_decode / KiB);
+		 "may fail.\n", flash->chip->total_size, flash->mst.common->max_rom_decode / KiB);
 	return true;
 }
 
@@ -450,15 +450,12 @@ int flashprog_classic_main(int argc, char *argv[])
 	free(tempstr);
 
 	chip_to_probe = flash_args.chip;
-	struct registered_master *matched_master = NULL;
 	for (j = 0; j < registered_master_count; j++) {
 		startchip = 0;
 		while (chipcount < (int)ARRAY_SIZE(flashes)) {
 			startchip = probe_flash(&registered_masters[j], startchip, &flashes[chipcount], 0);
 			if (startchip == -1)
 				break;
-			if (chipcount == 0)
-				matched_master = &registered_masters[j];
 			chipcount++;
 			startchip++;
 		}
@@ -532,7 +529,7 @@ int flashprog_classic_main(int argc, char *argv[])
 
 	print_chip_support_status(fill_flash->chip);
 
-	if (max_decode_exceeded(matched_master, fill_flash) && !force) {
+	if (max_decode_exceeded(fill_flash) && !force) {
 		msg_cerr("This flash chip is too big for this programmer (--verbose/-V gives details).\n"
 			 "Use --force/-f to override at your own risk.\n");
 		ret = 1;

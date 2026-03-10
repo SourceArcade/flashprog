@@ -63,10 +63,12 @@ int register_opaque_master(const struct opaque_master *mst, void *data)
 			 __func__);
 		return ERROR_FLASHPROG_BUG;
 	}
-	rmst.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
 	rmst.buses_supported = BUS_PROG;
 	rmst.opaque = *mst;
 	if (data)
 		rmst.opaque.data = data;
+
+	rmst.common.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
+
 	return register_master(&rmst);
 }

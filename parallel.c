@@ -84,13 +84,15 @@ int register_par_master(const struct par_master *mst, const enum chipbustype bus
 		return ERROR_FLASHPROG_BUG;
 	}
 
-	if (max_rom_decode)
-		rmst.max_rom_decode = max_rom_decode;
-	else
-		rmst.max_rom_decode = DEFAULT_MAX_DECODE_PARALLEL;
 	rmst.buses_supported = buses;
 	rmst.par = *mst;
 	if (data)
 		rmst.par.data = data;
+
+	if (max_rom_decode)
+		rmst.common.max_rom_decode = max_rom_decode;
+	else
+		rmst.common.max_rom_decode = DEFAULT_MAX_DECODE_PARALLEL;
+
 	return register_master(&rmst);
 }

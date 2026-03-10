@@ -224,10 +224,6 @@ int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, voi
 		return ERROR_FLASHPROG_BUG;
 	}
 
-	if (max_rom_decode)
-		rmst.max_rom_decode = max_rom_decode;
-	else
-		rmst.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
 	rmst.buses_supported = BUS_SPI;
 	rmst.probing.probe_count = ARRAY_SIZE(spi_probes);
 	rmst.probing.probes = spi_probes;
@@ -235,6 +231,12 @@ int register_spi_master(const struct spi_master *mst, size_t max_rom_decode, voi
 	rmst.spi = *mst;
 	if (data)
 		rmst.spi.data = data;
+
+	if (max_rom_decode)
+		rmst.common.max_rom_decode = max_rom_decode;
+	else
+		rmst.common.max_rom_decode = MAX_ROM_DECODE_UNLIMITED;
+
 	return register_master(&rmst);
 }
 

@@ -274,6 +274,8 @@ extern unsigned long flashbase;
 char *extract_programmer_param(const char *param_name);
 
 struct master_common {
+	size_t max_rom_decode;
+
 	int (*adapt_voltage)(const struct master_common *, unsigned int min_mv, unsigned int max_mv);
 };
 
@@ -472,7 +474,6 @@ void fallback_chip_readn(const struct flashctx *flash, uint8_t *buf, const chipa
 #define DEFAULT_MAX_DECODE_PARALLEL (16*MiB)
 #define MAX_ROM_DECODE_UNLIMITED UINT32_MAX
 struct registered_master {
-	size_t max_rom_decode;
 	enum chipbustype buses_supported;
 
 	struct bus_probing probing;
