@@ -134,6 +134,7 @@ subdir('platform')
 if systems_hwaccess.contains(host_machine.system())
   srcs += files('hwaccess_physmap.c')
   if ['x86', 'x86_64'].contains(host_machine.cpu_family())
+    add_project_arguments('-DHAVE_OUTB=1', language : 'c')
     srcs += files('hwaccess_x86_msr.c', 'hwaccess_x86_io.c')
   endif
 endif

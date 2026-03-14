@@ -844,7 +844,7 @@ endif
 
 USE_X86_PORT_IO := $(if $(call filter_deps,$(DEPENDS_ON_X86_PORT_IO)),yes,no)
 ifeq ($(USE_X86_PORT_IO), yes)
-FEATURE_FLAGS += -D'__FLASHPROG_HAVE_OUTB__=1'
+FEATURE_FLAGS += -D'HAVE_OUTB=1'
 PROGRAMMER_OBJS += hwaccess_x86_io.o
 endif
 

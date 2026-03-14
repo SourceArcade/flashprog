@@ -121,7 +121,7 @@ uintptr_t pcidev_readbar(struct pci_dev *dev, int bar)
 		break;
 	case TYPE_IOBAR:
 		msg_pdbg("I/O\n");
-#if __FLASHPROG_HAVE_OUTB__
+#if HAVE_OUTB
 		if (!(supported_cycles & PCI_COMMAND_IO)) {
 			msg_perr("I/O BAR access requested, but device has I/O space accesses disabled.\n");
 			/* TODO: Abort here? */
