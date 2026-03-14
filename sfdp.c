@@ -453,7 +453,7 @@ int spi_prepare_sfdp(struct flashctx *flash)
 				msg_cdbg("Length of the mandatory JEDEC SFDP "
 					 "parameter table is wrong (%d B), "
 					 "skipping it.\n", len);
-			} else if (sfdp_fill_flash(flash->chip, tbuf, len) == 0)
+			} else if (sfdp_fill_flash(&flash->chip, tbuf, len) == 0)
 				ret = 0;
 		}
 		free(tbuf);
@@ -466,7 +466,7 @@ cleanup_hdrs:
 	if (ret)
 		return ret;
 
-	if (selfcheck_chip(flash->chip, -1)) {
+	if (selfcheck_chip(&flash->chip, -1)) {
 		msg_cerr("SFDP parsing resulted in invalid chip structure.\n");
 		return SPI_FLASHPROG_BUG;
 	}
@@ -489,8 +489,8 @@ cleanup_hdrs:
 
 	/* Chain preparation in case we replaced the .prepare_access
 	   pointer, e.g. spi_prepare_io() is needed for 4BA mode. */
-	if (flash->chip->prepare_access != spi_prepare_sfdp)
-		ret = flash->chip->prepare_access(flash);
+	if (flash->chip.prepare_access != spi_prepare_sfdp)
+		ret = flash->chip.prepare_access(flash);
 
 	return ret;
 }

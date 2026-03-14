@@ -290,14 +290,7 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 		return 1;
 	}
 
-	flash->chip = calloc(1, sizeof(*flash->chip));
-	if (!flash->chip) {
-		msg_gerr("Out of memory!\n");
-		free(flash);
-		return 1;
-	}
-
-	*flash->chip = *chip;
+	flash->chip = *chip;
 	flash->mst.common = bus; /* `mst` is a union, so we need only one pointer */
 
 	if (chip->prepare_access && chip->prepare_access(flash)) {
@@ -314,9 +307,9 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 		return 1;
 	}
 
-	char *const tmp = flashbuses_to_text(flash->chip->bustype);
+	char *const tmp = flashbuses_to_text(flash->chip.bustype);
 	msg_cinfo("Using %s flash chip \"%s\" (%d kB, %s) ",
-		  flash->chip->vendor, flash->chip->name, flash->chip->total_size, tmp);
+		  flash->chip.vendor, flash->chip.name, flash->chip.total_size, tmp);
 	free(tmp);
 	if (strcmp(flashprog->driver->name, "internal") == 0 && flash->physical_memory != 0)
 		msg_cinfo("mapped at physical address 0x%0*" PRIxPTR ".\n",
@@ -324,8 +317,8 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 	else
 		msg_cinfo("on %s.\n", flashprog->driver->name);
 
-	if (flash->chip->printlock)
-		flash->chip->printlock(flash);
+	if (flash->chip.printlock)
+		flash->chip.printlock(flash);
 
 	*flashctx = flash;
 	return 0;
@@ -370,7 +363,7 @@ int flashprog_flash_probe_chip(struct flashprog_flashctx **flashctx,
  */
 size_t flashprog_flash_getsize(const struct flashprog_flashctx *const flashctx)
 {
-	return flashctx->chip->total_size * 1024;
+	return flashctx->chip.total_size * 1024;
 }
 
 /**
@@ -383,10 +376,9 @@ void flashprog_flash_release(struct flashprog_flashctx *const flashctx)
 	if (!flashctx)
 		return;
 
-	if (flashctx->chip->finish_access)
-		flashctx->chip->finish_access(flashctx);
+	if (flashctx->chip.finish_access)
+		flashctx->chip.finish_access(flashctx);
 	flashprog_layout_release(flashctx->default_layout);
-	free(flashctx->chip);
 	free(flashctx);
 }
 
@@ -772,10 +764,10 @@ void flashprog_wp_get_range(size_t *start, size_t *len, const struct flashprog_w
  */
 enum flashprog_wp_result flashprog_wp_write_cfg(struct flashctx *flash, const struct flashprog_wp_cfg *cfg)
 {
-	if (!flash->chip->wp_write_cfg)
+	if (!flash->chip.wp_write_cfg)
 		return FLASHPROG_WP_ERR_CHIP_UNSUPPORTED;
 
-	return flash->chip->wp_write_cfg(flash, cfg);
+	return flash->chip.wp_write_cfg(flash, cfg);
 }
 
 /**
@@ -789,10 +781,10 @@ enum flashprog_wp_result flashprog_wp_write_cfg(struct flashctx *flash, const st
  */
 enum flashprog_wp_result flashprog_wp_read_cfg(struct flashprog_wp_cfg *cfg, struct flashctx *flash)
 {
-	if (!flash->chip->wp_read_cfg)
+	if (!flash->chip.wp_read_cfg)
 		return FLASHPROG_WP_ERR_CHIP_UNSUPPORTED;
 
-	return flash->chip->wp_read_cfg(cfg, flash);
+	return flash->chip.wp_read_cfg(cfg, flash);
 }
 
 /**
@@ -809,10 +801,10 @@ enum flashprog_wp_result flashprog_wp_read_cfg(struct flashprog_wp_cfg *cfg, str
  */
 enum flashprog_wp_result flashprog_wp_get_available_ranges(struct flashprog_wp_ranges **list, struct flashprog_flashctx *flash)
 {
-	if (!flash->chip->wp_get_ranges)
+	if (!flash->chip.wp_get_ranges)
 		return FLASHPROG_WP_ERR_CHIP_UNSUPPORTED;
 
-	return flash->chip->wp_get_ranges(list, flash);
+	return flash->chip.wp_get_ranges(list, flash);
 }
 
 /**

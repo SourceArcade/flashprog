@@ -178,7 +178,7 @@ typedef uint32_t feature_bits_t;
 #define FEATURE_ANY_QUAD	(FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF | \
 				 FEATURE_FAST_READ_QOUT | FEATURE_FAST_READ_QIO | FEATURE_FAST_READ_QPI4B)
 
-#define ERASED_VALUE(flash)	(((flash)->chip->feature_bits & FEATURE_ERASED_ZERO) ? 0x00 : 0xff)
+#define ERASED_VALUE(flash)	(((flash)->chip.feature_bits & FEATURE_ERASED_ZERO) ? 0x00 : 0xff)
 
 #define OK   FLASHPROG_TEST_OK
 #define NT   FLASHPROG_TEST_NT
@@ -424,7 +424,7 @@ struct flashprog_progress {
 struct spi_read_op;
 
 struct flashprog_flashctx {
-	struct flashchip *chip;
+	struct flashchip chip;
 	/* FIXME: The memory mappings should be saved in a more structured way. */
 	/* The physical_* fields store the respective addresses in the physical address space of the CPU. */
 	uintptr_t physical_memory;

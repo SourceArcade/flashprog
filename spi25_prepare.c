@@ -27,11 +27,11 @@ static int spi_enter_exit_4ba(struct flashctx *const flash, const bool enter)
 	const unsigned char cmd = enter ? JEDEC_ENTER_4_BYTE_ADDR_MODE : JEDEC_EXIT_4_BYTE_ADDR_MODE;
 	int ret = 1;
 
-	if (flash->chip->feature_bits & FEATURE_4BA_ENTER)
+	if (flash->chip.feature_bits & FEATURE_4BA_ENTER)
 		ret = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
-	else if (flash->chip->feature_bits & FEATURE_4BA_ENTER_WREN)
+	else if (flash->chip.feature_bits & FEATURE_4BA_ENTER_WREN)
 		ret = spi_simple_write_cmd(flash, cmd, 0);
-	else if (flash->chip->feature_bits & FEATURE_4BA_ENTER_EAR7)
+	else if (flash->chip.feature_bits & FEATURE_4BA_ENTER_EAR7)
 		ret = spi_set_extended_address(flash, enter ? 0x80 : 0x00);
 
 	if (!ret)
@@ -55,9 +55,9 @@ static int spi_prepare_4ba(struct flashctx *const flash)
 	flash->in_4ba_mode = false;
 
 	/* Be careful about 4BA chips and broken masters */
-	if (flash->chip->total_size > 16 * 1024 && spi_master_no_4ba_modes(flash)) {
+	if (flash->chip.total_size > 16 * 1024 && spi_master_no_4ba_modes(flash)) {
 		/* If we can't use native instructions, bail out */
-		if ((flash->chip->feature_bits & FEATURE_4BA_NATIVE) != FEATURE_4BA_NATIVE
+		if ((flash->chip.feature_bits & FEATURE_4BA_NATIVE) != FEATURE_4BA_NATIVE
 		    || !spi_master_4ba(flash)) {
 			msg_cerr("Programmer doesn't support this chip. Aborting.\n");
 			return 1;
@@ -65,7 +65,7 @@ static int spi_prepare_4ba(struct flashctx *const flash)
 	}
 
 	/* Enable/disable 4-byte addressing mode if flash chip supports it */
-	if (flash->chip->feature_bits & (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN | FEATURE_4BA_ENTER_EAR7)) {
+	if (flash->chip.feature_bits & (FEATURE_4BA_ENTER | FEATURE_4BA_ENTER_WREN | FEATURE_4BA_ENTER_EAR7)) {
 		int ret;
 		if (spi_master_4ba(flash))
 			ret = spi_enter_4ba(flash);
@@ -82,7 +82,7 @@ static int spi_prepare_4ba(struct flashctx *const flash)
 
 static int spi_enter_qpi(struct flashctx *const flash)
 {
-	const unsigned char cmd = flash->chip->feature_bits & FEATURE_QPI_35_F5 ? 0x35 : 0x38;
+	const unsigned char cmd = flash->chip.feature_bits & FEATURE_QPI_35_F5 ? 0x35 : 0x38;
 	const int ret = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
 	if (!ret) {
 		msg_cdbg("Entered QPI mode.\n");
@@ -93,7 +93,7 @@ static int spi_enter_qpi(struct flashctx *const flash)
 
 static int spi_exit_qpi(struct flashctx *const flash)
 {
-	const unsigned char cmd = flash->chip->feature_bits & FEATURE_QPI_35_F5 ? 0xf5 : 0xff;
+	const unsigned char cmd = flash->chip.feature_bits & FEATURE_QPI_35_F5 ? 0xf5 : 0xff;
 	const int ret = spi_send_command(flash, sizeof(cmd), 0, &cmd, NULL);
 	if (!ret) {
 		msg_cdbg("Left QPI mode.\n");
@@ -114,15 +114,15 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 
 	/* Check QE bit if present */
 	flash->volatile_qe_enabled = false;
-	if (flash->chip->reg_bits.qe.reg != INVALID_REG) {
-		const struct reg_bit_info qe = flash->chip->reg_bits.qe;
+	if (flash->chip.reg_bits.qe.reg != INVALID_REG) {
+		const struct reg_bit_info qe = flash->chip.reg_bits.qe;
 		const uint8_t mask = 1 << qe.bit_index;
 		uint8_t reg_val;
 
 		if (spi_read_register(flash, qe.reg, &reg_val)) {
 			reg_val = 0;
 		} else if (!(reg_val & mask) &&
-			   (flash->chip->feature_bits & FEATURE_WRSR_EWSR)) {
+			   (flash->chip.feature_bits & FEATURE_WRSR_EWSR)) {
 			msg_pdbg("Trying to set volatile quad-enable (QE).\n");
 			reg_val |= mask;
 			if (spi_write_register(flash, qe.reg, reg_val, WRSR_VOLATILE_BITS) ||
@@ -135,7 +135,7 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 
 		if (!(reg_val & mask)) {
 			msg_cinfo("Quad-enable (QE) bit is unknown or unset, disabling quad i/o.\n");
-			flash->chip->feature_bits &= ~FEATURE_ANY_QUAD;
+			flash->chip.feature_bits &= ~FEATURE_ANY_QUAD;
 		} else {
 			msg_cdbg("Quad-enable (QE) bit is set.\n");
 		}
@@ -143,7 +143,7 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 
 	flash->in_qpi_mode = false;
 
-	if (!(flash->chip->feature_bits & (FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF)) || !spi_master_qpi(flash))
+	if (!(flash->chip.feature_bits & (FEATURE_QPI_35_F5 | FEATURE_QPI_38_FF)) || !spi_master_qpi(flash))
 		return 0;
 
 	if (spi_enter_qpi(flash))
@@ -154,25 +154,25 @@ static int spi_prepare_quad_io(struct flashctx *const flash)
 
 static bool qpi_use_fast_read_qio(const struct flashctx *flash)
 {
-	return flash->chip->feature_bits & FEATURE_SET_READ_PARAMS ||
-		flash->chip->reg_bits.dc[0].reg != INVALID_REG ||
-		(flash->chip->dummy_cycles.qpi_fast_read_qio != 0 &&
-		 (flash->chip->dummy_cycles.qpi_fast_read == 0 ||
-		  flash->chip->dummy_cycles.qpi_fast_read_qio <=
-			flash->chip->dummy_cycles.qpi_fast_read));
+	return flash->chip.feature_bits & FEATURE_SET_READ_PARAMS ||
+		flash->chip.reg_bits.dc[0].reg != INVALID_REG ||
+		(flash->chip.dummy_cycles.qpi_fast_read_qio != 0 &&
+		 (flash->chip.dummy_cycles.qpi_fast_read == 0 ||
+		  flash->chip.dummy_cycles.qpi_fast_read_qio <=
+			flash->chip.dummy_cycles.qpi_fast_read));
 }
 
 static int qpi_dummy_cycles(const struct flashctx *flash)
 {
-	if (flash->chip->feature_bits & FEATURE_SET_READ_PARAMS ||
-	    flash->chip->reg_bits.dc[0].reg != INVALID_REG)
+	if (flash->chip.feature_bits & FEATURE_SET_READ_PARAMS ||
+	    flash->chip.reg_bits.dc[0].reg != INVALID_REG)
 		/* TODO: Index 00 is assumed to be the default.
 		         Could switch to potentially faster params. */
-		return flash->chip->dummy_cycles.qpi_read_params.clks00;
+		return flash->chip.dummy_cycles.qpi_read_params.clks00;
 	else if (qpi_use_fast_read_qio(flash))
-		return flash->chip->dummy_cycles.qpi_fast_read_qio;
+		return flash->chip.dummy_cycles.qpi_fast_read_qio;
 	else
-		return flash->chip->dummy_cycles.qpi_fast_read;
+		return flash->chip.dummy_cycles.qpi_fast_read;
 }
 
 static const struct spi_read_op *select_qpi_fast_read(const struct flashctx *flash)
@@ -182,7 +182,7 @@ static const struct spi_read_op *select_qpi_fast_read(const struct flashctx *fla
 	static const struct spi_read_op fast_read_qio_4ba = { QPI_4_4_4, true, JEDEC_FAST_READ_QIO_4BA, 0xff, 0 };
 
 	if (qpi_use_fast_read_qio(flash)) {
-		if (flash->chip->feature_bits & FEATURE_FAST_READ_QPI4B &&
+		if (flash->chip.feature_bits & FEATURE_FAST_READ_QPI4B &&
 		    spi_master_4ba(flash) && flash->mst.spi->probe_opcode(flash, fast_read_qio_4ba.opcode))
 			return &fast_read_qio_4ba;
 		else
@@ -213,9 +213,9 @@ static const struct spi_read_op *select_multi_io_fast_read(const struct flashctx
 
 	unsigned int i;
 	for (i = 0; i < ARRAY_SIZE(mio); ++i) {
-		if (mio[i].op.native_4ba && !(flash->chip->feature_bits & FEATURE_4BA_FAST_READ))
+		if (mio[i].op.native_4ba && !(flash->chip.feature_bits & FEATURE_4BA_FAST_READ))
 			continue;
-		if ((flash->chip->feature_bits & mio[i].feature_check) != mio[i].feature_check)
+		if ((flash->chip.feature_bits & mio[i].feature_check) != mio[i].feature_check)
 			continue;
 		if ((flash->mst.spi->features & mio[i].master_check) != mio[i].master_check)
 			continue;
@@ -281,7 +281,7 @@ void spi_finish_io(struct flashctx *const flash)
 	}
 	if (flash->volatile_qe_enabled) {
 		msg_pdbg("Trying to restore volatile quad-enable (QE) state.\n");
-		const struct reg_bit_info qe = flash->chip->reg_bits.qe;
+		const struct reg_bit_info qe = flash->chip.reg_bits.qe;
 		uint8_t reg_val;
 
 		if (!spi_read_register(flash, qe.reg, &reg_val)) {

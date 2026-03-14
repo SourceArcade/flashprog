@@ -72,7 +72,7 @@ int spi_block_erase_emulation(struct flashctx *flash, unsigned int addr, unsigne
 		return 1;
 	}
 	memset(erased_contents, ERASED_VALUE(flash), blocklen * sizeof(uint8_t));
-	result = spi_write_chunked(flash, erased_contents, 0, blocklen, flash->chip->page_size);
+	result = spi_write_chunked(flash, erased_contents, 0, blocklen, flash->chip.page_size);
 	free(erased_contents);
 	return result;
 }

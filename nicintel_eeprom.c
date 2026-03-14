@@ -106,12 +106,12 @@ static inline bool is_i210(uint16_t device_id)
 static int nicintel_ee_prepare_i210(struct flashctx *flash)
 {
 	/* Emulated eeprom has a fixed size of 4 KB */
-	flash->chip->total_size = 4;
-	flash->chip->page_size = flashprog_flash_getsize(flash);
-	flash->chip->tested = TEST_OK_PREW;
-	flash->chip->gran = write_gran_1byte_implicit_erase;
-	flash->chip->block_erasers->eraseblocks[0].size = flash->chip->page_size;
-	flash->chip->block_erasers->eraseblocks[0].count = 1;
+	flash->chip.total_size = 4;
+	flash->chip.page_size = flashprog_flash_getsize(flash);
+	flash->chip.tested = TEST_OK_PREW;
+	flash->chip.gran = write_gran_1byte_implicit_erase;
+	flash->chip.block_erasers->eraseblocks[0].size = flash->chip.page_size;
+	flash->chip.block_erasers->eraseblocks[0].count = 1;
 
 	return 1;
 }
@@ -119,16 +119,16 @@ static int nicintel_ee_prepare_i210(struct flashctx *flash)
 static int nicintel_ee_prepare_82580(struct flashctx *flash)
 {
 	if (nicintel_pci->device_id == UNPROG_DEVICE)
-		flash->chip->total_size = 16; /* Fall back to minimum supported size. */
+		flash->chip.total_size = 16; /* Fall back to minimum supported size. */
 	else {
 		uint32_t tmp = pci_mmio_readl(nicintel_eebar + EEC);
 		tmp = ((tmp >> EE_SIZE) & EE_SIZE_MASK);
 		switch (tmp) {
 		case 7:
-			flash->chip->total_size = 16;
+			flash->chip.total_size = 16;
 			break;
 		case 8:
-			flash->chip->total_size = 32;
+			flash->chip.total_size = 32;
 			break;
 		default:
 			msg_cerr("Unsupported chip size 0x%x\n", tmp);
@@ -136,11 +136,11 @@ static int nicintel_ee_prepare_82580(struct flashctx *flash)
 		}
 	}
 
-	flash->chip->page_size = EE_PAGE_MASK + 1;
-	flash->chip->tested = TEST_OK_PREW;
-	flash->chip->gran = write_gran_1byte_implicit_erase;
-	flash->chip->block_erasers->eraseblocks[0].size = (EE_PAGE_MASK + 1);
-	flash->chip->block_erasers->eraseblocks[0].count = (flashprog_flash_getsize(flash)) / (EE_PAGE_MASK + 1);
+	flash->chip.page_size = EE_PAGE_MASK + 1;
+	flash->chip.tested = TEST_OK_PREW;
+	flash->chip.gran = write_gran_1byte_implicit_erase;
+	flash->chip.block_erasers->eraseblocks[0].size = (EE_PAGE_MASK + 1);
+	flash->chip.block_erasers->eraseblocks[0].count = (flashprog_flash_getsize(flash)) / (EE_PAGE_MASK + 1);
 
 	return 1;
 }

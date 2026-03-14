@@ -81,9 +81,9 @@ static unsigned int at45db_get_sector_count(struct flashctx *flash)
 	unsigned int i, j;
 	unsigned int cnt = 0;
 	for (i = 0; i < NUM_ERASEFUNCTIONS; i++) {
-		if (flash->chip->block_erasers[i].block_erase == &spi_erase_at45db_sector) {
+		if (flash->chip.block_erasers[i].block_erase == &spi_erase_at45db_sector) {
 			for (j = 0; j < NUM_ERASEREGIONS; j++) {
-				cnt += flash->chip->block_erasers[i].eraseblocks[j].count;
+				cnt += flash->chip.block_erasers[i].eraseblocks[j].count;
 			}
 		}
 	}
@@ -144,7 +144,7 @@ int spi_prettyprint_status_register_at45db(struct flashctx *flash)
 	}
 
 	/* AT45DB321C does not support lockdown or a page size of a power of 2... */
-	const bool isAT45DB321C = (strcmp(flash->chip->name, "AT45DB321C") == 0);
+	const bool isAT45DB321C = (strcmp(flash->chip.name, "AT45DB321C") == 0);
 	msg_cdbg("Chip status register is 0x%02x\n", status);
 	msg_cdbg("Chip status register: Bit 7 / Ready is %sset\n", (status & AT45DB_READY) ? "" : "not ");
 	msg_cdbg("Chip status register: Bit 6 / Compare match is %sset\n", (status & AT45DB_CMP) ? "" : "not ");
@@ -174,7 +174,7 @@ int spi_prettyprint_status_register_at45db(struct flashctx *flash)
 /* Adapt chip entry for AT45DB* chips that support multiple page sizes. */
 int spi_prepare_at45db(struct flashctx *const flash)
 {
-	struct flashchip *const chip = flash->chip;
+	struct flashchip *const chip = &flash->chip;
 	uint8_t status;
 
 	/* Power-of-2 check */
@@ -233,7 +233,7 @@ static unsigned int at45db_convert_addr(unsigned int addr, unsigned int page_siz
 
 int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, unsigned int len)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 	if ((addr + len) > total_size) {
 		msg_cerr("%s: tried to read beyond flash boundary: addr=%u, len=%u, size=%u\n",
@@ -265,7 +265,7 @@ int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, uns
  * The first 4 (dummy) bytes read need to be discarded. */
 int spi_read_at45db_e8(struct flashctx *flash, uint8_t *buf, unsigned int addr, unsigned int len)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 	if ((addr + len) > total_size) {
 		msg_cerr("%s: tried to read beyond flash boundary: addr=%u, len=%u, size=%u\n",
@@ -343,7 +343,7 @@ static int at45db_erase(struct flashctx *flash, uint8_t opcode, unsigned int at4
 
 int spi_erase_at45db_page(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) {
@@ -363,7 +363,7 @@ int spi_erase_at45db_page(struct flashctx *flash, unsigned int addr, unsigned in
 
 int spi_erase_at45db_block(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) { // FIXME: should check blocks not pages
@@ -383,7 +383,7 @@ int spi_erase_at45db_block(struct flashctx *flash, unsigned int addr, unsigned i
 
 int spi_erase_at45db_sector(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) { // FIXME: should check sectors not pages
@@ -420,9 +420,9 @@ int spi_erase_at45db_chip(struct flashctx *flash, unsigned int addr, unsigned in
  * address and has an asymmetric layout. */
 int spi_erase_at45cs_sector(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
-	const struct block_eraser be = flash->chip->block_erasers[0];
+	const struct block_eraser be = flash->chip.block_erasers[0];
 	const unsigned int sec_0a_top = be.eraseblocks[0].size;
 	const unsigned int sec_0b_top = be.eraseblocks[0].size + be.eraseblocks[1].size;
 
@@ -459,7 +459,7 @@ int spi_erase_at45cs_sector(struct flashctx *flash, unsigned int addr, unsigned 
 
 static int at45db_fill_buffer1(struct flashctx *flash, const uint8_t *bytes, unsigned int off, unsigned int len)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	if ((off + len) > page_size) {
 		msg_cerr("Tried to write %u bytes at offset %u into a buffer of only %u B.\n",
 			 len, off, page_size);
@@ -517,7 +517,7 @@ static int at45db_commit_buffer1(struct flashctx *flash, unsigned int at45db_add
 
 static int at45db_program_page(struct flashctx *flash, const uint8_t *buf, unsigned int at45db_addr)
 {
-	int ret = at45db_fill_buffer1(flash, buf, 0, flash->chip->page_size);
+	int ret = at45db_fill_buffer1(flash, buf, 0, flash->chip.page_size);
 	if (ret != 0) {
 		msg_cerr("%s: filling the buffer failed!\n", __func__);
 		return ret;
@@ -534,7 +534,7 @@ static int at45db_program_page(struct flashctx *flash, const uint8_t *buf, unsig
 
 int spi_write_at45db(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
-	const unsigned int page_size = flash->chip->page_size;
+	const unsigned int page_size = flash->chip.page_size;
 	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((start % page_size) != 0 || (len % page_size) != 0) {

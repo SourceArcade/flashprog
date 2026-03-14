@@ -112,13 +112,13 @@ static unsigned int getaddrmask_from_features(feature_bits_t chip_features)
 
 static unsigned int getaddrmask(const struct flashprog_flashctx *flash)
 {
-	return getaddrmask_from_features(flash->chip->feature_bits);
+	return getaddrmask_from_features(flash->chip.feature_bits);
 }
 
 static void start_program_jedec_common(const struct flashctx *flash, unsigned int mask)
 {
 	chipaddr bios = flash->virtual_memory;
-	bool shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED);
+	bool shifted = (flash->chip.feature_bits & FEATURE_ADDR_SHIFTED);
 
 	chip_writeb(flash, 0xAA, bios + ((shifted ? 0x2AAA : 0x5555) & mask));
 	chip_writeb(flash, 0x55, bios + ((shifted ? 0x5555 : 0x2AAA) & mask));
@@ -411,10 +411,10 @@ static int erase_sector_jedec_common(struct flashctx *flash, unsigned int page,
 				     unsigned int pagesize, unsigned int mask)
 {
 	chipaddr bios = flash->virtual_memory;
-	bool shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED);
+	bool shifted = (flash->chip.feature_bits & FEATURE_ADDR_SHIFTED);
 	unsigned int delay_us = 0;
 
-	if(flash->chip->probe_timing != TIMING_ZERO)
+	if(flash->chip.probe_timing != TIMING_ZERO)
 		delay_us = 10;
 
 	/*  Issue the Sector Erase command   */
@@ -443,10 +443,10 @@ static int erase_block_jedec_common(struct flashctx *flash, unsigned int block,
 				    unsigned int blocksize, unsigned int mask)
 {
 	chipaddr bios = flash->virtual_memory;
-	bool shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED);
+	bool shifted = (flash->chip.feature_bits & FEATURE_ADDR_SHIFTED);
 	unsigned int delay_us = 0;
 
-	if(flash->chip->probe_timing != TIMING_ZERO)
+	if(flash->chip.probe_timing != TIMING_ZERO)
 		delay_us = 10;
 
 	/*  Issue the Sector Erase command   */
@@ -474,10 +474,10 @@ static int erase_block_jedec_common(struct flashctx *flash, unsigned int block,
 static int erase_chip_jedec_common(struct flashctx *flash, unsigned int mask)
 {
 	chipaddr bios = flash->virtual_memory;
-	bool shifted = (flash->chip->feature_bits & FEATURE_ADDR_SHIFTED);
+	bool shifted = (flash->chip.feature_bits & FEATURE_ADDR_SHIFTED);
 	unsigned int delay_us = 0;
 
-	if(flash->chip->probe_timing != TIMING_ZERO)
+	if(flash->chip.probe_timing != TIMING_ZERO)
 		delay_us = 10;
 
 	/*  Issue the JEDEC Chip Erase command   */
@@ -613,7 +613,7 @@ int write_jedec(struct flashctx *flash, const uint8_t *buf, unsigned int start,
 	 * write_jedec have page_size set to max_writechunk_size, so
 	 * we're OK for now.
 	 */
-	unsigned int page_size = flash->chip->page_size;
+	unsigned int page_size = flash->chip.page_size;
 	unsigned int nwrites = (start + len - 1) / page_size;
 
 	/* Warning: This loop has a very unusual condition and body.
@@ -746,7 +746,7 @@ int printlock_regspace2_block_eraser_0(struct flashctx *flash)
 {
 	// FIXME: this depends on the eraseblocks not to be filled up completely (i.e. to be null-terminated).
 	const struct unlockblock *unlockblocks =
-		(const struct unlockblock *)flash->chip->block_erasers[0].eraseblocks;
+		(const struct unlockblock *)flash->chip.block_erasers[0].eraseblocks;
 	return regspace2_walk_unlockblocks(flash, unlockblocks, &printlock_regspace2_block);
 }
 
@@ -754,7 +754,7 @@ int printlock_regspace2_block_eraser_1(struct flashctx *flash)
 {
 	// FIXME: this depends on the eraseblocks not to be filled up completely (i.e. to be null-terminated).
 	const struct unlockblock *unlockblocks =
-		(const struct unlockblock *)flash->chip->block_erasers[1].eraseblocks;
+		(const struct unlockblock *)flash->chip.block_erasers[1].eraseblocks;
 	return regspace2_walk_unlockblocks(flash, unlockblocks, &printlock_regspace2_block);
 }
 
@@ -849,7 +849,7 @@ int unlock_regspace2_block_eraser_0(struct flashctx *flash)
 {
 	// FIXME: this depends on the eraseblocks not to be filled up completely (i.e. to be null-terminated).
 	const struct unlockblock *unlockblocks =
-		(const struct unlockblock *)flash->chip->block_erasers[0].eraseblocks;
+		(const struct unlockblock *)flash->chip.block_erasers[0].eraseblocks;
 	return regspace2_walk_unlockblocks(flash, unlockblocks, &unlock_regspace2_block_generic);
 }
 
@@ -857,6 +857,6 @@ int unlock_regspace2_block_eraser_1(struct flashctx *flash)
 {
 	// FIXME: this depends on the eraseblocks not to be filled up completely (i.e. to be null-terminated).
 	const struct unlockblock *unlockblocks =
-		(const struct unlockblock *)flash->chip->block_erasers[1].eraseblocks;
+		(const struct unlockblock *)flash->chip.block_erasers[1].eraseblocks;
 	return regspace2_walk_unlockblocks(flash, unlockblocks, &unlock_regspace2_block_generic);
 }

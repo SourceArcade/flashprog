@@ -48,7 +48,7 @@ static enum flashprog_wp_result read_wp_bits(struct wp_bits *bits, struct flashc
 	 * the register that contains it, extracts the bit's value, and assign
 	 * it to the appropriate field in the wp_bits structure.
 	 */
-	const struct reg_bit_map *bit_map = &flash->chip->reg_bits;
+	const struct reg_bit_map *bit_map = &flash->chip.reg_bits;
 	bool ignored;
 	size_t i;
 	enum flashprog_wp_result ret;
@@ -150,7 +150,7 @@ static enum flashprog_wp_result write_wp_bits(struct flashctx *flash, struct wp_
 	uint8_t reg_values[MAX_REGISTERS];
 	uint8_t bit_masks[MAX_REGISTERS];	/* masks of valid bits */
 	uint8_t write_masks[MAX_REGISTERS];	/* masks of written bits */
-	get_wp_bits_reg_values(reg_values, bit_masks, write_masks, &flash->chip->reg_bits, bits);
+	get_wp_bits_reg_values(reg_values, bit_masks, write_masks, &flash->chip.reg_bits, bits);
 
 	/* Write each register whose value was updated */
 	for (reg = STATUS1; reg < MAX_REGISTERS; reg++) {
@@ -200,7 +200,7 @@ static enum flashprog_wp_result write_wp_bits(struct flashctx *flash, struct wp_
 /** Get the range selected by a WP configuration. */
 static enum flashprog_wp_result get_wp_range(struct wp_range *range, struct flashctx *flash, const struct wp_bits *bits)
 {
-	flash->chip->decode_range(&range->start, &range->len, bits, flashprog_flash_getsize(flash));
+	flash->chip.decode_range(&range->start, &range->len, bits, flashprog_flash_getsize(flash));
 
 	return FLASHPROG_WP_OK;
 }
@@ -269,7 +269,7 @@ static bool can_write_bit(const struct reg_bit_info bit)
  */
 static enum flashprog_wp_result get_ranges_and_wp_bits(struct flashctx *flash, struct wp_bits bits, struct wp_range_and_bits **ranges, size_t *count)
 {
-	const struct reg_bit_map *reg_bits = &flash->chip->reg_bits;
+	const struct reg_bit_map *reg_bits = &flash->chip.reg_bits;
 	size_t i;
 	/*
 	 * Create a list of bits that affect the chip's protection range in
@@ -451,7 +451,7 @@ static int set_wp_mode(struct wp_bits *bits, const enum flashprog_wp_mode mode)
 
 static bool chip_supported(struct flashctx *flash)
 {
-	return (flash->chip != NULL) && (flash->chip->decode_range != NULL);
+	return flash->chip.decode_range != NULL;
 }
 
 enum flashprog_wp_result spi_wp_read_cfg(struct flashprog_wp_cfg *cfg, struct flashctx *flash)

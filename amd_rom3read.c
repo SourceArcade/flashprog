@@ -69,12 +69,12 @@ static int rom3read_prepare(struct flashctx *const flash)
 		flash_size = estimate_addressable_size(rom3, 64*MiB);
 	}
 
-	flash->chip->total_size = flash_size / KiB;
-	flash->chip->feature_bits |= FEATURE_NO_ERASE;
-	flash->chip->tested = (struct flashprog_test_status)
+	flash->chip.total_size = flash_size / KiB;
+	flash->chip.feature_bits |= FEATURE_NO_ERASE;
+	flash->chip.tested = (struct flashprog_test_status)
 		{ .probe = OK, .read = OK, .erase = NA, .write = NA, .block_protection = NA };
 
-	return !!flash->chip->total_size;
+	return !!flash->chip.total_size;
 }
 
 static int rom3read_read(struct flashctx *const flash, uint8_t *buf, unsigned int start, unsigned int len)

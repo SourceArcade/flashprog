@@ -291,7 +291,7 @@ int edi_chip_block_erase(struct flashctx *flash, unsigned int page, unsigned int
 	unsigned int timeout = 64;
 	int rc;
 
-	if (size != flash->chip->page_size) {
+	if (size != flash->chip.page_size) {
 		msg_perr("%s: Block erase size is not page size!\n", __func__);
 		return -1;
 	}
@@ -338,17 +338,17 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 	unsigned int i, j;
 	int rc;
 
-	if ((start % flash->chip->page_size) != 0) {
+	if ((start % flash->chip.page_size) != 0) {
 		msg_perr("%s: Start address is not page-aligned!\n", __func__);
 		return -1;
 	}
 
-	if ((len % flash->chip->page_size) != 0) {
+	if ((len % flash->chip.page_size) != 0) {
 		msg_perr("%s: Length is not page-aligned!\n", __func__);
 		return -1;
 	}
 
-	pages = len / flash->chip->page_size;
+	pages = len / flash->chip.page_size;
 
 	rc = edi_spi_enable(spi);
 	if (rc < 0) {
@@ -364,7 +364,7 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 		if (rc < 0)
 			return -1;
 
-		for (j = 0; j < flash->chip->page_size; j++) {
+		for (j = 0; j < flash->chip.page_size; j++) {
 			rc = edi_spi_address(spi, start, address);
 			if (rc < 0)
 				return -1;
@@ -396,7 +396,7 @@ int edi_chip_write(struct flashctx *flash, const uint8_t *buf, unsigned int star
 			return -1;
 		}
 
-		flashprog_progress_add(flash, flash->chip->page_size);
+		flashprog_progress_add(flash, flash->chip.page_size);
 	}
 
 	rc = edi_spi_disable(spi);

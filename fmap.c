@@ -314,7 +314,7 @@ int fmap_read_from_rom(struct fmap **fmap_out,
 {
 	int ret;
 
-	if (!flashctx || !flashctx->chip)
+	if (!flashctx)
 		return 1;
 
 	/*

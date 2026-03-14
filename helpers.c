@@ -65,7 +65,7 @@ int flashprog_read_chunked(struct flashctx *const flash, uint8_t *dst, unsigned 
 int flashprog_limit_chip(struct flashctx *flash)
 {
 	const chipsize_t limit = flash->mst.common->max_rom_decode;
-	struct flashchip *const chip = flash->chip;
+	struct flashchip *const chip = &flash->chip;
 	const chipsize_t chip_size = chip->total_size * 1024;
 	unsigned int usable_erasers = 0;
 	unsigned int i;

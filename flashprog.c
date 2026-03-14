@@ -374,7 +374,7 @@ static int check_erased_range(struct flashctx *flash, unsigned int start, unsign
 int flashprog_read_range(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len)
 {
 	flashprog_progress_start(flash, FLASHPROG_PROGRESS_READ, len);
-	const int ret = flash->chip->read(flash, buf, start, len);
+	const int ret = flash->chip.read(flash, buf, start, len);
 	flashprog_progress_finish(flash);
 	return ret;
 }
@@ -404,7 +404,7 @@ int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int sta
 		return -1;
 	}
 
-	int ret = flash->chip->read(flash, readbuf, start, len);
+	int ret = flash->chip.read(flash, readbuf, start, len);
 	if (ret) {
 		msg_gerr("Verification impossible because read failed "
 			 "at 0x%x (len 0x%x)\n", start, len);
@@ -672,7 +672,7 @@ static int selfcheck_eraseblocks(const struct flashchip *chip, const char *label
 
 static int check_block_eraser(const struct flashctx *flash, int k, int log)
 {
-	struct block_eraser eraser = flash->chip->block_erasers[k];
+	struct block_eraser eraser = flash->chip.block_erasers[k];
 
 	if (!eraser.block_erase && !eraser.eraseblocks[0].count) {
 		if (log)
@@ -692,7 +692,7 @@ static int check_block_eraser(const struct flashctx *flash, int k, int log)
 		return 1;
 	}
 
-	if (flash->chip->bustype == BUS_SPI && flash->chip->spi_cmd_set == SPI25) {
+	if (flash->chip.bustype == BUS_SPI && flash->chip.spi_cmd_set == SPI25) {
 		bool native_4ba;
 		int i;
 
@@ -736,7 +736,7 @@ static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer
 		const chipoff_t region_start	= entry->start;
 		const chipsize_t region_len	= entry->end - entry->start + 1;
 
-		if (flashctx->chip->read(flashctx, buffer + region_start, region_start, region_len))
+		if (flashctx->chip.read(flashctx, buffer + region_start, region_start, region_len))
 			return 1;
 	}
 
@@ -854,7 +854,7 @@ static void free_erase_layout(struct erase_layout *layout, unsigned int erasefn_
  */
 static int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout)
 {
-	const struct flashchip *chip = flashctx->chip;
+	const struct flashchip *chip = &flashctx->chip;
 	const size_t erasefn_count = flashprog_count_usable_erasers(flashctx);
 
 	if (!erasefn_count) {
@@ -949,7 +949,7 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 			const uint8_t erased_value  = ERASED_VALUE(flashctx);
 			ll->selected = need_erase(
 				info->curcontents + write_start, info->newcontents + write_start,
-				write_len, flashctx->chip->gran, erased_value);
+				write_len, flashctx->chip.gran, erased_value);
 			if (ll->selected)
 				return eraseblock_size;
 		}
@@ -993,10 +993,10 @@ static int write_range(struct flashctx *const flashctx, const chipoff_t flash_of
 	chipsize_t lenhere = 0;
 
 	while ((lenhere = get_next_write(curcontents + starthere, newcontents + starthere,
-					 len - starthere, &starthere, flashctx->chip->gran))) {
+					 len - starthere, &starthere, flashctx->chip.gran))) {
 		if (!writecount++)
 			msg_cdbg("W");
-		if (flashctx->chip->write(flashctx, newcontents + starthere,
+		if (flashctx->chip.write(flashctx, newcontents + starthere,
 					  flash_offset + starthere, lenhere))
 			return 1;
 		starthere += lenhere;
@@ -1060,7 +1060,7 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *const info,
 			  const per_blockfn_t per_blockfn)
 {
-	const bool do_erase = explicit_erase(info) || !(flashctx->chip->feature_bits & FEATURE_NO_ERASE);
+	const bool do_erase = explicit_erase(info) || !(flashctx->chip.feature_bits & FEATURE_NO_ERASE);
 	const struct flashprog_layout *const layout = get_layout(flashctx);
 	struct erase_layout *erase_layouts = NULL;
 	const struct romentry *entry = NULL;
@@ -1155,7 +1155,7 @@ static int erase_block(struct flashctx *const flashctx,
 		if (info->region_start > info->erase_start) {
 			const chipoff_t start	= info->erase_start;
 			const chipsize_t len	= info->region_start - info->erase_start;
-			if (flashctx->chip->read(flashctx, backup_contents, start, len)) {
+			if (flashctx->chip.read(flashctx, backup_contents, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
 			}
@@ -1165,7 +1165,7 @@ static int erase_block(struct flashctx *const flashctx,
 			const chipoff_t start     = info->region_end + 1;
 			const chipoff_t rel_start = start - info->erase_start; /* within this erase block */
 			const chipsize_t len      = info->erase_end - info->region_end;
-			if (flashctx->chip->read(flashctx, backup_contents + rel_start, start, len)) {
+			if (flashctx->chip.read(flashctx, backup_contents + rel_start, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
 			}
@@ -1264,7 +1264,7 @@ static int verify_by_layout(
 		const chipoff_t region_start	= entry->start;
 		const chipsize_t region_len	= entry->end - entry->start + 1;
 
-		if (flashctx->chip->read(flashctx, curcontents + region_start, region_start, region_len))
+		if (flashctx->chip.read(flashctx, curcontents + region_start, region_start, region_len))
 			return 1;
 		if (compare_range(newcontents + region_start, curcontents + region_start,
 				  region_start, region_len))
@@ -1469,7 +1469,7 @@ int selfcheck(void)
 static int chip_safety_check(const struct flashctx *flash, int force,
 			     int read_it, int write_it, int erase_it, int verify_it)
 {
-	const struct flashchip *chip = flash->chip;
+	const struct flashchip *chip = &flash->chip;
 
 	if (!programmer_may_write && (write_it || erase_it)) {
 		msg_perr("Write/erase is not working yet on your programmer in "
@@ -1553,8 +1553,8 @@ int prepare_flash_access(struct flashctx *const flash,
 
 	/* Given the existence of read locks, we want to unlock for read,
 	   erase and write. */
-	if (flash->chip->unlock)
-		flash->chip->unlock(flash);
+	if (flash->chip.unlock)
+		flash->chip.unlock(flash);
 
 	return 0;
 }

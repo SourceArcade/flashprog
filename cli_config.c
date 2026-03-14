@@ -37,7 +37,7 @@ static const struct reg_bit_info *get_bit_info(
 {
 	switch (setting) {
 	case QUAD_ENABLE:
-		return &flash->chip->reg_bits.qe;
+		return &flash->chip.reg_bits.qe;
 	default:
 		return NULL;
 	}
@@ -245,7 +245,7 @@ int flashprog_config_main(int argc, char *argv[])
 		goto shutdown_ret;
 	}
 
-	if (flash->chip->bustype != BUS_SPI || flash->chip->spi_cmd_set != SPI25) {
+	if (flash->chip.bustype != BUS_SPI || flash->chip.spi_cmd_set != SPI25) {
 		fprintf(stderr, "Only SPI25 flash chips are supported.\n");
 		goto shutdown_ret;
 	}

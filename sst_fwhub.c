@@ -28,7 +28,7 @@ static int check_sst_fwhub_block_lock(struct flashctx *flash, unsigned int offse
 
 	blockstatus = chip_readb(flash, registers + offset + 2);
 	msg_cdbg("Lock status for 0x%06x (size 0x%06x) is %02x, ",
-		     offset, flash->chip->page_size, blockstatus);
+		     offset, flash->chip.page_size, blockstatus);
 	switch (blockstatus & 0x3) {
 	case 0x0:
 		msg_cdbg("full access\n");
@@ -69,7 +69,7 @@ int printlock_sst_fwhub(struct flashctx *flash)
 {
 	unsigned int i;
 
-	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip->page_size)
+	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip.page_size)
 		check_sst_fwhub_block_lock(flash, i);
 
 	return 0;
@@ -80,7 +80,7 @@ int unlock_sst_fwhub(struct flashctx *flash)
 	unsigned int i;
 	int ret = 0;
 
-	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip->page_size)
+	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip.page_size)
 	{
 		if (clear_sst_fwhub_block_lock(flash, i))
 		{

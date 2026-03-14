@@ -317,9 +317,9 @@ int spi_simple_write_cmd(struct flashctx *const flash, const uint8_t op, const u
 static int spi_write_extended_address_register(struct flashctx *const flash, const uint8_t regdata)
 {
 	uint8_t op;
-	if (flash->chip->feature_bits & FEATURE_4BA_EAR_C5C8) {
+	if (flash->chip.feature_bits & FEATURE_4BA_EAR_C5C8) {
 		op = JEDEC_WRITE_EXT_ADDR_REG;
-	} else if (flash->chip->feature_bits & FEATURE_4BA_EAR_1716) {
+	} else if (flash->chip.feature_bits & FEATURE_4BA_EAR_1716) {
 		op = ALT_WRITE_EXT_ADDR_REG_17;
 	} else {
 		msg_cerr("Flash misses feature flag for extended-address register.\n");
@@ -359,7 +359,7 @@ int spi_set_extended_address(struct flashctx *const flash, const uint8_t addr_hi
 
 static size_t spi_address_length(struct flashctx *const flash, const bool native_4ba)
 {
-	if (flash->chip->spi_cmd_set == SPI25_EEPROM) {
+	if (flash->chip.spi_cmd_set == SPI25_EEPROM) {
 		if (flashprog_flash_getsize(flash) > 64*KiB)
 			return 3;
 		if (flashprog_flash_getsize(flash) > 256)
@@ -394,7 +394,7 @@ static int spi_prepare_address(struct flashctx *const flash, uint8_t cmd_buf[],
 		cmd_buf[4] = (addr >>  0) & 0xff;
 		return len;
 	case 3:
-		if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
+		if (flash->chip.feature_bits & FEATURE_4BA_EAR_ANY) {
 			if (spi_set_extended_address(flash, rel_addr >> 24))
 				return -1;
 		} else if (rel_addr >> 24) {
@@ -655,7 +655,7 @@ erasefunc_t *spi25_get_erasefn_from_opcode(uint8_t opcode)
 
 static int spi_nbyte_program(struct flashctx *flash, unsigned int addr, const uint8_t *bytes, unsigned int len)
 {
-	const bool native_4ba = flash->chip->feature_bits & FEATURE_4BA_WRITE && spi_master_4ba(flash);
+	const bool native_4ba = flash->chip.feature_bits & FEATURE_4BA_WRITE && spi_master_4ba(flash);
 	const uint8_t op = native_4ba ? JEDEC_BYTE_PROGRAM_4BA : JEDEC_BYTE_PROGRAM;
 	return spi_write_cmd(flash, op, native_4ba, addr, bytes, len, 10);
 }
@@ -668,7 +668,7 @@ const struct spi_read_op *get_spi_read_op(const struct flashctx *flash)
 	if (flash->spi_fast_read)
 		return flash->spi_fast_read;
 
-	if (flash->chip->feature_bits & FEATURE_4BA_READ && spi_master_4ba(flash))
+	if (flash->chip.feature_bits & FEATURE_4BA_READ && spi_master_4ba(flash))
 		return &sio_read_4ba;
 
 	return &sio_read;
@@ -717,7 +717,7 @@ int spi_write_chunked(struct flashctx *flash, const uint8_t *buf, unsigned int s
 	 * spi_chip_write_256 have page_size set to max_writechunk_size, so
 	 * we're OK for now.
 	 */
-	unsigned int page_size = flash->chip->page_size;
+	unsigned int page_size = flash->chip.page_size;
 
 	/* Warning: This loop has a very unusual condition and body.
 	 * The loop needs to go through each page with at least one affected

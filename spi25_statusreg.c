@@ -59,7 +59,7 @@ static int spi_prepare_wrsr_ext(
 int spi_write_register(const struct flashctx *flash, enum flash_reg reg,
 		       uint8_t value, enum wrsr_target target)
 {
-	int feature_bits = flash->chip->feature_bits;
+	int feature_bits = flash->chip.feature_bits;
 
 	uint8_t write_cmd[4];
 	size_t write_cmd_len = 0;
@@ -195,7 +195,7 @@ int spi_write_register(const struct flashctx *flash, enum flash_reg reg,
 
 int spi_read_register(const struct flashctx *flash, enum flash_reg reg, uint8_t *value)
 {
-	int feature_bits = flash->chip->feature_bits;
+	int feature_bits = flash->chip.feature_bits;
 	uint8_t read_cmd;
 
 	switch (reg) {
@@ -323,8 +323,8 @@ static int spi_disable_blockprotect_generic(struct flashctx *flash, uint8_t bp_m
 
 	if ((status & bp_mask) != 0) {
 		msg_cerr("Block protection could not be disabled!\n");
-		if (flash->chip->printlock)
-			flash->chip->printlock(flash);
+		if (flash->chip.printlock)
+			flash->chip.printlock(flash);
 		return 1;
 	}
 	msg_cdbg("disabled.\n");
@@ -864,7 +864,7 @@ int spi_prettyprint_status_register_n25q(struct flashctx *flash)
 	spi_prettyprint_status_register_hex(status);
 
 	spi_prettyprint_status_register_srwd(status);
-	if (flash->chip->total_size <= 32 / 8 * 1024) /* N25Q16 and N25Q32: reserved */
+	if (flash->chip.total_size <= 32 / 8 * 1024) /* N25Q16 and N25Q32: reserved */
 		spi_prettyprint_status_register_bit(status, 6);
 	else
 		msg_cdbg("Chip status register: Block Protect 3 (BP3) is %sset\n",

@@ -70,7 +70,7 @@ int prepare_memory_access(struct flashctx *flash)
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
 
 	const chipsize_t size = flashprog_flash_getsize(flash);
-	void *const addr = programmer_map_flash_data(par, size, flash->chip->name);
+	void *const addr = programmer_map_flash_data(par, size, flash->chip.name);
 	if (addr == ERROR_PTR)
 		return 1;
 
@@ -97,7 +97,7 @@ int prepare_memory_register_access(struct flashctx *flash)
 	void *const addr = programmer_map_flash_region(par, "flash chip registers", base, size);
 	if (addr == ERROR_PTR) {
 		msg_pdbg2("Could not map flash chip registers %s at 0x%0*" PRIxPTR ".\n",
-			 flash->chip->name, PRIxPTR_WIDTH, base);
+			 flash->chip.name, PRIxPTR_WIDTH, base);
 		return 0;
 	}
 	flash->physical_registers = base;

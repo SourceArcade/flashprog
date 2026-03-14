@@ -1262,9 +1262,9 @@ static int ich_hwseq_prepare(struct flashctx *flash)
 	else
 		msg_cdbg(" with a");
 	msg_cdbg(" density of %d kB.\n", total_size / 1024);
-	flash->chip->total_size = total_size / 1024;
+	flash->chip.total_size = total_size / 1024;
 
-	eraser = &(flash->chip->block_erasers[0]);
+	eraser = &(flash->chip.block_erasers[0]);
 	if (!hwseq_data.only_4k)
 		boundary = (REGREAD32(ICH9_REG_FPB) & FPB_FPBA) << 12;
 	else
@@ -1300,7 +1300,7 @@ static int ich_hwseq_prepare(struct flashctx *flash)
 		msg_cdbg("In that range are %d erase blocks with %d B each.\n",
 			 size_high / erase_size_high, erase_size_high);
 	}
-	flash->chip->tested = TEST_OK_PREW;
+	flash->chip.tested = TEST_OK_PREW;
 	return 1;
 }
 

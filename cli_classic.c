@@ -211,7 +211,7 @@ static bool max_decode_exceeded(const struct flashctx *const flash, const bool f
 
 	msg_pdbg("Chip size %u kB is bigger than supported size %zu kB of\n"
 		 "chipset/board/programmer for memory-mapped interface.\n",
-		 flash->chip->total_size, flash->mst.common->max_rom_decode / KiB);
+		 flash->chip.total_size, flash->mst.common->max_rom_decode / KiB);
 
 	if (!force) {
 		msg_cerr("This flash chip is too big for this programmer (--verbose/-V gives details).\n"
@@ -507,7 +507,7 @@ int flashprog_classic_main(int argc, char *argv[])
 		ret = 1;
 		goto out_shutdown;
 	}
-	chip = fill_flash->chip;
+	chip = &fill_flash->chip;
 
 	if (show_progress)
 		flashprog_set_progress_callback(fill_flash, &flashprog_progress_cb, NULL);

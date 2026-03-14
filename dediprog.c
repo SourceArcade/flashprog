@@ -435,7 +435,7 @@ static int prepare_rw_cmd_v1(
 	if (cmd_len < 0)
 		return -1;
 
-	if (flash->chip->feature_bits & FEATURE_4BA_EAR_ANY) {
+	if (flash->chip.feature_bits & FEATURE_4BA_EAR_ANY) {
 		if (spi_set_extended_address(flash, start >> 24))
 			return -1;
 	} else if (start >> 24) {
@@ -480,7 +480,7 @@ static int prepare_rw_cmd_v2(
 			return -1;
 
 		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM
-		    && (flash->chip->feature_bits & FEATURE_4BA_WRITE)) {
+		    && (flash->chip.feature_bits & FEATURE_4BA_WRITE)) {
 			cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM_0x12;
 			cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
 		}
@@ -525,7 +525,7 @@ static int prepare_rw_cmd_v3(
 			return -1;
 
 		if (dp_spi_cmd == WRITE_MODE_PAGE_PGM) {
-			if (flash->chip->feature_bits & FEATURE_4BA_WRITE) {
+			if (flash->chip.feature_bits & FEATURE_4BA_WRITE) {
 				cmd_buf[3] = WRITE_MODE_4B_ADDR_256B_PAGE_PGM;
 				cmd_buf[4] = JEDEC_BYTE_PROGRAM_4BA;
 			} else if (flash->in_4ba_mode) {
@@ -767,7 +767,7 @@ static int dediprog_spi_write(struct flashctx *flash, const uint8_t *buf,
 			      unsigned int start, unsigned int len, uint8_t dedi_spi_cmd)
 {
 	int ret;
-	const unsigned int chunksize = flash->chip->page_size;
+	const unsigned int chunksize = flash->chip.page_size;
 	unsigned int residue = start % chunksize ? chunksize - start % chunksize : 0;
 	unsigned int bulklen;
 	const struct dediprog_data *dp_data = flash->mst.spi->data;
@@ -820,7 +820,7 @@ static int dediprog_spi_write_chunked(struct flashctx *flash, const uint8_t *buf
 {
 	/* We can write only up to 65535 pages at once: */
 	while (len) {
-		const size_t len_here = MIN(len, flash->chip->page_size * MAX_BLOCK_COUNT);
+		const size_t len_here = MIN(len, flash->chip.page_size * MAX_BLOCK_COUNT);
 		const int ret = dediprog_spi_write(flash, buf, start, len_here, dedi_spi_cmd);
 		if (ret)
 			return ret;

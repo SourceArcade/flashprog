@@ -178,11 +178,11 @@ static int linux_mtd_prepare(struct flashctx *flash)
 	struct linux_mtd_data *data = flash->mst.opaque->data;
 
 	if (data->no_erase)
-		flash->chip->feature_bits |= FEATURE_NO_ERASE;
-	flash->chip->tested = TEST_OK_PREW;
-	flash->chip->total_size = data->total_size / 1024;	/* bytes -> kB */
-	flash->chip->block_erasers[0].eraseblocks[0].size = data->erasesize;
-	flash->chip->block_erasers[0].eraseblocks[0].count =
+		flash->chip.feature_bits |= FEATURE_NO_ERASE;
+	flash->chip.tested = TEST_OK_PREW;
+	flash->chip.total_size = data->total_size / 1024;	/* bytes -> kB */
+	flash->chip.block_erasers[0].eraseblocks[0].size = data->erasesize;
+	flash->chip.block_erasers[0].eraseblocks[0].count =
 		data->total_size / data->erasesize;
 	return 1;
 }
@@ -191,7 +191,7 @@ static int linux_mtd_read(struct flashctx *flash, uint8_t *buf,
 			  unsigned int start, unsigned int len)
 {
 	struct linux_mtd_data *data = flash->mst.opaque->data;
-	unsigned int eb_size = flash->chip->block_erasers[0].eraseblocks[0].size;
+	unsigned int eb_size = flash->chip.block_erasers[0].eraseblocks[0].size;
 	unsigned int i;
 
 	if (fseek(data->dev_fp, start, SEEK_SET) != 0) {
@@ -226,7 +226,7 @@ static int linux_mtd_write(struct flashctx *flash, const uint8_t *buf,
 				unsigned int start, unsigned int len)
 {
 	struct linux_mtd_data *data = flash->mst.opaque->data;
-	unsigned int chunksize = flash->chip->block_erasers[0].eraseblocks[0].size;
+	unsigned int chunksize = flash->chip.block_erasers[0].eraseblocks[0].size;
 	unsigned int i;
 
 	if (!data->device_is_writeable)

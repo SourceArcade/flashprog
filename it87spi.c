@@ -355,7 +355,7 @@ static int it8716f_spi_page_program(struct flashctx *flash, const uint8_t *buf, 
 	/* FIXME: The command below seems to be redundant or wrong. */
 	OUTB(0x06, it8716f_flashport + 1);
 	OUTB(((2 + (fast_spi ? 1 : 0)) << 4), it8716f_flashport);
-	for (i = 0; i < flash->chip->page_size; i++)
+	for (i = 0; i < flash->chip.page_size; i++)
 		mmio_writeb(buf[i], (void *)(bios + start + i));
 	OUTB(0, it8716f_flashport);
 	/* Wait until the Write-In-Progress bit is cleared.
@@ -404,7 +404,7 @@ static int it8716f_spi_chip_read(struct flashctx *flash, uint8_t *buf,
 static int it8716f_spi_chip_write_256(struct flashctx *flash, const uint8_t *buf,
 				      unsigned int start, unsigned int len)
 {
-	const struct flashchip *chip = flash->chip;
+	const struct flashchip *chip = &flash->chip;
 	/*
 	 * IT8716F only allows maximum of 512 kb SPI chip size for memory
 	 * mapped access. It also can't write more than 1+3+256 bytes at once,

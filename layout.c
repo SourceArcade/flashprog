@@ -216,7 +216,7 @@ int layout_sanity_checks(const struct flashprog_flashctx *const flash, const boo
 {
 	const struct flashprog_layout *const layout = get_layout(flash);
 	const chipsize_t total_size = flashprog_flash_getsize(flash);
-	const size_t gran = gran_to_bytes(flash->chip->gran);
+	const size_t gran = gran_to_bytes(flash->chip.gran);
 	int ret = 0;
 
 	const struct romentry *entry = NULL;
