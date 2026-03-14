@@ -36,7 +36,6 @@
 #include "version.h"
 
 const char flashprog_version[] = FLASHPROG_VERSION;
-const char *chip_to_probe = NULL;
 
 static const struct programmer_entry *programmer = NULL;
 static char *programmer_param = NULL;
@@ -644,56 +643,6 @@ void flashprog_bus_probe(struct registered_master *const mst, const struct flash
 	}
 
 	mst->probed = true;
-}
-
-bool flashprog_chip_match(struct registered_master *const mst, const struct flashchip *const chip)
-{
-	static const char *const id_names[] = {
-		[ID_82802AB]	= "82802AB",
-		[ID_JEDEC]	= "JEDEC",
-		[ID_JEDEC_29GL]	= "JEDEC_29GL",
-		[ID_OPAQUE]	= "OPAQUE",
-		[ID_SPI_AT25F]	= "SPI_AT25F",
-		[ID_SPI_RDID]	= "SPI_RDID",
-		[ID_SPI_REMS]	= "SPI_REMS",
-		[ID_SPI_RES1]	= "SPI_RES1",
-		[ID_SPI_RES2]	= "SPI_RES2",
-		[ID_SPI_RES3]	= "SPI_RES3",
-		[ID_SPI_SFDP]	= "SPI_SFDP",
-		[ID_SPI_ST95]	= "SPI_ST95",
-		[ID_W29EE011]	= "W29EE011",
-		[ID_EDI]	= "EDI",
-	};
-
-	msg_gdbg("Probing for %s %s, %d kB: ", chip->vendor, chip->name, chip->total_size);
-
-	if (chip_to_probe) {
-		/* We are looking for a particular chip.
-		   If it can't be probed, assume it's there... */
-		if (chip->id.type == ID_NONE)
-			return true;
-		/* ...otherwise, limit the probing sequences by its properties. */
-		flashprog_bus_probe(mst, chip);
-	} else {
-		flashprog_bus_probe(mst, NULL);
-	}
-
-	struct found_id *found_id;
-	for (found_id = mst->found_ids; found_id; found_id = found_id->next) {
-		if (found_id->info.id.type != chip->id.type)
-			continue;
-
-		if (found_id->info.id.type < ARRAY_SIZE(id_names))
-			msg_cdbg("%s: id1 0x%02x, id2 0x%02x ",
-				 id_names[found_id->info.id.type],
-				 found_id->info.id.id1, found_id->info.id.id2);
-
-		if (mst->probing.match(chip, &found_id->info))
-			break;
-	}
-
-	msg_cdbg("\n");
-	return !!found_id;
 }
 
 /* Even if an error is found, the function will keep going and check the rest. */

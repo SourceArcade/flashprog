@@ -58,6 +58,19 @@ int flashprog_chips_all(struct flashprog_chips **chips) {
 	return 0;
 }
 
+static bool flashprog_bus_match_chip(struct registered_master *bus, const struct flashprog_chip *chip)
+{
+	struct found_id *found_id;
+	for (found_id = bus->found_ids; found_id; found_id = found_id->next) {
+		if (found_id->info.id.type != chip->id.type)
+			continue;
+
+		if (bus->probing.match(chip, &found_id->info))
+			break;
+	}
+	return !!found_id;
+}
+
 static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 				     struct registered_master *bus)
 {
@@ -71,7 +84,7 @@ static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 		     (flashchips[chip].id.model == GENERIC_DEVICE_ID)))
 			continue;
 
-		if (!flashprog_chip_match(bus, &flashchips[chip]))
+		if (!flashprog_bus_match_chip(bus, &flashchips[chip]))
 			continue;
 
 		struct chip_entry *const entry = malloc(sizeof(*entry));
@@ -116,7 +129,7 @@ const struct master_common *flashprog_chip_probe(
 			return NULL;
 
 		flashprog_bus_probe(bus, chip);
-		if (flashprog_chip_match(bus, chip))
+		if (flashprog_bus_match_chip(bus, chip))
 			return &bus->common;
 	}
 

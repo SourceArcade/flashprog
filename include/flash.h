@@ -548,7 +548,6 @@ size_t strnlen(const char *str, size_t n);
 
 /* flashprog.c */
 extern const char flashprog_version[];
-extern const char *chip_to_probe;
 char *flashbuses_to_text(enum chipbustype bustype);
 int map_flash(struct flashctx *flash);
 void unmap_flash(struct flashctx *flash);

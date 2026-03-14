@@ -598,8 +598,6 @@ out:
 	free(flash_args.prog_name);
 	free(flash_args.chip);
 	free(log_args.logfile);
-	/* clean up global variables */
-	chip_to_probe = NULL;
 	ret |= close_logfile();
 	return ret;
 }
