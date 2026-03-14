@@ -4145,6 +4145,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.gran		= write_gran_128bytes,
 		.prepare_access	= edi_prepare,
+		.finish_access	= edi_finish,
 	},
 
 	{

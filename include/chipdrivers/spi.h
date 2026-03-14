@@ -57,8 +57,7 @@ int spi_nbyte_read(struct flashprog_flashctx *, uint8_t *dst, unsigned int addr,
 int spi_write_chunked(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len, unsigned int chunksize);
 int spi_set_extended_address(struct flashprog_flashctx *, uint8_t addr_high);
 
-enum preparation_steps;
-int spi_prepare_io(struct flashprog_flashctx *, enum preparation_steps);
+int spi_prepare_io(struct flashprog_flashctx *);
 void spi_finish_io(struct flashprog_flashctx *);
 
 enum flash_reg;
@@ -107,7 +106,7 @@ int spi_prettyprint_status_register_sst25vf040b(struct flashprog_flashctx *);
 int spi_disable_blockprotect_sst26_global_unprotect(struct flashprog_flashctx *);
 
 /* at45db.c */
-int spi_prepare_at45db(struct flashprog_flashctx *, enum preparation_steps);
+int spi_prepare_at45db(struct flashprog_flashctx *);
 int spi_prettyprint_status_register_at45db(struct flashprog_flashctx *);
 int spi_disable_blockprotect_at45db(struct flashprog_flashctx *);
 int spi_read_at45db(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
@@ -132,6 +131,6 @@ void decode_range_spi25_2x_block(size_t *start, size_t *len, const struct wp_bit
 
 /* sfdp.c */
 struct found_id *probe_spi_sfdp(const struct bus_probe *, const struct master_common *, const struct flashchip *);
-int spi_prepare_sfdp(struct flashprog_flashctx *, enum preparation_steps);
+int spi_prepare_sfdp(struct flashprog_flashctx *);
 
 #endif /* !__CHIPDRIVERS_SPI_H__ */

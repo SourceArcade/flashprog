@@ -25,8 +25,7 @@ struct flashchip;
 
 struct found_id *probe_opaque(const struct bus_probe *, const struct master_common *, const struct flashchip *);
 
-enum preparation_steps;
-int prepare_opaque(struct flashprog_flashctx *, enum preparation_steps);
+int prepare_opaque(struct flashprog_flashctx *);
 
 int read_opaque(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
 int write_opaque(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);

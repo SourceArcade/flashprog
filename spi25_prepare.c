@@ -248,11 +248,8 @@ static struct spi_read_op *select_spi_fast_read(const struct flashctx *flash)
 	return fast_read_copy;
 }
 
-int spi_prepare_io(struct flashctx *const flash, const enum preparation_steps prep)
+int spi_prepare_io(struct flashctx *const flash)
 {
-	if (prep != PREPARE_FULL)
-		return 0;
-
 	int ret = spi_prepare_4ba(flash);
 	if (ret)
 		return ret;

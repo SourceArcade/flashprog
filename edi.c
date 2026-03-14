@@ -470,7 +470,7 @@ int edi_chip_read(struct flashctx *flash, uint8_t *buf, unsigned int start, unsi
 	return 0;
 }
 
-static void edi_finish(struct flashctx *flash)
+void edi_finish(struct flashctx *flash)
 {
 	const struct spi_master *const spi = flash->mst.spi;
 
@@ -502,12 +502,9 @@ struct found_id *probe_edi(const struct bus_probe *probe,
 	return edi_chip_probe(spi);
 }
 
-int edi_prepare(struct flashctx *flash, enum preparation_steps step)
+int edi_prepare(struct flashctx *flash)
 {
 	int rc;
-
-	if (step < PREPARE_FULL)
-		return 0;
 
 	rc = edi_8051_reset(flash->mst.spi);
 	if (rc < 0) {
@@ -515,6 +512,5 @@ int edi_prepare(struct flashctx *flash, enum preparation_steps step)
 		return rc;
 	}
 
-	flash->chip->finish_access = edi_finish;
 	return 0;
 }

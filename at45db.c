@@ -172,13 +172,10 @@ int spi_prettyprint_status_register_at45db(struct flashctx *flash)
 }
 
 /* Adapt chip entry for AT45DB* chips that support multiple page sizes. */
-int spi_prepare_at45db(struct flashctx *const flash, const enum preparation_steps prep)
+int spi_prepare_at45db(struct flashctx *const flash)
 {
 	struct flashchip *const chip = flash->chip;
 	uint8_t status;
-
-	if (prep != PREPARE_POST_PROBE)
-		return 0;
 
 	/* Power-of-2 check */
 	if (chip->page_size & (chip->page_size - 1))

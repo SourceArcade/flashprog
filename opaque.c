@@ -47,10 +47,8 @@ struct found_id *probe_opaque(const struct bus_probe *probe,
 	return found;
 }
 
-int prepare_opaque(struct flashctx *flash, enum preparation_steps step)
+int prepare_opaque(struct flashctx *flash)
 {
-	if (step != PREPARE_POST_PROBE)
-		return 0;
 	return flash->mst.opaque->prepare(flash) ? 0 : -1;
 }
 

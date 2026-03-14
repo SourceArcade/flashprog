@@ -115,9 +115,8 @@ struct par_master;
 void *programmer_map_flash_data(const struct par_master *, chipsize_t, const char *descr);
 void programmer_unmap_flash_region(const struct par_master *, void *, chipsize_t);
 
-enum preparation_steps;
-int prepare_memory_access(struct flashprog_flashctx *, enum preparation_steps);
-int prepare_memory_register_access(struct flashprog_flashctx *, enum preparation_steps);
+int prepare_memory_access(struct flashprog_flashctx *);
+int prepare_memory_register_access(struct flashprog_flashctx *);
 void finish_memory_access(struct flashprog_flashctx *);
 
 #endif /* !__CHIPDRIVERS_MEMORY_BUS_H__ */

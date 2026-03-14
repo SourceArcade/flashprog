@@ -61,7 +61,7 @@ void *programmer_map_flash_data(const struct par_master *par, chipsize_t size, c
 	return addr;
 }
 
-int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
+int prepare_memory_access(struct flashctx *flash)
 {
 	const struct par_master *const par = flash->mst.par;
 
@@ -80,11 +80,11 @@ int prepare_memory_access(struct flashctx *flash, enum preparation_steps prep)
 	return 0;
 }
 
-int prepare_memory_register_access(struct flashctx *flash, enum preparation_steps prep)
+int prepare_memory_register_access(struct flashctx *flash)
 {
 	const struct par_master *const par = flash->mst.par;
 
-	if (prepare_memory_access(flash, prep))
+	if (prepare_memory_access(flash))
 		return 1;
 
 	/*

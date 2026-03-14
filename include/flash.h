@@ -246,11 +246,6 @@ struct reg_bit_info {
 
 struct wp_bits;
 
-enum preparation_steps {
-	PREPARE_POST_PROBE,
-	PREPARE_FULL,
-};
-
 struct flashchip {
 	const char *vendor;
 	const char *name;
@@ -412,7 +407,7 @@ struct flashchip {
 	/* and determines what protection range they select. */
 	void (*decode_range)(size_t *start, size_t *len, const struct wp_bits *, size_t chip_len);
 
-	int (*prepare_access)(struct flashctx *, enum preparation_steps);
+	int (*prepare_access)(struct flashctx *);
 	void (*finish_access)(struct flashctx *);
 };
 

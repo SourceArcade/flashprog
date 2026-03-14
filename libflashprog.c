@@ -300,15 +300,19 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 	*flash->chip = *chip;
 	flash->mst.common = bus; /* `mst` is a union, so we need only one pointer */
 
-	if (chip->prepare_access && chip->prepare_access(flash, PREPARE_POST_PROBE))
-		goto free_flash;
+	if (chip->prepare_access && chip->prepare_access(flash)) {
+		free(flash);
+		return 4;
+	}
 
 	/* Fill default layout covering the whole chip. */
 	if (flashprog_layout_new(&flash->default_layout) ||
 	    flashprog_layout_add_region(flash->default_layout,
 			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
-	    flashprog_layout_include_region(flash->default_layout, "complete flash"))
-		goto free_flash;
+	    flashprog_layout_include_region(flash->default_layout, "complete flash")) {
+		flashprog_flash_release(flash);
+		return 1;
+	}
 
 	char *const tmp = flashbuses_to_text(flash->chip->bustype);
 	msg_cinfo("Using %s flash chip \"%s\" (%d kB, %s) ",
@@ -323,18 +327,8 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 	if (flash->chip->printlock)
 		flash->chip->printlock(flash);
 
-	if (flash->chip->finish_access)
-		flash->chip->finish_access(flash);
-
 	*flashctx = flash;
 	return 0;
-
-free_flash:
-	if (flash->chip && flash->chip->finish_access)
-		flash->chip->finish_access(flash);
-	free(flash->chip);
-	free(flash);
-	return 4;
 }
 
 /**
@@ -389,6 +383,8 @@ void flashprog_flash_release(struct flashprog_flashctx *const flashctx)
 	if (!flashctx)
 		return;
 
+	if (flashctx->chip->finish_access)
+		flashctx->chip->finish_access(flashctx);
 	flashprog_layout_release(flashctx->default_layout);
 	free(flashctx->chip);
 	free(flashctx);

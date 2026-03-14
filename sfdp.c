@@ -342,7 +342,7 @@ done:
 	return 0;
 }
 
-int spi_prepare_sfdp(struct flashctx *flash, enum preparation_steps step)
+int spi_prepare_sfdp(struct flashctx *flash)
 {
 	const struct spi_master *const spi = flash->mst.spi;
 	int ret;
@@ -354,9 +354,6 @@ int spi_prepare_sfdp(struct flashctx *flash, enum preparation_steps step)
 	struct sfdp_tbl_hdr *hdrs;
 	uint8_t *hbuf;
 	uint8_t *tbuf;
-
-	if (step != PREPARE_POST_PROBE)
-		return 0;
 
 	ret = spi_sfdp_read_sfdp(spi, 0x04, buf, 3);
 	if (ret) {
@@ -490,7 +487,12 @@ cleanup_hdrs:
 		  "Thanks for your help!\n"
 		  "===\n");
 
-	return 0;
+	/* Chain preparation in case we replaced the .prepare_access
+	   pointer, e.g. spi_prepare_io() is needed for 4BA mode. */
+	if (flash->chip->prepare_access != spi_prepare_sfdp)
+		ret = flash->chip->prepare_access(flash);
+
+	return ret;
 }
 
 struct found_id *probe_spi_sfdp(const struct bus_probe *probe,

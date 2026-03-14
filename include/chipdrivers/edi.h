@@ -29,6 +29,7 @@ struct found_id *probe_edi(const struct bus_probe *, const struct master_common 
 int edi_chip_block_erase(struct flashprog_flashctx *, unsigned int page, unsigned int size);
 int edi_chip_write(struct flashprog_flashctx *, const uint8_t *buf, unsigned int start, unsigned int len);
 int edi_chip_read(struct flashprog_flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
-int edi_prepare(struct flashprog_flashctx *, enum preparation_steps);
+int edi_prepare(struct flashprog_flashctx *);
+void edi_finish(struct flashprog_flashctx *);
 
 #endif /* !__CHIPDRIVERS_EDI_H__ */

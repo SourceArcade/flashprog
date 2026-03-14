@@ -1548,9 +1548,6 @@ int prepare_flash_access(struct flashctx *const flash,
 		return 1;
 	}
 
-	if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_FULL))
-		return 1;
-
 	/* Initialize chip_restore_fn_count before chip unlock calls. */
 	flash->chip_restore_fn_count = 0;
 
@@ -1565,8 +1562,6 @@ int prepare_flash_access(struct flashctx *const flash,
 void finalize_flash_access(struct flashctx *const flash)
 {
 	deregister_chip_restore(flash);
-	if (flash->chip->finish_access)
-		flash->chip->finish_access(flash);
 }
 
 /**
