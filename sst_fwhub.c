@@ -69,7 +69,7 @@ int printlock_sst_fwhub(struct flashctx *flash)
 {
 	unsigned int i;
 
-	for (i = 0; i < flash->chip->total_size * 1024; i += flash->chip->page_size)
+	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip->page_size)
 		check_sst_fwhub_block_lock(flash, i);
 
 	return 0;
@@ -80,7 +80,7 @@ int unlock_sst_fwhub(struct flashctx *flash)
 	unsigned int i;
 	int ret = 0;
 
-	for (i = 0; i < flash->chip->total_size * 1024; i += flash->chip->page_size)
+	for (i = 0; i < flashprog_flash_getsize(flash); i += flash->chip->page_size)
 	{
 		if (clear_sst_fwhub_block_lock(flash, i))
 		{

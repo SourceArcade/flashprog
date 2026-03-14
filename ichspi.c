@@ -1327,7 +1327,7 @@ static int ich_hwseq_block_erase(struct flashctx *flash, unsigned int addr,
 		return -1;
 	}
 
-	if (addr + len > flash->chip->total_size * 1024) {
+	if (addr + len > flashprog_flash_getsize(flash)) {
 		msg_perr("Request to erase some inaccessible memory address(es)"
 			 " (addr=0x%x, len=%d). "
 			 "Not erasing anything.\n", addr, len);
@@ -1359,7 +1359,7 @@ static int ich_hwseq_read(struct flashctx *flash, uint8_t *buf,
 	uint16_t hsfc;
 	uint8_t block_len;
 
-	if (addr + len > flash->chip->total_size * 1024) {
+	if (addr + len > flashprog_flash_getsize(flash)) {
 		msg_perr("Request to read from an inaccessible memory address "
 			 "(addr=0x%x, len=%d).\n", addr, len);
 		return -1;
@@ -1400,7 +1400,7 @@ static int ich_hwseq_write(struct flashctx *flash, const uint8_t *buf, unsigned 
 	uint16_t hsfc;
 	uint8_t block_len;
 
-	if (addr + len > flash->chip->total_size * 1024) {
+	if (addr + len > flashprog_flash_getsize(flash)) {
 		msg_perr("Request to write to an inaccessible memory address "
 			 "(addr=0x%x, len=%d).\n", addr, len);
 		return -1;

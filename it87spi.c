@@ -390,7 +390,7 @@ static int it8716f_spi_chip_read(struct flashctx *flash, uint8_t *buf,
 	 * the mainboard does not use IT87 SPI translation. This should be done
 	 * via a programmer parameter for the internal programmer.
 	 */
-	if ((flash->chip->total_size * 1024 > it87spi_max_mmapped)) {
+	if ((flashprog_flash_getsize(flash) > it87spi_max_mmapped)) {
 		default_spi_read(flash, buf, start, len);
 	} else {
 		unsigned char *const bios = it87spi_mmapped_flash +

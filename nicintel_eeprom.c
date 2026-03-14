@@ -107,7 +107,7 @@ static int nicintel_ee_prepare_i210(struct flashctx *flash)
 {
 	/* Emulated eeprom has a fixed size of 4 KB */
 	flash->chip->total_size = 4;
-	flash->chip->page_size = flash->chip->total_size * 1024;
+	flash->chip->page_size = flashprog_flash_getsize(flash);
 	flash->chip->tested = TEST_OK_PREW;
 	flash->chip->gran = write_gran_1byte_implicit_erase;
 	flash->chip->block_erasers->eraseblocks[0].size = flash->chip->page_size;
@@ -140,7 +140,7 @@ static int nicintel_ee_prepare_82580(struct flashctx *flash)
 	flash->chip->tested = TEST_OK_PREW;
 	flash->chip->gran = write_gran_1byte_implicit_erase;
 	flash->chip->block_erasers->eraseblocks[0].size = (EE_PAGE_MASK + 1);
-	flash->chip->block_erasers->eraseblocks[0].count = (flash->chip->total_size * 1024) / (EE_PAGE_MASK + 1);
+	flash->chip->block_erasers->eraseblocks[0].count = (flashprog_flash_getsize(flash)) / (EE_PAGE_MASK + 1);
 
 	return 1;
 }

@@ -69,7 +69,7 @@ int prepare_memory_access(struct flashctx *flash)
 	flash->virtual_memory = (chipaddr)ERROR_PTR;
 	flash->virtual_registers = (chipaddr)ERROR_PTR;
 
-	const chipsize_t size = flash->chip->total_size * 1024;
+	const chipsize_t size = flashprog_flash_getsize(flash);
 	void *const addr = programmer_map_flash_data(par, size, flash->chip->name);
 	if (addr == ERROR_PTR)
 		return 1;
@@ -92,7 +92,7 @@ int prepare_memory_register_access(struct flashctx *flash)
 	 * but it might be somewhere completely different on some chips and programmers,
 	 * or not mappable at all. Ignore these problems for now and always report success.
 	 */
-	const chipsize_t size = flash->chip->total_size * 1024;
+	const chipsize_t size = flashprog_flash_getsize(flash);
 	const uintptr_t base = 0xffffffff - size - 0x400000 + 1;
 	void *const addr = programmer_map_flash_region(par, "flash chip registers", base, size);
 	if (addr == ERROR_PTR) {

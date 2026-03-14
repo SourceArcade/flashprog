@@ -189,10 +189,10 @@ static int fmap_bsearch_rom(struct fmap **fmap_out, struct flashctx *const flash
 	bool fmap_found = false;
 	bool check_offset_0 = true;
 	struct fmap *fmap;
-	const unsigned int chip_size = flashctx->chip->total_size * 1024;
+	const unsigned int chip_size = flashprog_flash_getsize(flashctx);
 	const int sig_len = strlen(FMAP_SIGNATURE);
 
-	if (rom_offset + len > flashctx->chip->total_size * 1024)
+	if (rom_offset + len > flashprog_flash_getsize(flashctx))
 		return 1;
 
 	if (len < sizeof(*fmap))

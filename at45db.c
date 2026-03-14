@@ -234,7 +234,7 @@ static unsigned int at45db_convert_addr(unsigned int addr, unsigned int page_siz
 int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, unsigned int len)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 	if ((addr + len) > total_size) {
 		msg_cerr("%s: tried to read beyond flash boundary: addr=%u, len=%u, size=%u\n",
 			 __func__, addr, len, total_size);
@@ -266,7 +266,7 @@ int spi_read_at45db(struct flashctx *flash, uint8_t *buf, unsigned int addr, uns
 int spi_read_at45db_e8(struct flashctx *flash, uint8_t *buf, unsigned int addr, unsigned int len)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 	if ((addr + len) > total_size) {
 		msg_cerr("%s: tried to read beyond flash boundary: addr=%u, len=%u, size=%u\n",
 			 __func__, addr, len, total_size);
@@ -344,7 +344,7 @@ static int at45db_erase(struct flashctx *flash, uint8_t opcode, unsigned int at4
 int spi_erase_at45db_page(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) {
 		msg_cerr("%s: cannot erase partial pages: addr=%u, blocklen=%u\n", __func__, addr, blocklen);
@@ -364,7 +364,7 @@ int spi_erase_at45db_page(struct flashctx *flash, unsigned int addr, unsigned in
 int spi_erase_at45db_block(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) { // FIXME: should check blocks not pages
 		msg_cerr("%s: cannot erase partial pages: addr=%u, blocklen=%u\n", __func__, addr, blocklen);
@@ -384,7 +384,7 @@ int spi_erase_at45db_block(struct flashctx *flash, unsigned int addr, unsigned i
 int spi_erase_at45db_sector(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr % page_size) != 0 || (blocklen % page_size) != 0) { // FIXME: should check sectors not pages
 		msg_cerr("%s: cannot erase partial pages: addr=%u, blocklen=%u\n", __func__, addr, blocklen);
@@ -403,7 +403,7 @@ int spi_erase_at45db_sector(struct flashctx *flash, unsigned int addr, unsigned 
 
 int spi_erase_at45db_chip(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((addr + blocklen) > total_size) {
 		msg_cerr("%s: tried to erase beyond flash boundary: addr=%u, blocklen=%u, size=%u\n",
@@ -421,7 +421,7 @@ int spi_erase_at45db_chip(struct flashctx *flash, unsigned int addr, unsigned in
 int spi_erase_at45cs_sector(struct flashctx *flash, unsigned int addr, unsigned int blocklen)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size * 1024;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 	const struct block_eraser be = flash->chip->block_erasers[0];
 	const unsigned int sec_0a_top = be.eraseblocks[0].size;
 	const unsigned int sec_0b_top = be.eraseblocks[0].size + be.eraseblocks[1].size;
@@ -535,14 +535,14 @@ static int at45db_program_page(struct flashctx *flash, const uint8_t *buf, unsig
 int spi_write_at45db(struct flashctx *flash, const uint8_t *buf, unsigned int start, unsigned int len)
 {
 	const unsigned int page_size = flash->chip->page_size;
-	const unsigned int total_size = flash->chip->total_size;
+	const unsigned int total_size = flashprog_flash_getsize(flash);
 
 	if ((start % page_size) != 0 || (len % page_size) != 0) {
 		msg_cerr("%s: cannot write partial pages: start=%u, len=%u\n", __func__, start, len);
 		return 1;
 	}
 
-	if ((start + len) > (total_size * 1024)) {
+	if ((start + len) > total_size) {
 		msg_cerr("%s: tried to write beyond flash boundary: start=%u, len=%u, size=%u\n",
 			 __func__, start, len, total_size);
 		return 1;

@@ -646,7 +646,7 @@ int erase_chip_block_jedec(struct flashctx *flash, unsigned int addr,
 	unsigned int mask;
 
 	mask = getaddrmask(flash);
-	if ((addr != 0) || (blocksize != flash->chip->total_size * 1024)) {
+	if ((addr != 0) || (blocksize != flashprog_flash_getsize(flash))) {
 		msg_cerr("%s called with incorrect arguments\n",
 			__func__);
 		return -1;
@@ -732,7 +732,7 @@ static int printlock_regspace2_block(const struct flashctx *flash, chipaddr lock
 
 static int printlock_regspace2_uniform(struct flashctx *flash, unsigned long block_size)
 {
-	const unsigned int elems = flash->chip->total_size * 1024 / block_size;
+	const unsigned int elems = flashprog_flash_getsize(flash) / block_size;
 	struct unlockblock blocks[2] = {{.size = block_size, .count = elems}};
 	return regspace2_walk_unlockblocks(flash, blocks, &printlock_regspace2_block);
 }
@@ -830,7 +830,7 @@ static int unlock_regspace2_block_generic(const struct flashctx *flash, chipaddr
 
 static int unlock_regspace2_uniform(struct flashctx *flash, unsigned long block_size)
 {
-	const unsigned int elems = flash->chip->total_size * 1024 / block_size;
+	const unsigned int elems = flashprog_flash_getsize(flash) / block_size;
 	struct unlockblock blocks[2] = {{.size = block_size, .count = elems}};
 	return regspace2_walk_unlockblocks(flash, blocks, &unlock_regspace2_block_generic);
 }

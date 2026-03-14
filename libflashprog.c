@@ -308,7 +308,7 @@ int flashprog_flash_prepare_context(struct flashprog_flashctx **flashctx,
 	/* Fill default layout covering the whole chip. */
 	if (flashprog_layout_new(&flash->default_layout) ||
 	    flashprog_layout_add_region(flash->default_layout,
-			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
+			0, flashprog_flash_getsize(flash) - 1, "complete flash") ||
 	    flashprog_layout_include_region(flash->default_layout, "complete flash")) {
 		flashprog_flash_release(flash);
 		return 1;

@@ -391,10 +391,10 @@ int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int sta
 	if (!len)
 		return -1;
 
-	if (start + len > flash->chip->total_size * 1024) {
+	if (start + len > flashprog_flash_getsize(flash)) {
 		msg_gerr("Error: %s called with start 0x%x + len 0x%x >"
-			" total_size 0x%x\n", __func__, start, len,
-			flash->chip->total_size * 1024);
+			" total_size 0x%zx\n", __func__, start, len,
+			flashprog_flash_getsize(flash));
 		return -1;
 	}
 
@@ -1612,7 +1612,7 @@ int flashprog_flash_erase(struct flashctx *const flashctx)
  */
 int flashprog_image_read(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len)
 {
-	const size_t flash_size = flashctx->chip->total_size * 1024;
+	const size_t flash_size = flashprog_flash_getsize(flashctx);
 
 	if (flash_size > buffer_len)
 		return 2;
@@ -1655,7 +1655,7 @@ static void combine_image_by_layout(const struct flashctx *const flashctx,
 	}
 
 	/* copy the rest of the chip */
-	const chipsize_t copy_len = flashctx->chip->total_size * 1024 - start;
+	const chipsize_t copy_len = flashprog_flash_getsize(flashctx) - start;
 	memcpy(newcontents + start, oldcontents + start, copy_len);
 }
 
@@ -1678,7 +1678,7 @@ static void combine_image_by_layout(const struct flashctx *const flashctx,
 int flashprog_image_write(struct flashctx *const flashctx, void *const buffer, const size_t buffer_len,
                          const void *const refbuffer)
 {
-	const size_t flash_size = flashctx->chip->total_size * 1024;
+	const size_t flash_size = flashprog_flash_getsize(flashctx);
 	const bool verify_all = flashctx->flags.verify_whole_chip;
 	const bool verify = flashctx->flags.verify_after_write;
 	const struct flashprog_layout *const verify_layout =
@@ -1812,7 +1812,7 @@ _free_ret:
 int flashprog_image_verify(struct flashctx *const flashctx, const void *const buffer, const size_t buffer_len)
 {
 	const struct flashprog_layout *const layout = get_layout(flashctx);
-	const size_t flash_size = flashctx->chip->total_size * 1024;
+	const size_t flash_size = flashprog_flash_getsize(flashctx);
 
 	if (buffer_len != flash_size)
 		return 2;
