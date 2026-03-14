@@ -482,8 +482,6 @@ struct registered_master {
 	enum chipbustype buses_supported;
 
 	struct bus_probing probing;
-	struct found_id *found_ids;
-	bool probed;
 
 	union {
 		struct master_common common;

@@ -58,25 +58,68 @@ int flashprog_chips_all(struct flashprog_chips **chips) {
 	return 0;
 }
 
-static bool flashprog_bus_match_chip(struct registered_master *bus, const struct flashprog_chip *chip)
+static struct found_id *flashprog_bus_probe(struct registered_master *bus, const struct flashprog_chip *chip)
 {
-	struct found_id *found_id;
-	for (found_id = bus->found_ids; found_id; found_id = found_id->next) {
-		if (found_id->info.id.type != chip->id.type)
-			continue;
+	struct found_id *found_ids = NULL, **next_ptr = &found_ids;
+	unsigned int least_priority, priority, i;
 
-		if (bus->probing.match(chip, &found_id->info))
+	for (i = 0, least_priority = 0; i < bus->probing.probe_count; ++i) {
+		if (least_priority < bus->probing.probes[i].priority)
+			least_priority = bus->probing.probes[i].priority;
+	}
+
+	for (priority = 0; priority <= least_priority; ++priority) {
+		for (i = 0; i < bus->probing.probe_count; ++i) {
+			if (bus->probing.probes[i].priority != priority)
+				continue;
+
+			if (chip && chip->id.type != bus->probing.probes[i].type)
+				continue;
+
+			*next_ptr = bus->probing.probes[i].run(&bus->probing.probes[i], &bus->common, chip);
+
+			/* walk to end in case multiple IDs were found in a single call */
+			while (*next_ptr)
+				next_ptr = &(*next_ptr)->next;
+		}
+
+		/* Skip lower-priority probing if any chip replied. */
+		if (found_ids)
 			break;
 	}
-	return !!found_id;
+
+	return found_ids;
+}
+
+static void flashprog_bus_probe_cleanup(struct found_id *found_ids)
+{
+	struct found_id *next;
+	for (; found_ids; found_ids = next) {
+		next = found_ids->next;
+		free(found_ids);
+	}
+}
+
+static bool flashprog_bus_match_chip(struct registered_master *bus,
+				     const struct found_id *found_ids,
+				     const struct flashprog_chip *chip)
+{
+	for (; found_ids; found_ids = found_ids->next) {
+		if (found_ids->info.id.type != chip->id.type)
+			continue;
+
+		if (bus->probing.match(chip, &found_ids->info))
+			break;
+	}
+	return !!found_ids;
 }
 
 static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 				     struct registered_master *bus)
 {
-	flashprog_bus_probe(bus, NULL);
+	struct found_id *const found_ids = flashprog_bus_probe(bus, NULL);
+	int chip, ret = 0;
 
-	int chip;
 	for (chip = 0; flashchips[chip].name; ++chip) {
 		/* Ignore generic entries if we already have a match. */
 		if (chips->entries &&
@@ -84,13 +127,14 @@ static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 		     (flashchips[chip].id.model == GENERIC_DEVICE_ID)))
 			continue;
 
-		if (!flashprog_bus_match_chip(bus, &flashchips[chip]))
+		if (!flashprog_bus_match_chip(bus, found_ids, &flashchips[chip]))
 			continue;
 
 		struct chip_entry *const entry = malloc(sizeof(*entry));
 		if (!entry) {
 			msg_cerr("Out of memory!\n");
-			return 1;
+			ret = 1;
+			break;
 		}
 
 		entry->chip = flashchips[chip];
@@ -100,7 +144,8 @@ static int flashprog_chips_probe_bus(struct flashprog_chips *chips,
 		chips->entries = entry;
 	}
 
-	return 0;
+	flashprog_bus_probe_cleanup(found_ids);
+	return ret;
 }
 
 /** @private */
@@ -128,8 +173,11 @@ const struct master_common *flashprog_chip_probe(
 		    bus->common.adapt_voltage(&bus->common, chip->voltage.min, chip->voltage.max))
 			return NULL;
 
-		flashprog_bus_probe(bus, chip);
-		if (flashprog_bus_match_chip(bus, chip))
+		struct found_id *const found_ids = flashprog_bus_probe(bus, chip);
+		const bool match = flashprog_bus_match_chip(bus, found_ids, chip);
+		flashprog_bus_probe_cleanup(found_ids);
+
+		if (match)
 			return &bus->common;
 	}
 

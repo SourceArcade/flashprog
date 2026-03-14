@@ -173,15 +173,6 @@ int programmer_shutdown(struct flashprog_programmer *const prog)
 		int i = --shutdown_fn_count;
 		ret |= shutdown_fn[i].func(shutdown_fn[i].data);
 	}
-
-	int i;
-	for (i = 0; i < registered_master_count; ++i) {
-		struct found_id *found_id, *next;
-		for (found_id = registered_masters[i].found_ids; found_id; found_id = next) {
-			next = found_id->next;
-			free(found_id);
-		}
-	}
 	registered_master_count = 0;
 
 	return ret;
@@ -603,46 +594,6 @@ char *flashbuses_to_text(enum chipbustype bustype)
 	ret[strlen(ret) - 2] = '\0';
 	ret = realloc(ret, strlen(ret) + 1);
 	return ret;
-}
-
-void flashprog_bus_probe(struct registered_master *const mst, const struct flashchip *const chip)
-{
-	unsigned int least_priority, priority, i;
-	struct found_id **next_ptr;
-
-	if (mst->probed)
-		return;
-
-	for (i = 0, least_priority = 0; i < mst->probing.probe_count; ++i) {
-		if (least_priority < mst->probing.probes[i].priority)
-			least_priority = mst->probing.probes[i].priority;
-	}
-
-	next_ptr = &mst->found_ids;
-	for (priority = 0; priority <= least_priority; ++priority) {
-		bool found = false;
-
-		for (i = 0; i < mst->probing.probe_count; ++i) {
-			if (mst->probing.probes[i].priority != priority)
-				continue;
-
-			if (chip && chip->id.type != mst->probing.probes[i].type)
-				continue;
-
-			*next_ptr = mst->probing.probes[i].run(&mst->probing.probes[i], &mst->common, chip);
-			found |= !!*next_ptr;
-
-			/* walk to end in case multiple IDs were found in a single call */
-			while (*next_ptr)
-				next_ptr = &(*next_ptr)->next;
-		}
-
-		/* Skip lower-priority probing if anything was found. */
-		if (found)
-			break;
-	}
-
-	mst->probed = true;
 }
 
 /* Even if an error is found, the function will keep going and check the rest. */

@@ -84,9 +84,6 @@ struct bus_probing {
 	bool (*match)(const struct flashchip *, const struct id_info_ext *);
 };
 
-struct registered_master;
-void flashprog_bus_probe(struct registered_master *, const struct flashchip *);
-
 struct flashprog_chips;
 struct flashprog_flashctx;
 struct flashprog_programmer;
