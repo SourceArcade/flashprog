@@ -462,15 +462,35 @@ int spi_prepare_sfdp(struct flashctx *flash, enum preparation_steps step)
 		free(tbuf);
 	}
 
-	if (ret == 0 && selfcheck_chip(flash->chip, -1)) {
-		msg_cerr("SFDP parsing resulted in invalid chip structure.\n");
-		ret = SPI_FLASHPROG_BUG;
-	}
-
 cleanup_hdrs:
 	free(hdrs);
 	free(hbuf);
-	return ret;
+
+	if (ret)
+		return ret;
+
+	if (selfcheck_chip(flash->chip, -1)) {
+		msg_cerr("SFDP parsing resulted in invalid chip structure.\n");
+		return SPI_FLASHPROG_BUG;
+	}
+
+	msg_cinfo("===\n"
+		  "SFDP has autodetected a flash chip which is not natively supported\n"
+		  "by flashprog yet. ");
+	if (flashprog_count_usable_erasers(flash) == 0)
+		msg_cinfo("The standard operations read and verify should\n"
+			  "work, but to support erase, write and all other possible features\n");
+	else
+		msg_cinfo("All standard operations (read, verify, erase\n"
+			  "and write) should work, but to support all possible features\n");
+	msg_cinfo("we need to add them manually.\n"
+		  "You can help us by mailing us the output of the following command to\n"
+		  "flashprog@flashprog.org:\n"
+		  "'flashprog -VV [plus the -p/--programmer parameter]'\n"
+		  "Thanks for your help!\n"
+		  "===\n");
+
+	return 0;
 }
 
 struct found_id *probe_spi_sfdp(const struct bus_probe *probe,

@@ -332,7 +332,7 @@ static void flashprog_progress_finish(struct flashprog_flashctx *const flashctx)
 }
 
 /* Returns the number of well-defined erasers for a chip. */
-static unsigned int count_usable_erasers(const struct flashctx *flash)
+unsigned int flashprog_count_usable_erasers(const struct flashctx *flash)
 {
 	unsigned int usable_erasefunctions = 0;
 	int k;
@@ -755,28 +755,6 @@ int probe_flash(struct registered_master *mst, int startchip, struct flashctx *f
 		 * one for this programmer interface (master) and thus no other chip has
 		 * been found on this interface.
 		 */
-		if (startchip == 0 && flash->chip->id.model == SFDP_DEVICE_ID) {
-			msg_cinfo("===\n"
-				  "SFDP has autodetected a flash chip which is "
-				  "not natively supported by flashprog yet.\n");
-			if (count_usable_erasers(flash) == 0)
-				msg_cinfo("The standard operations read and "
-					  "verify should work, but to support "
-					  "erase, write and all other "
-					  "possible features");
-			else
-				msg_cinfo("All standard operations (read, "
-					  "verify, erase and write) should "
-					  "work, but to support all possible "
-					  "features");
-
-			msg_cinfo(" we need to add them manually.\n"
-				  "You can help us by mailing us the output of the following command to "
-				  "flashprog@flashprog.org:\n"
-				  "'flashprog -VV [plus the -p/--programmer parameter]'\n"
-				  "Thanks for your help!\n"
-				  "===\n");
-		}
 
 		/* First flash chip detected on this bus. */
 		if (startchip == 0)
@@ -1084,7 +1062,7 @@ static void free_erase_layout(struct erase_layout *layout, unsigned int erasefn_
 static int create_erase_layout(struct flashctx *const flashctx, struct erase_layout **e_layout)
 {
 	const struct flashchip *chip = flashctx->chip;
-	const size_t erasefn_count = count_usable_erasers(flashctx);
+	const size_t erasefn_count = flashprog_count_usable_erasers(flashctx);
 
 	if (!erasefn_count) {
 		msg_gerr("No erase functions supported\n");
@@ -1737,7 +1715,7 @@ static int chip_safety_check(const struct flashctx *flash, int force,
 				return 1;
 			msg_cerr("Continuing anyway.\n");
 		}
-		if(count_usable_erasers(flash) == 0) {
+		if(flashprog_count_usable_erasers(flash) == 0) {
 			msg_cerr("flashprog has no erase function for this "
 				 "flash chip.\n");
 			return 1;
