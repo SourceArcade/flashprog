@@ -606,17 +606,6 @@ char *flashbuses_to_text(enum chipbustype bustype)
 	return ret;
 }
 
-static int init_default_layout(struct flashctx *flash)
-{
-	/* Fill default layout covering the whole chip. */
-	if (flashprog_layout_new(&flash->default_layout) ||
-	    flashprog_layout_add_region(flash->default_layout,
-			0, flash->chip->total_size * 1024 - 1, "complete flash") ||
-	    flashprog_layout_include_region(flash->default_layout, "complete flash"))
-	        return -1;
-	return 0;
-}
-
 void flashprog_bus_probe(struct registered_master *const mst, const struct flashchip *const chip)
 {
 	unsigned int least_priority, priority, i;
@@ -705,102 +694,6 @@ bool flashprog_chip_match(struct registered_master *const mst, const struct flas
 
 	msg_cdbg("\n");
 	return !!found_id;
-}
-
-int probe_flash(struct registered_master *mst, int startchip, struct flashctx *flash, int force)
-{
-	const struct flashchip *chip;
-	enum chipbustype buses_common;
-	char *tmp;
-
-	for (chip = flashchips + startchip; chip && chip->name; chip++) {
-		if (chip_to_probe && strcmp(chip->name, chip_to_probe) != 0)
-			continue;
-		buses_common = mst->buses_supported & chip->bustype;
-		if (!buses_common)
-			continue;
-
-		/* Start filling in the dynamic data. */
-		flash->chip = calloc(1, sizeof(*flash->chip));
-		if (!flash->chip) {
-			msg_gerr("Out of memory!\n");
-			return -1;
-		}
-		*flash->chip = *chip;
-		flash->mst.par = &mst->par; /* both `mst` are unions, so we need only one pointer */
-
-		/* If we probe for a specific chip, we can adapt the voltage early. */
-		if (chip_to_probe && flash->mst.common->adapt_voltage) {
-			if (flash->mst.common->adapt_voltage(flash->mst.common,
-					chip->voltage.min, chip->voltage.max))
-				goto free_chip;
-		}
-
-		/* We handle a forced match like a real match, we just avoid probing. Note that probe_flash()
-		 * is only called with force=1 after normal probing failed.
-		 */
-		if (force)
-			break;
-
-		if (!flashprog_chip_match(mst, flash->chip))
-			goto notfound;
-
-		if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_POST_PROBE))
-			goto notfound;
-
-		/* If this is the first chip found, accept it.
-		 * If this is not the first chip found, accept it only if it is
-		 * a non-generic match. SFDP and CFI are generic matches.
-		 * startchip==0 means this call to probe_flash() is the first
-		 * one for this programmer interface (master) and thus no other chip has
-		 * been found on this interface.
-		 */
-
-		/* First flash chip detected on this bus. */
-		if (startchip == 0)
-			break;
-		/* Not the first flash chip detected on this bus, but not a generic match either. */
-		if ((flash->chip->id.model != GENERIC_DEVICE_ID) && (flash->chip->id.model != SFDP_DEVICE_ID))
-			break;
-		/* Not the first flash chip detected on this bus, and it's just a generic match. Ignore it. */
-notfound:
-		if (flash->chip->finish_access)
-			flash->chip->finish_access(flash);
-free_chip:
-		free(flash->chip);
-		flash->chip = NULL;
-	}
-
-	if (!flash->chip)
-		return -1;
-
-	if (init_default_layout(flash) < 0)
-		return -1;
-
-	tmp = flashbuses_to_text(flash->chip->bustype);
-	msg_cinfo("%s %s flash chip \"%s\" (%d kB, %s) ", force ? "Assuming" : "Found",
-		  flash->chip->vendor, flash->chip->name, flash->chip->total_size, tmp);
-	free(tmp);
-#if CONFIG_INTERNAL == 1
-	if (flash->physical_memory != 0 && mst->par.map_flash == physmap)
-		msg_cinfo("mapped at physical address 0x%0*" PRIxPTR ".\n",
-			  PRIxPTR_WIDTH, flash->physical_memory);
-	else
-#endif
-		msg_cinfo("on %s.\n", programmer->name);
-
-	/* Flash registers may more likely not be mapped if the chip was forced.
-	 * Lock info may be stored in registers, so avoid lock info printing. */
-	if (!force)
-		if (flash->chip->printlock)
-			flash->chip->printlock(flash);
-
-	/* Get out of the way for later runs. */
-	if (flash->chip->finish_access)
-		flash->chip->finish_access(flash);
-
-	/* Return position of matching chip. */
-	return chip - flashchips;
 }
 
 /* Even if an error is found, the function will keep going and check the rest. */

@@ -555,7 +555,6 @@ void unmap_flash(struct flashctx *flash);
 int read_memmapped(struct flashctx *flash, uint8_t *buf, unsigned int start, unsigned int len);
 int erase_flash(struct flashctx *flash);
 struct registered_master;
-int probe_flash(struct registered_master *mst, int startchip, struct flashctx *fill_flash, int force);
 int flashprog_read_range(struct flashctx *, uint8_t *buf, unsigned int start, unsigned int len);
 int verify_range(struct flashctx *flash, const uint8_t *cmpbuf, unsigned int start, unsigned int len);
 void emergency_help_message(void);
