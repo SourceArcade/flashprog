@@ -1648,12 +1648,6 @@ int prepare_flash_access(struct flashctx *const flash,
 		return 1;
 	}
 
-	if (flash->mst.common->adapt_voltage) {
-		if (flash->mst.common->adapt_voltage(flash->mst.common,
-				flash->chip->voltage.min, flash->chip->voltage.max))
-			return 1;
-	}
-
 	if (flash->chip->prepare_access && flash->chip->prepare_access(flash, PREPARE_FULL))
 		return 1;
 
