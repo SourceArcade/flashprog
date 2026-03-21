@@ -361,8 +361,10 @@ static int enable_flash_ich_bios_cntl_common(enum ich_chipset ich_generation, vo
 			  "New value is 0x%02x.\n", bios_cntl, old, wanted, new);
 
 	/* Return an error if we could not set the write enable only. */
-	if (!(new & (1 << 0)))
+	if (!(new & (1 << 0))) {
+		programmer_may_write = false;
 		return -1;
+	}
 
 	return 0;
 }
