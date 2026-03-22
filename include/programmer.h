@@ -82,6 +82,7 @@ extern const struct programmer_entry programmer_linux_spi;
 extern const struct programmer_entry programmer_mstarddc_spi;
 extern const struct programmer_entry programmer_ni845x_spi;
 extern const struct programmer_entry programmer_nic3com;
+extern const struct programmer_entry programmer_nicamd;
 extern const struct programmer_entry programmer_nicintel;
 extern const struct programmer_entry programmer_nicintel_eeprom;
 extern const struct programmer_entry programmer_nicintel_spi;

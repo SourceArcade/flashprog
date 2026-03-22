@@ -308,6 +308,8 @@ cards)"
 .sp
 .BR "* nicintel" " (for parallel flash ROMs on Intel 10/100Mbit network cards)
 .sp
+.BR "* nicamd" " (for parallel flash ROMs on AMD PCnet network cards)
+.sp
 .BR "* gfxnvidia" " (for flash ROMs on NVIDIA graphics cards)"
 .sp
 .BR "* drkaiser" " (for flash ROMs on Dr. Kaiser PC-Waechter PCI cards)"
@@ -761,9 +763,9 @@ that chip is write-protected (on real hardware the pin is usually negated, but
 not here).
 .SS
 .BR "nic3com" , " nicrealtek" , " nicnatsemi" , " nicintel", " nicintel_eeprom"\
-, " nicintel_spi" , " gfxnvidia" , " ogp_spi" , " drkaiser" , " satasii"\
-, " scsilsi", " satamv" , " atahpt", " atavia ", " atapromise " and " it8212 "\
-programmers
+, " nicintel_spi" , " nicamd" , " gfxnvidia" , " ogp_spi" , " drkaiser"\
+, " satasii" , " scsilsi", " satamv" , " atahpt", " atavia ", " atapromise "\
+and " it8212 " programmers
 .IP
 These programmers have an option to specify the PCI address of the card
 your want to use, which must be specified if more than one card supported
@@ -811,6 +813,15 @@ size nor allow themselves to be identified, the controller relies on correct siz
 addresses within the chip. Flashprog follows this scheme but assumes the minimum size of 16 kB (128 kb) if an
 unprogrammed EEPROM/card is detected. Intel specifies following EEPROMs to be compatible:
 Atmel AT25128, AT25256, Micron (ST) M95128, M95256 and OnSemi (Catalyst) CAT25CS128.
+.SS
+.BR "nicamd " programmer
+.IP
+This programmer module supports parallel flash up to 1MiB, attached to AMD PCnet cards. As it can't be said
+for sure if all 20 parallel address lines are connected on a given card, flashprog will try to probe the
+addressable size. If this doesn't work reliably, one can override the probing logic with the
+.BR "max_decode_kb " parameter.
+.sp
+.B "  flashprog \-p nicamd:max_decode_kb=128"
 .SS
 .BR "ft2232_spi " programmer
 .IP
@@ -1565,7 +1576,7 @@ needs raw I/O port access.
 .BR satasii ", " scsilsi ", " nicintel ", " nicintel_eeprom " and " nicintel_spi
 need PCI configuration space read access and raw memory access.
 .sp
-.BR satamv " and " atapromise
+.BR nicamd ", " satamv " and " atapromise
 need PCI configuration space read access, raw I/O port access and raw memory
 access.
 .sp
@@ -1584,7 +1595,7 @@ need access to the respective USB device via libusb API version 1.0.
 .B dummy
 needs no access permissions at all.
 .sp
-.BR internal ", " nic3com ", " nicrealtek ", " nicnatsemi ", "
+.BR internal ", " nicamd ", " nic3com ", " nicrealtek ", " nicnatsemi ", "
 .BR gfxnvidia ", " drkaiser ", " satamv ", " satasii ", " scsilsi ", "
 .BR atahpt ", " atavia " and " atapromise
 have to be run as superuser/root, and need additional raw access permission.

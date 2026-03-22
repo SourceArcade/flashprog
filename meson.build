@@ -347,6 +347,14 @@ programmer = {
     'srcs'    : files('nic3com.c', 'pcidev.c'),
     'flags'   : [ '-DCONFIG_NIC3COM=1' ],
   },
+  'nicamd' : {
+    'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_port_io ],
+    'deps'    : [ libpci ],
+    'groups'  : [ group_pci, group_internal ],
+    'srcs'    : files('nicamd.c', 'pcidev.c'),
+    'flags'   : [ '-DCONFIG_NICAMD=1' ],
+  },
   'nicintel' : {
     'systems' : systems_hwaccess,
     'cpu_families' : [ cpus_raw_mem ],

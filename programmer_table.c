@@ -28,6 +28,10 @@ const struct programmer_entry *const programmer_table[] = {
     &programmer_nic3com,
 #endif
 
+#if CONFIG_NICAMD == 1
+    &programmer_nicamd,
+#endif
+
 #if CONFIG_NICREALTEK == 1
     &programmer_nicrealtek,
 #endif
