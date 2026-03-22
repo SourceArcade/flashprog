@@ -194,6 +194,7 @@
 #define ATMEL_AT45DB642		/* No ID (opcode) available for AT45DB642 */
 #define ATMEL_AT45DB642D	0x2800
 #define ATMEL_AT49BV512		0x03	/* Same as AT49F512 */
+#define ATMEL_AT49F511		0x04
 #define ATMEL_AT49F001N		0x05	/* Same as AT49F001 */
 #define ATMEL_AT49F001NT	0x04	/* Same as AT49F001T */
 #define ATMEL_AT49F002N		0x07	/* for AT49F002(N)  */

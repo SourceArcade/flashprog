@@ -3244,6 +3244,34 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Atmel",
+		.name		= "AT49F511",
+		.bustype	= BUS_PARALLEL,
+		.id.type	= ID_JEDEC,
+		.id.manufacture	= ATMEL_ID,
+		.id.model	= ATMEL_AT49F511,
+		.total_size	= 64,
+		.feature_bits	= FEATURE_EITHER_RESET,
+		.tested		= TEST_OK_PREW,
+		.probe_timing	= TIMING_ZERO,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {64 * 1024, 1} },
+				.block_erase = erase_sector_jedec,
+			}, {
+				.eraseblocks = { {64 * 1024, 1} },
+				.block_erase = erase_chip_block_jedec,
+			}
+		},
+		.write		= write_jedec_1,
+		.read		= read_memmapped,
+		.voltage	= {4500, 5500},
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
+	},
+
+	{
+		.vendor		= "Atmel",
 		.name		= "AT49F002(N)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
