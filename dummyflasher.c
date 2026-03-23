@@ -516,9 +516,9 @@ dummy_init_out:
 		free(data);
 		return 1;
 	}
-	if (dummy_buses_supported & BUS_NONSPI)
+	if (dummy_buses_supported & BUS_PRESPI)
 		ret |= register_par_master(&par_master_dummyflasher,
-					   dummy_buses_supported & BUS_NONSPI,
+					   dummy_buses_supported & BUS_PRESPI,
 					   0, 0, data);
 	if (dummy_buses_supported & BUS_SPI)
 		ret |= register_spi_master(&spi_master_dummyflasher, 0, data);

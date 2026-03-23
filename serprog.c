@@ -518,7 +518,7 @@ static int serprog_init(struct flashprog_programmer *const prog)
 	 */
 	if (sp_docommand(S_CMD_Q_BUSTYPE, 0, NULL, 1, &c)) {
 		msg_pwarn("Warning: NAK to query supported buses\n");
-		c = BUS_NONSPI;	/* A reasonable default for now. */
+		c = BUS_PRESPI;	/* A reasonable default for now. */
 	}
 	serprog_buses_supported = c;
 
@@ -639,7 +639,7 @@ static int serprog_init(struct flashprog_programmer *const prog)
 			goto init_err_cleanup_exit;
 	}
 
-	if (serprog_buses_supported & BUS_NONSPI) {
+	if (serprog_buses_supported & BUS_PRESPI) {
 		if (sp_check_commandavail(S_CMD_O_INIT) == 0) {
 			msg_perr("Error: Initialize operation buffer "
 				 "not supported\n");
@@ -760,8 +760,8 @@ static int serprog_init(struct flashprog_programmer *const prog)
 		goto init_err_cleanup_exit;
 	if (serprog_buses_supported & BUS_SPI)
 		register_spi_master(&spi_master_serprog, 0, NULL);
-	if (serprog_buses_supported & BUS_NONSPI)
-		register_par_master(&par_master_serprog, serprog_buses_supported & BUS_NONSPI, 0, 0, NULL);
+	if (serprog_buses_supported & BUS_PRESPI)
+		register_par_master(&par_master_serprog, serprog_buses_supported & BUS_PRESPI, 0, 0, NULL);
 	return 0;
 
 init_err_cleanup_exit:

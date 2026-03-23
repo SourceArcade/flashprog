@@ -71,8 +71,8 @@ static int rom3read_prepare(struct flashctx *const flash)
 
 	flash->chip->total_size = flash_size / KiB;
 	flash->chip->feature_bits |= FEATURE_NO_ERASE;
-	flash->chip->tested =
-		(struct tested){ .probe = OK, .read = OK, .erase = NA, .write = NA, .wp = NA };
+	flash->chip->tested = (struct flashprog_test_status)
+		{ .probe = OK, .read = OK, .erase = NA, .write = NA, .block_protection = NA };
 
 	return !!flash->chip->total_size;
 }

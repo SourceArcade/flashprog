@@ -1,10 +1,14 @@
 LIBFLASHPROG_1.0 {
   global:
+    flashprog_chip_bus_names;
+    flashprog_chip_buses;
     flashprog_chip_first;
     flashprog_chip_name;
     flashprog_chip_next;
     flashprog_chip_size;
+    flashprog_chip_test_status;
     flashprog_chip_vendor;
+    flashprog_chip_voltage_range;
     flashprog_chips_all;
     flashprog_chips_count;
     flashprog_chips_release;

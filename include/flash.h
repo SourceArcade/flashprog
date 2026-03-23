@@ -61,15 +61,14 @@ void programmer_delay(unsigned int usecs);
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-enum chipbustype {
-	BUS_NONE	= 0,
-	BUS_PARALLEL	= 1 << 0,
-	BUS_LPC		= 1 << 1,
-	BUS_FWH		= 1 << 2,
-	BUS_SPI		= 1 << 3,
-	BUS_PROG	= 1 << 4,
-	BUS_NONSPI	= BUS_PARALLEL | BUS_LPC | BUS_FWH,
-};
+#define chipbustype	flashprog_bus_type
+#define BUS_NONE	0
+#define BUS_PARALLEL	FLASHPROG_BUS_PARALLEL
+#define BUS_LPC		FLASHPROG_BUS_LPC
+#define BUS_FWH		FLASHPROG_BUS_FWH
+#define BUS_SPI		FLASHPROG_BUS_SPI
+#define BUS_OPAQUE	FLASHPROG_BUS_OPAQUE
+#define BUS_PRESPI	(BUS_PARALLEL | BUS_LPC | BUS_FWH)
 
 /*
  * The following enum defines possible write granularities of flash chips. These tend to reflect the properties
@@ -181,27 +180,36 @@ typedef uint32_t feature_bits_t;
 
 #define ERASED_VALUE(flash)	(((flash)->chip->feature_bits & FEATURE_ERASED_ZERO) ? 0x00 : 0xff)
 
-enum test_state {
-	OK = 0,
-	NT = 1,	/* Not tested */
-	BAD,	/* Known to not work */
-	DEP,	/* Support depends on configuration (e.g. Intel flash descriptor) */
-	NA,	/* Not applicable (e.g. write support on ROM chips) */
-};
+#define OK   FLASHPROG_TEST_OK
+#define NT   FLASHPROG_TEST_NT
+#define BAD  FLASHPROG_TEST_BAD
+#define DEP  FLASHPROG_TEST_DEP
+#define NA   FLASHPROG_TEST_NA
 
-#define TEST_UNTESTED	(struct tested){ .probe = NT, .read = NT, .erase = NT, .write = NT, .wp = NT }
+#define TEST_UNTESTED	(struct flashprog_test_status) \
+			{ .probe = NT, .read = NT, .erase = NT, .write = NT, .block_protection = NT }
 
-#define TEST_OK_PROBE	(struct tested){ .probe = OK, .read = NT, .erase = NT, .write = NT, .wp = NT }
-#define TEST_OK_PR	(struct tested){ .probe = OK, .read = OK, .erase = NT, .write = NT, .wp = NT }
-#define TEST_OK_PRE	(struct tested){ .probe = OK, .read = OK, .erase = OK, .write = NT, .wp = NT }
-#define TEST_OK_PREW	(struct tested){ .probe = OK, .read = OK, .erase = OK, .write = OK, .wp = NT }
-#define TEST_OK_PREWB	(struct tested){ .probe = OK, .read = OK, .erase = OK, .write = OK, .wp = OK }
+#define TEST_OK_PROBE	(struct flashprog_test_status) \
+			{ .probe = OK, .read = NT, .erase = NT, .write = NT, .block_protection = NT }
+#define TEST_OK_PR	(struct flashprog_test_status) \
+			{ .probe = OK, .read = OK, .erase = NT, .write = NT, .block_protection = NT }
+#define TEST_OK_PRE	(struct flashprog_test_status) \
+			{ .probe = OK, .read = OK, .erase = OK, .write = NT, .block_protection = NT }
+#define TEST_OK_PREW	(struct flashprog_test_status) \
+			{ .probe = OK, .read = OK, .erase = OK, .write = OK, .block_protection = NT }
+#define TEST_OK_PREWB	(struct flashprog_test_status) \
+			{ .probe = OK, .read = OK, .erase = OK, .write = OK, .block_protection = OK }
 
-#define TEST_BAD_PROBE	(struct tested){ .probe = BAD, .read = NT, .erase = NT, .write = NT, .wp = NT }
-#define TEST_BAD_PR	(struct tested){ .probe = BAD, .read = BAD, .erase = NT, .write = NT, .wp = NT }
-#define TEST_BAD_PRE	(struct tested){ .probe = BAD, .read = BAD, .erase = BAD, .write = NT, .wp = NT }
-#define TEST_BAD_PREW	(struct tested){ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .wp = NT }
-#define TEST_BAD_PREWB	(struct tested){ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .wp = BAD }
+#define TEST_BAD_PROBE	(struct flashprog_test_status) \
+			{ .probe = BAD, .read = NT, .erase = NT, .write = NT, .block_protection = NT }
+#define TEST_BAD_PR	(struct flashprog_test_status) \
+			{ .probe = BAD, .read = BAD, .erase = NT, .write = NT, .block_protection = NT }
+#define TEST_BAD_PRE	(struct flashprog_test_status) \
+			{ .probe = BAD, .read = BAD, .erase = BAD, .write = NT, .block_protection = NT }
+#define TEST_BAD_PREW	(struct flashprog_test_status) \
+			{ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .block_protection = NT }
+#define TEST_BAD_PREWB	(struct flashprog_test_status) \
+			{ .probe = BAD, .read = BAD, .erase = BAD, .write = BAD, .block_protection = BAD }
 
 struct flashprog_flashctx;
 #define flashctx flashprog_flashctx /* TODO: Agree on a name and convert all occurrences. */
@@ -258,13 +266,7 @@ struct flashchip {
 	feature_bits_t feature_bits;
 
 	/* Indicate how well flashprog supports different operations of this flash chip. */
-	struct tested {
-		enum test_state probe;
-		enum test_state read;
-		enum test_state erase;
-		enum test_state write;
-		enum test_state wp;
-	} tested;
+	struct flashprog_test_status tested;
 
 	/*
 	 * Group chips that have common command sets. This should ensure that

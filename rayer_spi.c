@@ -38,7 +38,7 @@
 
 struct rayer_programmer {
 	const char *type;
-	const enum test_state status;
+	const enum flashprog_test_state status;
 	const char *description;
 	const void *dev_data;
 };

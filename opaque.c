@@ -96,7 +96,7 @@ int register_opaque_master(const struct opaque_master *mst, void *data)
 			 __func__);
 		return ERROR_FLASHPROG_BUG;
 	}
-	rmst.buses_supported = BUS_PROG;
+	rmst.buses_supported = BUS_OPAQUE;
 	rmst.probing.probe_count = ARRAY_SIZE(opaque_probes);
 	rmst.probing.probes = opaque_probes;
 	rmst.probing.match = opaque_probe_match;

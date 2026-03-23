@@ -64,6 +64,60 @@ const char *flashprog_chip_name(const struct flashprog_chip *);
 __attribute__((nonnull))
 size_t flashprog_chip_size(const struct flashprog_chip *);
 
+/**
+ * @brief Bit masks that represent supported bus types.
+ * @ingroup flashprog-chip
+ */
+enum flashprog_bus_type {
+	FLASHPROG_BUS_PARALLEL	= 1 << 0, /**< Parallel flash chip */
+	FLASHPROG_BUS_LPC	= 1 << 1, /**< Low Pin Count (LPC) flash */
+	FLASHPROG_BUS_FWH	= 1 << 2, /**< Firmware Hub (FWH) flash */
+	FLASHPROG_BUS_SPI	= 1 << 3, /**< Serial Peripheral Interface (SPI) flash */
+	FLASHPROG_BUS_OPAQUE	= 1 << 4, /**< Chip behind an opaque bus interface */
+};
+__attribute__((nonnull))
+enum flashprog_bus_type flashprog_chip_buses(const struct flashprog_chip *);
+__attribute__((nonnull))
+char *flashprog_chip_bus_names(const struct flashprog_chip *);
+
+/**
+ * @brief Documents the minimal and maximal operating voltage for a chip.
+ * @ingroup flashprog-chip
+ */
+struct flashprog_voltage_range {
+	float min; /**< Lowest operating voltage */
+	float max; /**< Highest operating voltage */
+};
+__attribute__((nonnull))
+struct flashprog_voltage_range flashprog_chip_voltage_range(const struct flashprog_chip *);
+
+/**
+ * @brief Documents the test status of a chip operation.
+ * @ingroup flashprog-chip
+ */
+enum flashprog_test_state {
+	FLASHPROG_TEST_OK = 0,	/**< Tested positively */
+	FLASHPROG_TEST_NT = 1,	/**< Not tested */
+	FLASHPROG_TEST_BAD,	/**< Known to not work */
+	FLASHPROG_TEST_DEP,	/**< Support depends on configuration (e.g. Intel flash descriptor) */
+	FLASHPROG_TEST_NA,	/**< Not applicable (e.g. write support on ROM chips) */
+};
+/**
+ * @brief Documents the test status of various chip operations.
+ * @ingroup flashprog-chip
+ */
+struct flashprog_test_status {
+	enum flashprog_test_state probe:3;		/**< Test status for probing. */
+	enum flashprog_test_state read:3;		/**< Test status for reading. */
+	enum flashprog_test_state erase:3;		/**< Test status for erasing. */
+	enum flashprog_test_state write:3;		/**< Test status for writing. */
+	enum flashprog_test_state block_protection:3;	/**< Test status for block-protection configuration. */
+	enum flashprog_test_state :3, :3, :3, :3, :3, :3, :3, :3, :3, :3, reserved:3;
+	/* XXX: Used as return value. Consider ABI compatibility when extending. */
+};
+__attribute__((nonnull))
+struct flashprog_test_status flashprog_chip_test_status(const struct flashprog_chip *);
+
 struct flashprog_flashctx;
 int flashprog_flash_probe(struct flashprog_flashctx **, const struct flashprog_programmer *, const char *chip_name);
 size_t flashprog_flash_getsize(const struct flashprog_flashctx *);

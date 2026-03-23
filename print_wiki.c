@@ -115,8 +115,8 @@ static const char programmer_th[] = "\
 
 /* The output of this module relies on MediaWiki templates to select special formatting styles for table cells
  * reflecting the test status of the respective hardware. This functions returns the correct template name for
- * the supplied enum test_state. */
-static const char *test_state_to_template(enum test_state test_state)
+ * the supplied enum flashprog_test_state. */
+static const char *test_state_to_template(enum flashprog_test_state test_state)
 {
 	switch (test_state) {
 	case OK: return "OK";

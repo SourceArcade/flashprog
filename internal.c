@@ -187,7 +187,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 	 * is found, the host controller init routine sets the
 	 * internal_buses_supported bitfield.
 	 */
-	internal_buses_supported = BUS_NONSPI;
+	internal_buses_supported = BUS_PRESPI;
 
 	if (try_mtd(prog) == 0) {
 		ret = 0;
@@ -277,7 +277,7 @@ static int internal_init(struct flashprog_programmer *const prog)
 	}
 #endif
 
-	if (internal_buses_supported & BUS_NONSPI) {
+	if (internal_buses_supported & BUS_PRESPI) {
 		register_par_master(&par_master_internal, internal_buses_supported,
 				    internal->rom_base, internal->max_rom_decode, NULL);
 	}

@@ -36,7 +36,7 @@ enum programmer_type {
 struct dev_entry {
 	uint16_t vendor_id;
 	uint16_t device_id;
-	const enum test_state status;
+	const enum flashprog_test_state status;
 	const char *vendor_name;
 	const char *device_name;
 };
@@ -142,7 +142,7 @@ struct penable {
 	bool match_revision;
 	uint8_t revision_id;
 	enum chipbustype buses;
-	const enum test_state status;
+	const enum flashprog_test_state status;
 	const char *vendor_name;
 	const char *device_name;
 	int (*doit) (struct flashprog_programmer *, struct pci_dev *, const char *name);
@@ -184,7 +184,7 @@ struct board_match {
 	const char *board_name;
 
 	int max_rom_decode_parallel;
-	const enum test_state status;
+	const enum flashprog_test_state status;
 	int (*enable) (struct flashprog_programmer *); /* May be NULL. */
 };
 
@@ -193,7 +193,7 @@ extern const struct board_match board_matches[];
 struct board_info {
 	const char *vendor;
 	const char *name;
-	const enum test_state working;
+	const enum flashprog_test_state working;
 #ifdef CONFIG_PRINT_WIKI
 	const char *url;
 	const char *note;

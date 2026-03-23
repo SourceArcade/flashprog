@@ -26750,7 +26750,7 @@ const struct flashchip flashchips[] = {
 	{
 		.vendor		= "Programmer",
 		.name		= "Opaque flash chip",
-		.bustype	= BUS_PROG,
+		.bustype	= BUS_OPAQUE,
 		.id.type	= ID_OPAQUE,
 		.id.manufacture	= PROGMANUF_ID,
 		.id.model	= PROGDEV_ID,

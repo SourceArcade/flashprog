@@ -165,4 +165,50 @@ size_t flashprog_chip_size(const struct flashprog_chip *chip) {
 	return chip->total_size * KiB;
 }
 
+/**
+ * @brief Get a bit mask of the supported bus types.
+ *
+ * @param chip reference to query.
+ * @return bit mask of supported bus types.
+ */
+enum flashprog_bus_type flashprog_chip_buses(const struct flashprog_chip *chip) {
+	return chip->bustype;
+}
+
+/**
+ * @brief Get a string that lists the supported bus types.
+ *
+ * The resulting string needs to be freed with free().
+ *
+ * @param chip reference to query.
+ * @return comma-separated string of supported bus types.
+ */
+char *flashprog_chip_bus_names(const struct flashprog_chip *chip) {
+	return flashbuses_to_text(chip->bustype);
+}
+
+/**
+ * @brief Get the supported operating voltage range.
+ *
+ * @param chip reference to query.
+ * @return supported operating voltage range.
+ */
+struct flashprog_voltage_range flashprog_chip_voltage_range(const struct flashprog_chip *chip)
+{
+	return (struct flashprog_voltage_range) {
+		.min = chip->voltage.min / 1000.f,
+		.max = chip->voltage.max / 1000.f,
+	};
+}
+
+/**
+ * @brief Get the test status of a chip's standard features.
+ *
+ * @param chip reference to query.
+ * @return struct with the test status of the chip's standard features.
+ */
+struct flashprog_test_status flashprog_chip_test_status(const struct flashprog_chip *chip) {
+	return chip->tested;
+}
+
 /** @} */ /* end flashprog-chip */

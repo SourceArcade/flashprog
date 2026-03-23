@@ -1517,7 +1517,7 @@ static int enable_read_amd_spi100_rom3(struct flashprog_programmer *const prog, 
 		return ERROR_FATAL;
 
 	/* Our best guess */
-	internal_buses_supported &= ~BUS_NONSPI;
+	internal_buses_supported &= ~BUS_PRESPI;
 	/* Suppress unknown laptop warning with non-SPI buses disabled. */
 	laptop_ok = true;
 
@@ -1554,7 +1554,7 @@ static int enable_flash_amd_spi100_generic(
 	const bool spirom_enable = spibar & BIT(1);
 	if (spirom_enable) {
 		/* If SPI ROM is memory mapped, nothing else can be */
-		internal_buses_supported &= ~BUS_NONSPI;
+		internal_buses_supported &= ~BUS_PRESPI;
 		/* Suppress unknown laptop warning with non-SPI buses disabled. */
 		laptop_ok = true;
 	}
@@ -1907,8 +1907,8 @@ static int get_flashbase_sc520(struct flashprog_programmer *prog, struct pci_dev
 #define ANY_REV	false, 0x00
 
 #define B_P	(BUS_PARALLEL)
-#define B_PFL	(BUS_NONSPI)
-#define B_PFLS	(BUS_NONSPI | BUS_SPI)
+#define B_PFL	(BUS_PRESPI)
+#define B_PFLS	(BUS_PRESPI | BUS_SPI)
 #define B_FL	(BUS_FWH | BUS_LPC)
 #define B_FLS	(BUS_FWH | BUS_LPC | BUS_SPI)
 #define B_FS	(BUS_FWH | BUS_SPI)

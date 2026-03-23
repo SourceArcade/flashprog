@@ -584,7 +584,7 @@ char *flashbuses_to_text(enum chipbustype bustype)
 	 * FIXME: Once all chipsets and flash chips have been updated, NONSPI
 	 * will cease to exist and should be eliminated here as well.
 	 */
-	if (bustype == BUS_NONSPI) {
+	if (bustype == BUS_PRESPI) {
 		ret = strcat_realloc(ret, "Non-SPI, ");
 	} else {
 		if (bustype & BUS_PARALLEL)
@@ -595,7 +595,7 @@ char *flashbuses_to_text(enum chipbustype bustype)
 			ret = strcat_realloc(ret, "FWH, ");
 		if (bustype & BUS_SPI)
 			ret = strcat_realloc(ret, "SPI, ");
-		if (bustype & BUS_PROG)
+		if (bustype & BUS_OPAQUE)
 			ret = strcat_realloc(ret, "Programmer-specific, ");
 		if (bustype == BUS_NONE)
 			ret = strcat_realloc(ret, "None, ");
