@@ -996,6 +996,7 @@ struct walk_info {
 	chipoff_t erase_end;
 };
 
+/** @private */
 struct eraseblock_data {
 	chipoff_t start_addr;
 	chipoff_t end_addr;
@@ -1005,6 +1006,7 @@ struct eraseblock_data {
 	size_t last_sub_block_index;
 };
 
+/** @private */
 struct erase_layout {
 	struct eraseblock_data* layout_list;
 	size_t block_count;

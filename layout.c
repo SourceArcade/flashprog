@@ -24,10 +24,12 @@
 #include "programmer.h"
 #include "layout.h"
 
+/** @private */
 struct flashprog_layout {
 	struct romentry *head;
 };
 
+/** @private */
 struct layout_include_args {
 	char *name;
 	struct layout_include_args *next;
