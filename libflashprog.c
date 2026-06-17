@@ -560,7 +560,7 @@ void flashprog_layout_set(struct flashprog_flashctx *const flashctx, const struc
 
 
 /**
- * @defgroup flashprog-wp
+ * @defgroup flashprog-wp Write Protection
  * @{
  */
 
