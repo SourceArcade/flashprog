@@ -40,6 +40,7 @@
 #define MAX_BLOCK_COUNT 65535
 #define MAX_CMD_SIZE 15
 #define DEDIPROG_ASYNC_TRANSFERS 8 /* at most 8 asynchronous transfers */
+#define DEDIPROG_INTERFACE 0
 #define REQTYPE_OTHER_OUT (LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0x43 */
 #define REQTYPE_OTHER_IN (LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_OTHER)	/* 0xC3 */
 #define REQTYPE_EP_OUT (LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_ENDPOINT)	/* 0x42 */
@@ -1183,6 +1184,68 @@ static struct spi_master spi_master_dediprog = {
 	.probe_opcode	= default_spi_probe_opcode,
 };
 
+static int dediprog_find_bulk_endpoints(struct dediprog_data *dp_data)
+{
+	struct libusb_config_descriptor *config;
+	const struct libusb_interface_descriptor *interface = NULL;
+	int in_endpoint = 0;
+	int out_endpoint = 0;
+	int ret;
+	int i;
+
+	ret = libusb_get_active_config_descriptor(libusb_get_device(dp_data->handle), &config);
+	if (ret != 0) {
+		msg_perr("Could not read USB configuration descriptor: %i %s\n",
+			 ret, libusb_error_name(ret));
+		return 1;
+	}
+
+	for (i = 0; i < config->bNumInterfaces; i++) {
+		const struct libusb_interface *const iface = &config->interface[i];
+		if (iface->num_altsetting > 0 && iface->altsetting[0].bInterfaceNumber == DEDIPROG_INTERFACE) {
+			interface = &iface->altsetting[0];
+			break;
+		}
+	}
+
+	if (!interface) {
+		msg_perr("Could not find USB interface %u in configuration descriptor.\n", DEDIPROG_INTERFACE);
+		libusb_free_config_descriptor(config);
+		return 1;
+	}
+
+	for (i = 0; i < interface->bNumEndpoints; i++) {
+		const struct libusb_endpoint_descriptor *const endpoint = &interface->endpoint[i];
+		const uint8_t type = endpoint->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK;
+		const uint8_t address = endpoint->bEndpointAddress;
+
+		if (type != LIBUSB_TRANSFER_TYPE_BULK)
+			continue;
+
+		if ((address & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN) {
+			if (!in_endpoint)
+				in_endpoint = address;
+		} else if (!out_endpoint) {
+			out_endpoint = address;
+		}
+	}
+
+	libusb_free_config_descriptor(config);
+
+	if (!in_endpoint || !out_endpoint) {
+		msg_perr("Could not find required bulk endpoints (in=0x%02x, out=0x%02x).\n",
+			 in_endpoint, out_endpoint);
+		return 1;
+	}
+
+	dp_data->in_endpoint = in_endpoint;
+	dp_data->out_endpoint = out_endpoint;
+
+	msg_pdbg("Using bulk endpoints in=0x%02x, out=0x%02x.\n",
+		 dp_data->in_endpoint, dp_data->out_endpoint);
+	return 0;
+}
+
 /*
  * Open a dediprog_handle with the USB device at the given index.
  * @index   index of the USB device
@@ -1225,11 +1288,8 @@ static int dediprog_open(int index, struct dediprog_data *dp_data)
 			goto unknown_dev;
 	}
 
-	dp_data->in_endpoint = LIBUSB_ENDPOINT_IN | 2;
-	if (dp_data->devicetype <= DEV_SF200)
-		dp_data->out_endpoint = 2;
-	else
-		dp_data->out_endpoint = 1;
+	if (dediprog_find_bulk_endpoints(dp_data))
+		goto unknown_dev;
 
 	return 0;
 
