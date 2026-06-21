@@ -310,6 +310,8 @@ cards)"
 .sp
 .BR "* nicamd" " (for parallel flash ROMs on AMD PCnet network cards)
 .sp
+.BR "* gfxmatrox" " (for flash ROMs on Matrox graphics cards)"
+.sp
 .BR "* gfxnvidia" " (for flash ROMs on NVIDIA graphics cards)"
 .sp
 .BR "* drkaiser" " (for flash ROMs on Dr. Kaiser PC-Waechter PCI cards)"
@@ -763,9 +765,9 @@ that chip is write-protected (on real hardware the pin is usually negated, but
 not here).
 .SS
 .BR "nic3com" , " nicrealtek" , " nicnatsemi" , " nicintel", " nicintel_eeprom"\
-, " nicintel_spi" , " nicamd" , " gfxnvidia" , " ogp_spi" , " drkaiser"\
-, " satasii" , " scsilsi", " satamv" , " atahpt", " atavia ", " atapromise "\
-and " it8212 " programmers
+, " nicintel_spi" , " nicamd" , " gfxmatrox" , " gfxnvidia" , " ogp_spi"\
+, " drkaiser", " satasii" , " scsilsi", " satamv" , " atahpt", " atavia "\
+, " atapromise " and " it8212 " programmers
 .IP
 These programmers have an option to specify the PCI address of the card
 your want to use, which must be specified if more than one card supported
@@ -822,6 +824,19 @@ addressable size. If this doesn't work reliably, one can override the probing lo
 .BR "max_decode_kb " parameter.
 .sp
 .B "  flashprog \-p nicamd:max_decode_kb=128"
+.SS
+.BR "gfxmatrox " programmer
+.IP
+This programmer module supports parallel flash up to 64KiB, attached to Matrox graphics cards. The ROM BAR
+is used for reading
+.B and writing
+the flash. Because the whole BAR register is disabled by default, though, it's likely that we have to
+configure it ourselves. The ROM BAR decoding takes precedence, so we can borrow the MMIO BAR address,
+but have to make double sure that no graphics driver is running. Hence, this borrowing has to be explicitly
+enabled with the
+.BR "bar=no_gfx_driver_running " argument.
+.sp
+.B "  flashprog \-p gfxmatrox:bar=no_gfx_driver_running"
 .SS
 .BR "ft2232_spi " programmer
 .IP
@@ -1567,7 +1582,7 @@ need PCI configuration space read access and raw I/O port access.
 .B atahpt
 needs PCI configuration space access and raw I/O port access.
 .sp
-.BR gfxnvidia ", " drkaiser " and " it8212
+.BR gfxmatrox ", " gfxnvidia ", " drkaiser " and " it8212
 need PCI configuration space access and raw memory access.
 .sp
 .B rayer_spi
@@ -1596,8 +1611,8 @@ need access to the respective USB device via libusb API version 1.0.
 needs no access permissions at all.
 .sp
 .BR internal ", " nicamd ", " nic3com ", " nicrealtek ", " nicnatsemi ", "
-.BR gfxnvidia ", " drkaiser ", " satamv ", " satasii ", " scsilsi ", "
-.BR atahpt ", " atavia " and " atapromise
+.BR gfxmatrox ", " gfxnvidia ", " drkaiser ", " satamv ", " satasii ", "
+.BR scsilsi ", " atahpt ", " atavia " and " atapromise
 have to be run as superuser/root, and need additional raw access permission.
 .sp
 .BR serprog ", " buspirate_spi ", " dediprog ", " usbblaster_spi ", " ft2232_spi ", " pickit2_spi ", " \

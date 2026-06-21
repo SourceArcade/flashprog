@@ -249,6 +249,14 @@ programmer = {
     'srcs'    : files('ft4222_spi.c' ),
     'flags'   : [ '-DCONFIG_FT4222_SPI=1' ],
   },
+  'gfxmatrox' : {
+    'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
+    'deps'    : [ libpci ],
+    'groups'  : [ group_pci, group_internal ],
+    'srcs'    : files('gfxmatrox.c', 'pcidev.c'),
+    'flags'   : [ '-DCONFIG_GFXMATROX=1' ],
+  },
   'gfxnvidia' : {
     'systems' : systems_hwaccess,
     'cpu_families' : [ cpus_raw_mem ],
