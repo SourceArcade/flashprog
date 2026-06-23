@@ -53,6 +53,10 @@ int printlock_regspace2_uniform_64k(struct flashprog_flashctx *);
 int printlock_regspace2_block_eraser_0(struct flashprog_flashctx *);
 int printlock_regspace2_block_eraser_1(struct flashprog_flashctx *);
 
+/* m28f.c */
+int write_m28f(struct flashprog_flashctx *, const uint8_t *src, unsigned int pos, unsigned int len);
+int erase_m28f(struct flashprog_flashctx *, unsigned int addr, unsigned int blocksize);
+
 /* sst28sf040.c */
 int erase_chip_28sf040(struct flashprog_flashctx *, unsigned int addr, unsigned int blocklen);
 int erase_sector_28sf040(struct flashprog_flashctx *, unsigned int address, unsigned int sector_size);
