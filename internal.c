@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "programmer.h"
+#include "programmer/physmap.h"
 #include "hwaccess_physmap.h"
 #include "platform/pci.h"
 
@@ -60,21 +61,14 @@ int register_superio(struct superio s)
 int is_laptop = 0;
 bool laptop_ok = false;
 
-static void internal_chip_writeb(const struct par_master *, uint8_t val, chipaddr);
-static void internal_chip_writew(const struct par_master *, uint16_t val, chipaddr);
-static void internal_chip_writel(const struct par_master *, uint32_t val, chipaddr);
-static uint8_t internal_chip_readb(const struct par_master *, chipaddr);
-static uint16_t internal_chip_readw(const struct par_master *, chipaddr);
-static uint32_t internal_chip_readl(const struct par_master *, chipaddr);
-static void internal_chip_readn(const struct par_master *, uint8_t *buf, chipaddr, size_t len);
 static const struct par_master par_master_internal = {
-	.chip_readb	= internal_chip_readb,
-	.chip_readw	= internal_chip_readw,
-	.chip_readl	= internal_chip_readl,
-	.chip_readn	= internal_chip_readn,
-	.chip_writeb	= internal_chip_writeb,
-	.chip_writew	= internal_chip_writew,
-	.chip_writel	= internal_chip_writel,
+	.chip_readb	= mmio_chip_readb,
+	.chip_readw	= mmio_chip_readw,
+	.chip_readl	= mmio_chip_readl,
+	.chip_readn	= mmio_chip_readn,
+	.chip_writeb	= mmio_chip_writeb,
+	.chip_writew	= mmio_chip_writew,
+	.chip_writel	= mmio_chip_writel,
 	.chip_writen	= fallback_chip_writen,
 	.map_flash	= physmap,
 	.unmap_flash	= physunmap,
@@ -322,43 +316,6 @@ internal_init_exit:
 	free(board_model);
 
 	return ret;
-}
-
-static void internal_chip_writeb(const struct par_master *par, uint8_t val, chipaddr addr)
-{
-	mmio_writeb(val, (void *) addr);
-}
-
-static void internal_chip_writew(const struct par_master *par, uint16_t val, chipaddr addr)
-{
-	mmio_writew(val, (void *) addr);
-}
-
-static void internal_chip_writel(const struct par_master *par, uint32_t val, chipaddr addr)
-{
-	mmio_writel(val, (void *) addr);
-}
-
-static uint8_t internal_chip_readb(const struct par_master *par, const chipaddr addr)
-{
-	return mmio_readb((void *) addr);
-}
-
-static uint16_t internal_chip_readw(const struct par_master *par, const chipaddr addr)
-{
-	return mmio_readw((void *) addr);
-}
-
-static uint32_t internal_chip_readl(const struct par_master *par, const chipaddr addr)
-{
-	return mmio_readl((void *) addr);
-}
-
-static void internal_chip_readn(const struct par_master *par, uint8_t *buf,
-				const chipaddr addr, size_t len)
-{
-	mmio_readn((void *)addr, buf, len);
-	return;
 }
 
 const struct programmer_entry programmer_internal = {
