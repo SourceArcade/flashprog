@@ -52,7 +52,7 @@ $(foreach tag,$(MULTIARCH_TAGS), \
 $(foreach tag,$(OFFICIAL_TAGS), \
 	$(eval $(call build_template,$(tag),$(tag),$(call official_stem,$(tag)),$(call official_plat,$(tag)))))
 
-djgpp\:6.1.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
+djgpp\:12.2.0-build: %-build: Dockerfile.djgpp mani-wrapper.sh
 	$(QUIET_SETUP)docker build . -f $< -t mani/$* --build-arg IDENT=$(call ident,$*)
 
 source-build: Dockerfile.source

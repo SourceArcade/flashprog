@@ -1,33 +1,49 @@
-FROM anibali/djgpp:6.1.0
+FROM debian:bookworm-slim
 
 USER root
 RUN \
-	userdel appuser && \
-	useradd -p locked -m mani && \
-	zypper -q install -y tar make git ccache
+	apt-get update && \
+	apt-get install -y --no-install-recommends \
+		bzip2 ca-certificates ccache curl flex git libfl2 make tar && \
+	rm -rf /var/lib/apt/lists/* && \
+	useradd -p locked -m mani
 
-RUN mkdir -p -m 1777 /ccache
+RUN mkdir -p -m 1777 /ccache && \
+	mkdir -p /opt/djgpp
 
+ARG DJGPP_RELEASE=v3.4
+ARG DJGPP_ARCHIVE=djgpp-linux64-gcc1220.tar.bz2
+RUN curl -L --fail \
+		https://github.com/andrewwutw/build-djgpp/releases/download/${DJGPP_RELEASE}/${DJGPP_ARCHIVE} | \
+	tar -xj --strip-components=1 -C /opt/djgpp
+
+ENV PATH=/opt/djgpp/bin:$PATH
 ENV GIT_SSL_NO_VERIFY=1
 USER mani
 
 ARG ORIGIN=https://review.sourcearcade.org/flashprog.git
+ARG PCIUTILS_TAG=v3.15.0
+ARG GETOPT_VERSION=2.5
 RUN cd && \
-	mkdir .ccache && chown mani:users .ccache && \
+	mkdir .ccache && \
 	git clone ${ORIGIN} flashprog && \
-	git clone https://git.kernel.org/pub/scm/utils/pciutils/pciutils.git && \
+	git clone --depth 1 --branch ${PCIUTILS_TAG} \
+		https://git.kernel.org/pub/scm/utils/pciutils/pciutils.git && \
 	cd pciutils && \
-		git checkout v3.5.6 && \
-		curl --insecure https://flashprog.org/images/6/6a/Pciutils-3.5.6.patch.gz | zcat | git apply && \
 		make ZLIB=no DNS=no HOST=i386-djgpp-djgpp \
 			CROSS_COMPILE=i586-pc-msdosdjgpp- \
 			PREFIX=/ DESTDIR=$PWD/../ \
-			STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" \
-			install install-lib && \
+			install-lib && \
 		cd ../ && \
-	curl --insecure https://flashprog.org/images/3/3d/Libgetopt.tar.gz | zcat | tar x && \
-	cd libgetopt && \
-		make && cp libgetopt.a ../lib/ && cp getopt.h ../include/
+	curl -L --fail https://ftp.math.utah.edu/pub/getopt/getopt-${GETOPT_VERSION}.tar.gz | tar xz && \
+	cd getopt-${GETOPT_VERSION} && \
+		printf '%s\n' 'char *gettext(const char *msgid);' >posix/gettext.h && \
+		sed -i -e 's,env/[gs]etenv\.c,,g' Makefile.in && \
+		AR=i586-pc-msdosdjgpp-ar RANLIB=i586-pc-msdosdjgpp-ranlib \
+			./configure --host i586-pc-msdosdjgpp && \
+		make && \
+		cp libgetopt.a ../lib/ && \
+		cp posix/getopt.h ../include/
 
 ARG IDENT=mani
 ARG CCACHE_MAX=32M

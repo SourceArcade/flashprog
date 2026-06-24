@@ -51,7 +51,7 @@ like this:
     debian-debootstrap:mips-sid: 2
     debian-debootstrap:mips-buster: 2
     ubuntu-debootstrap:powerpc-xenial: 2
-    djgpp:6.1.0: 2
+    djgpp:12.2.0: 2
 
 For each *tag* that returns with a non-zero exit code, the *tag*
 and actual exit code is printed. An exit code of `2` is most likely

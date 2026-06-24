@@ -134,21 +134,28 @@ To cross-compile on Linux for DOS:
  in one subdirectory. There will be an extra subdirectory libpci-libgetopt
  created, which will contain compiled libpci and libgetopt.
 
- Download pciutils 3.5.6 and apply https://flashprog.org/wiki/File:Pciutils-3.5.6.patch.gz
- Compile pciutils, using following command line:
+ Download pciutils 3.15.0 and compile it using following command line:
 
     make ZLIB=no DNS=no HOST=i386-djgpp-djgpp CROSS_COMPILE=i586-pc-msdosdjgpp- \
-      PREFIX=/ DESTDIR=$PWD/../libpci-libgetopt  \
-      STRIP="--strip-program=i586-pc-msdosdjgpp-strip -s" install install-lib
+      PREFIX=/ DESTDIR=$PWD/../libpci-libgetopt install-lib
 
- Download and compile with 'make' https://flashprog.org/wiki/File:Libgetopt.tar.gz
+ Download getopt 2.5 from ftp.math.utah.edu and build the static library:
+
+    tar xzf getopt-2.5.tar.gz
+    cd getopt-2.5
+    printf '%s\n' 'char *gettext(const char *msgid);' >posix/gettext.h
+    sed -i -e 's,env/[gs]etenv\.c,,g' Makefile.in
+    AR=i586-pc-msdosdjgpp-ar RANLIB=i586-pc-msdosdjgpp-ranlib \
+      ./configure --host i586-pc-msdosdjgpp
+    make
 
  Copy the libgetopt.a to ../libpci-libgetopt/lib and
- getopt.h to ../libpci-libgetopt/include
+ posix/getopt.h to ../libpci-libgetopt/include
 
  Enter the flashprog directory.
 
-   make CC=i586-pc-msdosdjgpp-gcc STRIP=i586-pc-msdosdjgpp-strip \
+   make CC=i586-pc-msdosdjgpp-gcc AR=i586-pc-msdosdjgpp-ar \
+     RANLIB=i586-pc-msdosdjgpp-ranlib STRIP=i586-pc-msdosdjgpp-strip \
      LIBS_BASE=../libpci-libgetopt/ HAS_LIBPCI=yes CONFIG_LIBPCI_LDFLAGS=-lpci \
      strip
 
