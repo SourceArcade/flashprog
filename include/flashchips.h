@@ -904,6 +904,7 @@
 #define ST_M29W010B		0x23
 #define ST_M29W040B		0xE3
 #define ST_M29W512B		0x27
+#define ST_M28F256		0xA8
 #define ST_M28W160ECB		0x88CF
 #define ST_M28W160ECT		0x88CE
 #define ST_M28W320FCB		0x88BB

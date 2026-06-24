@@ -117,7 +117,7 @@ struct found_id *probe_82802ab(const struct bus_probe *probe,
 	if (chip)
 		return probe_82802ab_generic(par, chip->total_size * KiB, chip->feature_bits);
 
-	for (chip_size = 256*KiB; chip_size <= 2*MiB; chip_size *= 2) {
+	for (chip_size = 32*KiB; chip_size <= 2*MiB; chip_size *= 2) {
 		*next_ptr = probe_82802ab_generic(par, chip_size, 0);
 		if (*next_ptr)
 			next_ptr = &(*next_ptr)->next;

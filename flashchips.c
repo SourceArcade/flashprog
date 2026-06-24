@@ -20184,6 +20184,29 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "ST",
+		.name		= "M28F256",
+		.bustype	= BUS_PARALLEL,
+		.id.type	= ID_82802AB,
+		.id.manufacture	= ST_ID,
+		.id.model	= ST_M28F256,
+		.total_size	= 32,
+		.tested		= TEST_OK_PREW,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {32 * 1024, 1} },
+				.block_erase = erase_m28f,
+			}
+		},
+		.write		= write_m28f,
+		.read		= read_memmapped,
+		.voltage	= {4750, 5250}, /* 4.75-5.25V for type -X, others 4.5-5.5V, 12V Vpp */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
+	},
+
+	{
+		.vendor		= "ST",
 		.name		= "M29F002B",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
