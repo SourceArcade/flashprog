@@ -44,6 +44,8 @@
 
 static size_t fmap_size(const struct fmap *fmap)
 {
+	if (fmap->nareas > (SIZE_MAX - sizeof(*fmap)) / sizeof(struct fmap_area))
+		return SIZE_MAX;
 	return sizeof(*fmap) + (fmap->nareas * sizeof(struct fmap_area));
 }
 
