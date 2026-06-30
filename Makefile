@@ -122,6 +122,7 @@ DEPENDS_ON_RAW_MEM_ACCESS := \
 	CONFIG_OGP_SPI \
 	CONFIG_SATAMV \
 	CONFIG_SATASII \
+	CONFIG_SCSILSI \
 
 DEPENDS_ON_X86_MSR := \
 	CONFIG_INTERNAL_X86 \
@@ -153,6 +154,7 @@ DEPENDS_ON_LIBPCI := \
 	CONFIG_OGP_SPI \
 	CONFIG_SATAMV \
 	CONFIG_SATASII \
+	CONFIG_SCSILSI \
 
 DEPENDS_ON_LIBUSB1 := \
 	CONFIG_CH341A_SPI \
@@ -439,6 +441,9 @@ CONFIG_GFXNVIDIA ?= yes
 # Always enable SiI SATA controllers for now.
 CONFIG_SATASII ?= yes
 
+# Enable LSI SCSI controllers.
+CONFIG_SCSILSI ?= yes
+
 # Highpoint (HPT) ATA/RAID controller support.
 # IMPORTANT: This code is not yet working!
 CONFIG_ATAHPT ?= no
@@ -650,6 +655,11 @@ endif
 ifeq ($(CONFIG_SATASII), yes)
 FEATURE_FLAGS += -D'CONFIG_SATASII=1'
 PROGRAMMER_OBJS += satasii.o
+endif
+
+ifeq ($(CONFIG_SCSILSI), yes)
+FEATURE_FLAGS += -D'CONFIG_SCSILSI=1'
+PROGRAMMER_OBJS += scsilsi.o
 endif
 
 ifeq ($(CONFIG_ATAHPT), yes)

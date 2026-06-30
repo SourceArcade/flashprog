@@ -431,6 +431,14 @@ programmer = {
     'srcs'    : files('satasii.c', 'pcidev.c'),
     'flags'   : [ '-DCONFIG_SATASII=1' ],
   },
+  'scsilsi' : {
+    'systems' : systems_hwaccess,
+    'cpu_families' : [ cpus_raw_mem ],
+    'deps'    : [ libpci ],
+    'groups'  : [ group_pci, group_internal ],
+    'srcs'    : files('scsilsi.c', 'pcidev.c'),
+    'flags'   : [ '-DCONFIG_SCSILSI=1' ],
+  },
   'serprog' : {
     'systems' : systems_serial,
     'groups'  : [ group_serial, group_external ],

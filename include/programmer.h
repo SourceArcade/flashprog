@@ -93,6 +93,7 @@ extern const struct programmer_entry programmer_pony_spi;
 extern const struct programmer_entry programmer_rayer_spi;
 extern const struct programmer_entry programmer_satamv;
 extern const struct programmer_entry programmer_satasii;
+extern const struct programmer_entry programmer_scsilsi;
 extern const struct programmer_entry programmer_serprog;
 extern const struct programmer_entry programmer_stlinkv3_spi;
 extern const struct programmer_entry programmer_usbblaster_spi;
