@@ -4050,22 +4050,19 @@ const struct flashchip flashchips[] = {
 		.vendor		= "Catalyst",
 		.name		= "CAT28F512",
 		.bustype	= BUS_PARALLEL,
-		.id.type	= ID_JEDEC, /* FIXME! */
+		.id.type	= ID_82802AB,
 		.id.manufacture	= CATALYST_ID,
 		.id.model	= CATALYST_CAT28F512,
 		.total_size	= 64,
-		.page_size	= 0, /* unused */
-		.feature_bits	= 0,
-		.tested		= {.probe = OK, .read = OK, .erase = BAD, .write = BAD},
-		.probe_timing	= TIMING_ZERO,
+		.tested		= TEST_UNTESTED,
 		.block_erasers	=
 		{
 			{
 				.eraseblocks = { {64 * 1024, 1} },
-				.block_erase = NULL, /* TODO */
+				.block_erase = erase_m28f,
 			},
 		},
-		.write		= NULL, /* TODO */
+		.write		= write_m28f,
 		.read		= read_memmapped,
 		.voltage	= {4500, 5500},
 		.prepare_access	= prepare_memory_access,
