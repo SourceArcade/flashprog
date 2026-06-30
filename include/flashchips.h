@@ -227,6 +227,7 @@
 #define BRIGHT_BM29F400T	0xAD
 
 #define CATALYST_ID		0x31	/* Catalyst */
+#define CATALYST_CAT28F010	0xB4
 #define CATALYST_CAT28F512	0xB8
 
 #define ESMT_ID			0x8C	/* Elite Semiconductor Memory Technology (ESMT) / EFST Elite Flash Storage */

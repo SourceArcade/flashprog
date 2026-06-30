@@ -4073,6 +4073,29 @@ const struct flashchip flashchips[] = {
 	},
 
 	{
+		.vendor		= "Catalyst",
+		.name		= "CAT28F010",
+		.bustype	= BUS_PARALLEL,
+		.id.type	= ID_82802AB,
+		.id.manufacture	= CATALYST_ID,
+		.id.model	= CATALYST_CAT28F010,
+		.total_size	= 128,
+		.tested		= TEST_OK_PROBE,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {128 * 1024, 1} },
+				.block_erase = erase_m28f,
+			}
+		},
+		.write		= write_m28f,
+		.read		= read_memmapped,
+		.voltage	= {4500, 5500}, /* 12V Vpp */
+		.prepare_access	= prepare_memory_access,
+		.finish_access	= finish_memory_access,
+	},
+
+	{
 		.vendor		= "ENE",
 		.name		= "KB9012 (EDI)",
 		.bustype	= BUS_SPI,
