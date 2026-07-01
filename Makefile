@@ -211,6 +211,15 @@ endif
 
 CC_WORKING := $(call c_compile_test, Makefile.d/cc_test.c)
 
+# Determine the destination OS, architecture and endian
+# IMPORTANT: The following lines must be placed before TARGET_OS, ARCH or ENDIAN
+# is ever used (of course), but should come after any lines setting CC because
+# the lines below use CC itself.
+override TARGET_OS  := $(call c_macro_test, Makefile.d/os_test.h)
+override ARCH       := $(call c_macro_test, Makefile.d/arch_test.h)
+override ENDIAN     := $(call c_macro_test, Makefile.d/endian_test.h)
+
+
 # Configs for dependencies. Can be overwritten by commandline
 CONFIG_LIBFTDI1_VERSION    := $(call dependency_version, libftdi1)
 CONFIG_LIBFTDI1_CFLAGS     := $(call dependency_cflags, libftdi1)
@@ -245,15 +254,6 @@ CONFIG_LIBPCI_LDFLAGS      := $(call dependency_ldflags, libpci)
 CONFIG_LIBGPIOD_VERSION      := $(call dependency_version, libgpiod)
 CONFIG_LIBGPIOD_CFLAGS       := $(call dependency_cflags, libgpiod)
 CONFIG_LIBGPIOD_LDFLAGS      := $(call dependency_ldflags, libgpiod)
-
-# Determine the destination OS, architecture and endian
-# IMPORTANT: The following lines must be placed before TARGET_OS, ARCH or ENDIAN
-# is ever used (of course), but should come after any lines setting CC because
-# the lines below use CC itself.
-override TARGET_OS  := $(call c_macro_test, Makefile.d/os_test.h)
-override ARCH       := $(call c_macro_test, Makefile.d/arch_test.h)
-override ENDIAN     := $(call c_macro_test, Makefile.d/endian_test.h)
-
 
 HAS_LIBFTDI1        := $(call find_dependency, libftdi1)
 HAS_LIB_NI845X      := no
