@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "flash.h"
+#include "layout.h"
 #include "programmer.h"
 
 /* Check if raw data is all 0 or all 1. */
@@ -73,6 +74,13 @@ int flashprog_limit_chip(struct flashctx *flash)
 	/* Chip is small enough or already limited. */
 	if (chip_size <= limit)
 		return 0;
+
+	const struct flashprog_layout *const layout = get_default_layout(flash);
+	if (layout) {
+		struct romentry *const entry = (struct romentry *)layout_next(layout, NULL);
+		if (entry)
+			entry->end = limit - 1;
+	}
 
 	/* Undefine all block_erasers that don't operate on the whole chip,
 	   and adjust the eraseblock size of those which do. */
