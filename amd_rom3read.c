@@ -51,69 +51,24 @@ static int spi100_mmap_read(struct flashctx *flash, uint8_t *dst, unsigned int s
 	return 0;
 }
 
-static int compare64(const char *const s1, const char *const s2, unsigned int offset)
-{
-	offset &= ~63;
-	return memcmp(s1 + offset, s2 + offset, 64);
-}
-
-/* Compare two memory ranges at pseudo-random offsets. */
-static int compare_sparse(const void *const s1, const void *const s2, const size_t n)
-{
-	const unsigned int offsets[] = {
-		12, 123, 1234, 12345, 123456, 123456, 1234567, 12345678, 123456789,
-		0x12, 0x123, 0x1234, 0x12345, 0x123456, 0x1234567, 0x12345678,
-		0, 01, 012, 0123, 01234, 012345, 0123456, 01234567,
-	};
-	const unsigned int step = 1234;
-
-	if (n < step + 64)
-		return 0;
-
-	unsigned int i;
-	for (i = 0; i < ARRAY_SIZE(offsets); ++i) {
-		const unsigned int offset = offsets[i] % ((n - 64) / step) * step;
-
-		const int diff1 = compare64(s1, s2, offset);
-		if (diff1)
-			return diff1;
-
-		const int diff2 = compare64(s1, s2, n - 64 - offset);
-		if (diff2)
-			return diff2;
-	}
-
-	return 0;
-}
-
 static int rom3read_prepare(struct flashctx *const flash)
 {
 	const struct spi100 *const spi100 = flash->mst.opaque->data;
 	const void *const rom3 = spi100->memory;
 
 	size_t flash_size = spi100->size_override;
-	if (flash_size)
-		goto size_known;
+	if (!flash_size) {
+		/*
+		 * Only thing to probe is the size. That's going to be peculiar,
+		 * though: As the whole 64MiB rom3 range is decoded, we can only
+		 * look for repeating memory contents.
+		 */
+		msg_pinfo("Trying to probe flash size based on its contents and read patterns. If this\n"
+			  "doesn't work, you can override probing with `-p internal:rom_size_mb=<size>`.\n");
 
-	/*
-	 * Only thing to probe is the size. That's going to be peculiar,
-	 * though: As the whole 64MiB rom3 range is decoded, we can only
-	 * look for repeating memory contents.
-	 */
-	msg_pinfo("Trying to probe flash size based on its contents and read patterns. If this\n"
-		  "doesn't work, you can override probing with `-p internal:rom_size_mb=<size>`.\n");
-
-	/*
-	 * We start comparing the two halves of the 64 MiB space. And if
-	 * they match, split the lower half, and so on until we find a
-	 * mismatch (or not, in the unlikely case of empty memory?).
-	 */
-	for (flash_size = 64*MiB; flash_size > 0; flash_size /= 2) {
-		if (compare_sparse(rom3, rom3 + flash_size / 2, flash_size / 2))
-			break;
+		flash_size = estimate_addressable_size(rom3, 64*MiB);
 	}
 
-size_known:
 	flash->chip->total_size = flash_size / KiB;
 	flash->chip->feature_bits |= FEATURE_NO_ERASE;
 	flash->chip->tested =

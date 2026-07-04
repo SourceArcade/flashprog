@@ -98,6 +98,61 @@ int flashprog_limit_chip(struct flashctx *flash)
 	}
 }
 
+/* Compare 64 naturally aligned bytes (often matches a cache line). */
+static int compare64(const char *const s1, const char *const s2, unsigned int offset)
+{
+	offset &= ~63;
+	return memcmp(s1 + offset, s2 + offset, 64);
+}
+
+/* Compare two memory ranges at pseudo-random offsets. */
+int compare_sparse(const void *const s1, const void *const s2, const size_t n)
+{
+	const unsigned int offsets[] = {
+		12, 123, 1234, 12345, 123456, 123456, 1234567, 12345678, 123456789,
+		0x12, 0x123, 0x1234, 0x12345, 0x123456, 0x1234567, 0x12345678,
+		0, 01, 012, 0123, 01234, 012345, 0123456, 01234567,
+	};
+	const unsigned int step = 1234;
+
+	if (n < step + 64)
+		return 0;
+
+	unsigned int i;
+	for (i = 0; i < ARRAY_SIZE(offsets); ++i) {
+		const unsigned int offset = offsets[i] % ((n - 64) / step) * step;
+
+		const int diff1 = compare64(s1, s2, offset);
+		if (diff1)
+			return diff1;
+
+		const int diff2 = compare64(s1, s2, n - 64 - offset);
+		if (diff2)
+			return diff2;
+	}
+
+	return 0;
+}
+
+/* Guesstimate the addressable size inside a memory mapping. `len' should be a power of 2. */
+size_t estimate_addressable_size(const void *const base, size_t len)
+{
+	if (len & (len - 1))
+		msg_perr("Error in %s: Given `len=%zu' is not a power of 2.\n", __func__, len);
+
+	/*
+	 * We start comparing the two halves of the given space. And if
+	 * they match, split the lower half, and so on until we find a
+	 * mismatch (or not, in the unlikely case of empty memory?).
+	 */
+	for (; len > 0; len /= 2) {
+		if (compare_sparse(base, base + len / 2, len / 2))
+			break;
+	}
+
+	return len;
+}
+
 /* Returns the minimum number of bits needed to represent the given address.
  * FIXME: use mind-blowing implementation. */
 uint32_t address_to_bits(uint32_t addr)
