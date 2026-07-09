@@ -78,7 +78,8 @@ static int ch347_cs_control(struct ch347_spi_data *ch347_data, uint8_t cs1, uint
 		[8] = cs2
 	};
 
-	int32_t ret = libusb_bulk_transfer(ch347_data->handle, WRITE_EP, cmd, sizeof(cmd), NULL, 1000);
+	int transferred;
+	int32_t ret = libusb_bulk_transfer(ch347_data->handle, WRITE_EP, cmd, sizeof(cmd), &transferred, 1000);
 	if (ret < 0) {
 		msg_perr("Could not change CS!\n");
 		return -1;
@@ -112,7 +113,7 @@ static int ch347_write(struct ch347_spi_data *ch347_data, unsigned int writecnt,
 			return -1;
 		}
 
-		ret = libusb_bulk_transfer(ch347_data->handle, READ_EP, resp_buf, sizeof(resp_buf), NULL, 1000);
+		ret = libusb_bulk_transfer(ch347_data->handle, READ_EP, resp_buf, sizeof(resp_buf), &transferred, 1000);
 		if (ret < 0) {
 			msg_perr("Could not receive write command response\n");
 			return -1;
@@ -205,6 +206,7 @@ static int ch347_spi_send_command(const struct spi_master *mst, unsigned int wri
 static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divisor, uint8_t mode)
 {
 	int32_t ret;
+	int transferred;
 	uint8_t buff[29] = {
 		[0] = CH347_CMD_SPI_SET_CFG,
 		[1] = (sizeof(buff) - 3) & 0xFF,
@@ -230,7 +232,7 @@ static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divis
 		[24] = 0
 	};
 
-	ret = libusb_bulk_transfer(ch347_data->handle, WRITE_EP, buff, sizeof(buff), NULL, 1000);
+	ret = libusb_bulk_transfer(ch347_data->handle, WRITE_EP, buff, sizeof(buff), &transferred, 1000);
 	if (ret < 0) {
 		msg_perr("Could not configure SPI interface\n");
 	}
@@ -238,7 +240,7 @@ static int32_t ch347_spi_config(struct ch347_spi_data *ch347_data, uint8_t divis
 	/* FIXME: Not sure if the CH347 sends error responses for
 	 * invalid config data, if so the code should check
 	 */
-	ret = libusb_bulk_transfer(ch347_data->handle, READ_EP, buff, sizeof(buff), NULL, 1000);
+	ret = libusb_bulk_transfer(ch347_data->handle, READ_EP, buff, sizeof(buff), &transferred, 1000);
 	if (ret < 0) {
 		msg_perr("Could not receive configure SPI command response\n");
 	}
