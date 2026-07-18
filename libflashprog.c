@@ -227,12 +227,61 @@ release_matches:
 	return ret;
 }
 
+/*
+ * Match our database-entry name patterns. The `searched` string can either
+ * be an actual chip name or the full pattern (i.e. containing '/' and parents).
+ *
+ * Our entry patterns can contain alternatives, separated by '/', for instance
+ * "MX25L4005A/MX25L4006E", optional sub-patterns in parentheses, for instance
+ * "Am29F002(N)BT" which matches both "Am29F002BT" and "Am29F002NBT", and wild-
+ * cards '.' that match any character.
+ *
+ * We compare the entry's pattern and `searched` char-by-char. The pattern
+ * only moves forward, `searched` can be rewinded when the pattern contains
+ * alternatives.
+ *
+ * TODO: Sub-patterns are not supported yet.
+ *
+ * Returns the remaining part of `searched` that wasn't matched.
+ */
+static const char *match_chip_name(const char *pattern, const char *const searched)
+{
+	const char *cur_match, *best_alt_match = searched;
+
+next_alternative:
+	for (cur_match = searched; *pattern != '\0'; ++cur_match, ++pattern) {
+		if (*pattern == '/') {
+			if (*cur_match == '\0')			/* exact (sub-)pattern match */
+				return cur_match;
+			if (cur_match > best_alt_match)		/* cache current, best match */
+				best_alt_match = cur_match;
+		}
+
+		if (*cur_match == *pattern)			/* character match */
+			continue;
+		if (*cur_match != '\0' && *pattern == '.')	/* wildcard match */
+			continue;
+
+		/* skip current alternative, it didn't match */
+		const char *const delim = strchr(pattern, '/');
+		if (delim) {
+			pattern = delim + 1;
+			goto next_alternative;
+		}
+
+		/* last alternative didn't match, return cached match if any */
+		return best_alt_match;
+	}
+
+	return MAX(cur_match, best_alt_match);
+}
+
 /** @private */
 const struct flashchip *flashprog_chip_by_name(const char *chip_name)
 {
 	const struct flashchip *chip;
-	for (chip = flashchips; chip->name; ++chip) {
-		if (!strcmp(chip->name, chip_name))
+	for (chip = flashchips; *chip_name != '\0' && chip->name; ++chip) {
+		if (*match_chip_name(chip->name, chip_name) == '\0')
 			return chip;
 	}
 	msg_cerr("Error: Unknown chip '%s' specified.\n", chip_name);
