@@ -227,9 +227,25 @@ release_matches:
 	return ret;
 }
 
+/* Search for a character in string accounting for the parenthesis level. */
+static const char *strlvlchr(const char *s, int paren_level, char c)
+{
+	for (; *s != '\0'; ++s) {
+		if (*s == c && paren_level == 0)
+			return s;
+		if (*s == ')' && paren_level-- == 0)
+			return NULL;
+		if (*s == '(')
+			++paren_level;
+	}
+
+	return NULL;
+}
+
 /*
  * Match our database-entry name patterns. The `searched` string can either
- * be an actual chip name or the full pattern (i.e. containing '/' and parents).
+ * be an actual chip name or the full pattern (i.e. containing '/' and paren-
+ * theses).
  *
  * Our entry patterns can contain alternatives, separated by '/', for instance
  * "MX25L4005A/MX25L4006E", optional sub-patterns in parentheses, for instance
@@ -240,30 +256,47 @@ release_matches:
  * only moves forward, `searched` can be rewinded when the pattern contains
  * alternatives.
  *
- * TODO: Sub-patterns are not supported yet.
- *
  * Returns the remaining part of `searched` that wasn't matched.
  */
 static const char *match_chip_name(const char *pattern, const char *const searched)
 {
 	const char *cur_match, *best_alt_match = searched;
+	int paren_level;
 
 next_alternative:
-	for (cur_match = searched; *pattern != '\0'; ++cur_match, ++pattern) {
-		if (*pattern == '/') {
+	for (cur_match = searched, paren_level = 0; *pattern != '\0'; ++cur_match, ++pattern) {
+		if (paren_level == 0 && (*pattern == '/' || *pattern == ')')) {
 			if (*cur_match == '\0')			/* exact (sub-)pattern match */
 				return cur_match;
 			if (cur_match > best_alt_match)		/* cache current, best match */
 				best_alt_match = cur_match;
+			if (*pattern == ')')			/* end of sub-pattern */
+				return best_alt_match;
 		}
 
-		if (*cur_match == *pattern)			/* character match */
+		if (*cur_match == *pattern) {			/* character match */
+			if (*pattern == '(')
+				++paren_level;
+			if (*pattern == ')')
+				--paren_level;
 			continue;
+		}
 		if (*cur_match != '\0' && *pattern == '.')	/* wildcard match */
 			continue;
+		if (*pattern == '(') {				/* potential sub-pattern */
+			const char *const sub_end = strlvlchr(pattern + 1, 0, ')');
+			if (sub_end) {
+				const char *sub_match = match_chip_name(pattern + 1, cur_match);
+				if (sub_match > cur_match) {
+					cur_match = sub_match - 1;
+					pattern = sub_end;
+					continue;
+				}
+			}
+		}
 
 		/* skip current alternative, it didn't match */
-		const char *const delim = strchr(pattern, '/');
+		const char *const delim = strlvlchr(pattern, paren_level, '/');
 		if (delim) {
 			pattern = delim + 1;
 			goto next_alternative;
