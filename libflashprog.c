@@ -286,8 +286,11 @@ next_alternative:
 		if (*pattern == '(') {				/* potential sub-pattern */
 			const char *const sub_end = strlvlchr(pattern + 1, 0, ')');
 			if (sub_end) {
+				const char *delim = strlvlchr(pattern + 1, 0, '/');
 				const char *sub_match = match_chip_name(pattern + 1, cur_match);
-				if (sub_match > cur_match) {
+				/* if there is only one pattern in the parentheses (i.e. no '/')
+				   or the first sub-pattern is empty, consider the match optional */
+				if (sub_match > cur_match || !delim || delim == pattern + 1) {
 					cur_match = sub_match - 1;
 					pattern = sub_end;
 					continue;
