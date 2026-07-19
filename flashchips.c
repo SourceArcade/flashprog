@@ -5508,7 +5508,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Eon",
-		.name		= "EN25Q32(A/B)",
+		.name		= "EN25Q32(/A/B)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= EON_ID_NOPREFIX,
@@ -11819,7 +11819,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Macronix",
-		.name		= "MX25L4005(A/C)/MX25L4006E",
+		.name		= "MX25L4005(/A/C)/MX25L4006E",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= MACRONIX_ID,
