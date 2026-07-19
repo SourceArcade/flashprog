@@ -576,7 +576,7 @@ include_dir = include_directories('include')
 
 mapfile = 'libflashprog.map'
 if host_machine.system() == 'darwin'
-  vflag = ''
+  vflag = []
 else
   vflag = '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), mapfile)
 endif
