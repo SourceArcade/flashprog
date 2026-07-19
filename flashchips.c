@@ -160,7 +160,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "AMD",
-		.name		= "Am29F010A/B",
+		.name		= "Am29F010(A/B)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= AMD_ID,
@@ -6391,7 +6391,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Eon",
-		.name		= "EN29GL064H/L",
+		.name		= "EN29GL064(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= EON_ID,
@@ -10518,7 +10518,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "ISSI",
-		.name		= "IS29GL064H/L",
+		.name		= "IS29GL064(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= ISSI_ID,
@@ -10579,7 +10579,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "ISSI",
-		.name		= "IS29GL128H/L",
+		.name		= "IS29GL128(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= ISSI_ID,
@@ -10842,7 +10842,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F001BN/BX-B",
+		.name		= "28F001(BN/BX)-B",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= INTEL_ID,
@@ -10871,7 +10871,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F001BN/BX-T",
+		.name		= "28F001(BN/BX)-T",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= INTEL_ID,
@@ -10900,7 +10900,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F002BC/BL/BV/BX-T",
+		.name		= "28F002(BC/BL/BV/BX)-T",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -10929,7 +10929,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F004B5/BE/BV/BX-B",
+		.name		= "28F004(B5/BE/BV/BX)-B",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -10958,7 +10958,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F004B5/BE/BV/BX-T",
+		.name		= "28F004(B5/BE/BV/BX)-T",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -10987,7 +10987,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F008S3/S5/SC",
+		.name		= "28F008(S3/S5/SC)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -11012,7 +11012,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F400BV/BX/CE/CV-B",
+		.name		= "28F400(BV/BX/CE/CV)-B",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -11042,7 +11042,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Intel",
-		.name		= "28F400BV/BX/CE/CV-T",
+		.name		= "28F400(BV/BX/CE/CV)-T",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_82802AB,
 		.id.manufacture	= INTEL_ID,
@@ -12435,7 +12435,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Macronix",
-		.name		= "MX25U3235E/F",
+		.name		= "MX25U3235(E/F)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= MACRONIX_ID,
@@ -12546,7 +12546,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Macronix",
-		.name		= "MX25U6435E/F",
+		.name		= "MX25U6435(E/F)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= MACRONIX_ID,
@@ -12942,7 +12942,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Macronix",
-		.name		= "MX29GL320EH/L",
+		.name		= "MX29GL320E(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= MACRONIX_ID,
@@ -13035,7 +13035,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Macronix",
-		.name		= "MX29GL640EH/L",
+		.name		= "MX29GL640E(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= MACRONIX_ID,
@@ -19793,7 +19793,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "SST",
-		.name		= "SST49LF002A/B",
+		.name		= "SST49LF002(A/B)",
 		.bustype	= BUS_FWH, /* A/A Mux */
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= SST_ID,
@@ -19827,7 +19827,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "SST",
-		.name		= "SST49LF003A/B",
+		.name		= "SST49LF003(A/B)",
 		.bustype	= BUS_FWH, /* A/A Mux */
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= SST_ID,
@@ -19864,7 +19864,7 @@ const struct flashchip flashchips[] = {
 		 * and is only honored for 64k block erase, but not 4k sector erase.
 		 */
 		.vendor		= "SST",
-		.name		= "SST49LF004A/B",
+		.name		= "SST49LF004(A/B)",
 		.bustype	= BUS_FWH, /* A/A Mux */
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= SST_ID,
@@ -20290,7 +20290,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "ST",
-		.name		= "M29F002T/NT",
+		.name		= "M29F002(N)T",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= ST_ID,
@@ -21397,7 +21397,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Spansion",
-		.name		= "S25FL032A/P",
+		.name		= "S25FL032(A/P)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= SPANSION_ID,
@@ -21426,7 +21426,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Spansion",
-		.name		= "S25FL064A/P",
+		.name		= "S25FL064(A/P)",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= SPANSION_ID,
@@ -24859,7 +24859,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Winbond",
-		.name		= "W29C040/P",
+		.name		= "W29C040(P)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= WINBOND_ID,
@@ -24943,7 +24943,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Winbond",
-		.name		= "W29GL032CH/L",
+		.name		= "W29GL032C(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= AMD_ID, /* WTF: "Industry Standard compatible Manufacturer ID code of 01h" */
@@ -25036,7 +25036,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Winbond",
-		.name		= "W29GL064CH/L",
+		.name		= "W29GL064C(H/L)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC_29GL,
 		.id.manufacture	= AMD_ID, /* WTF: "Industry Standard compatible Manufacturer ID code of 01h" */
@@ -25528,7 +25528,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "Winbond",
-		.name		= "W49F002U/N",
+		.name		= "W49F002(U/N)",
 		.bustype	= BUS_PARALLEL,
 		.id.type	= ID_JEDEC,
 		.id.manufacture	= WINBOND_ID,
