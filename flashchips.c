@@ -26106,6 +26106,45 @@ const struct flashchip flashchips[] = {
 	},
 
 	{
+		/* No datasheet available, this is a mix of
+		   SFDP information and educated guessing. */
+		.vendor		= "XMC",
+		.name		= "XM25QU64A",
+		.bustype	= BUS_SPI,
+		.id.type	= ID_SPI_RDID,
+		.id.manufacture	= SST_ID,
+		.id.model	= XMC_XM25QU64A,
+		.total_size	= 8192,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_WREN,
+		.tested		= TEST_UNTESTED,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 2048} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 256} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 128} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {8192 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			}
+		},
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
+		.unlock		= spi_disable_blockprotect_bp3_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 1950},
+	},
+
+	{
 		.vendor		= "XMC",
 		.name		= "XM25QU64C",
 		.bustype	= BUS_SPI,
