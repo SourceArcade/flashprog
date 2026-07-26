@@ -7114,6 +7114,61 @@ const struct flashchip flashchips[] = {
 	},
 
 	{
+		.vendor		= "Fudan",
+		.name		= "FM25W128",
+		.bustype	= BUS_SPI,
+		.id.type	= ID_SPI_RDID,
+		.id.manufacture	= FUDAN_ID_NOPREFIX,
+		.id.model	= FUDAN_FM25W128,
+		.total_size	= 16384,
+		.page_size	= 256,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 |
+				  FEATURE_OTP | FEATURE_QPI_SRP,
+		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
+		.tested		= TEST_UNTESTED,
+		.block_erasers	=
+		{
+			{
+				.eraseblocks = { {4 * 1024, 4096} },
+				.block_erase = spi_block_erase_20,
+			}, {
+				.eraseblocks = { {32 * 1024, 512} },
+				.block_erase = spi_block_erase_52,
+			}, {
+				.eraseblocks = { {64 * 1024, 256} },
+				.block_erase = spi_block_erase_d8,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_60,
+			}, {
+				.eraseblocks = { {16384 * 1024, 1} },
+				.block_erase = spi_block_erase_c7,
+			},
+		},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			/*
+			 * Not all BP bit combinations are documented,
+			 * full WP support would need specific testing.
+			 * .srp	= {STATUS1, 7, RW},
+			 * .srl	= {STATUS2, 0, RW},
+			 * .bp	= {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}},
+			 * .tb	= {STATUS1, 5, RW},
+			 * .sec	= {STATUS1, 6, RW},
+			 * .cmp	= {STATUS2, 6, RW},
+			 */
+		},
+		.printlock	= spi_prettyprint_status_register_bp2_tb_bpl,
+		.unlock		= spi_disable_blockprotect_bp2_srwd,
+		.write		= spi_chip_write_256,
+		.read		= spi_chip_read,
+		.voltage	= {1650, 3600},
+		.prepare_access	= spi_prepare_io,
+		.finish_access	= spi_finish_io,
+	},
+
+	{
 		.vendor		= "Fujitsu",
 		.name		= "MBM29F004BC",
 		.bustype	= BUS_PARALLEL,
