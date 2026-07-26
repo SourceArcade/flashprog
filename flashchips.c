@@ -25774,8 +25774,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 32768,
 		.page_size	= 256,
 		/* supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP |
-				  FEATURE_4BA_WREN | FEATURE_QPI_SRP,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_UNTESTED,
 		.probe_timing	= TIMING_ZERO,
@@ -25804,18 +25804,20 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
-		.unlock		= spi_disable_blockprotect,
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
+		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
 			.qe	= {STATUS2, 1, RW},
+			.dc	= {{STATUS3, 3, RW}, {STATUS3, 4, RW}}, /* for SPI mode only */
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 0, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
 			.tb     = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
 		},
 		.wp_write_cfg	= spi_wp_write_cfg,
 		.wp_read_cfg	= spi_wp_read_cfg,
@@ -25926,8 +25928,8 @@ const struct flashchip flashchips[] = {
 		.total_size	= 32768,
 		.page_size	= 256,
 		/* supports SFDP */
-		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP |
-				  FEATURE_4BA_WREN | FEATURE_QPI_SRP,
+		.feature_bits	= FEATURE_WRSR_EITHER | FEATURE_WRSR_EXT2 | FEATURE_WRSR2 | FEATURE_WRSR3 |
+				  FEATURE_OTP | FEATURE_4BA | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
 		.tested		= TEST_UNTESTED,
 		.probe_timing	= TIMING_ZERO,
@@ -25956,15 +25958,25 @@ const struct flashchip flashchips[] = {
 				.block_erase = spi_block_erase_c7,
 			}
 		},
-		.reg_bits	=
-		{
-			.qe	= {STATUS2, 1, RW},
-		},
-		.printlock	= spi_prettyprint_status_register_plain, /* TODO: improve */
-		.unlock		= spi_disable_blockprotect,
+		.printlock	= spi_prettyprint_status_register_bp3_srwd,
+		.unlock		= spi_disable_blockprotect_bp3_srwd,
 		.write		= spi_chip_write_256,
 		.read		= spi_chip_read,
 		.voltage	= {1650, 1950},
+		.reg_bits	=
+		{
+			.qe	= {STATUS2, 1, RW},
+			.dc	= {{STATUS3, 3, RW}, {STATUS3, 4, RW}}, /* for SPI mode only */
+			.srp    = {STATUS1, 7, RW},
+			.srl    = {STATUS2, 0, RW},
+			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
+			.tb     = {STATUS1, 6, RW},
+			.cmp    = {STATUS2, 6, RW},
+		},
+		.wp_write_cfg	= spi_wp_write_cfg,
+		.wp_read_cfg	= spi_wp_read_cfg,
+		.wp_get_ranges	= spi_wp_get_available_ranges,
+		.decode_range	= decode_range_spi25,
 		.prepare_access	= spi_prepare_io,
 		.finish_access	= spi_finish_io,
 	},
