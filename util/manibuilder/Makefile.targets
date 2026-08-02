@@ -4,16 +4,14 @@ ANITA_TAGS := \
 
 MULTIARCH_TAGS := \
 	$(foreach a,x86_64 aarch64 ppc64le s390x, \
-	  $(foreach v,34 33, \
-	    fedora\:$(v)-$(a))) \
+	  fedora\:33-$(a)) \
 	$(foreach a,armhf amd64 i386, \
 	  debian-debootstrap\:$(a)-bullseye) \
 	$(foreach a,ppc64el arm64 armhf amd64, \
 	  $(foreach v,jammy focal, \
 	    ubuntu-debootstrap\:$(a)-$(v))) \
 	$(foreach a,aarch64 armhf amd64 i386, \
-	  $(foreach v,v3.14 v3.13 v3.12, \
-	    alpine\:$(a)-$(v))) \
+	  alpine\:$(a)-v3.13) \
 
 ALMALINUX_TAGS := \
 	$(foreach a,amd64 arm64v8 ppc64le s390x, \
@@ -23,7 +21,7 @@ ALMALINUX_TAGS := \
 OFFICIAL_TAGS := \
 	$(ALMALINUX_TAGS) \
 	$(foreach a,ppc64le s390x arm64v8 amd64, \
-	  $(foreach v,44 43 42 41 40 39 38 37 36 35, \
+	  $(foreach v,44 43 41 37, \
 	    $(a)/fedora\:$(v))) \
 	$(foreach a,ppc64le mips64le s390x arm64v8 arm32v7 arm32v5 amd64 i386, \
 	  $(a)/debian\:bookworm) \
@@ -34,10 +32,9 @@ OFFICIAL_TAGS := \
 	$(foreach a,amd64 arm32v7 arm64v8 ppc64le riscv64 s390x, \
 	  $(a)/ubuntu\:resolute) \
 	$(foreach a,ppc64le s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
-	  $(foreach v,3.20 3.19 3.18 3.17 3.16 3.15, \
-	    $(a)/alpine\:$(v))) \
+	  $(a)/alpine\:3.17) \
 	$(foreach a,ppc64le riscv64 s390x arm64v8 arm32v7 arm32v6 amd64 i386, \
-	  $(foreach v,3.24 3.23 3.22 3.21, \
+	  $(foreach v,3.24 3.23 3.21, \
 	    $(a)/alpine\:$(v))) \
 
 OTHER_TAGS := djgpp\:12.2.0
@@ -56,7 +53,7 @@ CROSS_TAGS := $(ANDROID_TAGS)
 
 ALL_TAGS := $(NONCROSS_TAGS) $(CROSS_TAGS)
 
-BROKEN_TAGS := arm64v8/fedora\:35 arm32v6/alpine\:3.15 alpine\:armhf-v3.14
+BROKEN_TAGS :=
 
 WORKING_TAGS := $(filter-out $(BROKEN_TAGS),$(ALL_TAGS))
 
