@@ -25900,7 +25900,7 @@ const struct flashchip flashchips[] = {
 		.page_size	= 256,
 		.feature_bits	= FEATURE_WRSR_WREN | FEATURE_WRSR2 | FEATURE_OTP | FEATURE_QPI_SRP,
 		.dummy_cycles	= { .qpi_read_params = { 2, 4, 6, 8 } },
-		.tested		= TEST_UNTESTED,
+		.tested		= TEST_OK_PR,
 		.probe_timing	= TIMING_ZERO,
 		.block_erasers	=
 		{
