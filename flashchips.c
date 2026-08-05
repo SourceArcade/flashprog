@@ -9015,7 +9015,7 @@ const struct flashchip flashchips[] = {
 
 	{
 		.vendor		= "GigaDevice",
-		.name		= "GD25Q256D/GD25B256D",
+		.name		= "GD25Q256D/GD25B256D/GD25R256D",
 		.bustype	= BUS_SPI,
 		.id.type	= ID_SPI_RDID,
 		.id.manufacture	= GIGADEVICE_ID,
@@ -9062,7 +9062,7 @@ const struct flashchip flashchips[] = {
 		.voltage	= {2700, 3600},
 		.reg_bits	=
 		{
-			.qe	= {STATUS2, 1, RW}, /* GD25B256D: Fixed QE=1 */
+			.qe	= {STATUS2, 1, RW}, /* GD25B/R: Fixed QE=1 */
 			.srp    = {STATUS1, 7, RW},
 			.srl    = {STATUS2, 6, RW},
 			.bp     = {{STATUS1, 2, RW}, {STATUS1, 3, RW}, {STATUS1, 4, RW}, {STATUS1, 5, RW}},
