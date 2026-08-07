@@ -1,0 +1,2 @@
+VERSION = 1.6.x
+MAN_DATE = 2026-07-17
