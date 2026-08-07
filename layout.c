@@ -207,6 +207,7 @@ void cleanup_include_args(struct layout_include_args **args)
 
 	while (*args) {
 		tmp = (*args)->next;
+		free((*args)->name);
 		free(*args);
 		*args = tmp;
 	}

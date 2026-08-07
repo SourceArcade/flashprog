@@ -177,6 +177,9 @@ int flashprog_programmer_shutdown(struct flashprog_programmer *const flashprog)
 {
 	if (programmer_shutdown(flashprog))
 		return 1;
+
+	if (flashprog->param)
+		free(flashprog->param);
 	free(flashprog);
 	return 0;
 }
