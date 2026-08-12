@@ -284,7 +284,8 @@ const struct romentry *layout_next(
 /**
  * @brief Create a new, empty layout.
  *
- * @param layout Pointer to returned layout reference.
+ * @param[out] layout Pointer to a layout reference. Will be set to the
+ *                    new layout if successful, NULL otherwise.
  *
  * @return 0 on success,
  *         1 if out of memory.

@@ -240,7 +240,7 @@ int flashprog_classic_main(int argc, char *argv[])
 	bool dont_verify_it = false, dont_verify_all = false;
 	bool list_supported = false;
 	bool show_progress = false;
-	struct flashprog_layout *layout = NULL;
+	struct flashprog_layout *layout;
 	struct flashprog_programmer *prog = NULL;
 	int ret = 0;
 
@@ -547,7 +547,7 @@ int flashprog_classic_main(int argc, char *argv[])
 		goto out_shutdown;
 	ret = process_include_args(layout, include_args);
 	if (ret)
-		goto out_shutdown;
+		goto out_shutdown_layout;
 
 	if (layout && layout_num_regions_included(layout) == 0)
 		msg_gwarn("Warning: Layout specified but no region included!\n");
@@ -584,8 +584,9 @@ int flashprog_classic_main(int argc, char *argv[])
 	else if (verify_it)
 		ret = do_verify(fill_flash, filename);
 
-out_shutdown:
+out_shutdown_layout:
 	flashprog_layout_release(layout);
+out_shutdown:
 	flashprog_flash_release(fill_flash);
 	flashprog_programmer_shutdown(prog);
 out:

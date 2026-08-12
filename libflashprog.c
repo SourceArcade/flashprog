@@ -560,8 +560,8 @@ static int layout_cmp(const struct romentry *const a, const struct romentry *con
  * descriptor dump.
  *
  * @param[out] layout Points to a struct flashprog_layout pointer that
- *                    gets set if the descriptor is read and parsed
- *                    successfully.
+ *                    gets set to a newly allocated layout if the descriptor
+ *                    is read and parsed successfully, or to NULL otherwise.
  * @param[in] flashctx Flash context to read the descriptor from flash.
  * @param[in] dump     The descriptor dump to compare to or NULL.
  * @param[in] len      The length of the descriptor dump.
@@ -577,6 +577,7 @@ static int layout_cmp(const struct romentry *const a, const struct romentry *con
 int flashprog_layout_read_from_ifd(struct flashprog_layout **const layout, struct flashctx *const flashctx,
 				  const void *const dump, const size_t len)
 {
+	*layout = NULL;
 #ifndef __FLASHPROG_LITTLE_ENDIAN__
 	return 6;
 #else
@@ -645,6 +646,8 @@ static int flashprog_layout_parse_fmap(struct flashprog_layout **layout,
 	const struct fmap_area *area;
 	struct flashprog_layout *l;
 
+	*layout = NULL;
+
 	if (!fmap || flashprog_layout_new(&l))
 		return 1;
 
@@ -665,7 +668,8 @@ static int flashprog_layout_parse_fmap(struct flashprog_layout **layout,
  * @brief Read a layout by searching the flash chip for fmap.
  *
  * @param[out] layout Points to a struct flashprog_layout pointer that
- *                    gets set if the fmap is read and parsed successfully.
+ *                    gets set to a newly allocated layout if the fmap
+ *                    is read and parsed successfully, or to NULL otherwise.
  * @param[in] flashctx Flash context
  * @param[in] offset Offset to begin searching for fmap.
  * @param[in] offset Length of address space to search.
@@ -678,6 +682,7 @@ static int flashprog_layout_parse_fmap(struct flashprog_layout **layout,
 int flashprog_layout_read_fmap_from_rom(struct flashprog_layout **const layout,
 		struct flashctx *const flashctx, size_t offset, size_t len)
 {
+	*layout = NULL;
 #ifndef __FLASHPROG_LITTLE_ENDIAN__
 	return 3;
 #else
@@ -705,7 +710,8 @@ int flashprog_layout_read_fmap_from_rom(struct flashprog_layout **const layout,
  * @brief Read a layout by searching buffer for fmap.
  *
  * @param[out] layout Points to a struct flashprog_layout pointer that
- *                    gets set if the fmap is read and parsed successfully.
+ *                    gets set to a newly allocated layout if the fmap
+ *                    is read and parsed successfully, or to NULL otherwise.
  * @param[in] flashctx Flash context
  * @param[in] buffer Buffer to search in
  * @param[in] size Size of buffer to search
@@ -718,6 +724,7 @@ int flashprog_layout_read_fmap_from_rom(struct flashprog_layout **const layout,
 int flashprog_layout_read_fmap_from_buffer(struct flashprog_layout **const layout,
 		struct flashctx *const flashctx, const uint8_t *const buf, size_t size)
 {
+	*layout = NULL;
 #ifndef __FLASHPROG_LITTLE_ENDIAN__
 	return 3;
 #else
