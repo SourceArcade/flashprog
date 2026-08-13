@@ -344,6 +344,30 @@ _err_ret:
 }
 
 /**
+ * @brief Merge the linked lists of two layouts into one.
+ *
+ * After concatenation, the primary will contain all entries
+ * and the secondary will be deallocated.
+ *
+ * @param primary The existing layout.
+ * @param secondary  The layout whose contents should be appended to the primary.
+ *
+ * @return 0 on success,
+ *         1 if out of memory.
+ */
+int flashprog_layout_concat(struct flashprog_layout *primary, struct flashprog_layout *secondary)
+{
+	struct romentry **next_ptr;
+	for (next_ptr = &primary->head; *next_ptr; next_ptr = &(*next_ptr)->next) {}
+
+	*next_ptr = secondary->head;
+	secondary->head = NULL;
+
+	flashprog_layout_release(secondary);
+	return 0;
+}
+
+/**
  * @brief Mark given region as included.
  *
  * @param layout The layout to alter.

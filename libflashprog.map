@@ -25,6 +25,7 @@ LIBFLASHPROG_1.0 {
     flashprog_image_write;
     flashprog_init;
     flashprog_layout_add_region;
+    flashprog_layout_concat;
     flashprog_layout_get_region_range;
     flashprog_layout_include_region;
     flashprog_layout_new;

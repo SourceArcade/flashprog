@@ -24,6 +24,7 @@
 
 #include "flash.h"
 #include "cli.h"
+#include "libflashprog.h"
 
 int cli_check_filename(const char *const filename, const char *const type)
 {
@@ -133,16 +134,15 @@ int cli_parse_flash_args(struct flash_args *const args, const int opt, const cha
 
 int cli_parse_layout_args(struct layout_args *const args, const int opt, const char *const opt_arg)
 {
-	if (args->layoutfile || args->ifd || args->ifwi || args->fmap || args->fmapfile) {
-		fprintf(stderr, "Error: Only one layout source may be specified.\n");
-		return 1;
-	}
-
 	switch (opt) {
 	case OPTION_LAYOUT:
 		if (cli_check_filename(opt_arg, "layout"))
 			return 1;
 
+		if (args->layoutfile) {
+			fprintf(stderr, "Error: Only one layout file may be specified.\n");
+			return 1;
+		}
 		args->layoutfile = strdup(opt_arg);
 		if (!args->layoutfile) {
 			fprintf(stderr, "Out of memory!\n");
@@ -162,6 +162,10 @@ int cli_parse_layout_args(struct layout_args *const args, const int opt, const c
 		if (cli_check_filename(opt_arg, "fmap"))
 			return 1;
 
+		if (args->fmapfile) {
+			fprintf(stderr, "Error: Only one fmap file may be specified.\n");
+			return 1;
+		}
 		args->fmapfile = strdup(opt_arg);
 		if (!args->fmapfile) {
 			fprintf(stderr, "Out of memory!\n");
@@ -177,47 +181,66 @@ int cli_process_layout_args(struct flashprog_layout **const layout,
 			    struct flashprog_flashctx *const flash,
 			    const struct layout_args *const args)
 {
+	struct flashprog_layout *sub_layout;
+	size_t flash_size = flashprog_flash_getsize(flash);
 	*layout = NULL;
 
-	if (args->layoutfile) {
-		if (layout_from_file(layout, args->layoutfile))
-			return 1;
-	} else if (args->ifd) {
-		if (flashprog_layout_read_from_ifd(layout, flash, NULL, 0))
-			return 1;
-	} else if (args->ifwi) {
-		if (flashprog_layout_read_from_ifwi(layout, flash))
-			return 1;
-	} else if (args->fmap) {
-		if (flashprog_layout_read_fmap_from_rom(layout, flash, 0, flashprog_flash_getsize(flash)))
-			return 1;
-	} else if (args->fmapfile) {
+	if (!(args->layoutfile || args->ifd || args->ifwi || args->fmap || args->fmapfile))
+		return 0;
+
+	if (flashprog_layout_new(layout))
+		return 1;
+
+	if (args->layoutfile && (layout_from_file(&sub_layout, args->layoutfile) ||
+	                         flashprog_layout_concat(*layout, sub_layout)))
+		goto _err_cleanup_sub;
+
+	if (args->ifd && (flashprog_layout_read_from_ifd(&sub_layout, flash, NULL, 0) ||
+	                  flashprog_layout_concat(*layout, sub_layout)))
+		goto _err_cleanup_sub;
+
+	if (args->ifwi && (flashprog_layout_read_from_ifwi(&sub_layout, flash) ||
+	                   flashprog_layout_concat(*layout, sub_layout)))
+		goto _err_cleanup_sub;
+
+	if (args->fmap && (flashprog_layout_read_fmap_from_rom(&sub_layout, flash, 0, flash_size) ||
+	                   flashprog_layout_concat(*layout, sub_layout)))
+		goto _err_cleanup_sub;
+
+	if (args->fmapfile) {
 		struct stat s;
 		if (stat(args->fmapfile, &s) != 0) {
 			msg_gerr("Failed to stat fmapfile \"%s\"\n", args->fmapfile);
-			return 1;
+			goto _err_cleanup;
 		}
 
 		size_t fmapfile_size = s.st_size;
 		uint8_t *fmapfile_buffer = malloc(fmapfile_size);
 		if (!fmapfile_buffer) {
 			fprintf(stderr, "Out of memory!\n");
-			return 1;
+			goto _err_cleanup;
 		}
 
 		if (read_buf_from_file(fmapfile_buffer, fmapfile_size, args->fmapfile)) {
 			free(fmapfile_buffer);
-			return 1;
+			goto _err_cleanup;
 		}
 
-		if (flashprog_layout_read_fmap_from_buffer(layout, flash, fmapfile_buffer, fmapfile_size)) {
+		if (flashprog_layout_read_fmap_from_buffer(&sub_layout, flash, fmapfile_buffer, fmapfile_size) ||
+		    flashprog_layout_concat(*layout, sub_layout)) {
 			free(fmapfile_buffer);
-			return 1;
+			goto _err_cleanup_sub;
 		}
 		free(fmapfile_buffer);
 	}
-
 	return 0;
+
+_err_cleanup_sub:
+	flashprog_layout_release(sub_layout);
+_err_cleanup:
+	flashprog_layout_release(*layout);
+	*layout = NULL;
+	return 1;
 }
 
 /* Note: Changes global `optind` from <getopt.h>. */
