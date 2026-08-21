@@ -202,4 +202,8 @@ size_t flashprog_wp_ranges_get_count(const struct flashprog_wp_ranges *);
 enum flashprog_wp_result flashprog_wp_ranges_get_range(size_t *start, size_t *len, const struct flashprog_wp_ranges *, unsigned int index);
 void flashprog_wp_ranges_release(struct flashprog_wp_ranges *);
 
+struct flashprog_range {
+        size_t start, len;
+};
+
 #endif				/* !__LIBFLASHPROG_H__ */

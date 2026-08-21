@@ -763,8 +763,6 @@ struct walk_info {
 	const uint8_t *newcontents;
 	chipoff_t region_start;
 	chipoff_t region_end;
-	chipoff_t erase_start;
-	chipoff_t erase_end;
 };
 
 /** @private */
@@ -1010,7 +1008,7 @@ static int write_range(struct flashctx *const flashctx, const chipoff_t flash_of
 
 typedef int (*erasefn_t)(struct flashctx *, unsigned int addr, unsigned int len);
 /* returns 0 on success, 1 to retry with another erase function, 2 for immediate abort */
-typedef int (*per_blockfn_t)(struct flashctx *, const struct walk_info *, erasefn_t);
+typedef int (*per_blockfn_t)(struct flashctx *, const struct walk_info *, const struct flashprog_range *erase_range, erasefn_t);
 
 static int walk_eraseblocks(struct flashctx *const flashctx,
 			    struct erase_layout *const layouts,
@@ -1042,9 +1040,11 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 				msg_cdbg(", ");
 			msg_cdbg("0x%06x-0x%06x:", eb->start_addr, eb->end_addr);
 
-			info->erase_start = eb->start_addr;
-			info->erase_end = eb->end_addr;
-			ret = per_blockfn(flashctx, info, layout->eraser->block_erase);
+			struct flashprog_range erase_range = {
+				.start = eb->start_addr,
+				.len = eb->end_addr - eb->start_addr + 1
+			};
+			ret = per_blockfn(flashctx, info, &erase_range, layout->eraser->block_erase);
 			if (ret)
 				return ret;
 
@@ -1128,11 +1128,11 @@ free_ret:
 }
 
 static int erase_block(struct flashctx *const flashctx,
-		       const struct walk_info *const info, const erasefn_t erasefn)
+		       const struct walk_info *const info, const struct flashprog_range *const erase_range, const erasefn_t erasefn)
 {
-	const unsigned int erase_len = info->erase_end + 1 - info->erase_start;
-	const bool region_unaligned = info->region_start > info->erase_start ||
-				      info->erase_end > info->region_end;
+	size_t erase_end = erase_range->start + erase_range->len - 1;
+	const bool region_unaligned = info->region_start > erase_range->start ||
+				      erase_end > info->region_end;
 	uint8_t *backup_contents = NULL, *erased_contents = NULL;
 	int ret = 1;
 
@@ -1141,30 +1141,30 @@ static int erase_block(struct flashctx *const flashctx,
 	 * tents into a new buffer `backup_contents`.
 	 */
 	if (region_unaligned) {
-		backup_contents = malloc(erase_len);
-		erased_contents = malloc(erase_len);
+		backup_contents = malloc(erase_range->len);
+		erased_contents = malloc(erase_range->len);
 		if (!backup_contents || !erased_contents) {
 			msg_cerr("Out of memory!\n");
 			goto _free_ret;
 		}
-		memset(backup_contents, ERASED_VALUE(flashctx), erase_len);
-		memset(erased_contents, ERASED_VALUE(flashctx), erase_len);
+		memset(backup_contents, ERASED_VALUE(flashctx), erase_range->len);
+		memset(erased_contents, ERASED_VALUE(flashctx), erase_range->len);
 
 		msg_cdbg("R");
 		/* Merge data preceding the current region. */
-		if (info->region_start > info->erase_start) {
-			const chipoff_t start	= info->erase_start;
-			const chipsize_t len	= info->region_start - info->erase_start;
+		if (info->region_start > erase_range->start) {
+			const chipoff_t start	= erase_range->start;
+			const chipsize_t len	= info->region_start - erase_range->start;
 			if (flashctx->chip.read(flashctx, backup_contents, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
 			}
 		}
 		/* Merge data following the current region. */
-		if (info->erase_end > info->region_end) {
+		if (erase_end > info->region_end) {
 			const chipoff_t start     = info->region_end + 1;
-			const chipoff_t rel_start = start - info->erase_start; /* within this erase block */
-			const chipsize_t len      = info->erase_end - info->region_end;
+			const chipoff_t rel_start = start - erase_range->start; /* within this erase block */
+			const chipsize_t len      = erase_end - info->region_end;
 			if (flashctx->chip.read(flashctx, backup_contents + rel_start, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
@@ -1175,21 +1175,21 @@ static int erase_block(struct flashctx *const flashctx,
 	all_skipped = false;
 
 	msg_cdbg("E");
-	if (erasefn(flashctx, info->erase_start, erase_len))
+	if (erasefn(flashctx, erase_range->start, erase_range->len))
 		goto _free_ret;
-	flashprog_progress_add(flashctx, erase_len);
-	if (check_erased_range(flashctx, info->erase_start, erase_len)) {
+	flashprog_progress_add(flashctx, erase_range->len);
+	if (check_erased_range(flashctx, erase_range->start, erase_range->len)) {
 		msg_cerr("ERASE FAILED!\n");
 		goto _free_ret;
 	}
 	if (info->curcontents)
-		memset(info->curcontents + info->erase_start, ERASED_VALUE(flashctx), erase_len);
+		memset(info->curcontents + erase_range->start, ERASED_VALUE(flashctx), erase_range->len);
 
 	if (region_unaligned) {
-		if (write_range(flashctx, info->erase_start, erased_contents, backup_contents, erase_len, NULL))
+		if (write_range(flashctx, erase_range->start, erased_contents, backup_contents, erase_range->len, NULL))
 			goto _free_ret;
 		if (info->curcontents)
-			memcpy(info->curcontents + info->erase_start, backup_contents, erase_len);
+			memcpy(info->curcontents + erase_range->start, backup_contents, erase_range->len);
 	}
 
 	ret = 0;
