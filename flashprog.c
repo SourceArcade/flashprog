@@ -1060,17 +1060,17 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 	return 0;
 }
 
-static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *const info,
+static int walk_by_layout(struct flashctx *const flashctx, uint8_t *const curcontents, const uint8_t *const newcontents,
 			  const per_blockfn_t per_blockfn)
 {
-	const bool do_erase = explicit_erase(info) || !(flashctx->chip.feature_bits & FEATURE_NO_ERASE);
+	const bool do_erase = !newcontents || !(flashctx->chip.feature_bits & FEATURE_NO_ERASE);
 	const struct flashprog_layout *const layout = get_layout(flashctx);
 	struct erase_layout *erase_layouts = NULL;
 	const struct romentry *entry = NULL;
 	int ret = 0, layout_count = 0;
 
 	all_skipped = true;
-	msg_cinfo("Erasing %sflash chip... ", info->newcontents ? "and writing " : "");
+	msg_cinfo("Erasing %sflash chip... ", newcontents ? "and writing " : "");
 
 	if (do_erase) {
 		layout_count = create_erase_layout(flashctx, &erase_layouts);
@@ -1079,18 +1079,20 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 	}
 
 	while ((entry = layout_next_included(layout, entry))) {
-		info->region_start = entry->start;
-		info->region_end   = entry->end;
+		struct walk_info info = {
+			.curcontents = curcontents, .newcontents = newcontents,
+			.region_start = entry->start, .region_end = entry->end
+		};
 
 		if (do_erase) {
-			const size_t total = select_erase_functions(flashctx, erase_layouts, layout_count, info);
+			const size_t total = select_erase_functions(flashctx, erase_layouts, layout_count, &info);
 
 			/* We verify every erased block manually. Technically that's
 			   reading, but accounting for it as part of the erase helps
 			   to provide a smooth, overall progress. Hence `total * 2`. */
 			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_ERASE, total * 2);
 
-			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, info, per_blockfn);
+			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, &info, per_blockfn);
 			if (ret) {
 				msg_cerr("FAILED!\n");
 				goto free_ret;
@@ -1099,15 +1101,15 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 			flashprog_progress_finish(flashctx);
 		}
 
-		if (info->newcontents) {
+		if (newcontents) {
 			bool skipped = true;
-			msg_cdbg("0x%06x-0x%06x:", info->region_start, info->region_end);
+			msg_cdbg("0x%06x-0x%06x:", entry->start, entry->end);
 			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_WRITE,
-						info->region_end - info->region_start + 1);
-			ret = write_range(flashctx, info->region_start,
-					  info->curcontents + info->region_start,
-					  info->newcontents + info->region_start,
-					  info->region_end + 1 - info->region_start, &skipped);
+						entry->end - entry->start + 1);
+			ret = write_range(flashctx, entry->start,
+					  curcontents + entry->start,
+					  newcontents + entry->start,
+					  entry->end + 1 - entry->start, &skipped);
 			if (ret) {
 				msg_cerr("FAILED!\n");
 				goto free_ret;
@@ -1123,7 +1125,7 @@ static int walk_by_layout(struct flashctx *const flashctx, struct walk_info *con
 	}
 	if (all_skipped)
 		msg_cinfo("\nWarning: Chip content is identical to the requested image.\n");
-	msg_cinfo("Erase%s done.\n", info->newcontents ? "/write" : "");
+	msg_cinfo("Erase%s done.\n", newcontents ? "/write" : "");
 
 free_ret:
 	free_erase_layout(erase_layouts, layout_count);
@@ -1215,8 +1217,7 @@ _free_ret:
  */
 static int erase_by_layout(struct flashctx *const flashctx)
 {
-	struct walk_info info = { 0 };
-	return walk_by_layout(flashctx, &info, &erase_block);
+	return walk_by_layout(flashctx, NULL, NULL, &erase_block);
 }
 
 /**
@@ -1234,10 +1235,7 @@ static int erase_by_layout(struct flashctx *const flashctx)
 static int write_by_layout(struct flashctx *const flashctx,
 			   void *const curcontents, const void *const newcontents)
 {
-	struct walk_info info;
-	info.curcontents = curcontents;
-	info.newcontents = newcontents;
-	return walk_by_layout(flashctx, &info, erase_block);
+	return walk_by_layout(flashctx, curcontents, newcontents, erase_block);
 }
 
 /**
