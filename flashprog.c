@@ -59,6 +59,7 @@ static bool may_register_shutdown = false;
 /* Did we change something or was every erase/write skipped (if any)? */
 static bool all_skipped = true;
 
+size_t entry_len(const struct romentry *const entry);
 static int check_block_eraser(const struct flashctx *flash, int k, int log);
 
 int shutdown_free(void *data)
@@ -295,7 +296,7 @@ static void flashprog_progress_start_by_layout(struct flashprog_flashctx *const 
 	size_t total = 0;
 
 	while ((entry = layout_next_included(layout, entry)))
-		total += entry->end - entry->start + 1;
+		total += entry_len(entry);
 
 	flashprog_progress_start(flashctx, stage, total);
 }
@@ -750,20 +751,18 @@ static int read_by_layout(struct flashctx *const flashctx, uint8_t *const buffer
  * @private
  *
  * For read-erase-write, `curcontents` and `newcontents` shall point
- * to buffers of the chip's size. Both are supposed to be prefilled
- * with at least the included layout regions of the current flash
- * contents (`curcontents`) and the data to be written to the flash
- * (`newcontents`).
+ * to buffers of the memory region's size. Both are supposed to be prefilled
+ * with the region's current flash contents (`curcontents`) and the data to
+ * be written to the flash (`newcontents`).
  *
  * For erase, `curcontents` and `newcontents` shall be NULL-pointers.
  *
- * The `chipoff_t` values are used internally by `walk_by_layout()`.
+ * The range is used internally by `walk_by_layout()`.
  */
-struct walk_info {
+struct region_data {
 	uint8_t *curcontents;
 	const uint8_t *newcontents;
-	chipoff_t region_start;
-	chipoff_t region_end;
+	struct flashprog_range range;
 };
 
 /* Returns last address belonging to the range. */
@@ -772,6 +771,9 @@ size_t range_last(const struct flashprog_range *const range) {
 	return range->start + range->len - 1;
 }
 
+size_t entry_len(const struct romentry *const entry) {
+	return entry->end - entry->start + 1;
+}
 
 /** @private */
 struct eraseblock_data {
@@ -789,10 +791,10 @@ struct erase_layout {
 	const struct block_eraser *eraser;
 };
 
-static bool explicit_erase(const struct walk_info *const info)
+static bool explicit_erase(const struct region_data *const region)
 {
 	/* For explicit erase, we are called without new contents. */
-	return !info->newcontents;
+	return !region->newcontents;
 }
 
 static size_t calculate_block_count(const struct block_eraser *const eraser)
@@ -934,26 +936,28 @@ static void deselect_erase_block_rec(const struct erase_layout *layout, size_t f
  * @param	layout		erase layout
  * @param	findex		index of the erase function
  * @param	block_num	index of the block to erase according to the erase function index
- * @param	info		current info from walking the regions
+ * @param	region		buffer contents & range information
  * @return number of bytes selected for erase
  */
 static size_t select_erase_functions_rec(const struct flashctx *flashctx, const struct erase_layout *layout,
-					 size_t findex, size_t block_num, const struct walk_info *info)
+					 size_t findex, size_t block_num, const struct region_data *region)
 {
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
 	const size_t eraseblock_size = ll->range.len;
 	if (!findex) {
-		if (ll->range.start <= info->region_end && range_last(&ll->range) >= info->region_start) {
-			if (explicit_erase(info)) {
+		if (ll->range.start <= range_last(&region->range) &&
+				range_last(&ll->range) >= region->range.start) {
+			if (explicit_erase(region)) {
 				ll->selected = true;
 				return eraseblock_size;
 			}
-			const chipoff_t write_start = MAX(info->region_start, ll->range.start);
-			const chipoff_t write_end   = MIN(info->region_end, range_last(&ll->range));
-			const chipsize_t write_len  = write_end - write_start + 1;
-			const uint8_t erased_value  = ERASED_VALUE(flashctx);
+			const chipoff_t write_start  = MAX(region->range.start, ll->range.start);
+			const chipoff_t write_end    = MIN(range_last(&region->range), range_last(&ll->range));
+			const chipsize_t write_len   = write_end - write_start + 1;
+			const chipoff_t write_offset = write_start - region->range.start;
+			const uint8_t erased_value   = ERASED_VALUE(flashctx);
 			ll->selected = need_erase(
-				info->curcontents + write_start, info->newcontents + write_start,
+				region->curcontents + write_offset, region->newcontents + write_offset,
 				write_len, flashctx->chip.gran, erased_value);
 			if (ll->selected)
 				return eraseblock_size;
@@ -966,10 +970,11 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 
 		int j;
 		for (j = sub_block_start; j <= sub_block_end; j++)
-			bytes += select_erase_functions_rec(flashctx, layout, findex - 1, j, info);
+			bytes += select_erase_functions_rec(flashctx, layout, findex - 1, j, region);
 
 		if (bytes > eraseblock_size / 2) {
-			if (ll->range.start >= info->region_start && range_last(&ll->range) <= info->region_end) {
+			if (ll->range.start >= region->range.start &&
+					range_last(&ll->range) <= range_last(&region->range)) {
 				deselect_erase_block_rec(layout, findex, block_num);
 				ll->selected = true;
 				bytes = eraseblock_size;
@@ -980,12 +985,12 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 }
 
 static size_t select_erase_functions(const struct flashctx *flashctx, const struct erase_layout *layout,
-				     size_t erasefn_count, const struct walk_info *info)
+				     size_t erasefn_count, const struct region_data *region)
 {
 	size_t bytes = 0;
 	size_t block_num;
 	for (block_num = 0; block_num < layout[erasefn_count - 1].block_count; ++block_num)
-		bytes += select_erase_functions_rec(flashctx, layout, erasefn_count - 1, block_num, info);
+		bytes += select_erase_functions_rec(flashctx, layout, erasefn_count - 1, block_num, region);
 	return bytes;
 }
 
@@ -1015,12 +1020,12 @@ static int write_range(struct flashctx *const flashctx, const chipoff_t flash_of
 
 typedef int (*erasefn_t)(struct flashctx *, unsigned int addr, unsigned int len);
 /* returns 0 on success, 1 to retry with another erase function, 2 for immediate abort */
-typedef int (*per_blockfn_t)(struct flashctx *, const struct walk_info *, const struct flashprog_range *erase_range, erasefn_t);
+typedef int (*per_blockfn_t)(struct flashctx *, const struct region_data *, const struct flashprog_range *erase_range, erasefn_t);
 
 static int walk_eraseblocks(struct flashctx *const flashctx,
 			    struct erase_layout *const layouts,
 			    const size_t layout_count,
-			    struct walk_info *const info,
+			    const struct region_data *const region,
 			    const per_blockfn_t per_blockfn)
 {
 	int ret;
@@ -1033,9 +1038,9 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 		for (j = 0; j < layout->block_count; ++j) {
 			struct eraseblock_data *const eb = &layout->layout_list[j];
 
-			if (eb->range.start > info->region_end)
+			if (eb->range.start > range_last(&region->range))
 				break;
-			if (range_last(&eb->range) < info->region_start)
+			if (range_last(&eb->range) < region->range.start)
 				continue;
 			if (!eb->selected)
 				continue;
@@ -1047,7 +1052,7 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 				msg_cdbg(", ");
 			msg_cdbg("0x%06zx-0x%06zx:", eb->range.start, range_last(&eb->range));
 
-			ret = per_blockfn(flashctx, info, &eb->range, layout->eraser->block_erase);
+			ret = per_blockfn(flashctx, region, &eb->range, layout->eraser->block_erase);
 			if (ret)
 				return ret;
 
@@ -1079,20 +1084,22 @@ static int walk_by_layout(struct flashctx *const flashctx, uint8_t *const curcon
 	}
 
 	while ((entry = layout_next_included(layout, entry))) {
-		struct walk_info info = {
-			.curcontents = curcontents, .newcontents = newcontents,
-			.region_start = entry->start, .region_end = entry->end
-		};
+		const struct region_data region = {
+			.curcontents = curcontents ? curcontents + entry->start : NULL,
+			.newcontents = newcontents ? newcontents + entry->start : NULL,
+			.range = (struct flashprog_range) {
+				.start = entry->start, .len = entry_len(entry)
+		}};
 
 		if (do_erase) {
-			const size_t total = select_erase_functions(flashctx, erase_layouts, layout_count, &info);
+			const size_t total = select_erase_functions(flashctx, erase_layouts, layout_count, &region);
 
 			/* We verify every erased block manually. Technically that's
 			   reading, but accounting for it as part of the erase helps
 			   to provide a smooth, overall progress. Hence `total * 2`. */
 			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_ERASE, total * 2);
 
-			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, &info, per_blockfn);
+			ret = walk_eraseblocks(flashctx, erase_layouts, layout_count, &region, per_blockfn);
 			if (ret) {
 				msg_cerr("FAILED!\n");
 				goto free_ret;
@@ -1104,12 +1111,9 @@ static int walk_by_layout(struct flashctx *const flashctx, uint8_t *const curcon
 		if (newcontents) {
 			bool skipped = true;
 			msg_cdbg("0x%06x-0x%06x:", entry->start, entry->end);
-			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_WRITE,
-						entry->end - entry->start + 1);
-			ret = write_range(flashctx, entry->start,
-					  curcontents + entry->start,
-					  newcontents + entry->start,
-					  entry->end + 1 - entry->start, &skipped);
+			flashprog_progress_start(flashctx, FLASHPROG_PROGRESS_WRITE, entry_len(entry));
+			ret = write_range(flashctx, entry->start, region.curcontents,
+				region.newcontents, entry_len(entry), &skipped);
 			if (ret) {
 				msg_cerr("FAILED!\n");
 				goto free_ret;
@@ -1133,11 +1137,10 @@ free_ret:
 }
 
 static int erase_block(struct flashctx *const flashctx,
-		       const struct walk_info *const info, const struct flashprog_range *const erase_range, const erasefn_t erasefn)
+		       const struct region_data *const region, const struct flashprog_range *const erase_range, const erasefn_t erasefn)
 {
-	size_t erase_end = erase_range->start + erase_range->len - 1;
-	const bool region_unaligned = info->region_start > erase_range->start ||
-				      erase_end > info->region_end;
+	const bool region_unaligned = region->range.start > erase_range->start ||
+				      range_last(erase_range) > range_last(&region->range);
 	uint8_t *backup_contents = NULL, *erased_contents = NULL;
 	int ret = 1;
 
@@ -1157,19 +1160,19 @@ static int erase_block(struct flashctx *const flashctx,
 
 		msg_cdbg("R");
 		/* Merge data preceding the current region. */
-		if (info->region_start > erase_range->start) {
+		if (region->range.start > erase_range->start) {
 			const chipoff_t start	= erase_range->start;
-			const chipsize_t len	= info->region_start - erase_range->start;
+			const chipsize_t len	= region->range.start - erase_range->start;
 			if (flashctx->chip.read(flashctx, backup_contents, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
 			}
 		}
 		/* Merge data following the current region. */
-		if (erase_end > info->region_end) {
-			const chipoff_t start     = info->region_end + 1;
+		if (range_last(erase_range) > range_last(&region->range)) {
+			const chipoff_t start     = range_last(&region->range) + 1;
 			const chipoff_t rel_start = start - erase_range->start; /* within this erase block */
-			const chipsize_t len      = erase_end - info->region_end;
+			const chipsize_t len      = range_last(erase_range) - range_last(&region->range);
 			if (flashctx->chip.read(flashctx, backup_contents + rel_start, start, len)) {
 				msg_cerr("Can't read! Aborting.\n");
 				goto _free_ret;
@@ -1187,14 +1190,19 @@ static int erase_block(struct flashctx *const flashctx,
 		msg_cerr("ERASE FAILED!\n");
 		goto _free_ret;
 	}
-	if (info->curcontents)
-		memset(info->curcontents + erase_range->start, ERASED_VALUE(flashctx), erase_range->len);
+
+	const chipoff_t write_start  = MAX(region->range.start, erase_range->start);
+	const chipoff_t write_end    = MIN(range_last(&region->range), range_last(erase_range));
+	const chipsize_t write_len   = write_end - write_start + 1;
+	const chipoff_t write_offset = write_start - region->range.start;
+
+	if (region->curcontents)
+		memset(region->curcontents + write_offset, ERASED_VALUE(flashctx), write_len);
 
 	if (region_unaligned) {
-		if (write_range(flashctx, erase_range->start, erased_contents, backup_contents, erase_range->len, NULL))
+		if (write_range(flashctx, erase_range->start, erased_contents,
+		                backup_contents, erase_range->len, NULL))
 			goto _free_ret;
-		if (info->curcontents)
-			memcpy(info->curcontents + erase_range->start, backup_contents, erase_range->len);
 	}
 
 	ret = 0;
@@ -1263,7 +1271,7 @@ static int verify_by_layout(
 
 	while ((entry = layout_next_included(layout, entry))) {
 		const chipoff_t region_start	= entry->start;
-		const chipsize_t region_len	= entry->end - entry->start + 1;
+		const chipsize_t region_len	= entry_len(entry);
 
 		if (flashctx->chip.read(flashctx, curcontents + region_start, region_start, region_len))
 			return 1;
