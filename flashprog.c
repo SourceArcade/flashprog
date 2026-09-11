@@ -30,6 +30,7 @@
 
 #include "flash.h"
 #include "flashchips.h"
+#include "libflashprog.h"
 #include "programmer.h"
 #include "hwaccess_physmap.h"
 #include "chipdrivers/spi.h"
@@ -765,10 +766,16 @@ struct walk_info {
 	chipoff_t region_end;
 };
 
+/* Returns last address belonging to the range. */
+size_t range_last(const struct flashprog_range *const range);
+size_t range_last(const struct flashprog_range *const range) {
+	return range->start + range->len - 1;
+}
+
+
 /** @private */
 struct eraseblock_data {
-	chipoff_t start_addr;
-	chipoff_t end_addr;
+	struct flashprog_range range;
 	bool selected;
 	size_t block_num;
 	size_t first_sub_block_index;
@@ -802,8 +809,8 @@ static void init_eraseblock(struct erase_layout *layout, size_t idx, size_t bloc
 		chipoff_t start_addr, chipoff_t end_addr, size_t *sub_block_index)
 {
 	struct eraseblock_data *edata = &layout[idx].layout_list[block_num];
-	edata->start_addr = start_addr;
-	edata->end_addr = end_addr;
+	edata->range.start = start_addr;
+	edata->range.len = end_addr - start_addr + 1;
 	edata->selected = false;
 	edata->block_num = block_num;
 
@@ -813,7 +820,7 @@ static void init_eraseblock(struct erase_layout *layout, size_t idx, size_t bloc
 
 	edata->first_sub_block_index = *sub_block_index;
 	for (; *sub_block_index < sub_layout->block_count; ++*sub_block_index) {
-		if (sub_layout->layout_list[*sub_block_index].end_addr > end_addr)
+		if (range_last(&sub_layout->layout_list[*sub_block_index].range) > end_addr)
 			break;
 	}
 	edata->last_sub_block_index = *sub_block_index - 1;
@@ -934,15 +941,15 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 					 size_t findex, size_t block_num, const struct walk_info *info)
 {
 	struct eraseblock_data *ll = &layout[findex].layout_list[block_num];
-	const size_t eraseblock_size = ll->end_addr - ll->start_addr + 1;
+	const size_t eraseblock_size = ll->range.len;
 	if (!findex) {
-		if (ll->start_addr <= info->region_end && ll->end_addr >= info->region_start) {
+		if (ll->range.start <= info->region_end && range_last(&ll->range) >= info->region_start) {
 			if (explicit_erase(info)) {
 				ll->selected = true;
 				return eraseblock_size;
 			}
-			const chipoff_t write_start = MAX(info->region_start, ll->start_addr);
-			const chipoff_t write_end   = MIN(info->region_end, ll->end_addr);
+			const chipoff_t write_start = MAX(info->region_start, ll->range.start);
+			const chipoff_t write_end   = MIN(info->region_end, range_last(&ll->range));
 			const chipsize_t write_len  = write_end - write_start + 1;
 			const uint8_t erased_value  = ERASED_VALUE(flashctx);
 			ll->selected = need_erase(
@@ -962,7 +969,7 @@ static size_t select_erase_functions_rec(const struct flashctx *flashctx, const 
 			bytes += select_erase_functions_rec(flashctx, layout, findex - 1, j, info);
 
 		if (bytes > eraseblock_size / 2) {
-			if (ll->start_addr >= info->region_start && ll->end_addr <= info->region_end) {
+			if (ll->range.start >= info->region_start && range_last(&ll->range) <= info->region_end) {
 				deselect_erase_block_rec(layout, findex, block_num);
 				ll->selected = true;
 				bytes = eraseblock_size;
@@ -1026,9 +1033,9 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 		for (j = 0; j < layout->block_count; ++j) {
 			struct eraseblock_data *const eb = &layout->layout_list[j];
 
-			if (eb->start_addr > info->region_end)
+			if (eb->range.start > info->region_end)
 				break;
-			if (eb->end_addr < info->region_start)
+			if (range_last(&eb->range) < info->region_start)
 				continue;
 			if (!eb->selected)
 				continue;
@@ -1038,13 +1045,9 @@ static int walk_eraseblocks(struct flashctx *const flashctx,
 				first = false;
 			else
 				msg_cdbg(", ");
-			msg_cdbg("0x%06x-0x%06x:", eb->start_addr, eb->end_addr);
+			msg_cdbg("0x%06zx-0x%06zx:", eb->range.start, range_last(&eb->range));
 
-			struct flashprog_range erase_range = {
-				.start = eb->start_addr,
-				.len = eb->end_addr - eb->start_addr + 1
-			};
-			ret = per_blockfn(flashctx, info, &erase_range, layout->eraser->block_erase);
+			ret = per_blockfn(flashctx, info, &eb->range, layout->eraser->block_erase);
 			if (ret)
 				return ret;
 
