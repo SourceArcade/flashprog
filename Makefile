@@ -1067,7 +1067,7 @@ endif
 # This includes all frontends and libflashprog.
 # We don't use EXEC_SUFFIX here because we want to clean everything.
 clean:
-	rm -f $(PROGRAM) $(PROGRAM).exe libflashprog.a $(filter-out Makefile.d, $(wildcard *.d *.o platform/*.d platform/*.o)) \
+	rm -f $(PROGRAM) $(PROGRAM).exe libflashprog.a $(filter-out Makefile.d, $(wildcard *.d *.o platform/*.d platform/*.o libflashprog/*.d libflashprog/*.o)) \
 		include/version.h $(MANS) $(MANS:.8=.8.html) $(BUILD_DETAILS_FILE)
 	@+$(MAKE) -C util/ich_descriptors_tool/ clean
 
